@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generic_class.java 1`] = `
+public class GenericClass<BEAN> {
+
+  private BEAN bean;
+
+  public GenericClass(BEAN bean) {
+    this.bean = bean;
+  }
+
+  public BEAN setBean(BEAN bean) {
+    this.bean = bean;
+    return bean;
+  }
+
+  public <T> T doSomething(T t) {
+    return t;
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class GenericClass<BEAN> {
+    private BEAN bean;
+
+    public GenericClass(BEAN bean) {
+        this.bean = bean;
+    }
+
+    public BEAN setBean(BEAN bean) {
+        this.bean = bean;
+        return bean;
+    }
+
+    public <T> T doSomething(T t) {
+        return t;
+    }
+
+}
+
+`;

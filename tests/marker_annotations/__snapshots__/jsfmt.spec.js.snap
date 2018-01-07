@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`marker_annotations.java 1`] = `
+@Bean
+public class MarkerAnnotations {
+
+  @Resource
+  SomeService service;
+
+  @PostConstruct
+  public void postConstruct() {
+    System.out.println("post construct");
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@Bean
+public class MarkerAnnotations {
+    @Resource
+    SomeService service;
+
+    @PostConstruct
+    public void postConstruct() {
+        System.out.println("post construct");
+    }
+
+}
+
+`;

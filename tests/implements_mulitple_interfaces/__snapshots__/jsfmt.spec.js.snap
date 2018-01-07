@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`implements_multiple_interfaces.java 1`] = `
+public class ImplementsInterfaces implements Interface1, Interface2 {
+
+  @Override
+  public void interface1Method() {
+    System.out.println("implemented interfac1 method");
+  }
+
+  @Override
+  public void interface2Method() {
+    System.out.println("implemented interface2 method");
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class ImplementsInterfaces implements Interface1, Interface2 {
+
+    @Override
+    public void interface1Method() {
+        System.out.println("implemented interfac1 method");
+    }
+
+    @Override
+    public void interface2Method() {
+        System.out.println("implemented interface2 method");
+    }
+
+}
+
+`;

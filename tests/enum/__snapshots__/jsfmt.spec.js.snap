@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`enum.java 1`] = `
+public enum Enum {
+
+  SOME_ENUM,
+  ANOTHER_ENUM,
+  LAST_ENUM;
+
+}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public enum Enum {
+
+    SOME_ENUM,
+    ANOTHER_ENUM,
+    LAST_ENUM;
+
+}
+
+`;

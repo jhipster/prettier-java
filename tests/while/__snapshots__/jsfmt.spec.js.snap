@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`while.java 1`] = `
+public class While {
+
+  public void simpleWhile(boolean one) {
+    while (one) {
+      System.out.println("one");
+    }
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class While {
+
+    public void simpleWhile(boolean one) {
+        while (one) {
+            System.out.println("one");
+        }
+    }
+
+}
+
+`;
