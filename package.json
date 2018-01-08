@@ -1,14 +1,13 @@
 {
-  "name": "@prettier/python",
+  "name": "prettier-plugin-python",
   "version": "0.0.0-development",
   "description": "Prettier Python Plugin",
   "main": "src",
-  "repository": "https://github.com/prettier/prettier-python",
-  "author": "Lucas Azzola <@azz>",
+  "repository": "https://github.com/thorbenvh8/prettier-java",
+  "author": "Thorben von Hacht <@thorbenvh8>",
   "license": "MIT",
   "files": [
-    "src",
-    "vendor"
+    "src"
   ],
   "engines": {
     "node": ">=6"
