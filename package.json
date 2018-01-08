@@ -1,7 +1,7 @@
 {
-  "name": "prettier-plugin-python",
+  "name": "prettier-plugin-java",
   "version": "0.0.0-development",
-  "description": "Prettier Python Plugin",
+  "description": "Prettier Java Plugin",
   "main": "src",
   "repository": "https://github.com/thorbenvh8/prettier-java",
   "author": "Thorben von Hacht <@thorbenvh8>",
