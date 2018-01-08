@@ -55,8 +55,8 @@ public class GenericClass<BEAN extends Comparable<BEAN>> {
         return t;
     }
 
-    public void addAll(Collection<? extends E> c) {
-        for (E e : c) {
+    public void addAll(final Collection<? extends E> c) {
+        for (final E e : c) {
             add(e);
         }
     }
@@ -441,7 +441,7 @@ public class Variables {
         String>(
         "abc");
 
-    public void variableMethod(int finalVariable) {
+    public void variableMethod(final int finalVariable) {
         int localVariable = 456;
         int castVariable = (int) (4 / 2);
     }

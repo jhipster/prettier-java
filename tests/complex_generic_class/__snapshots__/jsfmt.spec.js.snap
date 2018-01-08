@@ -42,8 +42,8 @@ public class GenericClass<BEAN extends Comparable<BEAN>> {
         return t;
     }
 
-    public void addAll(Collection<? extends E> c) {
-        for (E e : c) {
+    public void addAll(final Collection<? extends E> c) {
+        for (final E e : c) {
             add(e);
         }
     }
