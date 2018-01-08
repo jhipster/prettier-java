@@ -1,6 +1,5 @@
 "use strict";
 
-const util = require("./_util-from-prettier");
 const parse = require("./parser");
 const print = require("./printer");
 
@@ -50,7 +49,7 @@ function clean(ast, newObj) {
 const printers = {
   java: {
     print,
-    hasPrettierIgnore: util.hasIgnoreComment,
+    // hasPrettierIgnore,
     printComment,
     canAttachComment,
     massageAstNode: clean

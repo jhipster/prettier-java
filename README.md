@@ -1,4 +1,4 @@
-# Prettier Python
+# Prettier Java
 
 ![](https://i.giphy.com/media/GNvOUgBvLzVwA/giphy.webp)
 
