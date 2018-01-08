@@ -550,6 +550,11 @@ function printImportDeclaration(node) {
   // Add name
   docs.push(printNode(node.name));
 
+  // Add on demand
+  if (node.onDemand) {
+    docs.push(".*");
+  }
+
   // Add semicolon
   docs.push(";");
 
