@@ -11,17 +11,7 @@ Check back soon :)
 ## Install
 
 ```bash
-yarn add --dev --exact prettier @prettier/java
-```
-
-## Configure
-
-.prettierrc:
-
-```json
-{
-  "plugins": ["@prettier/java"]
-}
+yarn add --dev --exact prettier prettier-plugin-java
 ```
 
 ## Use
@@ -34,7 +24,7 @@ prettier --write "**/*.java"
 
 If you're interested in contributing to the development of Prettier for Java, you can follow the [CONTRIBUTING guide from Prettier](https://github.com/prettier/prettier/blob/master/CONTRIBUTING.md), as it all applies to this repository too.
 
-To test it out on a Python file:
+To test it out on a Java file:
 
 * Clone this repository.
 * Run `yarn`.
