@@ -462,6 +462,50 @@ function printThrowStatement(node) {
   return concat(docs);
 }
 
+function printTryStatement(node) {
+  const docs = [];
+  // Add line
+  docs.push(hardline);
+
+  // Add return
+  docs.push("try");
+  docs.push(" ");
+
+  // Add open curly braces
+  docs.push("{");
+
+  // Add body
+  docs.push(indent(printNode(node.body)));
+
+  // Add line
+  docs.push(hardline);
+
+  // Add close curly braces
+  docs.push("}");
+  docs.push(" ");
+
+  // Add catch clauses
+  docs.push(printNodes(node.catchClauses));
+
+  // Add finally
+  if (node.finally) {
+    // Add finally
+    docs.push("finally");
+    docs.push(" ");
+
+    // Add open curly braces
+    docs.push("{");
+
+    docs.push(indent(printNode(node.finally)));
+
+    // Add close curly braces
+    docs.push(hardline);
+    docs.push("}");
+  }
+
+  return concat(docs);
+}
+
 function printVariableDeclarationStatement(node) {
   const docs = [];
 
@@ -1211,6 +1255,36 @@ function printModifier(node) {
   return concat(docs);
 }
 
+function printCatchClause(node) {
+  const docs = [];
+
+  // Add catch
+  docs.push("catch");
+
+  // Add open brace
+  docs.push("(");
+
+  // Add exception
+  docs.push(printNode(node.exception));
+
+  // Add close brace
+  docs.push(")");
+  docs.push(" ");
+
+  // Add open curly brace
+  docs.push("{");
+
+  // Add body
+  docs.push(indent(printNode(node.body)));
+  docs.push(hardline);
+
+  // Add close curly brace
+  docs.push("}");
+  docs.push(" ");
+
+  return concat(docs);
+}
+
 function printNode(node) {
   switch (node.node) {
     case "CompilationUnit": {
@@ -1248,6 +1322,9 @@ function printNode(node) {
     }
     case "ThrowStatement": {
       return printThrowStatement(node);
+    }
+    case "TryStatement": {
+      return printTryStatement(node);
     }
     case "VariableDeclarationStatement": {
       return printVariableDeclarationStatement(node);
@@ -1369,6 +1446,10 @@ function printNode(node) {
     }
     case "Modifier": {
       return printModifier(node);
+    }
+    // CatchClause
+    case "CatchClause": {
+      return printCatchClause(node);
     }
     /* istanbul ignore next */
     default:
