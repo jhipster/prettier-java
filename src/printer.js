@@ -224,7 +224,14 @@ function printMethodDeclaration(node) {
   if (node.body) {
     docs.push(group(indent(printNode(node.body))));
 
-    docs.push(line);
+    // Add line if the block wasn't empty
+    if (
+      node.body.node === "Block" &&
+      node.body.statements &&
+      node.body.statements.length > 0
+    ) {
+      docs.push(line);
+    }
 
     // Add close curly brace for method beginning
     docs.push("}");

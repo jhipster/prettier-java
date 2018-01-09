@@ -16,14 +16,11 @@ public abstract class AbstractClass {
 
 public class Args {
 
-    public void none() {
-    }
+    public void none() {}
 
-    public void one(String one) {
-    }
+    public void one(String one) {}
 
-    public void three(String one, Integer two, String three) {
-    }
+    public void three(String one, Integer two, String three) {}
 
     public void six(
         String one,
@@ -31,8 +28,7 @@ public class Args {
         String three,
         Integer four,
         String six
-    ) {
-    }
+    ) {}
 
 }
 ```
@@ -100,11 +96,9 @@ public interface EmptyInterface {}
 
 public class EmptyMethod {
 
-    public static void main(String[] args) {
-    }
+    public static void main(String[] args) {}
 
-    void small() {
-    }
+    void small() {}
 
 }
 ```
