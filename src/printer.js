@@ -271,11 +271,27 @@ function printMethodDeclarationStart(node) {
   docs.push("(");
 
   // Add parameters
-  docs.push(printParameters(node.parameters));
+  if (node.parameters && node.parameters.length > 0) {
+    docs.push(printParameters(node.parameters));
+    docs.push(softline);
+  }
 
   // Add close brace for method parameters
-  docs.push(softline);
   docs.push(")");
+
+  // Add thrown exceptions
+  if (node.thrownExceptions && node.thrownExceptions.length > 0) {
+    const throws = [];
+    throws.push(line);
+    throws.push("throws");
+    const interfaces = [];
+    node.thrownExceptions.forEach(superInterfaceType => {
+      interfaces.push(printNode(superInterfaceType));
+    });
+    const joinedInterfaces = join(concat([",", line]), interfaces);
+    throws.push(indent(concat([line, joinedInterfaces])));
+    docs.push(indent(concat(throws)));
+  }
 
   // Body doesn't exist for abstract
   if (node.body) {
@@ -416,6 +432,25 @@ function printReturnStatement(node) {
 
   // Add return
   docs.push("return");
+  docs.push(" ");
+
+  // Add expression
+  docs.push(printNode(node.expression));
+
+  // Add semicolon
+  docs.push(";");
+
+  return concat(docs);
+}
+
+function printThrowStatement(node) {
+  const docs = [];
+
+  // Add line
+  docs.push(hardline);
+
+  // Add return
+  docs.push("throw");
   docs.push(" ");
 
   // Add expression
@@ -1210,6 +1245,9 @@ function printNode(node) {
     }
     case "ReturnStatement": {
       return printReturnStatement(node);
+    }
+    case "ThrowStatement": {
+      return printThrowStatement(node);
     }
     case "VariableDeclarationStatement": {
       return printVariableDeclarationStatement(node);
