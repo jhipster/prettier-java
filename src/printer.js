@@ -630,11 +630,16 @@ function printTypeParameter(node) {
 function printArrayType(node) {
   const docs = [];
 
+  // Modify component type if ArrayType to not print braces
+  if (node.removeBraces && node.componentType.node === "ArrayType") {
+    node.componentType.removeBraces = true;
+  }
   // Add array type like String, Integer, etc.
   docs.push(printNode(node.componentType));
 
-  // Add square brackets
-  docs.push("[]");
+  if (!node.removeBraces) {
+    docs.push("[]");
+  }
 
   return concat(docs);
 }
@@ -848,6 +853,46 @@ function printNullLiteral() {
   return concat(docs);
 }
 
+function printArrayCreation(node) {
+  const docs = [];
+
+  // Add new
+  docs.push("new");
+  docs.push(" ");
+
+  // Modify node if ArrayType to not print braces
+  if (node.type.node === "ArrayType") {
+    node.type.removeBraces = true;
+  }
+  // Add type
+  docs.push(printNode(node.type));
+
+  // Add dimensions
+  if (node.dimensions && node.dimensions.length > 0) {
+    node.dimensions.forEach(dimension => {
+      // Add open square braces
+      docs.push("[");
+
+      // Add dimension
+      docs.push(printNode(dimension));
+
+      // Add close square braces
+      docs.push("]");
+    });
+  } else {
+    // Just push an empty init of square braces
+    docs.push("[]");
+  }
+
+  // Add initializer
+  if (node.initializer) {
+    // Add initialiter
+    docs.push(printNode(node.initializer));
+  }
+
+  return concat(docs);
+}
+
 function printClassInstanceCreation(node) {
   const docs = [];
 
@@ -868,6 +913,22 @@ function printClassInstanceCreation(node) {
 
   // Add close braces
   docs.push(")");
+
+  return concat(docs);
+}
+
+function printArrayInitializer(node) {
+  const docs = [];
+
+  // Add open curly braces
+  docs.push("{");
+
+  // Add expressions
+  docs.push(printParameters(node.expressions));
+
+  // Add close curly braces
+  docs.push(softline);
+  docs.push("}");
 
   return concat(docs);
 }
@@ -1216,8 +1277,14 @@ function printNode(node) {
     case "NullLiteral": {
       return printNullLiteral(node);
     }
+    case "ArrayCreation": {
+      return printArrayCreation(node);
+    }
     case "ClassInstanceCreation": {
       return printClassInstanceCreation(node);
+    }
+    case "ArrayInitializer": {
+      return printArrayInitializer(node);
     }
     case "SimpleName": {
       return printSimpleName(node);

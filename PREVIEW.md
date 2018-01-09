@@ -446,6 +446,18 @@ public class Variables {
         String> genericVariable2 = new Bean<
         String>(
         "abc");
+    private Object[] arrayVariable1 = new Object[3];
+    private Object[][] arrayVariable2 = new Object[3][3];
+    private Object[] arrayVariable3 = new Object[]{
+        "abc",
+        "def",
+        "ghi"
+    };
+    private Object[] arrayVariable4 = {
+        "abc",
+        "def",
+        "ghi"
+    };
 
     public void variableMethod(final int finalVariable) {
         int localVariable = 456;
