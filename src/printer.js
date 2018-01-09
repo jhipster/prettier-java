@@ -144,6 +144,23 @@ function printTypeDeclaration(node) {
   return group(concat(docs));
 }
 
+function printAnonymousClassDeclaration(node) {
+  const docs = [];
+
+  // Add open curly brace
+  docs.push("{");
+
+  // Add body declarations
+  docs.push(indent(printNodes(node.bodyDeclarations)));
+  docs.push(hardline);
+  docs.push(hardline);
+
+  // Add close curly brace
+  docs.push("}");
+
+  return concat(docs);
+}
+
 function printEnumDeclaration(node) {
   const docs = [];
 
@@ -993,6 +1010,11 @@ function printClassInstanceCreation(node) {
   // Add close braces
   docs.push(")");
 
+  // Add anonymous class declaration
+  if (node.anonymousClassDeclaration) {
+    docs.push(printNode(node.anonymousClassDeclaration));
+  }
+
   return concat(docs);
 }
 
@@ -1292,6 +1314,9 @@ function printNode(node) {
     }
     case "TypeDeclaration": {
       return printTypeDeclaration(node);
+    }
+    case "AnonymousClassDeclaration": {
+      return printAnonymousClassDeclaration(node);
     }
     case "EnumDeclaration": {
       return printEnumDeclaration(node);

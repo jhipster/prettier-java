@@ -590,6 +590,14 @@ public class Variables {
         "def",
         "ghi"
     };
+    private Interface anonymousClassVariable = new Interface(){
+
+        @Override
+        void doSomething() {
+            System.out.println("do something");
+        }
+
+    };
 
     public void variableMethod(final int finalVariable) {
         int localVariable = 456;

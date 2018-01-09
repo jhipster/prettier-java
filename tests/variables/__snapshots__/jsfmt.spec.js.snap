@@ -15,6 +15,12 @@ public class Variables {
   private Object[][] arrayVariable2 = new Object[3][3];
   private Object[] arrayVariable3 = new Object[] { "abc", "def", "ghi" };
   private Object[] arrayVariable4 = { "abc", "def", "ghi" };
+  private Interface anonymousClassVariable = new Interface(){
+    @Override
+    void doSomething() {
+      System.out.println("do something");
+    }
+  };
 
   public void variableMethod(final int finalVariable) {
     int localVariable = 456;
@@ -48,6 +54,14 @@ public class Variables {
         "abc",
         "def",
         "ghi"
+    };
+    private Interface anonymousClassVariable = new Interface(){
+
+        @Override
+        void doSomething() {
+            System.out.println("do something");
+        }
+
     };
 
     public void variableMethod(final int finalVariable) {
