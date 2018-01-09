@@ -15,7 +15,10 @@ public class ImplementsInterfaces implements Interface1, Interface2 {
 
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public class ImplementsInterfaces implements Interface1, Interface2 {
+public class ImplementsInterfaces
+    implements
+        Interface1,
+        Interface2 {
 
     @Override
     public void interface1Method() {

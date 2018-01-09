@@ -104,29 +104,33 @@ function printTypeDeclaration(node) {
     docs.push(group(printParameters(node.typeParameters)));
     docs.push(">");
   }
-  docs.push(" ");
 
   // Add extends class
   if (node.superclassType) {
-    docs.push("extends");
-    docs.push(" ");
-    docs.push(printNode(node.superclassType));
-    docs.push(" ");
+    const ext = [];
+    ext.push(line);
+    ext.push("extends");
+    ext.push(" ");
+    ext.push(printNode(node.superclassType));
+    docs.push(indent(concat(ext)));
   }
 
   // Add implemented interfaces
   if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
-    docs.push("implements");
-    docs.push(" ");
+    const impl = [];
+    impl.push(line);
+    impl.push("implements");
     const interfaces = [];
     node.superInterfaceTypes.forEach(superInterfaceType => {
       interfaces.push(printNode(superInterfaceType));
     });
-    docs.push(join(", ", interfaces));
-    docs.push(" ");
+    const joinedInterfaces = join(concat([",", line]), interfaces);
+    impl.push(indent(concat([line, joinedInterfaces])));
+    docs.push(indent(concat(impl)));
   }
 
   // Add open curly bracelet for class/interface beginning
+  docs.push(" ");
   docs.push("{");
 
   // Add class body

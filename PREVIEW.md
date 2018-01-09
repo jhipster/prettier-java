@@ -189,7 +189,8 @@ public class Expressions {
 # extends_abstract_class
 ```java
 
-public class ExtendsAbstractClass extends AbstractClass {
+public class ExtendsAbstractClass
+    extends AbstractClass {
 
     @Override
     public void abstractMethod() {
@@ -206,7 +207,13 @@ public class ExtendsAbstractClass extends AbstractClass {
 # extends_abstract_class_and_implements_interfaces
 ```java
 
-public class ExtendsAbstractClassAndImplementsInterfaces extends AbstractClass implements Interface1, Interface2 {
+public class ExtendsAbstractClassAndImplementsInterfaces
+    extends AbstractClass
+    implements
+        Interface1,
+        Interface2,
+        Interface3,
+        Interface4 {
 
     @Override
     public void abstractMethod() {
@@ -332,7 +339,9 @@ public class If {
 # implements_interface
 ```java
 
-public class ImplementsInterface implements Interface {
+public class ImplementsInterface
+    implements
+        Interface {
 
     @Override
     public void interfaceMethod() {
@@ -344,7 +353,10 @@ public class ImplementsInterface implements Interface {
 # implements_mulitple_interfaces
 ```java
 
-public class ImplementsInterfaces implements Interface1, Interface2 {
+public class ImplementsInterfaces
+    implements
+        Interface1,
+        Interface2 {
 
     @Override
     public void interface1Method() {
