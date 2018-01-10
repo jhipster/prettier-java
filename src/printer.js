@@ -11,18 +11,18 @@ const softline = docBuilders.softline;
 const group = docBuilders.group;
 const indent = docBuilders.indent;
 
-function printCompilationUnit(node) {
+function printCompilationUnit(node, path, print) {
   const docs = [];
 
   // Add package
   if (node.package) {
-    docs.push(printNode(node.package));
+    docs.push(path.call(print, "package"));
     docs.push(hardline);
   }
 
   // Add imports
   if (node.imports && node.imports.length > 0) {
-    const imports = printNodes(node.imports);
+    const imports = concat(path.map(print, "imports"));
 
     // Sort imports
     imports.parts.sort((a, b) => {
@@ -60,7 +60,7 @@ function printCompilationUnit(node) {
   }
 
   // Add type declarations
-  docs.push(group(concat([printNodes(node.types)])), hardline);
+  docs.push(group(concat(path.map(print, "types"))), hardline);
 
   return concat(docs);
 
@@ -82,26 +82,26 @@ function printCompilationUnit(node) {
   }
 }
 
-function printTypeDeclaration(node) {
+function printTypeDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(node.modifiers));
+  docs.push(printMarkerAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add interface or class keyword
   docs.push(node.interface ? "interface" : "class");
   docs.push(" ");
 
   // Add name of class/interface
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add type parameters
   if (node.typeParameters && node.typeParameters.length > 0) {
     docs.push("<");
-    docs.push(group(printParameters(node.typeParameters)));
+    docs.push(group(printParameters("typeParameters", path, print)));
     docs.push(">");
   }
 
@@ -111,7 +111,7 @@ function printTypeDeclaration(node) {
     ext.push(line);
     ext.push("extends");
     ext.push(" ");
-    ext.push(printNode(node.superclassType));
+    ext.push(path.call(print, "superclassType"));
     docs.push(indent(concat(ext)));
   }
 
@@ -120,12 +120,14 @@ function printTypeDeclaration(node) {
     const impl = [];
     impl.push(line);
     impl.push("implements");
-    const interfaces = [];
-    node.superInterfaceTypes.forEach(superInterfaceType => {
-      interfaces.push(printNode(superInterfaceType));
-    });
-    const joinedInterfaces = join(concat([",", line]), interfaces);
-    impl.push(indent(concat([line, joinedInterfaces])));
+    impl.push(
+      indent(
+        concat([
+          line,
+          join(concat([",", line]), path.map(print, "superInterfaceTypes"))
+        ])
+      )
+    );
     docs.push(indent(concat(impl)));
   }
 
@@ -134,7 +136,7 @@ function printTypeDeclaration(node) {
   docs.push("{");
 
   // Add class body
-  docs.push(indent(printNodes(node.bodyDeclarations)));
+  docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
 
   // Add open curly bracelet for class/interface beginning
   docs.push(softline);
@@ -144,14 +146,14 @@ function printTypeDeclaration(node) {
   return group(concat(docs));
 }
 
-function printAnonymousClassDeclaration(node) {
+function printAnonymousClassDeclaration(node, path, print) {
   const docs = [];
 
   // Add open curly brace
   docs.push("{");
 
   // Add body declarations
-  docs.push(indent(printNodes(node.bodyDeclarations)));
+  docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
   docs.push(hardline);
   docs.push(hardline);
 
@@ -161,32 +163,28 @@ function printAnonymousClassDeclaration(node) {
   return concat(docs);
 }
 
-function printEnumDeclaration(node) {
+function printEnumDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(node.modifiers));
+  docs.push(printMarkerAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add interface or class keyword
   docs.push("enum");
   docs.push(" ");
 
   // Add name of class/interface
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
   docs.push(" ");
 
   // Add implemented interfaces
   if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
     docs.push("implements");
     docs.push(" ");
-    const interfaces = [];
-    node.superInterfaceTypes.forEach(superInterfaceType => {
-      interfaces.push(printNode(superInterfaceType));
-    });
-    docs.push(join(", ", interfaces));
+    docs.push(join(", ", path.map(print, "superInterfaceTypes")));
     docs.push(" ");
   }
 
@@ -195,11 +193,11 @@ function printEnumDeclaration(node) {
   docs.push(hardline);
 
   // Add enum constants
-  docs.push(printParameters(node.enumConstants));
+  docs.push(printParameters("enumConstants", path, print));
   docs.push(";");
 
   // Add class body
-  docs.push(printNodes(node.bodyDeclarations));
+  docs.push(concat(path.map(print, "bodyDeclarations")));
 
   // Add open curly bracelet for class/interface beginning
   docs.push(softline);
@@ -209,41 +207,41 @@ function printEnumDeclaration(node) {
   return group(concat(docs));
 }
 
-function printEnumConstantDeclaration(node) {
+function printEnumConstantDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(node.modifiers));
+  docs.push(printMarkerAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add name of class/interface
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add primitive type like void, int, etc.
   if (node.arguments && node.arguments.length > 0) {
-    docs.push(group(printParameters(node.arguments)));
+    docs.push(group(printParameters("arguments", path, print)));
   }
 
   return concat(docs);
 }
 
-function printMethodDeclaration(node) {
+function printMethodDeclaration(node, path, print) {
   const docs = [];
 
   docs.push(hardline);
   docs.push(hardline);
 
   // Add marker annotations like @PostConstruct
-  docs.push(printMarkerAnnotations(node.modifiers));
+  docs.push(printMarkerAnnotations(path, print));
 
-  docs.push(printMethodDeclarationStart(node));
+  docs.push(printMethodDeclarationStart(node, path, print));
 
   // Add method body
   // Body doesn't exist for abstract
   if (node.body) {
-    docs.push(group(indent(printNode(node.body))));
+    docs.push(group(indent(path.call(print, "body"))));
 
     // Add line if the block wasn't empty
     if (
@@ -261,35 +259,35 @@ function printMethodDeclaration(node) {
   return concat(docs);
 }
 
-function printMethodDeclarationStart(node) {
+function printMethodDeclarationStart(node, path, print) {
   const docs = [];
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add type parameters
   if (node.typeParameters && node.typeParameters.length > 0) {
     docs.push("<");
-    docs.push(group(printParameters(node.typeParameters)));
+    docs.push(group(printParameters("typeParameters", path, print)));
     docs.push(">");
     docs.push(" ");
   }
 
   // Add return type
   if (node.returnType2) {
-    docs.push(printNode(node.returnType2));
+    docs.push(path.call(print, "returnType2"));
     docs.push(" ");
   }
 
   // Add name of class/interface
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add open brace for method parameters
   docs.push("(");
 
   // Add parameters
   if (node.parameters && node.parameters.length > 0) {
-    docs.push(printParameters(node.parameters));
+    docs.push(printParameters("parameters", path, print));
     docs.push(softline);
   }
 
@@ -301,11 +299,10 @@ function printMethodDeclarationStart(node) {
     const throws = [];
     throws.push(line);
     throws.push("throws");
-    const interfaces = [];
-    node.thrownExceptions.forEach(superInterfaceType => {
-      interfaces.push(printNode(superInterfaceType));
-    });
-    const joinedInterfaces = join(concat([",", line]), interfaces);
+    const joinedInterfaces = join(
+      concat([",", line]),
+      path.map(print, "thrownExceptions")
+    );
     throws.push(indent(concat([line, joinedInterfaces])));
     docs.push(indent(concat(throws)));
   }
@@ -324,16 +321,16 @@ function printMethodDeclarationStart(node) {
   return group(concat(docs));
 }
 
-function printBlock(node) {
+function printBlock(node, path, print) {
   const docs = [];
 
   // Add statements
-  docs.push(printNodes(node.statements));
+  docs.push(concat(path.map(print, "statements")));
 
   return concat(docs);
 }
 
-function printEnhancedForStatement(node) {
+function printEnhancedForStatement(node, path, print) {
   const docs = [];
 
   // Add line
@@ -347,7 +344,7 @@ function printEnhancedForStatement(node) {
   docs.push("(");
 
   // Add parameter
-  docs.push(printNode(node.parameter));
+  docs.push(path.call(print, "parameter"));
 
   // Add colon
   docs.push(" ");
@@ -355,7 +352,7 @@ function printEnhancedForStatement(node) {
   docs.push(" ");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add close braces and open curly braces
   docs.push(")");
@@ -363,7 +360,7 @@ function printEnhancedForStatement(node) {
   docs.push("{");
 
   // Add then of if
-  docs.push(indent(printNode(node.body)));
+  docs.push(indent(path.call(print, "body")));
 
   // Add close curly braces
   docs.push(line);
@@ -372,20 +369,20 @@ function printEnhancedForStatement(node) {
   return concat(docs);
 }
 
-function printExpressionStatement(node) {
+function printExpressionStatement(node, path, print) {
   const docs = [];
 
   // Add line
   docs.push(hardline);
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
   docs.push(";");
 
   return concat(docs);
 }
 
-function printForStatement(node) {
+function printForStatement(node, path, print) {
   const docs = [];
 
   // Add line
@@ -398,21 +395,21 @@ function printForStatement(node) {
 
   // Add initializer
   if (node.initializers) {
-    docs.push(printNodes(node.initializers));
+    docs.push(concat(path.map(print, "initializers")));
   }
   docs.push(";");
 
   // Add expression
   if (node.expression) {
     docs.push(" ");
-    docs.push(printNode(node.expression));
+    docs.push(path.call(print, "expression"));
   }
   docs.push(";");
 
   // Add updater
   if (node.updaters && node.updaters.length > 0) {
     docs.push(" ");
-    docs.push(printNodes(node.updaters));
+    docs.push(concat(path.map(print, "updaters")));
   }
 
   // Add close braces and open curly braces
@@ -421,7 +418,7 @@ function printForStatement(node) {
   docs.push("{");
 
   // Add then of if
-  docs.push(indent(printNode(node.body)));
+  docs.push(indent(path.call(print, "body")));
 
   // Add close curly braces
   docs.push(line);
@@ -430,18 +427,20 @@ function printForStatement(node) {
   return concat(docs);
 }
 
-function printIfStatement(node) {
+function printIfStatement(node, path, print) {
   const docs = [];
 
-  // Add line
-  docs.push(hardline);
+  // Add line, if parent is not an if statement
+  if (path.getParentNode().node !== "IfStatement") {
+    docs.push(hardline);
+  }
 
-  docs.push(printIfStatementContinue(node));
+  docs.push(printIfStatementContinue(node, path, print));
 
   return concat(docs);
 }
 
-function printReturnStatement(node) {
+function printReturnStatement(node, path, print) {
   const docs = [];
 
   // Add line
@@ -452,7 +451,7 @@ function printReturnStatement(node) {
   docs.push(" ");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add semicolon
   docs.push(";");
@@ -460,7 +459,7 @@ function printReturnStatement(node) {
   return concat(docs);
 }
 
-function printThrowStatement(node) {
+function printThrowStatement(node, path, print) {
   const docs = [];
 
   // Add line
@@ -471,7 +470,7 @@ function printThrowStatement(node) {
   docs.push(" ");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add semicolon
   docs.push(";");
@@ -479,7 +478,7 @@ function printThrowStatement(node) {
   return concat(docs);
 }
 
-function printTryStatement(node) {
+function printTryStatement(node, path, print) {
   const docs = [];
   // Add line
   docs.push(hardline);
@@ -492,7 +491,7 @@ function printTryStatement(node) {
   docs.push("{");
 
   // Add body
-  docs.push(indent(printNode(node.body)));
+  docs.push(indent(path.call(print, "body")));
 
   // Add line
   docs.push(hardline);
@@ -502,7 +501,7 @@ function printTryStatement(node) {
   docs.push(" ");
 
   // Add catch clauses
-  docs.push(printNodes(node.catchClauses));
+  docs.push(concat(path.map(print, "catchClauses")));
 
   // Add finally
   if (node.finally) {
@@ -513,7 +512,7 @@ function printTryStatement(node) {
     // Add open curly braces
     docs.push("{");
 
-    docs.push(indent(printNode(node.finally)));
+    docs.push(indent(path.call(print, "finally")));
 
     // Add close curly braces
     docs.push(hardline);
@@ -523,22 +522,22 @@ function printTryStatement(node) {
   return concat(docs);
 }
 
-function printVariableDeclarationStatement(node) {
+function printVariableDeclarationStatement(node, path, print) {
   const docs = [];
 
   // Add line
   docs.push(hardline);
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
   docs.push(" ");
 
   // Add fragments
   if (node.fragments && node.fragments.length > 0) {
-    docs.push(printNodes(node.fragments));
+    docs.push(concat(path.map(print, "fragments")));
   }
 
   // Add semicolon
@@ -547,7 +546,7 @@ function printVariableDeclarationStatement(node) {
   return concat(docs);
 }
 
-function printIfStatementContinue(node) {
+function printIfStatementContinue(node, path, print) {
   const docs = [];
 
   // Add if and open braces
@@ -556,7 +555,7 @@ function printIfStatementContinue(node) {
   docs.push("(");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add close braces and open curly braces
   docs.push(")");
@@ -564,7 +563,7 @@ function printIfStatementContinue(node) {
   docs.push("{");
 
   // Add then of if
-  docs.push(indent(printNode(node.thenStatement)));
+  docs.push(indent(path.call(print, "thenStatement")));
 
   // Add close curly braces
   docs.push(line);
@@ -577,11 +576,13 @@ function printIfStatementContinue(node) {
     docs.push(" ");
     if (node.elseStatement.node == "IfStatement") {
       // Is in the else statement another if, then print that if
-      docs.push(printIfStatementContinue(node.elseStatement));
+      // console.log(node.elseStatement);
+      // docs.push(printIfStatementContinue(node.elseStatement));
+      docs.push(path.call(print, "elseStatement"));
     } else {
       // Regular else
       docs.push("{");
-      docs.push(indent(printNode(node.elseStatement)));
+      docs.push(indent(path.call(print, "elseStatement")));
       // Add close curly braces
       docs.push(line);
       docs.push("}");
@@ -591,7 +592,7 @@ function printIfStatementContinue(node) {
   return concat(docs);
 }
 
-function printWhileStatement(node) {
+function printWhileStatement(node, path, print) {
   const docs = [];
 
   // Add line
@@ -603,7 +604,7 @@ function printWhileStatement(node) {
   docs.push("(");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add close braces and open curly braces
   docs.push(")");
@@ -611,7 +612,7 @@ function printWhileStatement(node) {
   docs.push("{");
 
   // Add then of if
-  docs.push(indent(printNode(node.body)));
+  docs.push(indent(path.call(print, "body")));
 
   // Add close curly braces
   docs.push(line);
@@ -620,25 +621,25 @@ function printWhileStatement(node) {
   return concat(docs);
 }
 
-function printFieldDeclaration(node) {
+function printFieldDeclaration(node, path, print) {
   const docs = [];
 
   // Add line
   docs.push(hardline);
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(node.modifiers));
+  docs.push(printMarkerAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
   docs.push(" ");
 
   // Add fragments
   if (node.fragments && node.fragments.length > 0) {
-    docs.push(printNodes(node.fragments));
+    docs.push(concat(path.map(print, "fragments")));
   }
 
   // Add semicolon
@@ -647,7 +648,7 @@ function printFieldDeclaration(node) {
   return concat(docs);
 }
 
-function printImportDeclaration(node) {
+function printImportDeclaration(node, path, print) {
   const docs = [];
 
   // Add import
@@ -655,7 +656,7 @@ function printImportDeclaration(node) {
   docs.push(" ");
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add on demand
   if (node.onDemand) {
@@ -671,7 +672,7 @@ function printImportDeclaration(node) {
   return concat(docs);
 }
 
-function printPackageDeclaration(node) {
+function printPackageDeclaration(node, path, print) {
   const docs = [];
 
   // Add package
@@ -679,7 +680,7 @@ function printPackageDeclaration(node) {
   docs.push(" ");
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add semicolon
   docs.push(";");
@@ -690,40 +691,40 @@ function printPackageDeclaration(node) {
   return concat(docs);
 }
 
-function printSingleVariableDeclaration(node) {
+function printSingleVariableDeclaration(node, path, print) {
   const docs = [];
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
   docs.push(" ");
 
   // Add variable name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
 
-function printTypeParameter(node) {
+function printTypeParameter(node, path, print) {
   const docs = [];
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add type bounds
   if (node.typeBounds && node.typeBounds.length > 0) {
     docs.push(" ");
     docs.push("extends");
     docs.push(" ");
-    docs.push(printNodes(node.typeBounds));
+    docs.push(concat(path.map(print, "typeBounds")));
   }
 
   return concat(docs);
 }
 
-function printArrayType(node) {
+function printArrayType(node, path, print) {
   const docs = [];
 
   // Modify component type if ArrayType to not print braces
@@ -731,7 +732,7 @@ function printArrayType(node) {
     node.componentType.removeBraces = true;
   }
   // Add array type like String, Integer, etc.
-  docs.push(printNode(node.componentType));
+  docs.push(path.call(print, "componentType"));
 
   if (!node.removeBraces) {
     docs.push("[]");
@@ -740,16 +741,16 @@ function printArrayType(node) {
   return concat(docs);
 }
 
-function printParameterizedType(node) {
+function printParameterizedType(node, path, print) {
   const docs = [];
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
 
   // Add type arguments
   if (node.typeArguments && node.typeArguments.length > 0) {
     docs.push("<");
-    docs.push(printParameters(node.typeArguments));
+    docs.push(printParameters("typeArguments", path, print));
     docs.push(">");
   }
 
@@ -765,16 +766,16 @@ function printPrimitiveType(node) {
   return concat(docs);
 }
 
-function printSimpleType(node) {
+function printSimpleType(node, path, print) {
   const docs = [];
 
   // Add type
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
 
-function printWildcardType(node) {
+function printWildcardType(node, path, print) {
   const docs = [];
 
   // Add questionmark
@@ -786,12 +787,12 @@ function printWildcardType(node) {
   docs.push(" ");
 
   // Add bound
-  docs.push(printNode(node.bound));
+  docs.push(path.call(print, "bound"));
 
   return concat(docs);
 }
 
-function printConstructorInvocation(node) {
+function printConstructorInvocation(node, path, print) {
   const docs = [];
 
   // Add line
@@ -802,7 +803,7 @@ function printConstructorInvocation(node) {
   docs.push("(");
 
   // Add primitive type like void, int, etc.
-  docs.push(group(printParameters(node.arguments)));
+  docs.push(group(printParameters("arguments", path, print)));
 
   docs.push(")");
   docs.push(";");
@@ -810,23 +811,23 @@ function printConstructorInvocation(node) {
   return concat(docs);
 }
 
-function printMethodInvocation(node) {
+function printMethodInvocation(node, path, print) {
   const docs = [];
 
   // Add expression
   if (node.expression) {
-    docs.push(printNode(node.expression));
+    docs.push(path.call(print, "expression"));
     docs.push(".");
   }
 
   // Add method name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add open brace for method parameters
   docs.push("(");
 
   // Add method arguments
-  docs.push(printNodes(node.arguments));
+  docs.push(concat(path.map(print, "arguments")));
 
   // Add close brace for method parameters
   docs.push(")");
@@ -834,7 +835,7 @@ function printMethodInvocation(node) {
   return concat(docs);
 }
 
-function printSuperConstructorInvocation(node) {
+function printSuperConstructorInvocation(node, path, print) {
   const docs = [];
 
   // Add line
@@ -845,7 +846,7 @@ function printSuperConstructorInvocation(node) {
   docs.push("(");
 
   // Add primitive type like void, int, etc.
-  docs.push(group(printParameters(node.arguments)));
+  docs.push(group(printParameters("arguments", path, print)));
 
   docs.push(")");
   docs.push(";");
@@ -853,7 +854,7 @@ function printSuperConstructorInvocation(node) {
   return concat(docs);
 }
 
-function printSuperMethodInvocation(node) {
+function printSuperMethodInvocation(node, path, print) {
   const docs = [];
 
   // Add super
@@ -861,12 +862,12 @@ function printSuperMethodInvocation(node) {
   docs.push(".");
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add type arguments
   if (node.typeArguments && node.typeArguments.length > 0) {
     docs.push("<");
-    docs.push(printParameters(node.typeArguments));
+    docs.push(printParameters("typeArguments", path, print));
     docs.push(">");
   }
 
@@ -875,7 +876,7 @@ function printSuperMethodInvocation(node) {
 
   // Add arguments
   if (node.arguments && node.arguments.length > 0) {
-    docs.push(printParameters(node.arguments));
+    docs.push(printParameters("arguments", path, print));
   }
 
   // Add close braces
@@ -884,15 +885,15 @@ function printSuperMethodInvocation(node) {
   return concat(docs);
 }
 
-function printQualifiedName(node) {
+function printQualifiedName(node, path, print) {
   const docs = [];
 
   // Add qualifier
-  docs.push(printNode(node.qualifier));
+  docs.push(path.call(print, "qualifier"));
   docs.push(".");
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
@@ -910,11 +911,11 @@ function printBooleanLiteral(node) {
   return concat(docs);
 }
 
-function printTypeLiteral(node) {
+function printTypeLiteral(node, path, print) {
   const docs = [];
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
 
   // Add .class
   docs.push(".class");
@@ -949,7 +950,7 @@ function printNullLiteral() {
   return concat(docs);
 }
 
-function printArrayCreation(node) {
+function printArrayCreation(node, path, print) {
   const docs = [];
 
   // Add new
@@ -961,20 +962,20 @@ function printArrayCreation(node) {
     node.type.removeBraces = true;
   }
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
 
   // Add dimensions
   if (node.dimensions && node.dimensions.length > 0) {
-    node.dimensions.forEach(dimension => {
+    path.each(dimensionPath => {
       // Add open square braces
       docs.push("[");
 
       // Add dimension
-      docs.push(printNode(dimension));
+      docs.push(dimensionPath.call(print));
 
       // Add close square braces
       docs.push("]");
-    });
+    }, "dimensions");
   } else {
     // Just push an empty init of square braces
     docs.push("[]");
@@ -983,13 +984,13 @@ function printArrayCreation(node) {
   // Add initializer
   if (node.initializer) {
     // Add initialiter
-    docs.push(printNode(node.initializer));
+    docs.push(path.call(print, "initializer"));
   }
 
   return concat(docs);
 }
 
-function printClassInstanceCreation(node) {
+function printClassInstanceCreation(node, path, print) {
   const docs = [];
 
   // Add new
@@ -997,14 +998,14 @@ function printClassInstanceCreation(node) {
   docs.push(" ");
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
 
   // Add open braces
   docs.push("(");
 
   // Add arguments
   if (node.arguments && node.arguments.length > 0) {
-    docs.push(printParameters(node.arguments));
+    docs.push(printParameters("arguments", path, print));
   }
 
   // Add close braces
@@ -1012,20 +1013,20 @@ function printClassInstanceCreation(node) {
 
   // Add anonymous class declaration
   if (node.anonymousClassDeclaration) {
-    docs.push(printNode(node.anonymousClassDeclaration));
+    docs.push(path.call(print, "anonymousClassDeclaration"));
   }
 
   return concat(docs);
 }
 
-function printArrayInitializer(node) {
+function printArrayInitializer(node, path, print) {
   const docs = [];
 
   // Add open curly braces
   docs.push("{");
 
   // Add expressions
-  docs.push(printParameters(node.expressions));
+  docs.push(printParameters("expressions", path, print));
 
   // Add close curly braces
   docs.push(softline);
@@ -1043,30 +1044,30 @@ function printSimpleName(node) {
   return concat(docs);
 }
 
-function printCastExpression(node) {
+function printCastExpression(node, path, print) {
   const docs = [];
 
   // Add open braces
   docs.push("(");
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
 
   // Add close braces
   docs.push(")");
   docs.push(" ");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   return concat(docs);
 }
 
-function printConditionalExpression(node) {
+function printConditionalExpression(node, path, print) {
   const docs = [];
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
   docs.push(" ");
 
   // Add questionmark
@@ -1074,7 +1075,7 @@ function printConditionalExpression(node) {
   docs.push(" ");
 
   // Add then expression
-  docs.push(printNode(node.thenExpression));
+  docs.push(path.call(print, "thenExpression"));
   docs.push(" ");
 
   // Add colon
@@ -1082,16 +1083,16 @@ function printConditionalExpression(node) {
   docs.push(" ");
 
   // Add else expression
-  docs.push(printNode(node.elseExpression));
+  docs.push(path.call(print, "elseExpression"));
 
   return concat(docs);
 }
 
-function printInfixExpression(node) {
+function printInfixExpression(node, path, print) {
   const docs = [];
 
   // Add left operand
-  docs.push(printNode(node.leftOperand));
+  docs.push(path.call(print, "leftOperand"));
 
   // Add operator
   docs.push(" ");
@@ -1099,19 +1100,19 @@ function printInfixExpression(node) {
   docs.push(" ");
 
   // Add right operand
-  docs.push(printNode(node.rightOperand));
+  docs.push(path.call(print, "rightOperand"));
 
   return concat(docs);
 }
 
-function printParenthesizedExpression(node) {
+function printParenthesizedExpression(node, path, print) {
   const docs = [];
 
   // Add open brace
   docs.push("(");
 
   // Add expression
-  docs.push(printNode(node.expression));
+  docs.push(path.call(print, "expression"));
 
   // Add close brace
   docs.push(")");
@@ -1119,11 +1120,11 @@ function printParenthesizedExpression(node) {
   return concat(docs);
 }
 
-function printPostfixExpression(node) {
+function printPostfixExpression(node, path, print) {
   const docs = [];
 
   // Add operand
-  docs.push(printNode(node.operand));
+  docs.push(path.call(print, "operand"));
 
   // Add operator
   docs.push(node.operator);
@@ -1131,70 +1132,70 @@ function printPostfixExpression(node) {
   return concat(docs);
 }
 
-function printPrefixExpression(node) {
+function printPrefixExpression(node, path, print) {
   const docs = [];
 
   // Add operator
   docs.push(node.operator);
 
   // Add operand
-  docs.push(printNode(node.operand));
+  docs.push(path.call(print, "operand"));
 
   return concat(docs);
 }
 
-function printVariableDeclarationExpression(node) {
+function printVariableDeclarationExpression(node, path, print) {
   const docs = [];
 
   // Add modifiers like public, static, etc.
-  docs.push(printModifiers(node.modifiers));
+  docs.push(printModifiers(path, print));
 
   // Add type
-  docs.push(printNode(node.type));
+  docs.push(path.call(print, "type"));
   docs.push(" ");
 
   // Add fragments
-  docs.push(printNodes(node.fragments));
+  docs.push(concat(path.map(print, "fragments")));
 
   return concat(docs);
 }
 
-function printVariableDeclarationFragment(node) {
+function printVariableDeclarationFragment(node, path, print) {
   const docs = [];
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   // Add initializer
   if (node.initializer) {
     docs.push(" ");
     docs.push("=");
     docs.push(" ");
-    docs.push(printNode(node.initializer));
+    docs.push(path.call(print, "initializer"));
   }
 
   return concat(docs);
 }
 
-function printArrayAccess(node) {
+function printArrayAccess(node, path, print) {
   const docs = [];
 
   // Add array
-  docs.push(printNode(node.array));
+  docs.push(path.call(print, "array"));
 
   // Add index
   docs.push("[");
-  docs.push(printNode(node.index));
+  docs.push(path.call(print, "index"));
   docs.push("]");
 
   return concat(docs);
 }
 
-function printAssignment(node) {
+function printAssignment(node, path, print) {
   const docs = [];
 
   // Add left hand side
-  docs.push(printNode(node.leftHandSide));
+  docs.push(path.call(print, "leftHandSide"));
 
   // Add operator
   docs.push(" ");
@@ -1202,22 +1203,22 @@ function printAssignment(node) {
   docs.push(" ");
 
   // Add right hand side
-  docs.push(printNode(node.rightHandSide));
+  docs.push(path.call(print, "rightHandSide"));
 
   return concat(docs);
 }
 
-function printFieldAccess(node) {
+function printFieldAccess(node, path, print) {
   const docs = [];
 
   // Add expression
   if (node.expression) {
-    docs.push(printNode(node.expression));
+    docs.push(path.call(print, "expression"));
     docs.push(".");
   }
 
   // Add name
-  docs.push(printNode(node.name));
+  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
@@ -1230,39 +1231,13 @@ function printThisExpression() {
   return concat(docs);
 }
 
-function printMarkerAnnotations(nodes) {
-  const docs = [];
-
-  // Add only marker annotations in array
-  nodes.forEach(modifier => {
-    if (modifier.node === "MarkerAnnotation") {
-      docs.push(printMarkerAnnotation(modifier));
-    }
-  });
-
-  return concat(docs);
-}
-
-function printMarkerAnnotation(node) {
+function printMarkerAnnotation(node, path, print) {
   const docs = [];
 
   // Add type name
   docs.push("@");
-  docs.push(printNode(node.typeName));
+  docs.push(path.call(print, "typeName"));
   docs.push(hardline);
-
-  return concat(docs);
-}
-
-function printModifiers(nodes) {
-  const docs = [];
-
-  // Add only marker annotations in array
-  nodes.forEach(modifier => {
-    if (modifier.node === "Modifier") {
-      docs.push(printModifier(modifier));
-    }
-  });
 
   return concat(docs);
 }
@@ -1277,7 +1252,7 @@ function printModifier(node) {
   return concat(docs);
 }
 
-function printCatchClause(node) {
+function printCatchClause(node, path, print) {
   const docs = [];
 
   // Add catch
@@ -1287,7 +1262,7 @@ function printCatchClause(node) {
   docs.push("(");
 
   // Add exception
-  docs.push(printNode(node.exception));
+  docs.push(path.call(print, "exception"));
 
   // Add close brace
   docs.push(")");
@@ -1297,7 +1272,7 @@ function printCatchClause(node) {
   docs.push("{");
 
   // Add body
-  docs.push(indent(printNode(node.body)));
+  docs.push(indent(path.call(print, "body")));
   docs.push(hardline);
 
   // Add close curly brace
@@ -1307,174 +1282,174 @@ function printCatchClause(node) {
   return concat(docs);
 }
 
-function printNode(node) {
+function printNode(node, path, print) {
   switch (node.node) {
     case "CompilationUnit": {
-      return printCompilationUnit(node);
+      return printCompilationUnit(node, path, print);
     }
     case "TypeDeclaration": {
-      return printTypeDeclaration(node);
+      return printTypeDeclaration(node, path, print);
     }
     case "AnonymousClassDeclaration": {
-      return printAnonymousClassDeclaration(node);
+      return printAnonymousClassDeclaration(node, path, print);
     }
     case "EnumDeclaration": {
-      return printEnumDeclaration(node);
+      return printEnumDeclaration(node, path, print);
     }
     case "EnumConstantDeclaration": {
-      return printEnumConstantDeclaration(node);
+      return printEnumConstantDeclaration(node, path, print);
     }
     case "MethodDeclaration": {
-      return printMethodDeclaration(node);
+      return printMethodDeclaration(node, path, print);
     }
     case "Block": {
-      return printBlock(node);
+      return printBlock(node, path, print);
     }
     case "EnhancedForStatement": {
-      return printEnhancedForStatement(node);
+      return printEnhancedForStatement(node, path, print);
     }
     case "ExpressionStatement": {
-      return printExpressionStatement(node);
+      return printExpressionStatement(node, path, print);
     }
     case "ForStatement": {
-      return printForStatement(node);
+      return printForStatement(node, path, print);
     }
     case "IfStatement": {
-      return printIfStatement(node);
+      return printIfStatement(node, path, print);
     }
     case "ReturnStatement": {
-      return printReturnStatement(node);
+      return printReturnStatement(node, path, print);
     }
     case "ThrowStatement": {
-      return printThrowStatement(node);
+      return printThrowStatement(node, path, print);
     }
     case "TryStatement": {
-      return printTryStatement(node);
+      return printTryStatement(node, path, print);
     }
     case "VariableDeclarationStatement": {
-      return printVariableDeclarationStatement(node);
+      return printVariableDeclarationStatement(node, path, print);
     }
     case "WhileStatement": {
-      return printWhileStatement(node);
+      return printWhileStatement(node, path, print);
     }
     case "FieldDeclaration": {
-      return printFieldDeclaration(node);
+      return printFieldDeclaration(node, path, print);
     }
     case "ImportDeclaration": {
-      return printImportDeclaration(node);
+      return printImportDeclaration(node, path, print);
     }
     case "PackageDeclaration": {
-      return printPackageDeclaration(node);
+      return printPackageDeclaration(node, path, print);
     }
     case "SingleVariableDeclaration": {
-      return printSingleVariableDeclaration(node);
+      return printSingleVariableDeclaration(node, path, print);
     }
     case "TypeParameter": {
-      return printTypeParameter(node);
+      return printTypeParameter(node, path, print);
     }
     case "ArrayType": {
-      return printArrayType(node);
+      return printArrayType(node, path, print);
     }
     case "ParameterizedType": {
-      return printParameterizedType(node);
+      return printParameterizedType(node, path, print);
     }
     case "PrimitiveType": {
-      return printPrimitiveType(node);
+      return printPrimitiveType(node, path, print);
     }
     case "SimpleType": {
-      return printSimpleType(node);
+      return printSimpleType(node, path, print);
     }
     case "WildcardType": {
-      return printWildcardType(node);
+      return printWildcardType(node, path, print);
     }
     case "ConstructorInvocation": {
-      return printConstructorInvocation(node);
+      return printConstructorInvocation(node, path, print);
     }
     case "MethodInvocation": {
-      return printMethodInvocation(node);
+      return printMethodInvocation(node, path, print);
     }
     case "SuperConstructorInvocation": {
-      return printSuperConstructorInvocation(node);
+      return printSuperConstructorInvocation(node, path, print);
     }
     case "SuperMethodInvocation": {
-      return printSuperMethodInvocation(node);
+      return printSuperMethodInvocation(node, path, print);
     }
     case "QualifiedName": {
-      return printQualifiedName(node);
+      return printQualifiedName(node, path, print);
     }
     case "BooleanLiteral": {
-      return printBooleanLiteral(node);
+      return printBooleanLiteral(node, path, print);
     }
     case "TypeLiteral": {
-      return printTypeLiteral(node);
+      return printTypeLiteral(node, path, print);
     }
     case "StringLiteral": {
-      return printStringLiteral(node);
+      return printStringLiteral(node, path, print);
     }
     case "NumberLiteral": {
-      return printNumberLiteral(node);
+      return printNumberLiteral(node, path, print);
     }
     case "NullLiteral": {
-      return printNullLiteral(node);
+      return printNullLiteral(node, path, print);
     }
     case "ArrayCreation": {
-      return printArrayCreation(node);
+      return printArrayCreation(node, path, print);
     }
     case "ClassInstanceCreation": {
-      return printClassInstanceCreation(node);
+      return printClassInstanceCreation(node, path, print);
     }
     case "ArrayInitializer": {
-      return printArrayInitializer(node);
+      return printArrayInitializer(node, path, print);
     }
     case "SimpleName": {
-      return printSimpleName(node);
+      return printSimpleName(node, path, print);
     }
     case "CastExpression": {
-      return printCastExpression(node);
+      return printCastExpression(node, path, print);
     }
     case "ConditionalExpression": {
-      return printConditionalExpression(node);
+      return printConditionalExpression(node, path, print);
     }
     case "InfixExpression": {
-      return printInfixExpression(node);
+      return printInfixExpression(node, path, print);
     }
     case "ParenthesizedExpression": {
-      return printParenthesizedExpression(node);
+      return printParenthesizedExpression(node, path, print);
     }
     case "PostfixExpression": {
-      return printPostfixExpression(node);
+      return printPostfixExpression(node, path, print);
     }
     case "PrefixExpression": {
-      return printPrefixExpression(node);
+      return printPrefixExpression(node, path, print);
     }
     case "VariableDeclarationExpression": {
-      return printVariableDeclarationExpression(node);
+      return printVariableDeclarationExpression(node, path, print);
     }
     case "VariableDeclarationFragment": {
-      return printVariableDeclarationFragment(node);
+      return printVariableDeclarationFragment(node, path, print);
     }
     case "ArrayAccess": {
-      return printArrayAccess(node);
+      return printArrayAccess(node, path, print);
     }
     case "Assignment": {
-      return printAssignment(node);
+      return printAssignment(node, path, print);
     }
     case "FieldAccess": {
-      return printFieldAccess(node);
+      return printFieldAccess(node, path, print);
     }
     case "ThisExpression": {
-      return printThisExpression(node);
+      return printThisExpression(node, path, print);
     }
     // modifiers
     case "MarkerAnnotation": {
-      return printMarkerAnnotation(node);
+      return printMarkerAnnotation(node, path, print);
     }
     case "Modifier": {
-      return printModifier(node);
+      return printModifier(node, path, print);
     }
     // CatchClause
     case "CatchClause": {
-      return printCatchClause(node);
+      return printCatchClause(node, path, print);
     }
     /* istanbul ignore next */
     default:
@@ -1484,39 +1459,45 @@ function printNode(node) {
   }
 }
 
-function printNodes(nodes) {
+function printParameters(childrensPathName, path, print) {
   const docs = [];
-
-  nodes.forEach(node => {
-    docs.push(printNode(node));
-  });
-
-  return concat(docs);
-}
-
-function printParameters(nodes) {
-  const docs = [];
-
-  if (nodes.length === 0) {
-    return concat(docs);
-  }
 
   docs.push(softline);
-
-  const params = [];
-  nodes.forEach(node => {
-    params.push(printNode(node));
-  });
-  docs.push(join(concat([",", line]), params));
+  docs.push(join(concat([",", line]), path.map(print, childrensPathName)));
 
   return indent(concat(docs));
 }
 
-function genericPrint(path) {
-  /* genericPrint(path, options, print) */
+function printModifiers(path, print) {
+  const docs = [];
 
+  // Add only modifiers in array
+  path.each(modifierPath => {
+    if (modifierPath.getValue().node === "Modifier") {
+      docs.push(modifierPath.call(print));
+    }
+  }, "modifiers");
+
+  return concat(docs);
+}
+
+function printMarkerAnnotations(path, print) {
+  const docs = [];
+
+  // Add only marker annotations in array
+  path.each(markerAnnotationPath => {
+    if (markerAnnotationPath.getValue().node === "MarkerAnnotation") {
+      docs.push(markerAnnotationPath.call(print));
+    }
+  }, "modifiers");
+
+  return concat(docs);
+}
+
+function genericPrint(path, options, print) {
   const node = path.getValue();
-  return printNode(node);
+
+  return printNode(node, path, print);
 }
 
 module.exports = genericPrint;
