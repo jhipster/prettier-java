@@ -1,10 +1,10 @@
 "use strict";
 
-const japa = require("java-parser");
+const pegjsJava = require("pegjs-java");
 
 function parse(text) {
   /*parse(text, parsers, opts)*/
-  return japa.parse(text);
+  return pegjsJava.parse(text);
 }
 
 module.exports = parse;
