@@ -86,7 +86,7 @@ function printTypeDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(path, print));
+  docs.push(printAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
@@ -167,7 +167,7 @@ function printEnumDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(path, print));
+  docs.push(printAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
@@ -211,7 +211,7 @@ function printEnumConstantDeclaration(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(path, print));
+  docs.push(printAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
@@ -234,7 +234,7 @@ function printMethodDeclaration(node, path, print) {
   docs.push(hardline);
 
   // Add marker annotations like @PostConstruct
-  docs.push(printMarkerAnnotations(path, print));
+  docs.push(printAnnotations(path, print));
 
   docs.push(printMethodDeclarationStart(node, path, print));
 
@@ -576,8 +576,6 @@ function printIfStatementContinue(node, path, print) {
     docs.push(" ");
     if (node.elseStatement.node == "IfStatement") {
       // Is in the else statement another if, then print that if
-      // console.log(node.elseStatement);
-      // docs.push(printIfStatementContinue(node.elseStatement));
       docs.push(path.call(print, "elseStatement"));
     } else {
       // Regular else
@@ -628,7 +626,7 @@ function printFieldDeclaration(node, path, print) {
   docs.push(hardline);
 
   // Add marker annotations like @Bean
-  docs.push(printMarkerAnnotations(path, print));
+  docs.push(printAnnotations(path, print));
 
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
@@ -748,9 +746,16 @@ function printParameterizedType(node, path, print) {
   docs.push(path.call(print, "type"));
 
   // Add type arguments
-  if (node.typeArguments && node.typeArguments.length > 0) {
+  if (node.typeArguments) {
     docs.push("<");
-    docs.push(printParameters("typeArguments", path, print));
+    // We do not want to add generic arguments if its a class instanciation
+    // TODO once we have own options, make this optional to be backwardscompatible with Java7
+    if (
+      node.typeArguments.length > 0 &&
+      path.getParentNode().node !== "ClassInstanceCreation"
+    ) {
+      docs.push(printParameters("typeArguments", path, print));
+    }
     docs.push(">");
   }
 
@@ -1231,6 +1236,48 @@ function printThisExpression() {
   return concat(docs);
 }
 
+function printNormalAnnotation(node, path, print) {
+  const docs = [];
+
+  // Add type name
+  docs.push("@");
+  docs.push(path.call(print, "typeName"));
+  docs.push("(");
+  if (node.values && node.values.length > 0) {
+    docs.push(
+      group(
+        concat([
+          indent(
+            concat([
+              softline,
+              join(concat([",", line]), path.map(print, "values"))
+            ])
+          ),
+          softline
+        ])
+      )
+    );
+  }
+  docs.push(")");
+  docs.push(hardline);
+
+  return concat(docs);
+}
+
+function printSingleMemberAnnotation(node, path, print) {
+  const docs = [];
+
+  // Add type name
+  docs.push("@");
+  docs.push(path.call(print, "typeName"));
+  docs.push("(");
+  docs.push(path.call(print, "value"));
+  docs.push(")");
+  docs.push(hardline);
+
+  return concat(docs);
+}
+
 function printMarkerAnnotation(node, path, print) {
   const docs = [];
 
@@ -1441,11 +1488,20 @@ function printNode(node, path, print) {
       return printThisExpression(node, path, print);
     }
     // modifiers
+    case "NormalAnnotation": {
+      return printNormalAnnotation(node, path, print);
+    }
+    case "SingleMemberAnnotation": {
+      return printSingleMemberAnnotation(node, path, print);
+    }
     case "MarkerAnnotation": {
       return printMarkerAnnotation(node, path, print);
     }
     case "Modifier": {
       return printModifier(node, path, print);
+    }
+    case "MemberValuePair": {
+      return printMemberValuePair(node, path, print);
     }
     // CatchClause
     case "CatchClause": {
@@ -1481,15 +1537,56 @@ function printModifiers(path, print) {
   return concat(docs);
 }
 
-function printMarkerAnnotations(path, print) {
+function printMemberValuePair(node, path, print) {
   const docs = [];
 
+  // Add name
+  docs.push(path.call(print, "name"));
+
+  // Add equals symbol
+  docs.push(" ");
+  docs.push("=");
+  docs.push(" ");
+
+  // Add value
+  docs.push(path.call(print, "value"));
+
+  return concat(docs);
+}
+
+function printAnnotations(path, print) {
+  const docs = [];
+
+  const annotations = [];
+  const annotationsMap = new Object();
+
   // Add only marker annotations in array
-  path.each(markerAnnotationPath => {
-    if (markerAnnotationPath.getValue().node === "MarkerAnnotation") {
-      docs.push(markerAnnotationPath.call(print));
+  path.each(annotationPath => {
+    const node = annotationPath.getValue().node;
+    if (
+      node === "NormalAnnotation" ||
+      node === "SingleMemberAnnotation" ||
+      node === "MarkerAnnotation"
+    ) {
+      const identifier = annotationPath.getValue().typeName.identifier;
+      annotations.push(identifier);
+      annotationsMap[identifier] = annotationPath.call(print);
     }
   }, "modifiers");
+
+  annotations.sort((a, b) => {
+    if (a < b) {
+      return -1;
+    }
+    if (a > b) {
+      return 1;
+    }
+    return 0;
+  });
+
+  annotations.forEach(annotation => {
+    docs.push(annotationsMap[annotation]);
+  });
 
   return concat(docs);
 }
