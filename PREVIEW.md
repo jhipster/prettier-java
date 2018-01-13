@@ -373,12 +373,30 @@ public class ImplementsInterfaces
 # marker_annotations
 ```java
 
-@Bean
+@MarkerAnnotation
+@NormalAnnotation("value")
+@SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+@SingleMemberAnnotation2(
+    name = "Something much long that breaks",
+    date = "01/01/2018"
+)
 public class MarkerAnnotations {
-    @Resource
+    @MarkerAnnotation
+    @NormalAnnotation("value")
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+    @SingleMemberAnnotation2(
+        name = "Something much long that breaks",
+        date = "01/01/2018"
+    )
     SomeService service;
 
-    @PostConstruct
+    @MarkerAnnotation
+    @NormalAnnotation("value")
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+    @SingleMemberAnnotation2(
+        name = "Something much long that breaks",
+        date = "01/01/2018"
+    )
     public void postConstruct() {
         System.out.println("post construct");
     }
