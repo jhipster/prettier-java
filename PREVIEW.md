@@ -590,12 +590,13 @@ public class Variables {
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
     private List<
-        String> genericVariable1 = new List<
-        String>();
+        String> genericVariable1 = new ArrayList<>();
     private Bean<
-        String> genericVariable2 = new Bean<
-        String>(
+        String> genericVariable2 = new Bean<>(
         "abc");
+    private Map<
+        Integer,
+        String> genericVariable3 = new HashMap<>();
     private Object[] arrayVariable1 = new Object[3];
     private Object[][] arrayVariable2 = new Object[3][3];
     private Object[] arrayVariable3 = new Object[]{

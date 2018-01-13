@@ -2551,9 +2551,9 @@ path-type@^2.0.0:
   dependencies:
     pify "^2.0.0"
 
-pegjs-java@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/pegjs-java/-/pegjs-java-0.0.2.tgz#f90258239aeef7fd323932fb5aa556ed6acedaac"
+pegjs-java@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/pegjs-java/-/pegjs-java-0.0.3.tgz#a2c3956180cacdeea6b9ced4ac42584b30673290"
   dependencies:
     minifier "^0.8.1"
     pegjs "^0.10.0"
