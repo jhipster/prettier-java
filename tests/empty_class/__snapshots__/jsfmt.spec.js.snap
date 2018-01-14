@@ -1,26 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`class.java 1`] = `
-class A {
-
-  void doSomething() {
-    int i;
-    int j;
-  }
-
-}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class A {
-
-    void doSomething() {
-        int i;
-        int j;
-    }
-
-}
-
-
-`;
-
 exports[`empty_class.java 1`] = `
 public class EmptyClass {}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

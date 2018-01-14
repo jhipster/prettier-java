@@ -264,21 +264,6 @@ public class Constructors {
 ```
 # empty_class
 ```java
-}
-class A {
-
-    void doSomething() {
-        int i;
-        int j;
-    }
-
-}
-
-
-
-
-exports[`empty_class.java 1`] = `
-public class EmptyClass {}
 
 public class EmptyClass {}
 ```
