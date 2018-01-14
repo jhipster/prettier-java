@@ -27,6 +27,7 @@ public class GenericClass<BEAN extends Comparable<BEAN>> {
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class GenericClass<BEAN extends Comparable<BEAN>> {
+
     private BEAN bean;
 
     public GenericClass(BEAN bean) {
@@ -49,5 +50,6 @@ public class GenericClass<BEAN extends Comparable<BEAN>> {
     }
 
 }
+
 
 `;

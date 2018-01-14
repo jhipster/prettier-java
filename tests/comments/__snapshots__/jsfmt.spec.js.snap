@@ -1,0 +1,202 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`javadoc_comment.java 1`] = `
+class EmptyComment {
+  /***/
+}
+
+class MultiComments {
+  /** Abc */
+  /** XYZ */
+  /** Something */
+}
+
+class MultiCommentsWithEmptyLines {
+  /** Abc */
+
+  /** XYZ */
+
+  /** Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+  /** Abc */int i;
+  
+  /** XYZ */public void doSomething(int j) {
+    System.out.println("do");
+  }
+
+
+
+  
+  /** Something */
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class EmptyComment {
+    /***/
+}
+
+class MultiComments {
+    /** Abc */
+
+    /** XYZ */
+
+    /** Something */
+}
+
+class MultiCommentsWithEmptyLines {
+    /** Abc */
+
+    /** XYZ */
+
+    /** Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    /** Abc */
+    int i;
+
+    /** XYZ */
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    /** Something */
+}
+
+
+`;
+
+exports[`line_comments.java 1`] = `
+class EmptyComment {
+  //
+}
+
+class MultiComments {
+  // Abc
+  // XYZ
+  // Something
+}
+
+class MultiCommentsWithEmptyLines {
+  // Abc
+
+  // XYZ
+
+  // Something
+}
+
+class MultiCommentsWithDeclarationsAfter {
+  // Abc
+  int i;
+
+
+
+  // XYZ
+  public void doSomething(int j) {
+    System.out.println("do");
+  }
+
+  
+  // Something
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class EmptyComment {
+    //
+}
+
+class MultiComments {
+    // Abc
+    // XYZ
+    // Something
+}
+
+class MultiCommentsWithEmptyLines {
+    // Abc
+
+    // XYZ
+
+    // Something
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    // Abc
+    int i;
+
+    // XYZ
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    // Something
+}
+
+
+`;
+
+exports[`traditional_comment.java 1`] = `
+class EmptyComment {
+  /**/
+}
+
+class MultiComments {
+  /* Abc */
+  /* XYZ */
+  /* Something */
+}
+
+class MultiCommentsWithEmptyLines {
+  /* Abc */
+
+  /* XYZ */
+
+  /* Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+  /* Abc */int i;
+  
+  /* XYZ */public void doSomething(int j) {
+    System.out.println("do");
+  }
+
+
+
+  
+  /* Something */
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class EmptyComment {
+    /**/
+}
+
+class MultiComments {
+    /* Abc */
+
+    /* XYZ */
+
+    /* Something */
+}
+
+class MultiCommentsWithEmptyLines {
+    /* Abc */
+
+    /* XYZ */
+
+    /* Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    /* Abc */
+    int i;
+
+    /* XYZ */
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    /* Something */
+}
+
+
+`;

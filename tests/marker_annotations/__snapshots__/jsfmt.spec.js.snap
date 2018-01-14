@@ -40,6 +40,7 @@ public class MarkerAnnotations {
     date = "01/01/2018"
 )
 public class MarkerAnnotations {
+
     @MarkerAnnotation
     @NormalAnnotation("value")
     @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
@@ -61,5 +62,6 @@ public class MarkerAnnotations {
     }
 
 }
+
 
 `;

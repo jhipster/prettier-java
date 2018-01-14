@@ -1,9 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`empty_interface.java 1`] = `
-public interface EmptyInterface {}
+exports[`multiple_classes.java 1`] = `
+class A {}
+
+class B {}
+
+
+
+class C {}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public interface EmptyInterface {}
+class A {}
+
+class B {}
+
+class C {}
 
 
 `;
