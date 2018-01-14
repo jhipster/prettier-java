@@ -32,7 +32,7 @@ public class Args {
 
 }
 ```
-# comments
+# comment_javadoc
 ```java
 
 class EmptyComment {
@@ -93,74 +93,9 @@ class MethodComment {
     }
 
 }
-
-
-
-
-exports[`line_comments.java 1`] = `
-class EmptyComment {
-  //
-}
-
-class MultiComments {
-  // Abc
-  // XYZ
-  // Something
-}
-
-class MultiCommentsWithEmptyLines {
-  // Abc
-
-  // XYZ
-
-  // Something
-}
-
-class MultiCommentsWithDeclarationsAfter {
-  // Abc
-  int i;
-
-
-
-  // XYZ
-  public void doSomething(int j) {
-    System.out.println("do");
-  }
-
-  
-  // Something
-}
-
-class MethodComment {
-  public void doSomething1(int j) {
-    // Abc
-    System.out.println("do");
-
-
-
-    // XYZ
-    System.out.println("do");
-
-
-    
-  }
-
-  public void doSomething2(int j) {
-
-
-
-    // Abc
-    System.out.println("do");
-
-
-
-    // XYZ
-    System.out.println("do");
-
-
-    // Something    
-  }
-}
+```
+# comment_line
+```java
 
 class EmptyComment {
     //
@@ -214,69 +149,9 @@ class MethodComment {
     }
 
 }
-
-
-
-
-exports[`traditional_comment.java 1`] = `
-class EmptyComment {
-  /**/
-}
-
-class MultiComments {
-  /* Abc */
-  /* XYZ */
-  /* Something */
-}
-
-class MultiCommentsWithEmptyLines {
-  /* Abc */
-
-  /* XYZ */
-
-  /* Something */
-}
-
-class MultiCommentsWithDeclarationsAfter {
-  /* Abc */int i;
-  
-  /* XYZ */public void doSomething(int j) {
-    System.out.println("do");
-  }
-
-  /* Something */
-}
-
-class MethodComment {
-  public void doSomething1(int j) {
-    /* Abc */
-    System.out.println("do");
-
-
-
-    /* XYZ */
-    System.out.println("do");
-
-
-    
-  }
-
-  public void doSomething2(int j) {
-
-
-
-    /* Abc */
-    System.out.println("do");
-
-
-
-    /* XYZ */
-    System.out.println("do");
-
-
-    /* Something */ 
-  }
-}
+```
+# comment_traditional
+```java
 
 class EmptyComment {
     /**/
