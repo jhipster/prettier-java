@@ -23,9 +23,6 @@ class MultiCommentsWithDeclarationsAfter {
     System.out.println("do");
   }
 
-
-
-
   /* Something */
 }
 

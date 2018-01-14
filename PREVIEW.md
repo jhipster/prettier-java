@@ -67,6 +67,7 @@ class MultiCommentsWithDeclarationsAfter {
     /** Something */
 }
 
+<<<<<<< HEAD
 class MethodComment {
 
     public void doSomething1(int j) {
@@ -94,6 +95,8 @@ class MethodComment {
 
 }
 
+=======
+>>>>>>> 428033cb1e46182226f14acbea73182fa657c493
 
 
 
@@ -131,6 +134,7 @@ class MultiCommentsWithDeclarationsAfter {
   // Something
 }
 
+<<<<<<< HEAD
 class MethodComment {
   public void doSomething1(int j) {
     // Abc
@@ -162,6 +166,8 @@ class MethodComment {
   }
 }
 
+=======
+>>>>>>> 428033cb1e46182226f14acbea73182fa657c493
 class EmptyComment {
     //
 }
@@ -192,6 +198,7 @@ class MultiCommentsWithDeclarationsAfter {
     // Something
 }
 
+<<<<<<< HEAD
 class MethodComment {
 
     public void doSomething1(int j) {
@@ -215,6 +222,8 @@ class MethodComment {
 
 }
 
+=======
+>>>>>>> 428033cb1e46182226f14acbea73182fa657c493
 
 
 
@@ -246,6 +255,7 @@ class MultiCommentsWithDeclarationsAfter {
 
 
 
+<<<<<<< HEAD
 
   /* Something */
 }
@@ -281,6 +291,12 @@ class MethodComment {
   }
 }
 
+=======
+  
+  /* Something */
+}
+
+>>>>>>> 428033cb1e46182226f14acbea73182fa657c493
 class EmptyComment {
     /**/
 }
@@ -312,6 +328,7 @@ class MultiCommentsWithDeclarationsAfter {
 
     /* Something */
 }
+<<<<<<< HEAD
 
 class MethodComment {
 
@@ -339,6 +356,8 @@ class MethodComment {
     }
 
 }
+=======
+>>>>>>> 428033cb1e46182226f14acbea73182fa657c493
 ```
 # complex_generic_class
 ```java
