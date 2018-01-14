@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`empty_lines.java 1`] = `
+class EmptyClass  {
+  
+
+
+
+
+}
+
+class EmptyLinesAtBeginning {
+
+
+
+
+
+  int i;
+}
+
+class EmptyLinesAtEnd {
+  int i;
+
+
+
+
+}
+
+class EmptyLinesBetween {
+  
+  int i;
+
+  int j;
+
+  void doSomething() {}
+
+}
+
+class EmptyLinesInFrontOfMethod {
+  
+
+  void doSomething() {}
+}
+
+class EmptyLinesAfterOfMethod {
+  void doSomething() {}
+
+
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class EmptyClass {}
+
+class EmptyLinesAtBeginning {
+
+    int i;
+}
+
+class EmptyLinesAtEnd {
+    int i;
+}
+
+class EmptyLinesBetween {
+
+    int i;
+
+    int j;
+
+    void doSomething() {}
+
+}
+
+class EmptyLinesInFrontOfMethod {
+
+    void doSomething() {}
+
+}
+
+class EmptyLinesAfterOfMethod {
+
+    void doSomething() {}
+
+}
+
+
+`;

@@ -32,10 +32,319 @@ public class Args {
 
 }
 ```
+# comments
+```java
+
+class EmptyComment {
+    /***/
+}
+
+class MultiComments {
+    /** Abc */
+
+    /** XYZ */
+
+    /** Something */
+}
+
+class MultiCommentsWithEmptyLines {
+    /** Abc */
+
+    /** XYZ */
+
+    /** Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    /** Abc */
+    int i;
+
+    /** XYZ */
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    /** Something */
+}
+
+class MethodComment {
+
+    public void doSomething1(int j) {
+        /** Abc */
+
+        System.out.println("do");
+
+        /** XYZ */
+
+        System.out.println("do");
+    }
+
+    public void doSomething2(int j) {
+
+        /** Abc */
+
+        System.out.println("do");
+
+        /** XYZ */
+
+        System.out.println("do");
+
+        /** Something */
+    }
+
+}
+
+
+
+
+exports[`line_comments.java 1`] = `
+class EmptyComment {
+  //
+}
+
+class MultiComments {
+  // Abc
+  // XYZ
+  // Something
+}
+
+class MultiCommentsWithEmptyLines {
+  // Abc
+
+  // XYZ
+
+  // Something
+}
+
+class MultiCommentsWithDeclarationsAfter {
+  // Abc
+  int i;
+
+
+
+  // XYZ
+  public void doSomething(int j) {
+    System.out.println("do");
+  }
+
+  
+  // Something
+}
+
+class MethodComment {
+  public void doSomething1(int j) {
+    // Abc
+    System.out.println("do");
+
+
+
+    // XYZ
+    System.out.println("do");
+
+
+    
+  }
+
+  public void doSomething2(int j) {
+
+
+
+    // Abc
+    System.out.println("do");
+
+
+
+    // XYZ
+    System.out.println("do");
+
+
+    // Something    
+  }
+}
+
+class EmptyComment {
+    //
+}
+
+class MultiComments {
+    // Abc
+    // XYZ
+    // Something
+}
+
+class MultiCommentsWithEmptyLines {
+    // Abc
+
+    // XYZ
+
+    // Something
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    // Abc
+    int i;
+
+    // XYZ
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    // Something
+}
+
+class MethodComment {
+
+    public void doSomething1(int j) {
+        // Abc
+        System.out.println("do");
+
+        // XYZ
+        System.out.println("do");
+    }
+
+    public void doSomething2(int j) {
+
+        // Abc
+        System.out.println("do");
+
+        // XYZ
+        System.out.println("do");
+
+        // Something
+    }
+
+}
+
+
+
+
+exports[`traditional_comment.java 1`] = `
+class EmptyComment {
+  /**/
+}
+
+class MultiComments {
+  /* Abc */
+  /* XYZ */
+  /* Something */
+}
+
+class MultiCommentsWithEmptyLines {
+  /* Abc */
+
+  /* XYZ */
+
+  /* Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+  /* Abc */int i;
+  
+  /* XYZ */public void doSomething(int j) {
+    System.out.println("do");
+  }
+
+
+
+
+  /* Something */
+}
+
+class MethodComment {
+  public void doSomething1(int j) {
+    /* Abc */
+    System.out.println("do");
+
+
+
+    /* XYZ */
+    System.out.println("do");
+
+
+    
+  }
+
+  public void doSomething2(int j) {
+
+
+
+    /* Abc */
+    System.out.println("do");
+
+
+
+    /* XYZ */
+    System.out.println("do");
+
+
+    /* Something */ 
+  }
+}
+
+class EmptyComment {
+    /**/
+}
+
+class MultiComments {
+    /* Abc */
+
+    /* XYZ */
+
+    /* Something */
+}
+
+class MultiCommentsWithEmptyLines {
+    /* Abc */
+
+    /* XYZ */
+
+    /* Something */
+}
+
+class MultiCommentsWithDeclarationsAfter {
+    /* Abc */
+    int i;
+
+    /* XYZ */
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    /* Something */
+}
+
+class MethodComment {
+
+    public void doSomething1(int j) {
+        /* Abc */
+
+        System.out.println("do");
+
+        /* XYZ */
+
+        System.out.println("do");
+    }
+
+    public void doSomething2(int j) {
+
+        /* Abc */
+
+        System.out.println("do");
+
+        /* XYZ */
+
+        System.out.println("do");
+
+        /* Something */
+    }
+
+}
+```
 # complex_generic_class
 ```java
 
 public class GenericClass<BEAN extends Comparable<BEAN>> {
+
     private BEAN bean;
 
     public GenericClass(BEAN bean) {
@@ -83,6 +392,21 @@ public class Constructors {
 ```
 # empty_class
 ```java
+}
+class A {
+
+    void doSomething() {
+        int i;
+        int j;
+    }
+
+}
+
+
+
+
+exports[`empty_class.java 1`] = `
+public class EmptyClass {}
 
 public class EmptyClass {}
 ```
@@ -90,6 +414,42 @@ public class EmptyClass {}
 ```java
 
 public interface EmptyInterface {}
+```
+# empty_lines
+```java
+
+class EmptyClass {}
+
+class EmptyLinesAtBeginning {
+
+    int i;
+}
+
+class EmptyLinesAtEnd {
+    int i;
+}
+
+class EmptyLinesBetween {
+
+    int i;
+
+    int j;
+
+    void doSomething() {}
+
+}
+
+class EmptyLinesInFrontOfMethod {
+
+    void doSomething() {}
+
+}
+
+class EmptyLinesAfterOfMethod {
+
+    void doSomething() {}
+
+}
 ```
 # empty_method
 ```java
@@ -261,6 +621,7 @@ public class For {
 ```java
 
 public class GenericClass<BEAN> {
+
     private BEAN bean;
 
     public GenericClass(BEAN bean) {
@@ -381,6 +742,7 @@ public class ImplementsInterfaces
     date = "01/01/2018"
 )
 public class MarkerAnnotations {
+
     @MarkerAnnotation
     @NormalAnnotation("value")
     @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
@@ -402,6 +764,15 @@ public class MarkerAnnotations {
     }
 
 }
+```
+# multiple_classes
+```java
+
+class A {}
+
+class B {}
+
+class C {}
 ```
 # package_and_imports
 ```java
@@ -583,12 +954,16 @@ public class Types {
 ```java
 
 public class Variables {
+
     public static int STATIC_VARIABLE = 123;
     private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
+
     int packageVariable = 234;
     private int privateVariable = 345;
+
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
+
     private List<
         String> genericVariable1 = new ArrayList<>();
     private Bean<
@@ -597,6 +972,7 @@ public class Variables {
     private Map<
         Integer,
         String> genericVariable3 = new HashMap<>();
+
     private Object[] arrayVariable1 = new Object[3];
     private Object[][] arrayVariable2 = new Object[3][3];
     private Object[] arrayVariable3 = new Object[]{
@@ -609,6 +985,7 @@ public class Variables {
         "def",
         "ghi"
     };
+
     private Interface anonymousClassVariable = new Interface(){
 
         @Override

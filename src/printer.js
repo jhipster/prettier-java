@@ -60,7 +60,7 @@ function printCompilationUnit(node, path, print) {
   }
 
   // Add type declarations
-  docs.push(group(concat(path.map(print, "types"))), hardline);
+  docs.push(group(join(hardline, path.map(print, "types"))), hardline);
 
   return concat(docs);
 
@@ -135,15 +135,35 @@ function printTypeDeclaration(node, path, print) {
   docs.push(" ");
   docs.push("{");
 
-  // Add class body
-  docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
+  // Add soft line if body is not empty, and not only contains empty lines
+  if (containsNotOnlyEmptyLines(node.bodyDeclarations)) {
+    // Add class body
+    docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
+
+    docs.push(hardline);
+  }
 
   // Add open curly bracelet for class/interface beginning
-  docs.push(softline);
-  docs.push(softline);
   docs.push("}");
 
+  // Add hardline
+  docs.push(hardline);
+
   return group(concat(docs));
+
+  function containsNotOnlyEmptyLines(declarations) {
+    if (!declarations || declarations.length === 0) {
+      return false;
+    }
+
+    for (let i = 0; i < declarations.length; i++) {
+      if (declarations[i].node !== "LineEmpty") {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 function printAnonymousClassDeclaration(node, path, print) {
@@ -154,7 +174,6 @@ function printAnonymousClassDeclaration(node, path, print) {
 
   // Add body declarations
   docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
-  docs.push(hardline);
   docs.push(hardline);
 
   // Add close curly brace
@@ -200,7 +219,6 @@ function printEnumDeclaration(node, path, print) {
   docs.push(concat(path.map(print, "bodyDeclarations")));
 
   // Add open curly bracelet for class/interface beginning
-  docs.push(softline);
   docs.push(hardline);
   docs.push("}");
 
@@ -230,10 +248,15 @@ function printEnumConstantDeclaration(node, path, print) {
 function printMethodDeclaration(node, path, print) {
   const docs = [];
 
-  docs.push(hardline);
+  const index = Number(path.getName());
+
+  // If method is first element in class, add extra line
+  if (index === 0) {
+    docs.push(hardline);
+  }
   docs.push(hardline);
 
-  // Add marker annotations like @PostConstruct
+  // Add annotations
   docs.push(printAnnotations(path, print));
 
   docs.push(printMethodDeclarationStart(node, path, print));
@@ -256,7 +279,45 @@ function printMethodDeclaration(node, path, print) {
     docs.push("}");
   }
 
+  // Add line if this is the last element of the class declaration
+  if (
+    isLastElementWithoutEmptyLines(
+      path.getParentNode().bodyDeclarations,
+      index + 1
+    )
+  ) {
+    docs.push(hardline);
+  }
+
   return concat(docs);
+
+  function isLastElementWithoutEmptyLines(elements, index) {
+    if (index >= elements.length) {
+      return true;
+    }
+
+    if (elements[index].node !== "LineEmpty") {
+      return false;
+    }
+
+    return isLastElementWithoutEmptyLines(elements, index + 1);
+  }
+
+  // function isPreviousElementLineEmptyOrMethodDeclaration(elements, index) {
+  //   if (!elements[index - 1]) {
+  //     return true;
+  //   }
+
+  //   if (
+  //     elements[index - 1].node === "MethodDeclaration" ||
+  //     elements[index - 1].node === "EndOfLineComment" ||
+  //     elements[index - 1].node === "TraditionalComment"
+  //   ) {
+  //     return false;
+  //   }
+
+  //   return isPreviousElementLineEmptyOrMethodDeclaration(elements, index - 1);
+  // }
 }
 
 function printMethodDeclarationStart(node, path, print) {
@@ -313,6 +374,9 @@ function printMethodDeclarationStart(node, path, print) {
 
     // Add open curly brace for method beginning
     docs.push("{");
+    if (node.bodyDeclarations && node.bodyDeclarations.length > 0) {
+      docs.push(hardline);
+    }
   } else {
     // If abstract
     docs.push(";");
@@ -1329,6 +1393,73 @@ function printCatchClause(node, path, print) {
   return concat(docs);
 }
 
+function printLineEmpty(node, path) {
+  const docs = [];
+
+  const index = Number(path.getName());
+
+  // If next element is not existing, do nothing
+  if (
+    (path.getParentNode().node === "TypeDeclaration" &&
+      path.getParentNode().bodyDeclarations[index + 1] === undefined) ||
+    (path.getParentNode().node === "Block" &&
+      path.getParentNode().statements[index + 1] === undefined)
+  ) {
+    return concat(docs);
+  }
+
+  // If next element is already empty line, do nothing
+  if (
+    (path.getParentNode().node === "TypeDeclaration" &&
+      path.getParentNode().bodyDeclarations[index + 1].node === "LineEmpty") ||
+    (path.getParentNode().node === "Block" &&
+      path.getParentNode().statements[index + 1].node === "LineEmpty")
+  ) {
+    return concat(docs);
+  }
+
+  // Add line
+  docs.push(hardline);
+
+  return concat(docs);
+}
+
+function printEndOfLineComment(node) {
+  const docs = [];
+
+  // Add line
+  docs.push(hardline);
+
+  // Add comment
+  docs.push(node.comment);
+
+  return concat(docs);
+}
+
+function printTraditionalComment(node) {
+  const docs = [];
+
+  // Add line
+  docs.push(hardline);
+
+  // Add comment
+  docs.push(node.comment);
+
+  return concat(docs);
+}
+
+function printJavaDocComment(node) {
+  const docs = [];
+
+  // Add line
+  docs.push(hardline);
+
+  // Add comment
+  docs.push(node.comment);
+
+  return concat(docs);
+}
+
 function printNode(node, path, print) {
   switch (node.node) {
     case "CompilationUnit": {
@@ -1507,6 +1638,19 @@ function printNode(node, path, print) {
     case "CatchClause": {
       return printCatchClause(node, path, print);
     }
+    // Lines
+    case "LineEmpty": {
+      return printLineEmpty(node, path, print);
+    }
+    case "EndOfLineComment": {
+      return printEndOfLineComment(node, path, print);
+    }
+    case "TraditionalComment": {
+      return printTraditionalComment(node, path, print);
+    }
+    case "JavaDocComment": {
+      return printJavaDocComment(node, path, print);
+    }
     /* istanbul ignore next */
     default:
       // eslint-disable-next-line no-console
@@ -1593,6 +1737,27 @@ function printAnnotations(path, print) {
 
 function genericPrint(path, options, print) {
   const node = path.getValue();
+
+  if (node.comments) {
+    // console.log(node.node, node.comments);
+  }
+
+  // node["comments"] = [
+  //   {
+  //     ast_type: "comment",
+  //     value: "// a",
+  //     leading: false,
+  //     trailing: true,
+  //     printed: false
+  //   },
+  //   {
+  //     ast_type: "comment",
+  //     value: "// b",
+  //     leading: true,
+  //     trailing: false,
+  //     printed: false
+  //   }
+  // ];
 
   return printNode(node, path, print);
 }

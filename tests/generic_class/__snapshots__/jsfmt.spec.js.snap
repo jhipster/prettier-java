@@ -21,6 +21,7 @@ public class GenericClass<BEAN> {
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class GenericClass<BEAN> {
+
     private BEAN bean;
 
     public GenericClass(BEAN bean) {
@@ -37,5 +38,6 @@ public class GenericClass<BEAN> {
     }
 
 }
+
 
 `;
