@@ -1,11 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`comment_line.java 1`] = `
+// PACKAGE
+package comments;
+
+// ABC
 class EmptyComment {
   //
 }
 
+// BLUB
 class MultiComments {
+  //
   // Abc
   // XYZ
   // Something
@@ -65,10 +71,13 @@ class MethodComment {
   }
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class EmptyComment {
-    //
-}
+// PACKAGE
+package comments;
 
+// ABC
+class EmptyComment {}
+
+// BLUB
 class MultiComments {
     // Abc
     // XYZ

@@ -157,6 +157,10 @@ function printTypeDeclaration(node, path, print) {
     }
 
     for (let i = 0; i < declarations.length; i++) {
+      if (isEmptyComment(declarations[i])) {
+        continue;
+      }
+
       if (declarations[i].node !== "LineEmpty") {
         return true;
       }
@@ -1427,6 +1431,10 @@ function printLineEmpty(node, path) {
 function printEndOfLineComment(node) {
   const docs = [];
 
+  if (isEmptyComment(node)) {
+    return concat(docs);
+  }
+
   // Add line
   docs.push(hardline);
 
@@ -1438,6 +1446,10 @@ function printEndOfLineComment(node) {
 
 function printTraditionalComment(node) {
   const docs = [];
+
+  if (isEmptyComment(node)) {
+    return concat(docs);
+  }
 
   // Add line
   docs.push(hardline);
@@ -1451,6 +1463,10 @@ function printTraditionalComment(node) {
 function printJavaDocComment(node) {
   const docs = [];
 
+  if (isEmptyComment(node)) {
+    return concat(docs);
+  }
+
   // Add line
   docs.push(hardline);
 
@@ -1458,6 +1474,22 @@ function printJavaDocComment(node) {
   docs.push(node.comment);
 
   return concat(docs);
+}
+
+function isEmptyComment(node) {
+  if (node.node === "EndOfLineComment") {
+    return node.comment === "//";
+  }
+
+  if (node.node === "TraditionalComment") {
+    return node.comment === "/**/" || node.comment === "/* */";
+  }
+
+  if (node.node === "JavaDocComment") {
+    return node.comment === "/***/" || node.comment === "/** */";
+  }
+
+  return false;
 }
 
 function printNode(node, path, print) {

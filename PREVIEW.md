@@ -35,11 +35,16 @@ public class Args {
 # comment_javadoc
 ```java
 
-class EmptyComment {
-    /***/
-}
+/** PACKAGE */
+package comments;
 
+/** ABC */
+class EmptyComment {}
+
+/** BLUB */
 class MultiComments {
+
+
     /** Abc */
 
     /** XYZ */
@@ -97,10 +102,13 @@ class MethodComment {
 # comment_line
 ```java
 
-class EmptyComment {
-    //
-}
+// PACKAGE
+package comments;
 
+// ABC
+class EmptyComment {}
+
+// BLUB
 class MultiComments {
     // Abc
     // XYZ
@@ -153,11 +161,16 @@ class MethodComment {
 # comment_traditional
 ```java
 
-class EmptyComment {
-    /**/
-}
+/* PACKAGE */
+package comments;
 
+/* ABC */
+class EmptyComment {}
+
+/* BLUB */
 class MultiComments {
+
+
     /* Abc */
 
     /* XYZ */

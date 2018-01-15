@@ -1,8 +1,14 @@
+// PACKAGE
+package comments;
+
+// ABC
 class EmptyComment {
   //
 }
 
+// BLUB
 class MultiComments {
+  //
   // Abc
   // XYZ
   // Something
