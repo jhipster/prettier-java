@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`comment_traditional.java 1`] = `
-/* PACKAGE */
+/* PACKAGE 
+   Another line
+*/
 package comments;
 
 /* ABC */
@@ -15,7 +17,8 @@ class MultiComments {
   /* */
   /* Abc */
   /* XYZ */
-  /* Something */
+  /* Something
+     on two lines */
 }
 
 class MultiCommentsWithEmptyLines {
@@ -67,7 +70,9 @@ class MethodComment {
   }
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* PACKAGE */
+/* PACKAGE 
+   Another line
+*/
 package comments;
 
 /* ABC */
@@ -75,13 +80,10 @@ class EmptyComment {}
 
 /* BLUB */
 class MultiComments {
-
-
     /* Abc */
-
     /* XYZ */
-
-    /* Something */
+    /* Something
+     on two lines */
 }
 
 class MultiCommentsWithEmptyLines {
@@ -108,22 +110,18 @@ class MethodComment {
 
     public void doSomething1(int j) {
         /* Abc */
-
         System.out.println("do");
 
         /* XYZ */
-
         System.out.println("do");
     }
 
     public void doSomething2(int j) {
 
         /* Abc */
-
         System.out.println("do");
 
         /* XYZ */
-
         System.out.println("do");
 
         /* Something */

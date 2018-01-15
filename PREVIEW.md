@@ -35,7 +35,10 @@ public class Args {
 # comment_javadoc
 ```java
 
-/** PACKAGE */
+/** PACKAGE
+ * another line
+ * @author me
+ */
 package comments;
 
 /** ABC */
@@ -43,13 +46,11 @@ class EmptyComment {}
 
 /** BLUB */
 class MultiComments {
-
-
     /** Abc */
-
     /** XYZ */
-
-    /** Something */
+    /** Something 
+   * on two lines
+  */
 }
 
 class MultiCommentsWithEmptyLines {
@@ -76,22 +77,18 @@ class MethodComment {
 
     public void doSomething1(int j) {
         /** Abc */
-
         System.out.println("do");
 
         /** XYZ */
-
         System.out.println("do");
     }
 
     public void doSomething2(int j) {
 
         /** Abc */
-
         System.out.println("do");
 
         /** XYZ */
-
         System.out.println("do");
 
         /** Something */
@@ -161,7 +158,9 @@ class MethodComment {
 # comment_traditional
 ```java
 
-/* PACKAGE */
+/* PACKAGE 
+   Another line
+*/
 package comments;
 
 /* ABC */
@@ -169,13 +168,10 @@ class EmptyComment {}
 
 /* BLUB */
 class MultiComments {
-
-
     /* Abc */
-
     /* XYZ */
-
-    /* Something */
+    /* Something
+     on two lines */
 }
 
 class MultiCommentsWithEmptyLines {
@@ -202,22 +198,18 @@ class MethodComment {
 
     public void doSomething1(int j) {
         /* Abc */
-
         System.out.println("do");
 
         /* XYZ */
-
         System.out.println("do");
     }
 
     public void doSomething2(int j) {
 
         /* Abc */
-
         System.out.println("do");
 
         /* XYZ */
-
         System.out.println("do");
 
         /* Something */

@@ -1,4 +1,7 @@
-/** PACKAGE */
+/** PACKAGE
+ * another line
+ * @author me
+ */
 package comments;
 
 /** ABC */
@@ -12,7 +15,9 @@ class MultiComments {
   /** */
   /** Abc */
   /** XYZ */
-  /** Something */
+  /** Something 
+   * on two lines
+  */
 }
 
 class MultiCommentsWithEmptyLines {
