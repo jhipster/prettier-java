@@ -895,6 +895,7 @@ function printMethodInvocation(node, path, print) {
   // Add expression
   if (node.expression) {
     docs.push(path.call(print, "expression"));
+    docs.push(softline);
     docs.push(".");
   }
 
@@ -909,6 +910,11 @@ function printMethodInvocation(node, path, print) {
 
   // Add close brace for method parameters
   docs.push(")");
+
+  // If my parent is not a method invocation
+  if (path.getParentNode().node !== "MethodInvocation") {
+    return group(indent(concat(docs)));
+  }
 
   return concat(docs);
 }

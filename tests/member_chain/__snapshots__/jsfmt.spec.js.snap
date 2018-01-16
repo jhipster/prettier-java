@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`member_chain.java 1`] = `
+public class BreakLongFunctionCall {
+
+	public void doSomething() {
+		return new Object().something().more();
+	}
+
+	public void doSomethingLongNew() {
+		return something().more().and().that().as().well().but().not().something().something();
+	}
+	
+	public void doSomethingLongNew() {
+		return new Object().something().more().and().that().as().well().but().not().something();
+	}
+	
+	public void doSomethingLongStatic() {
+		return Object.something().more().and().that().as().well().but().not().something();
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class BreakLongFunctionCall {
+
+    public void doSomething() {
+        return new Object().something().more();
+    }
+
+    public void doSomethingLongNew() {
+        return something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something()
+            .something();
+    }
+
+    public void doSomethingLongNew() {
+        return new Object()
+            .something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something();
+    }
+
+    public void doSomethingLongStatic() {
+        return Object
+            .something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something();
+    }
+
+}
+
+
+`;

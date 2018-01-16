@@ -654,6 +654,56 @@ public class MarkerAnnotations {
 
 }
 ```
+# member_chain
+```java
+
+public class BreakLongFunctionCall {
+
+    public void doSomething() {
+        return new Object().something().more();
+    }
+
+    public void doSomethingLongNew() {
+        return something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something()
+            .something();
+    }
+
+    public void doSomethingLongNew() {
+        return new Object()
+            .something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something();
+    }
+
+    public void doSomethingLongStatic() {
+        return Object
+            .something()
+            .more()
+            .and()
+            .that()
+            .as()
+            .well()
+            .but()
+            .not()
+            .something();
+    }
+
+}
+```
 # multiple_classes
 ```java
 
@@ -845,7 +895,8 @@ public class Types {
 public class Variables {
 
     public static int STATIC_VARIABLE = 123;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
+    private static final Logger LOGGER = LoggerFactory
+        .getLogger(ComplexFilterTest.class);
 
     int packageVariable = 234;
     private int privateVariable = 345;
