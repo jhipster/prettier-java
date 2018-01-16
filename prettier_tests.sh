@@ -1,16 +1,19 @@
 #!/bin/bash
+
+test_folder="tests"
+rm -rf $test_folder/prettier*
+
 tests=$(find './tests/' -regex ".*\.java")
 
-test_folder="prettier_tests"
-rm -rf $test_folder
-mkdir $test_folder
 
-for file in $files; do
+for file in $tests; do
   array=(${file//\// })
   length=${#array[@]}
   test_file=${array[length-1]}
-  test_file_folder=${array[length-2]}
+  test_file_folder="prettier_${array[length-2]}"
   cp_path=$test_folder/$test_file_folder/$test_file
-  yarn prettier $file | sed '1,2d' | sed -n -e :a -e '1,2!{P;N;D;};N;ba' > $cp_path
+  mkdir -p $test_folder/$test_file_folder
   echo $cp_path
+  yarn prettier $file > $cp_path
+  echo -e 'run_spec(__dirname, ["java"]);' > $test_folder/$test_file_folder/jsfmt.spec.js
 done;

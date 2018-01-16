@@ -226,6 +226,9 @@ function printEnumDeclaration(node, path, print) {
   docs.push(hardline);
   docs.push("}");
 
+  // Add line
+  docs.push(hardline);
+
   return group(concat(docs));
 }
 

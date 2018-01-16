@@ -353,7 +353,7 @@ public class EmptyMethod {
 ```
 # enum
 ```java
-}
+
 public enum Enum {
 
     SOME_ENUM,

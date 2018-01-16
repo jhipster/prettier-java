@@ -8,3 +8,4 @@ coverage
 __pycache__/
 *.pyc
 test_files
+tests/prettier_*

@@ -32,3 +32,7 @@ To test it out on a Java file:
 * Run `yarn prettier test.java` to check the output.
 * Run `test.sh ../some_project/**/*.java` it on your whole project and check for issues, check test_files/*.error (and compare with the .java and the prettier output *.prettier)
 * Check [PREVIEW.md](PREVIEW.md) for current status of how how certain parts look like (generated automatically from the test cases)
+
+# Testing
+* You can call `yarn test`to test against all regular tests
+* You can call `yarn test-prettier`to test if prettier can parse its own output
