@@ -70,6 +70,12 @@ class MethodComment {
     // Something    
   }
 }
+
+// Some comment
+interface InterfaceComment {
+  // comment
+  void doSomething();
+}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // PACKAGE
 package comments;
@@ -124,6 +130,13 @@ class MethodComment {
 
         // Something
     }
+
+}
+
+// Some comment
+interface InterfaceComment {
+    // comment
+    void doSomething();
 
 }
 

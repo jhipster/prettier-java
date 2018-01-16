@@ -71,3 +71,11 @@ class MethodComment {
     /** Something */ 
   }
 }
+
+/** Some
+ * comment */
+interface InterfaceComment {
+  /** comment */
+  void doSomething();
+}
+  

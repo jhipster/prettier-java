@@ -2,7 +2,13 @@
 
 exports[`empty_class.java 1`] = `
 public class EmptyClass {}
+
+public class EmptyClass {
+    
+}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class EmptyClass {}
+
 public class EmptyClass {}
 
 

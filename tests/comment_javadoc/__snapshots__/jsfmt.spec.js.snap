@@ -74,7 +74,14 @@ class MethodComment {
     /** Something */ 
   }
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+/** Some
+ * comment */
+interface InterfaceComment {
+  /** comment */
+  void doSomething();
+}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /** PACKAGE
  * another line
  * @author me
@@ -133,6 +140,14 @@ class MethodComment {
 
         /** Something */
     }
+
+}
+
+/** Some
+ * comment */
+interface InterfaceComment {
+    /** comment */
+    void doSomething();
 
 }
 
