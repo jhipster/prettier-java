@@ -34,7 +34,7 @@ public class Args {
 ```
 # comment_javadoc
 ```java
-
+  
 /** PACKAGE
  * another line
  * @author me
@@ -95,6 +95,14 @@ class MethodComment {
     }
 
 }
+
+/** Some
+ * comment */
+interface InterfaceComment {
+    /** comment */
+    void doSomething();
+
+}
 ```
 # comment_line
 ```java
@@ -152,6 +160,13 @@ class MethodComment {
 
         // Something
     }
+
+}
+
+// Some comment
+interface InterfaceComment {
+    // comment
+    void doSomething();
 
 }
 ```
@@ -216,6 +231,14 @@ class MethodComment {
     }
 
 }
+
+/* Some
+   comment */
+interface InterfaceComment {
+    /* comment*/
+    void doSomething();
+
+}
 ```
 # complex_generic_class
 ```java
@@ -271,9 +294,13 @@ public class Constructors {
 ```java
 
 public class EmptyClass {}
+
+public class EmptyClass {}
 ```
 # empty_interface
 ```java
+
+public interface EmptyInterface {}
 
 public interface EmptyInterface {}
 ```
@@ -826,14 +853,21 @@ public class Variables {
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
 
-    private List<
-        String> genericVariable1 = new ArrayList<>();
-    private Bean<
-        String> genericVariable2 = new Bean<>(
-        "abc");
+    private List<String> genericVariable1 = new ArrayList<>();
+    private Bean<String> genericVariable2 = new Bean<>("abc");
+    private Bean<String> genericVariable2 = new Bean<>(
+        "abc",
+        "def",
+        "ghi",
+        "jkl"
+    );
+    private Map<Integer, String> genericVariable4 = new HashMap<>();
     private Map<
         Integer,
-        String> genericVariable3 = new HashMap<>();
+        String,
+        Integer,
+        String
+    > genericVariable5 = new HashMap<>();
 
     private Object[] arrayVariable1 = new Object[3];
     private Object[][] arrayVariable2 = new Object[3][3];

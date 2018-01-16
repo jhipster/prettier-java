@@ -11,7 +11,9 @@ public class Variables {
 
   private List<String> genericVariable1 = new ArrayList<String>();
   private Bean<String> genericVariable2 = new Bean<String>("abc");
-  private Map<Integer, String> genericVariable3 = new HashMap<Integer, String>();
+  private Bean<String> genericVariable2 = new Bean<String>("abc", "def", "ghi", "jkl");
+  private Map<Integer, String> genericVariable4 = new HashMap<Integer, String>();
+  private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<Integer, String, Integer>();
 
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];

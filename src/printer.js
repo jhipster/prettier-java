@@ -822,7 +822,9 @@ function printParameterizedType(node, path, print) {
       node.typeArguments.length > 0 &&
       path.getParentNode().node !== "ClassInstanceCreation"
     ) {
-      docs.push(printParameters("typeArguments", path, print));
+      docs.push(
+        group(concat([printParameters("typeArguments", path, print), softline]))
+      );
     }
     docs.push(">");
   }
@@ -1078,7 +1080,9 @@ function printClassInstanceCreation(node, path, print) {
 
   // Add arguments
   if (node.arguments && node.arguments.length > 0) {
-    docs.push(printParameters("arguments", path, print));
+    docs.push(
+      group(concat([printParameters("arguments", path, print), softline]))
+    );
   }
 
   // Add close braces
