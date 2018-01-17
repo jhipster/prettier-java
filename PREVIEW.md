@@ -528,6 +528,19 @@ public class GenericClass<BEAN> {
 
 }
 ```
+# generic_questionmark
+```java
+}
+public class Generic<?> {}
+
+public class GenericExtends<BEAN extends Bean<?>> {}
+
+public class Simple {
+
+    public void converter(final Converter<?> converter) {}
+
+}
+```
 # hello_world
 ```java
 

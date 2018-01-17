@@ -859,13 +859,21 @@ function printWildcardType(node, path, print) {
   // Add questionmark
   docs.push("?");
 
-  // Add extends
-  docs.push(" ");
-  docs.push("extends");
-  docs.push(" ");
+  if (node.bound) {
+    docs.push(" ");
 
-  // Add bound
-  docs.push(path.call(print, "bound"));
+    // Add extends / super
+    if (node.upperBound) {
+      docs.push("extends");
+    } else {
+      docs.push("super");
+    }
+
+    docs.push(" ");
+
+    // Add bound
+    docs.push(path.call(print, "bound"));
+  }
 
   return concat(docs);
 }
@@ -1783,9 +1791,9 @@ function printAnnotations(path, print) {
 function genericPrint(path, options, print) {
   const node = path.getValue();
 
-  if (node.comments) {
-    // console.log(node.node, node.comments);
-  }
+  // if (node.comments) {
+  //   // console.log(node.node, node.comments);
+  // }
 
   // node["comments"] = [
   //   {

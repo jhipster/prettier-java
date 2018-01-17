@@ -7,7 +7,7 @@ function parse(text) {
   /*parse(text, parsers, opts)*/
   try {
     return pegjsJava.parse(text);
-  } catch(error) {
+  } catch (error) {
     throw new Error("Line " + error.location.start.line + ": " + error.message);
   }
 }
