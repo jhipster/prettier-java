@@ -5,7 +5,11 @@ const pegjsJava = require("pegjs-java");
 
 function parse(text) {
   /*parse(text, parsers, opts)*/
-  return pegjsJava.parse(text);
+  try {
+    return pegjsJava.parse(text);
+  } catch(error) {
+    throw new Error("Line " + error.location.start.line + ": " + error.message);
+  }
 }
 
 module.exports = parse;
