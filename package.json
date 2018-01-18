@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "pegjs-java": "^0.0.13",
+    "pegjs-java": "^0.0.14",
     "prettier": "prettier/prettier#dbe0758b487be2da74a3f8cf4036472685d75fb0"
   },
   "devDependencies": {

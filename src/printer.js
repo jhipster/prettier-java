@@ -1513,6 +1513,21 @@ function printJavaDocComment(node) {
   return concat(docs);
 }
 
+function printMethodReference(node, path, print) {
+  const docs = [];
+
+  // Add class
+  docs.push(path.call(print, "class"));
+
+  // Add colon colon
+  docs.push("::");
+
+  // Add method
+  docs.push(path.call(print, "method"));
+
+  return concat(docs);
+}
+
 function isEmptyComment(node) {
   if (node.node === "EndOfLineComment") {
     return node.comment === "//";
@@ -1722,6 +1737,10 @@ function printNode(node, path, print) {
     }
     case "JavaDocComment": {
       return printJavaDocComment(node, path, print);
+    }
+    // MethodReference / Lambda
+    case "MethodReference": {
+      return printMethodReference(node, path, print);
     }
     /* istanbul ignore next */
     default:
