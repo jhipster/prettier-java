@@ -853,6 +853,15 @@ function printSimpleType(node, path, print) {
   return concat(docs);
 }
 
+function printUnionType(node, path, print) {
+  const docs = [];
+
+  // Add types
+  docs.push(join(concat([" ", "|", line]), path.map(print, "types")));
+
+  return concat(docs);
+}
+
 function printWildcardType(node, path, print) {
   const docs = [];
 
@@ -1398,7 +1407,14 @@ function printCatchClause(node, path, print) {
   docs.push("(");
 
   // Add exception
-  docs.push(path.call(print, "exception"));
+  docs.push(
+    group(
+      concat([
+        indent(concat([softline, path.call(print, "exception")])),
+        softline
+      ])
+    )
+  );
 
   // Add close brace
   docs.push(")");
@@ -1589,6 +1605,9 @@ function printNode(node, path, print) {
     }
     case "SimpleType": {
       return printSimpleType(node, path, print);
+    }
+    case "UnionType": {
+      return printUnionType(node, path, print);
     }
     case "WildcardType": {
       return printWildcardType(node, path, print);

@@ -34,4 +34,16 @@ public class TryCatch {
     }
   }
 
+  void tryMultiCatchFinally() {
+    try {
+      System.out.println("Try something");
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+      System.out.println("Warning: Not breaking multi exceptions");
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException | SomeOtherException e) {
+      System.out.println("Warning: Breaking multi exceptions");
+    } finally {
+      System.out.println("Finally do something");
+    }
+  }
+
 }
