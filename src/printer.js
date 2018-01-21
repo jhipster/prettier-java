@@ -443,12 +443,29 @@ function printEnhancedForStatement(node, path, print) {
 function printExpressionStatement(node, path, print) {
   const docs = [];
 
-  // Add line
-  docs.push(hardline);
+  // If parent is block AND parent parent is LambdaExpression
+  // AND there is only one statement, don't print a hardline
+  if (
+    path.getParentNode(1).node !== "LambdaExpression" ||
+    path.getParentNode().node !== "Block" ||
+    path.getParentNode().statements.length > 1
+  ) {
+    // Add line
+    docs.push(hardline);
+  }
 
   // Add expression
   docs.push(path.call(print, "expression"));
-  docs.push(";");
+
+  // If parent is block AND parent parent is LambdaExpression
+  // AND there is only one statement, don't print a semi colon
+  if (
+    path.getParentNode(1).node !== "LambdaExpression" ||
+    path.getParentNode().node !== "Block" ||
+    path.getParentNode().statements.length > 1
+  ) {
+    docs.push(";");
+  }
 
   return concat(docs);
 }
@@ -930,7 +947,7 @@ function printMethodInvocation(node, path, print) {
 
   // If my parent is not a method invocation
   if (path.getParentNode().node !== "MethodInvocation") {
-    return group(indent(concat(docs)));
+    return group(concat(docs));
   }
 
   return concat(docs);
@@ -1528,6 +1545,60 @@ function printMethodReference(node, path, print) {
   return concat(docs);
 }
 
+function printLambdaExpression(node, path, print) {
+  const docs = [];
+
+  // Don't print parens if there is only one arg
+  if (node.args && node.args.length !== 1) {
+    // Add open braces
+    docs.push("(");
+  }
+
+  // Add args
+  docs.push(join(concat([",", " "]), path.map(print, "args")));
+
+  // Don't print parens if there is only one arg
+  if (node.args && node.args.length !== 1) {
+    // Add close braces
+    docs.push(")");
+  }
+
+  // Add pointer
+  docs.push(" ");
+  docs.push("->");
+  docs.push(" ");
+
+  // Don't print culry parens if body has only one statement
+  if (
+    node.body &&
+    node.body.node === "Block" &&
+    node.body.statements &&
+    node.body.statements.length !== 1
+  ) {
+    // Add open curly braces
+    docs.push("{");
+  }
+
+  // Add body
+  docs.push(indent(path.call(print, "body")));
+
+  // Don't print culry parens if body has only one statement
+  if (
+    node.body &&
+    node.body.node === "Block" &&
+    node.body.statements &&
+    node.body.statements.length !== 1
+  ) {
+    // Add line
+    docs.push(hardline);
+
+    // Add close curly braces
+    docs.push("}");
+  }
+
+  return concat(docs);
+}
+
 function isEmptyComment(node) {
   if (node.node === "EndOfLineComment") {
     return node.comment === "//";
@@ -1741,6 +1812,9 @@ function printNode(node, path, print) {
     // MethodReference / Lambda
     case "MethodReference": {
       return printMethodReference(node, path, print);
+    }
+    case "LambdaExpression": {
+      return printLambdaExpression(node, path, print);
     }
     /* istanbul ignore next */
     default:

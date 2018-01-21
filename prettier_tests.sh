@@ -14,6 +14,6 @@ for file in $tests; do
   cp_path=$test_folder/$test_file_folder/$test_file
   mkdir -p $test_folder/$test_file_folder
   echo $cp_path
-  yarn prettier $file > $cp_path
+  yarn prettier $file | sed '1,1d' | sed -n -e :a -e '1,1!{P;N;D;};N;ba' > $cp_path
   echo -e 'run_spec(__dirname, ["java"]);' > $test_folder/$test_file_folder/jsfmt.spec.js
 done;

@@ -633,6 +633,49 @@ public class ImplementsInterfaces
 
 }
 ```
+# lambda
+```java
+
+public class Lambda {
+
+    public void singleArgumentWithParens() {
+        call(x -> {
+            System.out.println(x);
+            System.out.println(x);
+        });
+    }
+
+    public void singleArgumentWithoutParens() {
+        call(x -> {
+            System.out.println(x);
+            System.out.println(x);
+        });
+    }
+
+    public void multiArguments() {
+        call((x, y) -> {
+            System.out.println(x);
+            System.out.println(y);
+        });
+    }
+
+    public void emptyArguments() {
+        call(() -> {
+            System.out.println();
+            System.out.println();
+        });
+    }
+
+    public void onlyOneMethodInBodyWithCurlyBraces() {
+        call(x -> System.out.println(x));
+    }
+
+    public void onlyOneMethodInBody() {
+        call(x -> System.out.println(x));
+    }
+
+}
+```
 # marker_annotations
 ```java
 
@@ -678,41 +721,41 @@ public class BreakLongFunctionCall {
 
     public void doSomethingLongNew() {
         return something()
-            .more()
-            .and()
-            .that()
-            .as()
-            .well()
-            .but()
-            .not()
-            .something()
-            .something();
+        .more()
+        .and()
+        .that()
+        .as()
+        .well()
+        .but()
+        .not()
+        .something()
+        .something();
     }
 
     public void doSomethingLongNew() {
         return new Object()
-            .something()
-            .more()
-            .and()
-            .that()
-            .as()
-            .well()
-            .but()
-            .not()
-            .something();
+        .something()
+        .more()
+        .and()
+        .that()
+        .as()
+        .well()
+        .but()
+        .not()
+        .something();
     }
 
     public void doSomethingLongStatic() {
         return Object
-            .something()
-            .more()
-            .and()
-            .that()
-            .as()
-            .well()
-            .but()
-            .not()
-            .something();
+        .something()
+        .more()
+        .and()
+        .that()
+        .as()
+        .well()
+        .but()
+        .not()
+        .something();
     }
 
 }
@@ -948,7 +991,7 @@ public class Variables {
 
     public static int STATIC_VARIABLE = 123;
     private static final Logger LOGGER = LoggerFactory
-        .getLogger(ComplexFilterTest.class);
+    .getLogger(ComplexFilterTest.class);
 
     int packageVariable = 234;
     private int privateVariable = 345;
