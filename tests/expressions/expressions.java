@@ -66,5 +66,11 @@ public class Expressions {
     }
   }
 
+  public void instanceOf() {
+    if (var instanceof Object) {
+      System.out.println("instanceOf");
+    }
+  }
+
 }
 

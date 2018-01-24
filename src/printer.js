@@ -536,10 +536,12 @@ function printReturnStatement(node, path, print) {
 
   // Add return
   docs.push("return");
-  docs.push(" ");
 
-  // Add expression
-  docs.push(path.call(print, "expression"));
+  if (node.expression) {
+    docs.push(" ");
+    // Add expression
+    docs.push(path.call(print, "expression"));
+  }
 
   // Add semicolon
   docs.push(";");
@@ -1225,6 +1227,23 @@ function printInfixExpression(node, path, print) {
   return concat(docs);
 }
 
+function printInstanceofExpression(node, path, print) {
+  const docs = [];
+
+  // Add left operand
+  docs.push(path.call(print, "leftOperand"));
+
+  // Add operator
+  docs.push(" ");
+  docs.push("instanceof");
+  docs.push(" ");
+
+  // Add right operand
+  docs.push(path.call(print, "rightOperand"));
+
+  return concat(docs);
+}
+
 function printParenthesizedExpression(node, path, print) {
   const docs = [];
 
@@ -1749,6 +1768,9 @@ function printNode(node, path, print) {
     case "InfixExpression": {
       return printInfixExpression(node, path, print);
     }
+    case "InstanceofExpression": {
+      return printInstanceofExpression(node, path, print);
+    }
     case "ParenthesizedExpression": {
       return printParenthesizedExpression(node, path, print);
     }
@@ -1902,7 +1924,7 @@ function printAnnotations(path, print) {
 
 function genericPrint(path, options, print) {
   const node = path.getValue();
-
+  // console.log(node);
   // if (node.comments) {
   //   // console.log(node.node, node.comments);
   // }

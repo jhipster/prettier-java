@@ -24,6 +24,13 @@ public class Lambda {
     });
   }
 
+  public void multiParameters() {
+    call((Object x, final String y) -> {
+      System.out.println(x);
+      System.out.println(y);
+    });
+  }
+
   public void emptyArguments() {
     call(() -> {
       System.out.println();
@@ -61,6 +68,13 @@ public class Lambda {
 
     public void multiArguments() {
         call((x, y) -> {
+            System.out.println(x);
+            System.out.println(y);
+        });
+    }
+
+    public void multiParameters() {
+        call((Object x, final String y) -> {
             System.out.println(x);
             System.out.println(y);
         });

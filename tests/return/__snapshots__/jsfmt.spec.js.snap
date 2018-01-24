@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`return.java 1`] = `
+public abstract class Throws {
+
+  void returnThis() {
+    return this;
+  }
+
+  void returnNull() {
+    return null;
+  }
+
+  void exit() {
+    return;
+  }
+
+  void returnCast() {
+    return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public abstract class Throws {
+
+    void returnThis() {
+        return this;
+    }
+
+    void returnNull() {
+        return null;
+    }
+
+    void exit() {
+        return;
+    }
+
+    void returnCast() {
+        return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
+    }
+
+}
+
+
+`;

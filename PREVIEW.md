@@ -433,6 +433,12 @@ public class Expressions {
         }
     }
 
+    public void instanceOf() {
+        if (var instanceof Object) {
+            System.out.println("instanceOf");
+        }
+    }
+
 }
 ```
 # extends_abstract_class
@@ -659,6 +665,13 @@ public class Lambda {
         });
     }
 
+    public void multiParameters() {
+        call((Object x, final String y) -> {
+            System.out.println(x);
+            System.out.println(y);
+        });
+    }
+
     public void emptyArguments() {
         call(() -> {
             System.out.println();
@@ -805,6 +818,29 @@ import java.utils.*;
 import something.Different;
 
 public class PackageAndImports {}
+```
+# return
+```java
+
+public abstract class Throws {
+
+    void returnThis() {
+        return this;
+    }
+
+    void returnNull() {
+        return null;
+    }
+
+    void exit() {
+        return;
+    }
+
+    void returnCast() {
+        return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
+    }
+
+}
 ```
 # throws
 ```java

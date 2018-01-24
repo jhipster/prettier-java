@@ -69,6 +69,12 @@ public class Expressions {
     }
   }
 
+  public void instanceOf() {
+    if (var instanceof Object) {
+      System.out.println("instanceOf");
+    }
+  }
+
 }
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,6 +143,12 @@ public class Expressions {
     public void parenthesized() {
         if (true && (false || true)) {
             System.out.println("parenthesized");
+        }
+    }
+
+    public void instanceOf() {
+        if (var instanceof Object) {
+            System.out.println("instanceOf");
         }
     }
 
