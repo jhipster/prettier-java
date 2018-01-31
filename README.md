@@ -22,6 +22,11 @@ prettier --write "**/*.java"
 
 -->
 
+# Attention
+
+This project is currently based on a pegjs-java parser, because of speed problems and maintenable problems I'm currently working on implementing my own javascript java parser [chevrotain-java](https://github.com/thorbenvh8/chevrotain-java). Once that is done I will update the code here, the AST is a little different so there is some work to do here. If you want to help, please help me with the parser first.
+
+<!--
 If you're interested in contributing to the development of Prettier for Java, you can follow the [CONTRIBUTING guide from Prettier](https://github.com/prettier/prettier/blob/master/CONTRIBUTING.md), as it all applies to this repository too.
 
 To test it out on a Java file:
@@ -36,3 +41,4 @@ To test it out on a Java file:
 # Testing
 * You can call `yarn test`to test against all regular tests
 * You can call `yarn test-prettier`to test if prettier can parse its own output
+-->
