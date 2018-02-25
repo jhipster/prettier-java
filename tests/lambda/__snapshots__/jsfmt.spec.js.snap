@@ -67,7 +67,8 @@ public class Lambda {
     }
 
     public void multiArguments() {
-        call((x, y) -> {
+        call((x,
+        y) -> {
             System.out.println(x);
             System.out.println(y);
         });
@@ -88,7 +89,9 @@ public class Lambda {
     }
 
     public void onlyOneMethodInBodyWithCurlyBraces() {
-        call(x -> System.out.println(x));
+        call(x -> {
+            System.out.println(x);
+        });
     }
 
     public void onlyOneMethodInBody() {

@@ -18,7 +18,8 @@ public class Variables {
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];
   private Object[] arrayVariable3 = new Object[] { "abc", "def", "ghi" };
-  private Object[] arrayVariable4 = { "abc", "def", "ghi" };
+  private Object[] arrayVariable4 = new Object[] { "abc", "def", "ghi", "jkl", "mno" };
+  private Object[] arrayVariable5 = { "abc", "def", "ghi" };
   
   private Interface anonymousClassVariable = new Interface(){
     @Override

@@ -14,8 +14,8 @@ public class If {
     }
   }
 
-  public void shortIfElse(boolean one) {
-    one ? System.out.println("one") : System.out.println("not one");
+  public boolean shortIfElse(boolean one) {
+    return one ? true : false;
   }
 
   public void ifElseIfElse(boolean one, boolean two) {

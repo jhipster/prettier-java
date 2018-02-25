@@ -1,10 +1,10 @@
-public abstract class Throws {
+public abstract class Return {
 
-  void returnThis() {
+  Object returnThis() {
     return this;
   }
 
-  void returnNull() {
+  Object returnNull() {
     return null;
   }
 
@@ -12,7 +12,7 @@ public abstract class Throws {
     return;
   }
 
-  void returnCast() {
+  Object returnCast() {
     return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
   }
 

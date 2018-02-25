@@ -1,8 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`generic_questionmark.java 1`] = `
-public class Generic<?> {}
-
 public class GenericExtends<BEAN extends Bean<?>> {}
 
 public class Simple {
@@ -10,8 +8,6 @@ public class Simple {
   public void converter(final Converter<?> converter) {}
 
 }~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public class Generic<?> {}
-
 public class GenericExtends<BEAN extends Bean<?>> {}
 
 public class Simple {

@@ -28,6 +28,7 @@
   "scripts": {
     "lint": "jest -c jest.eslint.config.js",
     "test": "rm -rf tests/prettier* && jest && ./preview.sh",
+    "tests": "rm -rf tests/prettier* && jest",
     "test-prettier": "./prettier_tests.sh && jest",
     "prettier": "prettier --plugin=. --parser=java"
   },

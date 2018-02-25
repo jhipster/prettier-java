@@ -10,9 +10,7 @@ public class ImplementsInterface implements Interface {
 
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public class ImplementsInterface
-    implements
-        Interface {
+public class ImplementsInterface implements Interface {
 
     @Override
     public void interfaceMethod() {

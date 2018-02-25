@@ -91,83 +91,267 @@ function printTypeDeclaration(node, path, print) {
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
 
-  // Add interface or class keyword
-  docs.push(node.interface ? "interface" : "class");
+  // Add declaration
+  docs.push(path.call(print, "declaration"));
+
+  return concat(docs);
+
+  // // Add interface or class keyword
+  // docs.push(node.interface ? "interface" : "class");
+  // docs.push(" ");
+
+  // // Add name of class/interface
+  // docs.push(path.call(print, "name"));
+
+  // // Add type parameters
+  // if (node.typeParameters && node.typeParameters.length > 0) {
+  //   docs.push("<");
+  //   docs.push(group(printParameters("typeParameters", path, print)));
+  //   docs.push(">");
+  // }
+
+  // // Add extends class
+  // if (node.superclassType) {
+  //   const ext = [];
+  //   ext.push(line);
+  //   ext.push("extends");
+  //   ext.push(" ");
+  //   ext.push(path.call(print, "superclassType"));
+  //   docs.push(indent(concat(ext)));
+  // }
+
+  // // Add implemented interfaces
+  // if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
+  //   const impl = [];
+  //   impl.push(line);
+  //   impl.push("implements");
+  //   impl.push(
+  //     indent(
+  //       concat([
+  //         line,
+  //         join(concat([",", line]), path.map(print, "superInterfaceTypes"))
+  //       ])
+  //     )
+  //   );
+  //   docs.push(indent(concat(impl)));
+  // }
+
+  // // Add open curly bracelet for class/interface beginning
+  // docs.push(" ");
+  // docs.push("{");
+
+  // // Add soft line if body is not empty, and not only contains empty lines
+  // if (containsNotOnlyEmptyLines(node.bodyDeclarations)) {
+  //   // Add class body
+  //   docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
+
+  //   docs.push(hardline);
+  // }
+
+  // // Add open curly bracelet for class/interface beginning
+  // docs.push("}");
+
+  // // Add hardline
+  // docs.push(hardline);
+
+  // return group(concat(docs));
+
+  // function containsNotOnlyEmptyLines(declarations) {
+  //   if (!declarations || declarations.length === 0) {
+  //     return false;
+  //   }
+
+  //   for (let i = 0; i < declarations.length; i++) {
+  //     if (isEmptyComment(declarations[i])) {
+  //       continue;
+  //     }
+
+  //     if (declarations[i].node !== "LineEmpty") {
+  //       return true;
+  //     }
+  //   }
+
+  //   return false;
+  // }
+}
+
+function printClassDeclaration(node, path, print) {
+  const docs = [];
+
+  docs.push("class");
   docs.push(" ");
 
   // Add name of class/interface
   docs.push(path.call(print, "name"));
 
   // Add type parameters
-  if (node.typeParameters && node.typeParameters.length > 0) {
+  if (node.typeParameters) {
+    docs.push("<");
+    docs.push(path.call(print, "typeParameters"));
+    docs.push(">");
+  }
+
+  // Add extends class
+  if (node.extends) {
+    const ext = [];
+    ext.push(line);
+    ext.push("extends");
+    ext.push(" ");
+    ext.push(path.call(print, "extends"));
+    docs.push(indent(concat(ext)));
+  }
+
+  // Add implemented interfaces
+  if (node.implements) {
+    const impl = [];
+    impl.push(line);
+    impl.push("implements");
+    impl.push(indent(concat([line, path.call(print, "implements")])));
+    docs.push(group(indent(concat(impl))));
+  }
+
+  docs.push(" ");
+
+  // // Add soft line if body is not empty, and not only contains empty lines
+  if (node.body) {
+    // Add class body
+    docs.push(path.call(print, "body"));
+  }
+
+  // Add hardline
+  docs.push(hardline);
+
+  return group(concat(docs));
+}
+
+function printInterfaceDeclaration(node, path, print) {
+  const docs = [];
+
+  docs.push("interface");
+  docs.push(" ");
+
+  // Add name of class/interface
+  docs.push(path.call(print, "name"));
+
+  // Add type parameters
+  if (node.typeParameters) {
     docs.push("<");
     docs.push(group(printParameters("typeParameters", path, print)));
     docs.push(">");
   }
 
   // Add extends class
-  if (node.superclassType) {
+  if (node.extends) {
     const ext = [];
     ext.push(line);
     ext.push("extends");
     ext.push(" ");
-    ext.push(path.call(print, "superclassType"));
+    ext.push(path.call(print, "extends"));
     docs.push(indent(concat(ext)));
   }
 
-  // Add implemented interfaces
-  if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
-    const impl = [];
-    impl.push(line);
-    impl.push("implements");
-    impl.push(
-      indent(
-        concat([
-          line,
-          join(concat([",", line]), path.map(print, "superInterfaceTypes"))
-        ])
-      )
-    );
-    docs.push(indent(concat(impl)));
-  }
-
-  // Add open curly bracelet for class/interface beginning
   docs.push(" ");
-  docs.push("{");
 
-  // Add soft line if body is not empty, and not only contains empty lines
-  if (containsNotOnlyEmptyLines(node.bodyDeclarations)) {
+  // // Add soft line if body is not empty, and not only contains empty lines
+  if (node.body) {
     // Add class body
-    docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
-
-    docs.push(hardline);
+    docs.push(path.call(print, "body"));
   }
-
-  // Add open curly bracelet for class/interface beginning
-  docs.push("}");
 
   // Add hardline
   docs.push(hardline);
 
   return group(concat(docs));
+}
 
-  function containsNotOnlyEmptyLines(declarations) {
-    if (!declarations || declarations.length === 0) {
-      return false;
-    }
+function printConstructorDeclaration(node, path, print) {
+  const docs = [];
 
-    for (let i = 0; i < declarations.length; i++) {
-      if (isEmptyComment(declarations[i])) {
-        continue;
-      }
+  // Add name
+  docs.push(path.call(print, "name"));
 
-      if (declarations[i].node !== "LineEmpty") {
-        return true;
-      }
-    }
+  // Add parameters
+  docs.push(path.call(print, "parameters"));
 
-    return false;
+  // Add throws
+  // TODO throws
+
+  // Add body
+  docs.push(" ");
+  docs.push(path.call(print, "body"));
+
+  docs.push(hardline);
+
+  return concat(docs);
+}
+
+function printClassBody(node, path, print) {
+  const docs = [];
+
+  // Add open curly brace
+  docs.push("{");
+
+  // Add declarations
+  if (node.declarations.length > 0) {
+    docs.push(
+      indent(
+        concat([hardline, join(hardline, path.map(print, "declarations"))])
+      )
+    );
+    docs.push(hardline);
   }
+
+  // Add close curly brace
+  docs.push("}");
+
+  return concat(docs);
+}
+
+function printClassBodyMemberDeclaration(node, path, print) {
+  const docs = [];
+
+  const index = Number(path.getName());
+  // If method is first element in class, add extra line
+  if (
+    index === 0 &&
+    (node.declaration.type === "METHOD_DECLARATION" ||
+      node.declaration.type === "CONSTRUCTOR_DECLARATION")
+  ) {
+    docs.push(hardline);
+  }
+
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add declaration
+  docs.push(path.call(print, "declaration"));
+
+  return concat(docs);
+}
+
+function printInterfaceBody(node, path, print) {
+  const docs = [];
+
+  // Add open curly brace
+  docs.push("{");
+
+  // Add declarations
+  if (node.declarations.length > 0) {
+    docs.push(
+      indent(
+        concat([hardline, join(hardline, path.map(print, "declarations"))])
+      )
+    );
+    docs.push(hardline);
+  }
+
+  // Add close curly brace
+  docs.push("}");
+
+  return concat(docs);
 }
 
 function printAnonymousClassDeclaration(node, path, print) {
@@ -189,12 +373,6 @@ function printAnonymousClassDeclaration(node, path, print) {
 function printEnumDeclaration(node, path, print) {
   const docs = [];
 
-  // Add marker annotations like @Bean
-  docs.push(printAnnotations(path, print));
-
-  // Add modifiers like public, static, etc.
-  docs.push(printModifiers(path, print));
-
   // Add interface or class keyword
   docs.push("enum");
   docs.push(" ");
@@ -204,23 +382,29 @@ function printEnumDeclaration(node, path, print) {
   docs.push(" ");
 
   // Add implemented interfaces
-  if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
+  // TODO implements
+  if (node.implements) {
     docs.push("implements");
-    docs.push(" ");
-    docs.push(join(", ", path.map(print, "superInterfaceTypes")));
-    docs.push(" ");
   }
 
   // Add open curly bracelet for class/interface beginning
   docs.push("{");
   docs.push(hardline);
 
-  // Add enum constants
-  docs.push(printParameters("enumConstants", path, print));
-  docs.push(";");
+  const docs2 = [];
 
-  // Add class body
-  docs.push(concat(path.map(print, "bodyDeclarations")));
+  // Add enum constants
+  docs2.push(hardline);
+  docs2.push(path.call(print, "enumConstants"));
+  docs2.push(";");
+
+  // // Add class body
+  // TODO
+  // docs.push(concat(path.map(print, "body")));
+
+  docs2.push(hardline);
+
+  docs.push(indent(concat(docs2)));
 
   // Add open curly bracelet for class/interface beginning
   docs.push(hardline);
@@ -232,7 +416,7 @@ function printEnumDeclaration(node, path, print) {
   return group(concat(docs));
 }
 
-function printEnumConstantDeclaration(node, path, print) {
+function printEnumConstant(node, path, print) {
   const docs = [];
 
   // Add marker annotations like @Bean
@@ -255,60 +439,44 @@ function printEnumConstantDeclaration(node, path, print) {
 function printMethodDeclaration(node, path, print) {
   const docs = [];
 
-  const index = Number(path.getName());
-
-  // If method is first element in class, add extra line
-  if (index === 0) {
-    docs.push(hardline);
-  }
-  docs.push(hardline);
-
-  // Add annotations
-  docs.push(printAnnotations(path, print));
-
   docs.push(printMethodDeclarationStart(node, path, print));
 
   // Add method body
-  // Body doesn't exist for abstract
   if (node.body) {
-    docs.push(group(indent(path.call(print, "body"))));
+    // Add open curly
+    docs.push(" ");
 
-    // Add line if the block wasn't empty
-    if (
-      node.body.node === "Block" &&
-      node.body.statements &&
-      node.body.statements.length > 0
-    ) {
-      docs.push(line);
-    }
-
-    // Add close curly brace for method beginning
-    docs.push("}");
+    docs.push(path.call(print, "body"));
+  } else {
+    // If abstract
+    docs.push(";");
   }
 
-  // Add line if this is the last element of the class declaration
-  if (
-    isLastElementWithoutEmptyLines(
-      path.getParentNode().bodyDeclarations,
-      index + 1
-    )
-  ) {
-    docs.push(hardline);
-  }
+  // // Add line if this is the last element of the class declaration
+  // if (
+  //   isLastElementWithoutEmptyLines(
+  //     path.getParentNode().bodyDeclarations,
+  //     index + 1
+  //   )
+  // ) {
+  //   docs.push(hardline);
+  // }
+
+  docs.push(hardline);
 
   return concat(docs);
 
-  function isLastElementWithoutEmptyLines(elements, index) {
-    if (index >= elements.length) {
-      return true;
-    }
+  // function isLastElementWithoutEmptyLines(elements, index) {
+  //   if (index >= elements.length) {
+  //     return true;
+  //   }
 
-    if (elements[index].node !== "LineEmpty") {
-      return false;
-    }
+  //   if (elements[index].node !== "LineEmpty") {
+  //     return false;
+  //   }
 
-    return isLastElementWithoutEmptyLines(elements, index + 1);
-  }
+  //   return isLastElementWithoutEmptyLines(elements, index + 1);
+  // }
 
   // function isPreviousElementLineEmptyOrMethodDeclaration(elements, index) {
   //   if (!elements[index - 1]) {
@@ -327,114 +495,112 @@ function printMethodDeclaration(node, path, print) {
   // }
 }
 
+function printGenericMethodDeclaration(node, path, print) {
+  const docs = [];
+
+  // Add typeParameters
+  docs.push("<");
+  docs.push(path.call(print, "typeParameters"));
+  docs.push(">");
+  docs.push(" ");
+
+  // Add methodDeclaration
+  docs.push(path.call(print, "methodDeclaration"));
+
+  return concat(docs);
+}
+
 function printMethodDeclarationStart(node, path, print) {
   const docs = [];
 
-  // Add modifiers like public, static, etc.
-  docs.push(printModifiers(path, print));
-
-  // Add type parameters
-  if (node.typeParameters && node.typeParameters.length > 0) {
-    docs.push("<");
-    docs.push(group(printParameters("typeParameters", path, print)));
-    docs.push(">");
+  // Add type type
+  if (node.typeType) {
+    docs.push(path.call(print, "typeType"));
     docs.push(" ");
   }
 
-  // Add return type
-  if (node.returnType2) {
-    docs.push(path.call(print, "returnType2"));
-    docs.push(" ");
-  }
-
-  // Add name of class/interface
+  // Add name
   docs.push(path.call(print, "name"));
 
-  // Add open brace for method parameters
-  docs.push("(");
-
-  // Add parameters
-  if (node.parameters && node.parameters.length > 0) {
-    docs.push(printParameters("parameters", path, print));
-    docs.push(softline);
+  // // Add parameters
+  if (node.parameters) {
+    docs.push(path.call(print, "parameters"));
   }
 
-  // Add close brace for method parameters
-  docs.push(")");
-
   // Add thrown exceptions
-  if (node.thrownExceptions && node.thrownExceptions.length > 0) {
+  if (node.throws) {
     const throws = [];
     throws.push(line);
     throws.push("throws");
-    const joinedInterfaces = join(
-      concat([",", line]),
-      path.map(print, "thrownExceptions")
-    );
-    throws.push(indent(concat([line, joinedInterfaces])));
+    throws.push(indent(concat([line, path.call(print, "throws")])));
     docs.push(indent(concat(throws)));
-  }
-
-  // Body doesn't exist for abstract
-  if (node.body) {
-    docs.push(" ");
-
-    // Add open curly brace for method beginning
-    docs.push("{");
-    if (node.bodyDeclarations && node.bodyDeclarations.length > 0) {
-      docs.push(hardline);
-    }
-  } else {
-    // If abstract
-    docs.push(";");
   }
 
   return group(concat(docs));
 }
 
-function printBlock(node, path, print) {
+function printFormalParameters(node, path, print) {
   const docs = [];
 
-  // Add statements
-  docs.push(concat(path.map(print, "statements")));
+  // Add open brace for method parameters
+  docs.push("(");
+
+  // Add parameters
+  if (node.parameters) {
+    docs.push(
+      indent(
+        concat([
+          softline,
+          join(concat([",", line]), path.map(print, "parameters"))
+        ])
+      )
+    );
+    docs.push(softline);
+  }
+
+  // Add open brace for method parameters
+  docs.push(")");
+
+  return group(concat(docs));
+}
+
+function printFormalParameter(node, path, print) {
+  const docs = [];
+
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add type type
+  if (node.typeType) {
+    docs.push(path.call(print, "typeType"));
+    docs.push(" ");
+  }
+
+  docs.push(path.call(print, "id"));
+
+  if (node.dotDotDot) {
+    docs.push("...");
+  }
 
   return concat(docs);
 }
 
-function printEnhancedForStatement(node, path, print) {
+function printBlock(node, path, print) {
   const docs = [];
 
-  // Add line
-  docs.push(hardline);
-
-  // Add for
-  docs.push("for");
-  docs.push(" ");
-
-  // Add open brace
-  docs.push("(");
-
-  // Add parameter
-  docs.push(path.call(print, "parameter"));
-
-  // Add colon
-  docs.push(" ");
-  docs.push(":");
-  docs.push(" ");
-
-  // Add expression
-  docs.push(path.call(print, "expression"));
-
-  // Add close braces and open curly braces
-  docs.push(")");
-  docs.push(" ");
+  // Add open curly
   docs.push("{");
 
-  // Add then of if
-  docs.push(indent(path.call(print, "body")));
+  // Add statements
+  if (node.statements.length > 0) {
+    docs.push(indent(concat(path.map(print, "statements"))));
+    docs.push(line);
+  }
 
-  // Add close curly braces
-  docs.push(line);
+  // Add close curly
   docs.push("}");
 
   return concat(docs);
@@ -447,7 +613,7 @@ function printExpressionStatement(node, path, print) {
   // AND there is only one statement, don't print a hardline
   if (
     path.getParentNode(1).node !== "LambdaExpression" ||
-    path.getParentNode().node !== "Block" ||
+    path.getParentNode().type !== "BLOCK" ||
     path.getParentNode().statements.length > 1
   ) {
     // Add line
@@ -461,10 +627,50 @@ function printExpressionStatement(node, path, print) {
   // AND there is only one statement, don't print a semi colon
   if (
     path.getParentNode(1).node !== "LambdaExpression" ||
-    path.getParentNode().node !== "Block" ||
+    path.getParentNode().type !== "BLOCK" ||
     path.getParentNode().statements.length > 1
   ) {
     docs.push(";");
+  }
+
+  return concat(docs);
+}
+
+function printCommaList(node, path, print) {
+  const docs = [];
+
+  docs.push(join(concat([",", line]), path.map(print, "list")));
+
+  return concat(docs);
+}
+
+function printVerticalLineList(node, path, print) {
+  const docs = [];
+
+  docs.push(join(concat([" ", "|", line]), path.map(print, "list")));
+
+  return concat(docs);
+}
+
+function printDotList(node, path, print) {
+  const docs = [];
+
+  docs.push(join(".", path.map(print, "elements")));
+
+  return concat(docs);
+}
+
+function printIdentifierNameElement(node, path, print) {
+  const docs = [];
+
+  // Add id
+  docs.push(path.call(print, "id"));
+
+  // Add typeArguments
+  if (node.typeArguments) {
+    docs.push("<");
+    docs.push(path.call(print, "typeArguments"));
+    docs.push(">");
   }
 
   return concat(docs);
@@ -481,9 +687,25 @@ function printForStatement(node, path, print) {
   docs.push(" ");
   docs.push("(");
 
+  // Add for control
+  docs.push(path.call(print, "forControl"));
+
+  // Add close braces and open curly braces
+  docs.push(")");
+  docs.push(" ");
+
+  // Add body
+  docs.push(path.call(print, "body"));
+
+  return concat(docs);
+}
+
+function printBasicForControl(node, path, print) {
+  const docs = [];
+
   // Add initializer
-  if (node.initializers) {
-    docs.push(concat(path.map(print, "initializers")));
+  if (node.forInit) {
+    docs.push(path.call(print, "forInit"));
   }
   docs.push(";");
 
@@ -494,23 +716,28 @@ function printForStatement(node, path, print) {
   }
   docs.push(";");
 
-  // Add updater
-  if (node.updaters && node.updaters.length > 0) {
+  // Add expressionList
+  if (node.expressionList) {
     docs.push(" ");
-    docs.push(concat(path.map(print, "updaters")));
+    docs.push(path.call(print, "expressionList"));
   }
 
-  // Add close braces and open curly braces
-  docs.push(")");
+  return concat(docs);
+}
+
+function printEnhancedForControl(node, path, print) {
+  const docs = [];
+
+  // Add declaration
+  docs.push(path.call(print, "declaration"));
+
+  // Add colon
   docs.push(" ");
-  docs.push("{");
+  docs.push(":");
+  docs.push(" ");
 
-  // Add then of if
-  docs.push(indent(path.call(print, "body")));
-
-  // Add close curly braces
-  docs.push(line);
-  docs.push("}");
+  // Add expression
+  docs.push(path.call(print, "expression"));
 
   return concat(docs);
 }
@@ -519,11 +746,32 @@ function printIfStatement(node, path, print) {
   const docs = [];
 
   // Add line, if parent is not an if statement
-  if (path.getParentNode().node !== "IfStatement") {
+  if (path.getParentNode().type !== "IF_STATEMENT") {
     docs.push(hardline);
   }
 
-  docs.push(printIfStatementContinue(node, path, print));
+  // Add if and open braces
+  docs.push("if");
+  docs.push(" ");
+  docs.push("(");
+
+  // Add condition
+  docs.push(path.call(print, "condition"));
+
+  // Add close braces and open curly braces
+  docs.push(")");
+  docs.push(" ");
+
+  // Add body
+  docs.push(path.call(print, "body"));
+
+  // Add else
+  if (node.else) {
+    docs.push(" ");
+    docs.push("else");
+    docs.push(" ");
+    docs.push(path.call(print, "else"));
+  }
 
   return concat(docs);
 }
@@ -577,17 +825,12 @@ function printTryStatement(node, path, print) {
   docs.push("try");
   docs.push(" ");
 
-  // Add open curly braces
-  docs.push("{");
+  // Add resource specification
+  // TODO
+  // docs.push(path.call(print, "resourceSpecification"));
 
   // Add body
-  docs.push(indent(path.call(print, "body")));
-
-  // Add line
-  docs.push(hardline);
-
-  // Add close curly braces
-  docs.push("}");
+  docs.push(path.call(print, "body"));
   docs.push(" ");
 
   // Add catch clauses
@@ -595,19 +838,62 @@ function printTryStatement(node, path, print) {
 
   // Add finally
   if (node.finally) {
-    // Add finally
-    docs.push("finally");
-    docs.push(" ");
-
-    // Add open curly braces
-    docs.push("{");
-
-    docs.push(indent(path.call(print, "finally")));
-
-    // Add close curly braces
-    docs.push(hardline);
-    docs.push("}");
+    docs.push(path.call(print, "finally"));
   }
+
+  return concat(docs);
+}
+
+function printCatchClause(node, path, print) {
+  const docs = [];
+
+  // Add catch
+  docs.push("catch");
+
+  // Add open brace
+  docs.push("(");
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add catchType
+  docs.push(
+    group(
+      concat([
+        indent(
+          concat([
+            softline,
+            path.call(print, "catchType"),
+            " ",
+            path.call(print, "id")
+          ])
+        ),
+        softline
+      ])
+    )
+  );
+
+  // Add close brace
+  docs.push(")");
+  docs.push(" ");
+
+  // Add block
+  docs.push(path.call(print, "block"));
+  docs.push(" ");
+
+  return concat(docs);
+}
+
+function printFinallyBlock(node, path, print) {
+  const docs = [];
+
+  // Add catch
+  docs.push("finally");
+  docs.push(" ");
+
+  // Add block
+  docs.push(path.call(print, "block"));
+  docs.push(" ");
 
   return concat(docs);
 }
@@ -636,50 +922,6 @@ function printVariableDeclarationStatement(node, path, print) {
   return concat(docs);
 }
 
-function printIfStatementContinue(node, path, print) {
-  const docs = [];
-
-  // Add if and open braces
-  docs.push("if");
-  docs.push(" ");
-  docs.push("(");
-
-  // Add expression
-  docs.push(path.call(print, "expression"));
-
-  // Add close braces and open curly braces
-  docs.push(")");
-  docs.push(" ");
-  docs.push("{");
-
-  // Add then of if
-  docs.push(indent(path.call(print, "thenStatement")));
-
-  // Add close curly braces
-  docs.push(line);
-  docs.push("}");
-
-  // Add else
-  if (node.elseStatement) {
-    docs.push(" ");
-    docs.push("else");
-    docs.push(" ");
-    if (node.elseStatement.node == "IfStatement") {
-      // Is in the else statement another if, then print that if
-      docs.push(path.call(print, "elseStatement"));
-    } else {
-      // Regular else
-      docs.push("{");
-      docs.push(indent(path.call(print, "elseStatement")));
-      // Add close curly braces
-      docs.push(line);
-      docs.push("}");
-    }
-  }
-
-  return concat(docs);
-}
-
 function printWhileStatement(node, path, print) {
   const docs = [];
 
@@ -691,20 +933,15 @@ function printWhileStatement(node, path, print) {
   docs.push(" ");
   docs.push("(");
 
-  // Add expression
-  docs.push(path.call(print, "expression"));
+  // Add condition
+  docs.push(path.call(print, "condition"));
 
   // Add close braces and open curly braces
   docs.push(")");
   docs.push(" ");
-  docs.push("{");
 
   // Add then of if
-  docs.push(indent(path.call(print, "body")));
-
-  // Add close curly braces
-  docs.push(line);
-  docs.push("}");
+  docs.push(path.call(print, "body"));
 
   return concat(docs);
 }
@@ -712,22 +949,13 @@ function printWhileStatement(node, path, print) {
 function printFieldDeclaration(node, path, print) {
   const docs = [];
 
-  // Add line
-  docs.push(hardline);
-
-  // Add marker annotations like @Bean
-  docs.push(printAnnotations(path, print));
-
-  // Add modifiers like public, static, etc.
-  docs.push(printModifiers(path, print));
-
-  // Add type
-  docs.push(path.call(print, "type"));
+  // Add typeType
+  docs.push(path.call(print, "typeType"));
   docs.push(" ");
 
-  // Add fragments
-  if (node.fragments && node.fragments.length > 0) {
-    docs.push(concat(path.map(print, "fragments")));
+  // Add variableDeclarators
+  if (node.variableDeclarators) {
+    docs.push(path.call(print, "variableDeclarators"));
   }
 
   // Add semicolon
@@ -742,6 +970,12 @@ function printImportDeclaration(node, path, print) {
   // Add import
   docs.push("import");
   docs.push(" ");
+
+  // Add static
+  if (node.static) {
+    docs.push("static");
+    docs.push(" ");
+  }
 
   // Add name
   docs.push(path.call(print, "name"));
@@ -779,34 +1013,73 @@ function printPackageDeclaration(node, path, print) {
   return concat(docs);
 }
 
-function printSingleVariableDeclaration(node, path, print) {
+function printLocalVariableDeclaration(node, path, print) {
   const docs = [];
 
   // Add modifiers like public, static, etc.
   docs.push(printModifiers(path, print));
 
   // Add type
-  docs.push(path.call(print, "type"));
+  docs.push(path.call(print, "typeType"));
   docs.push(" ");
 
   // Add variable name
-  docs.push(path.call(print, "name"));
+  docs.push(path.call(print, "declarators"));
 
   return concat(docs);
 }
 
-function printTypeParameter(node, path, print) {
+function printVariableDeclarator(node, path, print) {
   const docs = [];
 
-  // Add name
+  // Add id
+  docs.push(path.call(print, "id"));
+
+  // Add init
+  if (node.init) {
+    docs.push(" ");
+    docs.push("=");
+    docs.push(" ");
+
+    docs.push(path.call(print, "init"));
+  }
+
+  return concat(docs);
+}
+
+function printTypeType(node, path, print) {
+  const docs = [];
+
+  // // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add value
+  docs.push(path.call(print, "value"));
+
+  // Add cntSquares
+  docs.push(concat(path.map(print, "dimensions")));
+
+  return concat(docs);
+}
+
+function printClassOrInterfaceTypeElement(node, path, print) {
+  const docs = [];
+
+  //  Add name
   docs.push(path.call(print, "name"));
 
-  // Add type bounds
-  if (node.typeBounds && node.typeBounds.length > 0) {
-    docs.push(" ");
-    docs.push("extends");
-    docs.push(" ");
-    docs.push(concat(path.map(print, "typeBounds")));
+  //  Add typeArguments
+  if (node.typeArguments) {
+    // Add less
+    docs.push("<");
+
+    docs.push(path.call(print, "typeArguments"));
+
+    // Add greater
+    docs.push(">");
   }
 
   return concat(docs);
@@ -858,7 +1131,7 @@ function printPrimitiveType(node) {
   const docs = [];
 
   // Add primitive type like void, int, etc.
-  docs.push(node.primitiveTypeCode);
+  docs.push(node.value);
 
   return concat(docs);
 }
@@ -928,21 +1201,16 @@ function printConstructorInvocation(node, path, print) {
 function printMethodInvocation(node, path, print) {
   const docs = [];
 
-  // Add expression
-  if (node.expression) {
-    docs.push(path.call(print, "expression"));
-    docs.push(softline);
-    docs.push(".");
-  }
-
   // Add method name
   docs.push(path.call(print, "name"));
 
   // Add open brace for method parameters
   docs.push("(");
 
-  // Add method arguments
-  docs.push(concat(path.map(print, "arguments")));
+  // Add method parameters
+  if (node.parameters) {
+    docs.push(path.call(print, "parameters"));
+  }
 
   // Add close brace for method parameters
   docs.push(")");
@@ -1008,12 +1276,85 @@ function printSuperMethodInvocation(node, path, print) {
 function printQualifiedName(node, path, print) {
   const docs = [];
 
-  // Add qualifier
-  docs.push(path.call(print, "qualifier"));
-  docs.push(".");
+  // Add name
+  docs.push(join(".", path.map(print, "name")));
+
+  return concat(docs);
+}
+
+function printQualifiedExpression(node, path, print) {
+  const docs = [];
+
+  // expression
+  const expression = path.call(print, "expression");
+
+  // rest
+  const rest = path.call(print, "rest");
 
   // Add name
-  docs.push(path.call(print, "name"));
+  docs.push(join(".", [expression, rest]));
+
+  return concat(docs);
+}
+
+function printOperatorExpression(node, path, print) {
+  const docs = [];
+
+  // left
+  docs.push(path.call(print, "left"));
+
+  // operator
+  docs.push(" ");
+  docs.push(node.operator);
+  docs.push(" ");
+
+  // right
+  docs.push(path.call(print, "right"));
+
+  return concat(docs);
+}
+
+function printParExpression(node, path, print) {
+  const docs = [];
+
+  // Add open brace
+  docs.push("(");
+
+  // Add expression
+  docs.push(path.call(print, "expression"));
+
+  // Add close brace
+  docs.push(")");
+
+  return concat(docs);
+}
+
+function printIdentifier(node) {
+  const docs = [];
+
+  // Add value
+  docs.push(node.value);
+
+  return concat(docs);
+}
+
+function printIdentifiers(node, path, print) {
+  const docs = [];
+
+  if (!node.identifiers || node.identifiers.list.length !== 1) {
+    // Add open brace
+    docs.push("(");
+  }
+
+  if (node.identifiers) {
+    // Add identifiers
+    docs.push(path.call(print, "identifiers"));
+  }
+
+  if (!node.identifiers || node.identifiers.list.length !== 1) {
+    // Add close brace
+    docs.push(")");
+  }
 
   return concat(docs);
 }
@@ -1022,11 +1363,7 @@ function printBooleanLiteral(node) {
   const docs = [];
 
   // Add boolean value
-  if (node.booleanValue) {
-    docs.push("true");
-  } else {
-    docs.push("false");
-  }
+  docs.push(node.value);
 
   return concat(docs);
 }
@@ -1046,8 +1383,8 @@ function printTypeLiteral(node, path, print) {
 function printStringLiteral(node) {
   const docs = [];
 
-  // Add escaped value
-  docs.push(node.escapedValue);
+  // Add value
+  docs.push(node.value);
 
   return concat(docs);
 }
@@ -1057,6 +1394,15 @@ function printNumberLiteral(node) {
 
   // Add token
   docs.push(node.token);
+
+  return concat(docs);
+}
+
+function printDecimalLiteral(node) {
+  const docs = [];
+
+  // Add value
+  docs.push(node.value);
 
   return concat(docs);
 }
@@ -1110,32 +1456,53 @@ function printArrayCreation(node, path, print) {
   return concat(docs);
 }
 
-function printClassInstanceCreation(node, path, print) {
+function printSimpleCreator(node, path, print) {
   const docs = [];
 
   // Add new
   docs.push("new");
   docs.push(" ");
 
-  // Add type
-  docs.push(path.call(print, "type"));
+  // Add name
+  docs.push(path.call(print, "name"));
 
-  // Add open braces
+  // Add rest
+  docs.push(path.call(print, "rest"));
+
+  return concat(docs);
+}
+
+function printClassCreatorRest(node, path, print) {
+  const docs = [];
+
+  // Add open brace
   docs.push("(");
 
   // Add arguments
-  if (node.arguments && node.arguments.length > 0) {
-    docs.push(
-      group(concat([printParameters("arguments", path, print), softline]))
-    );
-  }
+  docs.push(path.call(print, "arguments"));
 
-  // Add close braces
+  // Add close brace
   docs.push(")");
 
-  // Add anonymous class declaration
-  if (node.anonymousClassDeclaration) {
-    docs.push(path.call(print, "anonymousClassDeclaration"));
+  // Add body
+  if (node.body) {
+    docs.push(" ");
+    docs.push(path.call(print, "body"));
+  }
+
+  return concat(docs);
+}
+
+function printArrayCreatorRest(node, path, print) {
+  const docs = [];
+
+  // Add dimensions
+  docs.push(concat(path.map(print, "dimensions")));
+
+  // Add arrayInitializer
+  if (node.arrayInitializer) {
+    docs.push(" ");
+    docs.push(path.call(print, "arrayInitializer"));
   }
 
   return concat(docs);
@@ -1144,15 +1511,24 @@ function printClassInstanceCreation(node, path, print) {
 function printArrayInitializer(node, path, print) {
   const docs = [];
 
-  // Add open curly braces
-  docs.push("{");
-
-  // Add expressions
-  docs.push(printParameters("expressions", path, print));
-
-  // Add close curly braces
-  docs.push(softline);
-  docs.push("}");
+  // Add statements
+  if (node.variableInitializers.length > 0) {
+    docs.push(
+      group(
+        concat([
+          "{",
+          indent(
+            concat([
+              line,
+              join(concat([",", line]), path.map(print, "variableInitializers"))
+            ])
+          ),
+          line,
+          "}"
+        ])
+      )
+    );
+  }
 
   return concat(docs);
 }
@@ -1172,8 +1548,8 @@ function printCastExpression(node, path, print) {
   // Add open braces
   docs.push("(");
 
-  // Add type
-  docs.push(path.call(print, "type"));
+  // Add castType
+  docs.push(path.call(print, "castType"));
 
   // Add close braces
   docs.push(")");
@@ -1227,23 +1603,6 @@ function printInfixExpression(node, path, print) {
   return concat(docs);
 }
 
-function printInstanceofExpression(node, path, print) {
-  const docs = [];
-
-  // Add left operand
-  docs.push(path.call(print, "leftOperand"));
-
-  // Add operator
-  docs.push(" ");
-  docs.push("instanceof");
-  docs.push(" ");
-
-  // Add right operand
-  docs.push(path.call(print, "rightOperand"));
-
-  return concat(docs);
-}
-
 function printParenthesizedExpression(node, path, print) {
   const docs = [];
 
@@ -1259,14 +1618,39 @@ function printParenthesizedExpression(node, path, print) {
   return concat(docs);
 }
 
+function printIfElseExpression(node, path, print) {
+  const docs = [];
+
+  // Add condition
+  docs.push(path.call(print, "condition"));
+  docs.push(" ");
+
+  // Add questionmark
+  docs.push("?");
+  docs.push(" ");
+
+  // Add if
+  docs.push(path.call(print, "if"));
+  docs.push(" ");
+
+  // Add colon
+  docs.push(":");
+  docs.push(" ");
+
+  // Add else
+  docs.push(path.call(print, "else"));
+
+  return concat(docs);
+}
+
 function printPostfixExpression(node, path, print) {
   const docs = [];
 
-  // Add operand
-  docs.push(path.call(print, "operand"));
+  // Add expression
+  docs.push(path.call(print, "expression"));
 
-  // Add operator
-  docs.push(node.operator);
+  // Add postfix
+  docs.push(node.postfix);
 
   return concat(docs);
 }
@@ -1274,11 +1658,28 @@ function printPostfixExpression(node, path, print) {
 function printPrefixExpression(node, path, print) {
   const docs = [];
 
-  // Add operator
-  docs.push(node.operator);
+  // Add prefix
+  docs.push(node.prefix);
 
-  // Add operand
-  docs.push(path.call(print, "operand"));
+  // Add expression
+  docs.push(path.call(print, "expression"));
+
+  return concat(docs);
+}
+
+function printInstanceofExpression(node, path, print) {
+  const docs = [];
+
+  // Add expression
+  docs.push(path.call(print, "expression"));
+
+  // Add instanceof keyword
+  docs.push(" ");
+  docs.push("instanceof");
+  docs.push(" ");
+
+  // Add instanceof
+  docs.push(path.call(print, "instanceof"));
 
   return concat(docs);
 }
@@ -1311,6 +1712,60 @@ function printVariableDeclarationFragment(node, path, print) {
     docs.push("=");
     docs.push(" ");
     docs.push(path.call(print, "initializer"));
+  }
+
+  return concat(docs);
+}
+
+function printVariableDeclaratorId(node, path, print) {
+  const docs = [];
+
+  // Add id
+  docs.push(path.call(print, "id"));
+
+  // Add dimensions
+  docs.push(concat(path.map(print, "dimensions")));
+
+  return concat(docs);
+}
+
+function printTypeArgument(node, path, print) {
+  const docs = [];
+
+  // Add argument
+  docs.push(path.call(print, "argument"));
+
+  // Add super
+  if (node.super) {
+    docs.push(path.call(print, "super"));
+  }
+
+  // Add extends
+  if (node.extends) {
+    docs.push(" ");
+    docs.push("extends");
+    docs.push(" ");
+    docs.push(path.call(print, "extends"));
+  }
+
+  return concat(docs);
+}
+
+function printTypeParameter(node, path, print) {
+  const docs = [];
+
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add name
+  docs.push(path.call(print, "name"));
+
+  // Add typeBounds
+  if (node.typeBound) {
+    docs.push(" ");
+    docs.push("extends");
+    docs.push(" ");
+    docs.push(path.call(print, "typeBound"));
   }
 
   return concat(docs);
@@ -1362,62 +1817,59 @@ function printFieldAccess(node, path, print) {
   return concat(docs);
 }
 
-function printThisExpression() {
+function printThis(node, path, print) {
   const docs = [];
 
   docs.push("this");
 
-  return concat(docs);
-}
-
-function printNormalAnnotation(node, path, print) {
-  const docs = [];
-
-  // Add type name
-  docs.push("@");
-  docs.push(path.call(print, "typeName"));
-  docs.push("(");
-  if (node.values && node.values.length > 0) {
-    docs.push(
-      group(
-        concat([
-          indent(
-            concat([
-              softline,
-              join(concat([",", line]), path.map(print, "values"))
-            ])
-          ),
-          softline
-        ])
-      )
-    );
+  if (node.arguments) {
+    docs.push("(");
+    docs.push(path.call(print, "arguments"));
+    docs.push(")");
   }
-  docs.push(")");
-  docs.push(hardline);
 
   return concat(docs);
 }
 
-function printSingleMemberAnnotation(node, path, print) {
+function printSuper(node, path, print) {
   const docs = [];
 
-  // Add type name
-  docs.push("@");
-  docs.push(path.call(print, "typeName"));
-  docs.push("(");
-  docs.push(path.call(print, "value"));
-  docs.push(")");
-  docs.push(hardline);
+  docs.push("super");
+
+  if (node.arguments) {
+    docs.push("(");
+    docs.push(path.call(print, "arguments"));
+    docs.push(")");
+  }
 
   return concat(docs);
 }
 
-function printMarkerAnnotation(node, path, print) {
+function printAnnotation(node, path, print) {
   const docs = [];
 
   // Add type name
   docs.push("@");
-  docs.push(path.call(print, "typeName"));
+  docs.push(path.call(print, "name"));
+  if (node.hasBraces) {
+    docs.push("(");
+    if (node.values) {
+      docs.push(
+        group(
+          concat([
+            indent(
+              concat([
+                softline,
+                join(concat([",", line]), path.map(print, "values"))
+              ])
+            ),
+            softline
+          ])
+        )
+      );
+    }
+    docs.push(")");
+  }
   docs.push(hardline);
 
   return concat(docs);
@@ -1427,44 +1879,7 @@ function printModifier(node) {
   const docs = [];
 
   // Add keyword
-  docs.push(node.keyword);
-  docs.push(" ");
-
-  return concat(docs);
-}
-
-function printCatchClause(node, path, print) {
-  const docs = [];
-
-  // Add catch
-  docs.push("catch");
-
-  // Add open brace
-  docs.push("(");
-
-  // Add exception
-  docs.push(
-    group(
-      concat([
-        indent(concat([softline, path.call(print, "exception")])),
-        softline
-      ])
-    )
-  );
-
-  // Add close brace
-  docs.push(")");
-  docs.push(" ");
-
-  // Add open curly brace
-  docs.push("{");
-
-  // Add body
-  docs.push(indent(path.call(print, "body")));
-  docs.push(hardline);
-
-  // Add close curly brace
-  docs.push("}");
+  docs.push(node.value);
   docs.push(" ");
 
   return concat(docs);
@@ -1552,14 +1967,21 @@ function printJavaDocComment(node) {
 function printMethodReference(node, path, print) {
   const docs = [];
 
-  // Add class
-  docs.push(path.call(print, "class"));
+  // Add reference
+  docs.push(path.call(print, "reference"));
 
   // Add colon colon
   docs.push("::");
 
-  // Add method
-  docs.push(path.call(print, "method"));
+  // Add typeArguments
+  if (node.typeArguments) {
+    docs.push("<");
+    docs.push(path.call(print, "typeArguments"));
+    docs.push(">");
+  }
+
+  // Add name
+  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
@@ -1567,53 +1989,73 @@ function printMethodReference(node, path, print) {
 function printLambdaExpression(node, path, print) {
   const docs = [];
 
-  // Don't print parens if there is only one arg
-  if (node.args && node.args.length !== 1) {
-    // Add open braces
-    docs.push("(");
-  }
-
-  // Add args
-  docs.push(join(concat([",", " "]), path.map(print, "args")));
-
-  // Don't print parens if there is only one arg
-  if (node.args && node.args.length !== 1) {
-    // Add close braces
-    docs.push(")");
-  }
+  // Add parameters
+  docs.push(path.call(print, "parameters"));
+  docs.push(" ");
 
   // Add pointer
-  docs.push(" ");
   docs.push("->");
   docs.push(" ");
 
-  // Don't print culry parens if body has only one statement
-  if (
-    node.body &&
-    node.body.node === "Block" &&
-    node.body.statements &&
-    node.body.statements.length !== 1
-  ) {
-    // Add open curly braces
-    docs.push("{");
-  }
-
   // Add body
-  docs.push(indent(path.call(print, "body")));
+  docs.push(path.call(print, "body"));
 
-  // Don't print culry parens if body has only one statement
-  if (
-    node.body &&
-    node.body.node === "Block" &&
-    node.body.statements &&
-    node.body.statements.length !== 1
-  ) {
-    // Add line
-    docs.push(hardline);
+  return concat(docs);
+}
 
-    // Add close curly braces
-    docs.push("}");
+function printVoid() {
+  const docs = [];
+
+  docs.push("void");
+
+  return concat(docs);
+}
+
+function printClass() {
+  const docs = [];
+
+  docs.push("class");
+
+  return concat(docs);
+}
+
+function printNew() {
+  const docs = [];
+
+  docs.push("new");
+
+  return concat(docs);
+}
+
+function printNull() {
+  const docs = [];
+
+  docs.push("null");
+
+  return concat(docs);
+}
+
+function printQuestionmark() {
+  const docs = [];
+
+  docs.push("?");
+
+  return concat(docs);
+}
+
+function printDimension(node, path, print) {
+  const docs = [];
+
+  // Add open square
+  docs.push("[");
+
+  // Add expression
+  if (node.expression) {
+    docs.push(path.call(print, "expression"));
   }
+
+  // Add close square
+  docs.push("]");
 
   return concat(docs);
 }
@@ -1635,69 +2077,133 @@ function isEmptyComment(node) {
 }
 
 function printNode(node, path, print) {
-  switch (node.node) {
-    case "CompilationUnit": {
+  // console.log(node.type, node);
+  switch (node.type) {
+    case "COMPILATION_UNIT": {
       return printCompilationUnit(node, path, print);
     }
-    case "TypeDeclaration": {
+    case "TYPE_DECLARATION": {
       return printTypeDeclaration(node, path, print);
+    }
+    case "CLASS_DECLARATION": {
+      return printClassDeclaration(node, path, print);
+    }
+    case "INTERFACE_DECLARATION": {
+      return printInterfaceDeclaration(node, path, print);
+    }
+    case "CONSTRUCTOR_DECLARATION": {
+      return printConstructorDeclaration(node, path, print);
+    }
+    case "CLASS_BODY": {
+      return printClassBody(node, path, print);
+    }
+    case "CLASS_BODY_MEMBER_DECLARATION": {
+      return printClassBodyMemberDeclaration(node, path, print);
+    }
+    case "INTERFACE_BODY": {
+      return printInterfaceBody(node, path, print);
     }
     case "AnonymousClassDeclaration": {
       return printAnonymousClassDeclaration(node, path, print);
     }
-    case "EnumDeclaration": {
+    case "ENUM_DECLARATION": {
       return printEnumDeclaration(node, path, print);
     }
-    case "EnumConstantDeclaration": {
-      return printEnumConstantDeclaration(node, path, print);
+    case "ENUM_CONSTANT": {
+      return printEnumConstant(node, path, print);
     }
-    case "MethodDeclaration": {
+    case "METHOD_DECLARATION": {
       return printMethodDeclaration(node, path, print);
     }
-    case "Block": {
+    case "GENERIC_METHOD_DECLARATION": {
+      return printGenericMethodDeclaration(node, path, print);
+    }
+    case "FORMAL_PARAMETERS": {
+      return printFormalParameters(node, path, print);
+    }
+    case "FORMAL_PARAMETER": {
+      return printFormalParameter(node, path, print);
+    }
+    case "BLOCK": {
       return printBlock(node, path, print);
     }
-    case "EnhancedForStatement": {
-      return printEnhancedForStatement(node, path, print);
-    }
-    case "ExpressionStatement": {
+    case "EXPRESSION_STATEMENT": {
       return printExpressionStatement(node, path, print);
     }
-    case "ForStatement": {
+    case "EXPRESSION_LIST":
+    case "ENUM_CONSTANTS":
+    case "TYPE_LIST":
+    case "VARIABLE_DECLARATORS":
+    case "TYPE_ARGUMENTS":
+    case "TYPE_PARAMETERS":
+    case "TYPE_BOUND":
+    case "IDENTIFIER_LIST":
+    case "QUALIFIED_NAME_LIST": {
+      return printCommaList(node, path, print);
+    }
+    case "CATCH_TYPE": {
+      return printVerticalLineList(node, path, print);
+    }
+    case "CLASS_OR_INTERFACE_TYPE":
+    case "IDENTIFIER_NAME": {
+      return printDotList(node, path, print);
+    }
+    case "IDENTIFIER_NAME_ELEMENT": {
+      return printIdentifierNameElement(node, path, print);
+    }
+    case "FOR_STATEMENT": {
       return printForStatement(node, path, print);
     }
-    case "IfStatement": {
+    case "BASIC_FOR_CONTROL": {
+      return printBasicForControl(node, path, print);
+    }
+    case "ENHANCED_FOR_CONTROL": {
+      return printEnhancedForControl(node, path, print);
+    }
+    case "IF_STATEMENT": {
       return printIfStatement(node, path, print);
     }
-    case "ReturnStatement": {
+    case "RETURN_STATEMENT": {
       return printReturnStatement(node, path, print);
     }
-    case "ThrowStatement": {
+    case "THROW_STATEMENT": {
       return printThrowStatement(node, path, print);
     }
-    case "TryStatement": {
+    case "TRY_STATEMENT": {
       return printTryStatement(node, path, print);
+    }
+    case "CATCH_CLAUSE": {
+      return printCatchClause(node, path, print);
+    }
+    case "FINALLY_BLOCK": {
+      return printFinallyBlock(node, path, print);
     }
     case "VariableDeclarationStatement": {
       return printVariableDeclarationStatement(node, path, print);
     }
-    case "WhileStatement": {
+    case "WHILE_STATEMENT": {
       return printWhileStatement(node, path, print);
     }
-    case "FieldDeclaration": {
+    case "FIELD_DECLARATION": {
       return printFieldDeclaration(node, path, print);
     }
-    case "ImportDeclaration": {
+    case "IMPORT_DECLARATION": {
       return printImportDeclaration(node, path, print);
     }
-    case "PackageDeclaration": {
+    case "PACKAGE_DECLARATION": {
       return printPackageDeclaration(node, path, print);
     }
-    case "SingleVariableDeclaration": {
-      return printSingleVariableDeclaration(node, path, print);
+    case "LOCAL_VARIABLE_DECLARATION": {
+      return printLocalVariableDeclaration(node, path, print);
     }
-    case "TypeParameter": {
-      return printTypeParameter(node, path, print);
+    case "VARIABLE_DECLARATOR": {
+      return printVariableDeclarator(node, path, print);
+    }
+    case "TYPE_TYPE": {
+      return printTypeType(node, path, print);
+    }
+    case "CLASS_OR_INTERFACE_TYPE_ELEMENT": {
+      return printClassOrInterfaceTypeElement(node, path, print);
     }
     case "ArrayType": {
       return printArrayType(node, path, print);
@@ -1705,7 +2211,7 @@ function printNode(node, path, print) {
     case "ParameterizedType": {
       return printParameterizedType(node, path, print);
     }
-    case "PrimitiveType": {
+    case "PRIMITIVE_TYPE": {
       return printPrimitiveType(node, path, print);
     }
     case "SimpleType": {
@@ -1720,7 +2226,7 @@ function printNode(node, path, print) {
     case "ConstructorInvocation": {
       return printConstructorInvocation(node, path, print);
     }
-    case "MethodInvocation": {
+    case "METHOD_INVOCATION": {
       return printMethodInvocation(node, path, print);
     }
     case "SuperConstructorInvocation": {
@@ -1729,20 +2235,38 @@ function printNode(node, path, print) {
     case "SuperMethodInvocation": {
       return printSuperMethodInvocation(node, path, print);
     }
-    case "QualifiedName": {
+    case "QUALIFIED_NAME": {
       return printQualifiedName(node, path, print);
     }
-    case "BooleanLiteral": {
+    case "QUALIFIED_EXPRESSION": {
+      return printQualifiedExpression(node, path, print);
+    }
+    case "OPERATOR_EXPRESSION": {
+      return printOperatorExpression(node, path, print);
+    }
+    case "PAR_EXPRESSION": {
+      return printParExpression(node, path, print);
+    }
+    case "IDENTIFIER": {
+      return printIdentifier(node, path, print);
+    }
+    case "IDENTIFIERS": {
+      return printIdentifiers(node, path, print);
+    }
+    case "BOOLEAN_LITERAL": {
       return printBooleanLiteral(node, path, print);
     }
     case "TypeLiteral": {
       return printTypeLiteral(node, path, print);
     }
-    case "StringLiteral": {
+    case "STRING_LITERAL": {
       return printStringLiteral(node, path, print);
     }
     case "NumberLiteral": {
       return printNumberLiteral(node, path, print);
+    }
+    case "DECIMAL_LITERAL": {
+      return printDecimalLiteral(node, path, print);
     }
     case "NullLiteral": {
       return printNullLiteral(node, path, print);
@@ -1750,16 +2274,22 @@ function printNode(node, path, print) {
     case "ArrayCreation": {
       return printArrayCreation(node, path, print);
     }
-    case "ClassInstanceCreation": {
-      return printClassInstanceCreation(node, path, print);
+    case "SIMPLE_CREATOR": {
+      return printSimpleCreator(node, path, print);
     }
-    case "ArrayInitializer": {
+    case "CLASS_CREATOR_REST": {
+      return printClassCreatorRest(node, path, print);
+    }
+    case "ARRAY_CREATOR_REST": {
+      return printArrayCreatorRest(node, path, print);
+    }
+    case "ARRAY_INITIALIZER": {
       return printArrayInitializer(node, path, print);
     }
     case "SimpleName": {
       return printSimpleName(node, path, print);
     }
-    case "CastExpression": {
+    case "CAST_EXPRESSION": {
       return printCastExpression(node, path, print);
     }
     case "ConditionalExpression": {
@@ -1768,23 +2298,35 @@ function printNode(node, path, print) {
     case "InfixExpression": {
       return printInfixExpression(node, path, print);
     }
-    case "InstanceofExpression": {
-      return printInstanceofExpression(node, path, print);
-    }
     case "ParenthesizedExpression": {
       return printParenthesizedExpression(node, path, print);
     }
-    case "PostfixExpression": {
+    case "IF_ELSE_EXPRESSION": {
+      return printIfElseExpression(node, path, print);
+    }
+    case "POSTFIX_EXPRESSION": {
       return printPostfixExpression(node, path, print);
     }
-    case "PrefixExpression": {
+    case "PREFIX_EXPRESSION": {
       return printPrefixExpression(node, path, print);
+    }
+    case "INSTANCEOF_EXPRESSION": {
+      return printInstanceofExpression(node, path, print);
     }
     case "VariableDeclarationExpression": {
       return printVariableDeclarationExpression(node, path, print);
     }
     case "VariableDeclarationFragment": {
       return printVariableDeclarationFragment(node, path, print);
+    }
+    case "VARIABLE_DECLARATOR_ID": {
+      return printVariableDeclaratorId(node, path, print);
+    }
+    case "TYPE_ARGUMENT": {
+      return printTypeArgument(node, path, print);
+    }
+    case "TYPE_PARAMETER": {
+      return printTypeParameter(node, path, print);
     }
     case "ArrayAccess": {
       return printArrayAccess(node, path, print);
@@ -1795,28 +2337,21 @@ function printNode(node, path, print) {
     case "FieldAccess": {
       return printFieldAccess(node, path, print);
     }
-    case "ThisExpression": {
-      return printThisExpression(node, path, print);
+    case "THIS": {
+      return printThis(node, path, print);
+    }
+    case "SUPER": {
+      return printSuper(node, path, print);
     }
     // modifiers
-    case "NormalAnnotation": {
-      return printNormalAnnotation(node, path, print);
+    case "ANNOTATION": {
+      return printAnnotation(node, path, print);
     }
-    case "SingleMemberAnnotation": {
-      return printSingleMemberAnnotation(node, path, print);
-    }
-    case "MarkerAnnotation": {
-      return printMarkerAnnotation(node, path, print);
-    }
-    case "Modifier": {
+    case "MODIFIER": {
       return printModifier(node, path, print);
     }
     case "MemberValuePair": {
       return printMemberValuePair(node, path, print);
-    }
-    // CatchClause
-    case "CatchClause": {
-      return printCatchClause(node, path, print);
     }
     // Lines
     case "LineEmpty": {
@@ -1832,13 +2367,31 @@ function printNode(node, path, print) {
       return printJavaDocComment(node, path, print);
     }
     // MethodReference / Lambda
-    case "MethodReference": {
+    case "METHOD_REFERENCE": {
       return printMethodReference(node, path, print);
     }
-    case "LambdaExpression": {
+    case "LAMBDA_EXPRESSION": {
       return printLambdaExpression(node, path, print);
     }
-    /* istanbul ignore next */
+    case "VOID": {
+      return printVoid(node, path, print);
+    }
+    case "CLASS": {
+      return printClass(node, path, print);
+    }
+    case "NEW": {
+      return printNew(node, path, print);
+    }
+    case "NULL": {
+      return printNull(node, path, print);
+    }
+    case "QUESTIONMARK": {
+      return printQuestionmark(node, path, print);
+    }
+    case "DIMENSION": {
+      return printDimension(node, path, print);
+    }
+    /* ignore next */
     default:
       // eslint-disable-next-line no-console
       console.error("Unknown Java node:", node);
@@ -1860,7 +2413,7 @@ function printModifiers(path, print) {
 
   // Add only modifiers in array
   path.each(modifierPath => {
-    if (modifierPath.getValue().node === "Modifier") {
+    if (modifierPath.getValue().type === "MODIFIER") {
       docs.push(modifierPath.call(print));
     }
   }, "modifiers");
@@ -1893,18 +2446,14 @@ function printAnnotations(path, print) {
 
   // Add only marker annotations in array
   path.each(annotationPath => {
-    const node = annotationPath.getValue().node;
-    if (
-      node === "NormalAnnotation" ||
-      node === "SingleMemberAnnotation" ||
-      node === "MarkerAnnotation"
-    ) {
-      const identifier = annotationPath.getValue().typeName.identifier;
-      annotations.push(identifier);
-      annotationsMap[identifier] = annotationPath.call(print);
+    const node = annotationPath.getValue();
+    if (node.type === "ANNOTATION") {
+      const annotation = annotationPath.call(print);
+      docs.push(annotation);
     }
   }, "modifiers");
 
+  // TODO sorting
   annotations.sort((a, b) => {
     if (a < b) {
       return -1;

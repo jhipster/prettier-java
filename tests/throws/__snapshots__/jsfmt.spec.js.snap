@@ -51,11 +51,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException3(
-        String string1,
-        String string2,
-        String string3
-    )
+    void throwException3(String string1, String string2, String string3)
         throws
             RuntimeException {
         throw new RuntimeException();
@@ -69,9 +65,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException5(
-        String string
-    )
+    void throwException5(String string)
         throws
             RuntimeException,
             RuntimeException,
@@ -79,11 +73,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException6(
-        String string1,
-        String string2,
-        String string3
-    )
+    void throwException6(String string1, String string2, String string3)
         throws
             RuntimeException,
             RuntimeException,
@@ -109,9 +99,7 @@ public abstract class Throws {
             RuntimeException,
             RuntimeException;
 
-    abstract void absThrowException5(
-        String string
-    )
+    abstract void absThrowException5(String string)
         throws
             RuntimeException,
             RuntimeException,

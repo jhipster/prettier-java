@@ -8,7 +8,7 @@ public class BreakLongFunctionCall {
 		return something().more().and().that().as().well().but().not().something().something();
 	}
 	
-	public void doSomethingLongNew() {
+	public void doSomethingLongNew2() {
 		return new Object().something().more().and().that().as().well().but().not().something();
 	}
 	

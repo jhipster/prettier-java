@@ -34,219 +34,21 @@ public class Args {
 ```
 # comment_javadoc
 ```java
-  
-/** PACKAGE
- * another line
- * @author me
- */
-package comments;
 
-/** ABC */
-class EmptyComment {}
-
-/** BLUB */
-class MultiComments {
-    /** Abc */
-    /** XYZ */
-    /** Something 
-   * on two lines
-  */
-}
-
-class MultiCommentsWithEmptyLines {
-    /** Abc */
-
-    /** XYZ */
-
-    /** Something */
-}
-
-class MultiCommentsWithDeclarationsAfter {
-    /** Abc */
-    int i;
-
-    /** XYZ */
-    public void doSomething(int j) {
-        System.out.println("do");
-    }
-
-    /** Something */
-}
-
-class MethodComment {
-
-    public void doSomething1(int j) {
-        /** Abc */
-        System.out.println("do");
-
-        /** XYZ */
-        System.out.println("do");
-    }
-
-    public void doSomething2(int j) {
-
-        /** Abc */
-        System.out.println("do");
-
-        /** XYZ */
-        System.out.println("do");
-
-        /** Something */
-    }
-
-}
-
-/** Some
- * comment */
-interface InterfaceComment {
-    /** comment */
-    void doSomething();
-
-}
 ```
 # comment_line
 ```java
 
-// PACKAGE
-package comments;
-
-// ABC
-class EmptyComment {}
-
-// BLUB
-class MultiComments {
-    // Abc
-    // XYZ
-    // Something
-}
-
-class MultiCommentsWithEmptyLines {
-    // Abc
-
-    // XYZ
-
-    // Something
-}
-
-class MultiCommentsWithDeclarationsAfter {
-    // Abc
-    int i;
-
-    // XYZ
-    public void doSomething(int j) {
-        System.out.println("do");
-    }
-
-    // Something
-}
-
-class MethodComment {
-
-    public void doSomething1(int j) {
-        // Abc
-        System.out.println("do");
-
-        // XYZ
-        System.out.println("do");
-    }
-
-    public void doSomething2(int j) {
-
-        // Abc
-        System.out.println("do");
-
-        // XYZ
-        System.out.println("do");
-
-        // Something
-    }
-
-}
-
-// Some comment
-interface InterfaceComment {
-    // comment
-    void doSomething();
-
-}
 ```
 # comment_traditional
 ```java
 
-/* PACKAGE 
-   Another line
-*/
-package comments;
-
-/* ABC */
-class EmptyComment {}
-
-/* BLUB */
-class MultiComments {
-    /* Abc */
-    /* XYZ */
-    /* Something
-     on two lines */
-}
-
-class MultiCommentsWithEmptyLines {
-    /* Abc */
-
-    /* XYZ */
-
-    /* Something */
-}
-
-class MultiCommentsWithDeclarationsAfter {
-    /* Abc */
-    int i;
-
-    /* XYZ */
-    public void doSomething(int j) {
-        System.out.println("do");
-    }
-
-    /* Something */
-}
-
-class MethodComment {
-
-    public void doSomething1(int j) {
-        /* Abc */
-        System.out.println("do");
-
-        /* XYZ */
-        System.out.println("do");
-    }
-
-    public void doSomething2(int j) {
-
-        /* Abc */
-        System.out.println("do");
-
-        /* XYZ */
-        System.out.println("do");
-
-        /* Something */
-    }
-
-}
-
-/* Some
-   comment */
-interface InterfaceComment {
-    /* comment*/
-    void doSomething();
-
-}
 ```
 # complex_generic_class
 ```java
 
 public class GenericClass<BEAN extends Comparable<BEAN>> {
-
     private BEAN bean;
-
     public GenericClass(BEAN bean) {
         this.bean = bean;
     }
@@ -307,38 +109,6 @@ public interface EmptyInterface {}
 # empty_lines
 ```java
 
-class EmptyClass {}
-
-class EmptyLinesAtBeginning {
-
-    int i;
-}
-
-class EmptyLinesAtEnd {
-    int i;
-}
-
-class EmptyLinesBetween {
-
-    int i;
-
-    int j;
-
-    void doSomething() {}
-
-}
-
-class EmptyLinesInFrontOfMethod {
-
-    void doSomething() {}
-
-}
-
-class EmptyLinesAfterOfMethod {
-
-    void doSomething() {}
-
-}
 ```
 # empty_method
 ```java
@@ -516,9 +286,7 @@ public class For {
 ```java
 
 public class GenericClass<BEAN> {
-
     private BEAN bean;
-
     public GenericClass(BEAN bean) {
         this.bean = bean;
     }
@@ -537,8 +305,6 @@ public class GenericClass<BEAN> {
 # generic_questionmark
 ```java
 }
-public class Generic<?> {}
-
 public class GenericExtends<BEAN extends Bean<?>> {}
 
 public class Simple {
@@ -577,8 +343,8 @@ public class If {
         }
     }
 
-    public void shortIfElse(boolean one) {
-        one ? System.out.println("one") : System.out.println("not one");
+    public boolean shortIfElse(boolean one) {
+        return one ? true : false;
     }
 
     public void ifElseIfElse(boolean one, boolean two) {
@@ -608,9 +374,7 @@ public class If {
 # implements_interface
 ```java
 
-public class ImplementsInterface
-    implements
-        Interface {
+public class ImplementsInterface implements Interface {
 
     @Override
     public void interfaceMethod() {
@@ -622,10 +386,7 @@ public class ImplementsInterface
 # implements_mulitple_interfaces
 ```java
 
-public class ImplementsInterfaces
-    implements
-        Interface1,
-        Interface2 {
+public class ImplementsInterfaces implements Interface1, Interface2 {
 
     @Override
     public void interface1Method() {
@@ -659,7 +420,8 @@ public class Lambda {
     }
 
     public void multiArguments() {
-        call((x, y) -> {
+        call((x,
+        y) -> {
             System.out.println(x);
             System.out.println(y);
         });
@@ -680,7 +442,9 @@ public class Lambda {
     }
 
     public void onlyOneMethodInBodyWithCurlyBraces() {
-        call(x -> System.out.println(x));
+        call(x -> {
+            System.out.println(x);
+        });
     }
 
     public void onlyOneMethodInBody() {
@@ -692,31 +456,29 @@ public class Lambda {
 # marker_annotations
 ```java
 
-@MarkerAnnotation
-@NormalAnnotation("value")
-@SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
 @SingleMemberAnnotation2(
     name = "Something much long that breaks",
     date = "01/01/2018"
 )
+@SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+@NormalAnnotation("value")
+@MarkerAnnotation
 public class MarkerAnnotations {
-
-    @MarkerAnnotation
-    @NormalAnnotation("value")
-    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"
     )
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+    @NormalAnnotation("value")
+    @MarkerAnnotation
     SomeService service;
-
-    @MarkerAnnotation
-    @NormalAnnotation("value")
-    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"
     )
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
+    @NormalAnnotation("value")
+    @MarkerAnnotation
     public void postConstruct() {
         System.out.println("post construct");
     }
@@ -733,42 +495,15 @@ public class BreakLongFunctionCall {
     }
 
     public void doSomethingLongNew() {
-        return something()
-        .more()
-        .and()
-        .that()
-        .as()
-        .well()
-        .but()
-        .not()
-        .something()
-        .something();
+        return something().more().and().that().as().well().but().not().something().something();
     }
 
-    public void doSomethingLongNew() {
-        return new Object()
-        .something()
-        .more()
-        .and()
-        .that()
-        .as()
-        .well()
-        .but()
-        .not()
-        .something();
+    public void doSomethingLongNew2() {
+        return new Object().something().more().and().that().as().well().but().not().something();
     }
 
     public void doSomethingLongStatic() {
-        return Object
-        .something()
-        .more()
-        .and()
-        .that()
-        .as()
-        .well()
-        .but()
-        .not()
-        .something();
+        return Object.something().more().and().that().as().well().but().not().something();
     }
 
 }
@@ -822,13 +557,13 @@ public class PackageAndImports {}
 # return
 ```java
 
-public abstract class Throws {
+public abstract class Return {
 
-    void returnThis() {
+    Object returnThis() {
         return this;
     }
 
-    void returnNull() {
+    Object returnNull() {
         return null;
     }
 
@@ -836,7 +571,7 @@ public abstract class Throws {
         return;
     }
 
-    void returnCast() {
+    Object returnCast() {
         return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
     }
 
@@ -855,11 +590,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException3(
-        String string1,
-        String string2,
-        String string3
-    )
+    void throwException3(String string1, String string2, String string3)
         throws
             RuntimeException {
         throw new RuntimeException();
@@ -873,9 +604,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException5(
-        String string
-    )
+    void throwException5(String string)
         throws
             RuntimeException,
             RuntimeException,
@@ -883,11 +612,7 @@ public abstract class Throws {
         throw new RuntimeException();
     }
 
-    void throwException6(
-        String string1,
-        String string2,
-        String string3
-    )
+    void throwException6(String string1, String string2, String string3)
         throws
             RuntimeException,
             RuntimeException,
@@ -913,9 +638,7 @@ public abstract class Throws {
             RuntimeException,
             RuntimeException;
 
-    abstract void absThrowException5(
-        String string
-    )
+    abstract void absThrowException5(String string)
         throws
             RuntimeException,
             RuntimeException,
@@ -1024,47 +747,39 @@ public class Types {
 ```java
 
 public class Variables {
-
     public static int STATIC_VARIABLE = 123;
-    private static final Logger LOGGER = LoggerFactory
-    .getLogger(ComplexFilterTest.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
     int packageVariable = 234;
     private int privateVariable = 345;
-
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
-
-    private List<String> genericVariable1 = new ArrayList<>();
-    private Bean<String> genericVariable2 = new Bean<>("abc");
-    private Bean<String> genericVariable2 = new Bean<>(
+    private List<String> genericVariable1 = new ArrayList<String>();
+    private Bean<String> genericVariable2 = new Bean<String>("abc");
+    private Bean<String> genericVariable2 = new Bean<String>("abc",
+    "def",
+    "ghi",
+    "jkl");
+    private Map<Integer,
+    String> genericVariable4 = new HashMap<Integer,
+    String>();
+    private Map<Integer,
+    String,
+    Integer,
+    String> genericVariable5 = new HashMap<Integer,
+    String,
+    Integer>();
+    private Object[] arrayVariable1[] = new Object[3];
+    private Object[][] arrayVariable2[][] = new Object[3][3];
+    private Object[] arrayVariable3[] = new Object[] { "abc", "def", "ghi" };
+    private Object[] arrayVariable4[] = new Object[] {
         "abc",
         "def",
         "ghi",
-        "jkl"
-    );
-    private Map<Integer, String> genericVariable4 = new HashMap<>();
-    private Map<
-        Integer,
-        String,
-        Integer,
-        String
-    > genericVariable5 = new HashMap<>();
-
-    private Object[] arrayVariable1 = new Object[3];
-    private Object[][] arrayVariable2 = new Object[3][3];
-    private Object[] arrayVariable3 = new Object[]{
-        "abc",
-        "def",
-        "ghi"
+        "jkl",
+        "mno"
     };
-    private Object[] arrayVariable4 = {
-        "abc",
-        "def",
-        "ghi"
-    };
-
-    private Interface anonymousClassVariable = new Interface(){
+    private Object[] arrayVariable5[] = { "abc", "def", "ghi" };
+    private Interface anonymousClassVariable = new Interface() {
 
         @Override
         void doSomething() {
@@ -1072,7 +787,6 @@ public class Variables {
         }
 
     };
-
     public void variableMethod(final int finalVariable) {
         int localVariable = 456;
         int castVariable = (int) (4 / 2);
