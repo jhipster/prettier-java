@@ -202,8 +202,6 @@ function printConstructorDeclaration(node, path, print) {
   docs.push(" ");
   docs.push(path.call(print, "body"));
 
-  docs.push(hardline);
-
   return concat(docs);
 }
 
@@ -235,9 +233,17 @@ function printClassBodyMemberDeclaration(node, path, print) {
   const index = Number(path.getName());
   // If method is first element in class, add extra line
   if (
-    index === 0 &&
-    (node.declaration.type === "METHOD_DECLARATION" ||
-      node.declaration.type === "CONSTRUCTOR_DECLARATION")
+    (index === 0 &&
+      (node.declaration.type === "METHOD_DECLARATION" ||
+        node.declaration.type === "GENERIC_METHOD_DECLARATION" ||
+        node.declaration.type === "CONSTRUCTOR_DECLARATION")) ||
+    (index > 0 &&
+      (node.declaration.type === "METHOD_DECLARATION" ||
+        node.declaration.type === "GENERIC_METHOD_DECLARATION" ||
+        node.declaration.type === "CONSTRUCTOR_DECLARATION") &&
+      path.getParentNode().declarations[index - 1].declaration.type ===
+        "FIELD_DECLARATION" &&
+      !path.getParentNode().declarations[index - 1].followedEmptyLine)
   ) {
     docs.push(hardline);
   }
@@ -250,6 +256,16 @@ function printClassBodyMemberDeclaration(node, path, print) {
 
   // Add declaration
   docs.push(path.call(print, "declaration"));
+
+  if (
+    node.declaration.type === "METHOD_DECLARATION" ||
+    node.declaration.type === "GENERIC_METHOD_DECLARATION" ||
+    node.declaration.type === "CONSTRUCTOR_DECLARATION" ||
+    (node.followedEmptyLine &&
+      index + 1 < path.getParentNode().declarations.length)
+  ) {
+    docs.push(hardline);
+  }
 
   return concat(docs);
 }
@@ -345,7 +361,30 @@ function printEnumConstant(node, path, print) {
 function printMethodDeclaration(node, path, print) {
   const docs = [];
 
-  docs.push(printMethodDeclarationStart(node, path, print));
+  const start = [];
+  // Add type type
+  if (node.typeType) {
+    start.push(path.call(print, "typeType"));
+    start.push(" ");
+  }
+
+  // Add name
+  start.push(path.call(print, "name"));
+
+  // // Add parameters
+  if (node.parameters) {
+    start.push(path.call(print, "parameters"));
+  }
+
+  // Add thrown exceptions
+  if (node.throws) {
+    const throws = [];
+    throws.push(line);
+    throws.push("throws");
+    throws.push(indent(concat([line, path.call(print, "throws")])));
+    start.push(indent(concat(throws)));
+  }
+  docs.push(group(concat(start)));
 
   // Add method body
   if (node.body) {
@@ -357,18 +396,6 @@ function printMethodDeclaration(node, path, print) {
     // If abstract
     docs.push(";");
   }
-
-  // // Add line if this is the last element of the class declaration
-  // if (
-  //   isLastElementWithoutEmptyLines(
-  //     path.getParentNode().bodyDeclarations,
-  //     index + 1
-  //   )
-  // ) {
-  //   docs.push(hardline);
-  // }
-
-  docs.push(hardline);
 
   return concat(docs);
 }
@@ -386,35 +413,6 @@ function printGenericMethodDeclaration(node, path, print) {
   docs.push(path.call(print, "methodDeclaration"));
 
   return concat(docs);
-}
-
-function printMethodDeclarationStart(node, path, print) {
-  const docs = [];
-
-  // Add type type
-  if (node.typeType) {
-    docs.push(path.call(print, "typeType"));
-    docs.push(" ");
-  }
-
-  // Add name
-  docs.push(path.call(print, "name"));
-
-  // // Add parameters
-  if (node.parameters) {
-    docs.push(path.call(print, "parameters"));
-  }
-
-  // Add thrown exceptions
-  if (node.throws) {
-    const throws = [];
-    throws.push(line);
-    throws.push("throws");
-    throws.push(indent(concat([line, path.call(print, "throws")])));
-    docs.push(indent(concat(throws)));
-  }
-
-  return group(concat(docs));
 }
 
 function printFormalParameters(node, path, print) {
@@ -509,6 +507,14 @@ function printExpressionStatement(node, path, print) {
     path.getParentNode().statements.length > 1
   ) {
     docs.push(";");
+  }
+
+  const index = Number(path.getName());
+  if (
+    node.followedEmptyLine &&
+    index + 1 < path.getParentNode().statements.length
+  ) {
+    docs.push(hardline);
   }
 
   return concat(docs);

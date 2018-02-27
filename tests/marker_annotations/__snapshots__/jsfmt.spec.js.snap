@@ -48,6 +48,7 @@ public class MarkerAnnotations {
     @NormalAnnotation("value")
     @MarkerAnnotation
     SomeService service;
+
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"

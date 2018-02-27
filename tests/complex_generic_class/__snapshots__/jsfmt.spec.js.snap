@@ -2,7 +2,6 @@
 
 exports[`complex_generic_class.java 1`] = `
 public class GenericClass<BEAN extends Comparable<BEAN>> {
-
   private BEAN bean;
 
   public GenericClass(BEAN bean) {
@@ -28,6 +27,7 @@ public class GenericClass<BEAN extends Comparable<BEAN>> {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class GenericClass<BEAN extends Comparable<BEAN>> {
     private BEAN bean;
+
     public GenericClass(BEAN bean) {
         this.bean = bean;
     }
