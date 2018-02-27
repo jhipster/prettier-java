@@ -95,84 +95,6 @@ function printTypeDeclaration(node, path, print) {
   docs.push(path.call(print, "declaration"));
 
   return concat(docs);
-
-  // // Add interface or class keyword
-  // docs.push(node.interface ? "interface" : "class");
-  // docs.push(" ");
-
-  // // Add name of class/interface
-  // docs.push(path.call(print, "name"));
-
-  // // Add type parameters
-  // if (node.typeParameters && node.typeParameters.length > 0) {
-  //   docs.push("<");
-  //   docs.push(group(printParameters("typeParameters", path, print)));
-  //   docs.push(">");
-  // }
-
-  // // Add extends class
-  // if (node.superclassType) {
-  //   const ext = [];
-  //   ext.push(line);
-  //   ext.push("extends");
-  //   ext.push(" ");
-  //   ext.push(path.call(print, "superclassType"));
-  //   docs.push(indent(concat(ext)));
-  // }
-
-  // // Add implemented interfaces
-  // if (node.superInterfaceTypes && node.superInterfaceTypes.length > 0) {
-  //   const impl = [];
-  //   impl.push(line);
-  //   impl.push("implements");
-  //   impl.push(
-  //     indent(
-  //       concat([
-  //         line,
-  //         join(concat([",", line]), path.map(print, "superInterfaceTypes"))
-  //       ])
-  //     )
-  //   );
-  //   docs.push(indent(concat(impl)));
-  // }
-
-  // // Add open curly bracelet for class/interface beginning
-  // docs.push(" ");
-  // docs.push("{");
-
-  // // Add soft line if body is not empty, and not only contains empty lines
-  // if (containsNotOnlyEmptyLines(node.bodyDeclarations)) {
-  //   // Add class body
-  //   docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
-
-  //   docs.push(hardline);
-  // }
-
-  // // Add open curly bracelet for class/interface beginning
-  // docs.push("}");
-
-  // // Add hardline
-  // docs.push(hardline);
-
-  // return group(concat(docs));
-
-  // function containsNotOnlyEmptyLines(declarations) {
-  //   if (!declarations || declarations.length === 0) {
-  //     return false;
-  //   }
-
-  //   for (let i = 0; i < declarations.length; i++) {
-  //     if (isEmptyComment(declarations[i])) {
-  //       continue;
-  //     }
-
-  //     if (declarations[i].node !== "LineEmpty") {
-  //       return true;
-  //     }
-  //   }
-
-  //   return false;
-  // }
 }
 
 function printClassDeclaration(node, path, print) {
@@ -354,22 +276,6 @@ function printInterfaceBody(node, path, print) {
   return concat(docs);
 }
 
-function printAnonymousClassDeclaration(node, path, print) {
-  const docs = [];
-
-  // Add open curly brace
-  docs.push("{");
-
-  // Add body declarations
-  docs.push(indent(concat(path.map(print, "bodyDeclarations"))));
-  docs.push(hardline);
-
-  // Add close curly brace
-  docs.push("}");
-
-  return concat(docs);
-}
-
 function printEnumDeclaration(node, path, print) {
   const docs = [];
 
@@ -465,34 +371,6 @@ function printMethodDeclaration(node, path, print) {
   docs.push(hardline);
 
   return concat(docs);
-
-  // function isLastElementWithoutEmptyLines(elements, index) {
-  //   if (index >= elements.length) {
-  //     return true;
-  //   }
-
-  //   if (elements[index].node !== "LineEmpty") {
-  //     return false;
-  //   }
-
-  //   return isLastElementWithoutEmptyLines(elements, index + 1);
-  // }
-
-  // function isPreviousElementLineEmptyOrMethodDeclaration(elements, index) {
-  //   if (!elements[index - 1]) {
-  //     return true;
-  //   }
-
-  //   if (
-  //     elements[index - 1].node === "MethodDeclaration" ||
-  //     elements[index - 1].node === "EndOfLineComment" ||
-  //     elements[index - 1].node === "TraditionalComment"
-  //   ) {
-  //     return false;
-  //   }
-
-  //   return isPreviousElementLineEmptyOrMethodDeclaration(elements, index - 1);
-  // }
 }
 
 function printGenericMethodDeclaration(node, path, print) {
@@ -612,7 +490,7 @@ function printExpressionStatement(node, path, print) {
   // If parent is block AND parent parent is LambdaExpression
   // AND there is only one statement, don't print a hardline
   if (
-    path.getParentNode(1).node !== "LambdaExpression" ||
+    path.getParentNode(1).node !== "LAMBDA_EXPRESSION" ||
     path.getParentNode().type !== "BLOCK" ||
     path.getParentNode().statements.length > 1
   ) {
@@ -626,7 +504,7 @@ function printExpressionStatement(node, path, print) {
   // If parent is block AND parent parent is LambdaExpression
   // AND there is only one statement, don't print a semi colon
   if (
-    path.getParentNode(1).node !== "LambdaExpression" ||
+    path.getParentNode(1).node !== "LAMBDA_EXPRESSION" ||
     path.getParentNode().type !== "BLOCK" ||
     path.getParentNode().statements.length > 1
   ) {
@@ -898,30 +776,6 @@ function printFinallyBlock(node, path, print) {
   return concat(docs);
 }
 
-function printVariableDeclarationStatement(node, path, print) {
-  const docs = [];
-
-  // Add line
-  docs.push(hardline);
-
-  // Add modifiers like public, static, etc.
-  docs.push(printModifiers(path, print));
-
-  // Add type
-  docs.push(path.call(print, "type"));
-  docs.push(" ");
-
-  // Add fragments
-  if (node.fragments && node.fragments.length > 0) {
-    docs.push(concat(path.map(print, "fragments")));
-  }
-
-  // Add semicolon
-  docs.push(";");
-
-  return concat(docs);
-}
-
 function printWhileStatement(node, path, print) {
   const docs = [];
 
@@ -1085,115 +939,11 @@ function printClassOrInterfaceTypeElement(node, path, print) {
   return concat(docs);
 }
 
-function printArrayType(node, path, print) {
-  const docs = [];
-
-  // Modify component type if ArrayType to not print braces
-  if (node.removeBraces && node.componentType.node === "ArrayType") {
-    node.componentType.removeBraces = true;
-  }
-  // Add array type like String, Integer, etc.
-  docs.push(path.call(print, "componentType"));
-
-  if (!node.removeBraces) {
-    docs.push("[]");
-  }
-
-  return concat(docs);
-}
-
-function printParameterizedType(node, path, print) {
-  const docs = [];
-
-  // Add type
-  docs.push(path.call(print, "type"));
-
-  // Add type arguments
-  if (node.typeArguments) {
-    docs.push("<");
-    // We do not want to add generic arguments if its a class instanciation
-    // TODO once we have own options, make this optional to be backwardscompatible with Java7
-    if (
-      node.typeArguments.length > 0 &&
-      path.getParentNode().node !== "ClassInstanceCreation"
-    ) {
-      docs.push(
-        group(concat([printParameters("typeArguments", path, print), softline]))
-      );
-    }
-    docs.push(">");
-  }
-
-  return concat(docs);
-}
-
 function printPrimitiveType(node) {
   const docs = [];
 
   // Add primitive type like void, int, etc.
   docs.push(node.value);
-
-  return concat(docs);
-}
-
-function printSimpleType(node, path, print) {
-  const docs = [];
-
-  // Add type
-  docs.push(path.call(print, "name"));
-
-  return concat(docs);
-}
-
-function printUnionType(node, path, print) {
-  const docs = [];
-
-  // Add types
-  docs.push(join(concat([" ", "|", line]), path.map(print, "types")));
-
-  return concat(docs);
-}
-
-function printWildcardType(node, path, print) {
-  const docs = [];
-
-  // Add questionmark
-  docs.push("?");
-
-  if (node.bound) {
-    docs.push(" ");
-
-    // Add extends / super
-    if (node.upperBound) {
-      docs.push("extends");
-    } else {
-      docs.push("super");
-    }
-
-    docs.push(" ");
-
-    // Add bound
-    docs.push(path.call(print, "bound"));
-  }
-
-  return concat(docs);
-}
-
-function printConstructorInvocation(node, path, print) {
-  const docs = [];
-
-  // Add line
-  docs.push(hardline);
-
-  // Add this
-  docs.push("this");
-  docs.push("(");
-
-  // Add primitive type like void, int, etc.
-  docs.push(group(printParameters("arguments", path, print)));
-
-  docs.push(")");
-  docs.push(";");
 
   return concat(docs);
 }
@@ -1213,61 +963,6 @@ function printMethodInvocation(node, path, print) {
   }
 
   // Add close brace for method parameters
-  docs.push(")");
-
-  // If my parent is not a method invocation
-  if (path.getParentNode().node !== "MethodInvocation") {
-    return group(concat(docs));
-  }
-
-  return concat(docs);
-}
-
-function printSuperConstructorInvocation(node, path, print) {
-  const docs = [];
-
-  // Add line
-  docs.push(hardline);
-
-  // Add super
-  docs.push("super");
-  docs.push("(");
-
-  // Add primitive type like void, int, etc.
-  docs.push(group(printParameters("arguments", path, print)));
-
-  docs.push(")");
-  docs.push(";");
-
-  return concat(docs);
-}
-
-function printSuperMethodInvocation(node, path, print) {
-  const docs = [];
-
-  // Add super
-  docs.push("super");
-  docs.push(".");
-
-  // Add name
-  docs.push(path.call(print, "name"));
-
-  // Add type arguments
-  if (node.typeArguments && node.typeArguments.length > 0) {
-    docs.push("<");
-    docs.push(printParameters("typeArguments", path, print));
-    docs.push(">");
-  }
-
-  // Add open braces
-  docs.push("(");
-
-  // Add arguments
-  if (node.arguments && node.arguments.length > 0) {
-    docs.push(printParameters("arguments", path, print));
-  }
-
-  // Add close braces
   docs.push(")");
 
   return concat(docs);
@@ -1368,18 +1063,6 @@ function printBooleanLiteral(node) {
   return concat(docs);
 }
 
-function printTypeLiteral(node, path, print) {
-  const docs = [];
-
-  // Add type
-  docs.push(path.call(print, "type"));
-
-  // Add .class
-  docs.push(".class");
-
-  return concat(docs);
-}
-
 function printStringLiteral(node) {
   const docs = [];
 
@@ -1389,69 +1072,11 @@ function printStringLiteral(node) {
   return concat(docs);
 }
 
-function printNumberLiteral(node) {
-  const docs = [];
-
-  // Add token
-  docs.push(node.token);
-
-  return concat(docs);
-}
-
 function printDecimalLiteral(node) {
   const docs = [];
 
   // Add value
   docs.push(node.value);
-
-  return concat(docs);
-}
-
-function printNullLiteral() {
-  const docs = [];
-
-  // Add null
-  docs.push("null");
-
-  return concat(docs);
-}
-
-function printArrayCreation(node, path, print) {
-  const docs = [];
-
-  // Add new
-  docs.push("new");
-  docs.push(" ");
-
-  // Modify node if ArrayType to not print braces
-  if (node.type.node === "ArrayType") {
-    node.type.removeBraces = true;
-  }
-  // Add type
-  docs.push(path.call(print, "type"));
-
-  // Add dimensions
-  if (node.dimensions && node.dimensions.length > 0) {
-    path.each(dimensionPath => {
-      // Add open square braces
-      docs.push("[");
-
-      // Add dimension
-      docs.push(dimensionPath.call(print));
-
-      // Add close square braces
-      docs.push("]");
-    }, "dimensions");
-  } else {
-    // Just push an empty init of square braces
-    docs.push("[]");
-  }
-
-  // Add initializer
-  if (node.initializer) {
-    // Add initialiter
-    docs.push(path.call(print, "initializer"));
-  }
 
   return concat(docs);
 }
@@ -1533,15 +1158,6 @@ function printArrayInitializer(node, path, print) {
   return concat(docs);
 }
 
-function printSimpleName(node) {
-  const docs = [];
-
-  // Add identifier
-  docs.push(node.identifier);
-
-  return concat(docs);
-}
-
 function printCastExpression(node, path, print) {
   const docs = [];
 
@@ -1557,63 +1173,6 @@ function printCastExpression(node, path, print) {
 
   // Add expression
   docs.push(path.call(print, "expression"));
-
-  return concat(docs);
-}
-
-function printConditionalExpression(node, path, print) {
-  const docs = [];
-
-  // Add expression
-  docs.push(path.call(print, "expression"));
-  docs.push(" ");
-
-  // Add questionmark
-  docs.push("?");
-  docs.push(" ");
-
-  // Add then expression
-  docs.push(path.call(print, "thenExpression"));
-  docs.push(" ");
-
-  // Add colon
-  docs.push(":");
-  docs.push(" ");
-
-  // Add else expression
-  docs.push(path.call(print, "elseExpression"));
-
-  return concat(docs);
-}
-
-function printInfixExpression(node, path, print) {
-  const docs = [];
-
-  // Add left operand
-  docs.push(path.call(print, "leftOperand"));
-
-  // Add operator
-  docs.push(" ");
-  docs.push(node.operator);
-  docs.push(" ");
-
-  // Add right operand
-  docs.push(path.call(print, "rightOperand"));
-
-  return concat(docs);
-}
-
-function printParenthesizedExpression(node, path, print) {
-  const docs = [];
-
-  // Add open brace
-  docs.push("(");
-
-  // Add expression
-  docs.push(path.call(print, "expression"));
-
-  // Add close brace
-  docs.push(")");
 
   return concat(docs);
 }
@@ -1684,39 +1243,6 @@ function printInstanceofExpression(node, path, print) {
   return concat(docs);
 }
 
-function printVariableDeclarationExpression(node, path, print) {
-  const docs = [];
-
-  // Add modifiers like public, static, etc.
-  docs.push(printModifiers(path, print));
-
-  // Add type
-  docs.push(path.call(print, "type"));
-  docs.push(" ");
-
-  // Add fragments
-  docs.push(concat(path.map(print, "fragments")));
-
-  return concat(docs);
-}
-
-function printVariableDeclarationFragment(node, path, print) {
-  const docs = [];
-
-  // Add name
-  docs.push(path.call(print, "name"));
-
-  // Add initializer
-  if (node.initializer) {
-    docs.push(" ");
-    docs.push("=");
-    docs.push(" ");
-    docs.push(path.call(print, "initializer"));
-  }
-
-  return concat(docs);
-}
-
 function printVariableDeclaratorId(node, path, print) {
   const docs = [];
 
@@ -1767,52 +1293,6 @@ function printTypeParameter(node, path, print) {
     docs.push(" ");
     docs.push(path.call(print, "typeBound"));
   }
-
-  return concat(docs);
-}
-
-function printArrayAccess(node, path, print) {
-  const docs = [];
-
-  // Add array
-  docs.push(path.call(print, "array"));
-
-  // Add index
-  docs.push("[");
-  docs.push(path.call(print, "index"));
-  docs.push("]");
-
-  return concat(docs);
-}
-
-function printAssignment(node, path, print) {
-  const docs = [];
-
-  // Add left hand side
-  docs.push(path.call(print, "leftHandSide"));
-
-  // Add operator
-  docs.push(" ");
-  docs.push(node.operator);
-  docs.push(" ");
-
-  // Add right hand side
-  docs.push(path.call(print, "rightHandSide"));
-
-  return concat(docs);
-}
-
-function printFieldAccess(node, path, print) {
-  const docs = [];
-
-  // Add expression
-  if (node.expression) {
-    docs.push(path.call(print, "expression"));
-    docs.push(".");
-  }
-
-  // Add name
-  docs.push(path.call(print, "name"));
 
   return concat(docs);
 }
@@ -1881,37 +1361,6 @@ function printModifier(node) {
   // Add keyword
   docs.push(node.value);
   docs.push(" ");
-
-  return concat(docs);
-}
-
-function printLineEmpty(node, path) {
-  const docs = [];
-
-  const index = Number(path.getName());
-
-  // If next element is not existing, do nothing
-  if (
-    (path.getParentNode().node === "TypeDeclaration" &&
-      path.getParentNode().bodyDeclarations[index + 1] === undefined) ||
-    (path.getParentNode().node === "Block" &&
-      path.getParentNode().statements[index + 1] === undefined)
-  ) {
-    return concat(docs);
-  }
-
-  // If next element is already empty line, do nothing
-  if (
-    (path.getParentNode().node === "TypeDeclaration" &&
-      path.getParentNode().bodyDeclarations[index + 1].node === "LineEmpty") ||
-    (path.getParentNode().node === "Block" &&
-      path.getParentNode().statements[index + 1].node === "LineEmpty")
-  ) {
-    return concat(docs);
-  }
-
-  // Add line
-  docs.push(hardline);
 
   return concat(docs);
 }
@@ -2103,9 +1552,6 @@ function printNode(node, path, print) {
     case "INTERFACE_BODY": {
       return printInterfaceBody(node, path, print);
     }
-    case "AnonymousClassDeclaration": {
-      return printAnonymousClassDeclaration(node, path, print);
-    }
     case "ENUM_DECLARATION": {
       return printEnumDeclaration(node, path, print);
     }
@@ -2178,9 +1624,6 @@ function printNode(node, path, print) {
     case "FINALLY_BLOCK": {
       return printFinallyBlock(node, path, print);
     }
-    case "VariableDeclarationStatement": {
-      return printVariableDeclarationStatement(node, path, print);
-    }
     case "WHILE_STATEMENT": {
       return printWhileStatement(node, path, print);
     }
@@ -2205,35 +1648,11 @@ function printNode(node, path, print) {
     case "CLASS_OR_INTERFACE_TYPE_ELEMENT": {
       return printClassOrInterfaceTypeElement(node, path, print);
     }
-    case "ArrayType": {
-      return printArrayType(node, path, print);
-    }
-    case "ParameterizedType": {
-      return printParameterizedType(node, path, print);
-    }
     case "PRIMITIVE_TYPE": {
       return printPrimitiveType(node, path, print);
     }
-    case "SimpleType": {
-      return printSimpleType(node, path, print);
-    }
-    case "UnionType": {
-      return printUnionType(node, path, print);
-    }
-    case "WildcardType": {
-      return printWildcardType(node, path, print);
-    }
-    case "ConstructorInvocation": {
-      return printConstructorInvocation(node, path, print);
-    }
     case "METHOD_INVOCATION": {
       return printMethodInvocation(node, path, print);
-    }
-    case "SuperConstructorInvocation": {
-      return printSuperConstructorInvocation(node, path, print);
-    }
-    case "SuperMethodInvocation": {
-      return printSuperMethodInvocation(node, path, print);
     }
     case "QUALIFIED_NAME": {
       return printQualifiedName(node, path, print);
@@ -2256,23 +1675,11 @@ function printNode(node, path, print) {
     case "BOOLEAN_LITERAL": {
       return printBooleanLiteral(node, path, print);
     }
-    case "TypeLiteral": {
-      return printTypeLiteral(node, path, print);
-    }
     case "STRING_LITERAL": {
       return printStringLiteral(node, path, print);
     }
-    case "NumberLiteral": {
-      return printNumberLiteral(node, path, print);
-    }
     case "DECIMAL_LITERAL": {
       return printDecimalLiteral(node, path, print);
-    }
-    case "NullLiteral": {
-      return printNullLiteral(node, path, print);
-    }
-    case "ArrayCreation": {
-      return printArrayCreation(node, path, print);
     }
     case "SIMPLE_CREATOR": {
       return printSimpleCreator(node, path, print);
@@ -2286,20 +1693,8 @@ function printNode(node, path, print) {
     case "ARRAY_INITIALIZER": {
       return printArrayInitializer(node, path, print);
     }
-    case "SimpleName": {
-      return printSimpleName(node, path, print);
-    }
     case "CAST_EXPRESSION": {
       return printCastExpression(node, path, print);
-    }
-    case "ConditionalExpression": {
-      return printConditionalExpression(node, path, print);
-    }
-    case "InfixExpression": {
-      return printInfixExpression(node, path, print);
-    }
-    case "ParenthesizedExpression": {
-      return printParenthesizedExpression(node, path, print);
     }
     case "IF_ELSE_EXPRESSION": {
       return printIfElseExpression(node, path, print);
@@ -2313,12 +1708,6 @@ function printNode(node, path, print) {
     case "INSTANCEOF_EXPRESSION": {
       return printInstanceofExpression(node, path, print);
     }
-    case "VariableDeclarationExpression": {
-      return printVariableDeclarationExpression(node, path, print);
-    }
-    case "VariableDeclarationFragment": {
-      return printVariableDeclarationFragment(node, path, print);
-    }
     case "VARIABLE_DECLARATOR_ID": {
       return printVariableDeclaratorId(node, path, print);
     }
@@ -2327,15 +1716,6 @@ function printNode(node, path, print) {
     }
     case "TYPE_PARAMETER": {
       return printTypeParameter(node, path, print);
-    }
-    case "ArrayAccess": {
-      return printArrayAccess(node, path, print);
-    }
-    case "Assignment": {
-      return printAssignment(node, path, print);
-    }
-    case "FieldAccess": {
-      return printFieldAccess(node, path, print);
     }
     case "THIS": {
       return printThis(node, path, print);
@@ -2350,13 +1730,7 @@ function printNode(node, path, print) {
     case "MODIFIER": {
       return printModifier(node, path, print);
     }
-    case "MemberValuePair": {
-      return printMemberValuePair(node, path, print);
-    }
-    // Lines
-    case "LineEmpty": {
-      return printLineEmpty(node, path, print);
-    }
+    // Comments
     case "EndOfLineComment": {
       return printEndOfLineComment(node, path, print);
     }
@@ -2417,23 +1791,6 @@ function printModifiers(path, print) {
       docs.push(modifierPath.call(print));
     }
   }, "modifiers");
-
-  return concat(docs);
-}
-
-function printMemberValuePair(node, path, print) {
-  const docs = [];
-
-  // Add name
-  docs.push(path.call(print, "name"));
-
-  // Add equals symbol
-  docs.push(" ");
-  docs.push("=");
-  docs.push(" ");
-
-  // Add value
-  docs.push(path.call(print, "value"));
 
   return concat(docs);
 }
