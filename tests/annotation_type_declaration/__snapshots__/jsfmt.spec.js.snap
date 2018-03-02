@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`annotation_type_declaration.java 1`] = `
+public @interface AnnotationTypeDeclaration {
+
+}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public @interface AnnotationTypeDeclaration {}
+
+`;

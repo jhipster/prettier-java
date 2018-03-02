@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`switch.java 1`] = `
+class Switch {
+
+    void simple(Answer answer) {
+        switch (answer) {
+            case YES:
+                System.out.println("YES");
+                break;
+            case NO:
+                System.out.println("NO");
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class Switch {
+
+    void simple(Answer answer) {
+        while (answer) {
+            case YES:
+                System.out.println("YES");
+                break;
+            case NO:
+                System.out.println("NO");
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
+
+`;

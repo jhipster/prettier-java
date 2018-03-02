@@ -1,4 +1,4 @@
-class EmptyClass  {
+class ClassEmpty  {
   
 
 
@@ -6,7 +6,7 @@ class EmptyClass  {
 
 }
 
-class EmptyLinesAtBeginning {
+class ClassEmptyLinesAtBeginning {
 
 
 
@@ -15,7 +15,7 @@ class EmptyLinesAtBeginning {
   int i;
 }
 
-class EmptyLinesAtEnd {
+class ClassEmptyLinesAtEnd {
   int i;
 
 
@@ -23,7 +23,7 @@ class EmptyLinesAtEnd {
 
 }
 
-class EmptyLinesBetween {
+class ClassEmptyLinesBetween {
   
   int i;
 
@@ -33,30 +33,30 @@ class EmptyLinesBetween {
 
 }
 
-class EmptyLinesInFrontOfMethod {
+class ClassEmptyLinesInFrontOfMethod {
   
 
   void doSomething() {}
 }
 
-class EmptyLinesAfterOfMethod {
+class ClassEmptyLinesAfterOfMethod {
   void doSomething() {}
 
 
 
 }
 
-class NoEmptyLinesBetweenTwoMethods {
+class ClassNoEmptyLinesBetweenTwoMethods {
   void doSomething() {}
   void doElse() {}
 }
 
-class NoEmptyLinesBetweenFieldDeclarationAndMethod {
+class ClassNoEmptyLinesBetweenFieldDeclarationAndMethod {
   int i;
   void doElse() {}
 }
 
-class EmptyLinesBetweenFieldDeclarationAndMethod {
+class ClassEmptyLinesBetweenFieldDeclarationAndMethod {
 
   int i;
 
@@ -65,7 +65,7 @@ class EmptyLinesBetweenFieldDeclarationAndMethod {
   void doElse() {}
 }
 
-class MethodEmptyClass  {
+class ClassMethodEmpty  {
   
   void method() {
 
@@ -76,7 +76,7 @@ class MethodEmptyClass  {
 
 }
 
-class MethodEmptyLinesAtBeginning {
+class ClassMethodEmptyLinesAtBeginning {
 
   void method() {
 
@@ -86,7 +86,7 @@ class MethodEmptyLinesAtBeginning {
   }
 }
 
-class MethodEmptyLinesAtEnd {
+class ClassMethodEmptyLinesAtEnd {
 
   void method() {
     int i;
@@ -96,7 +96,7 @@ class MethodEmptyLinesAtEnd {
 
 }
 
-class MethodEmptyLinesBetween {
+class ClassMethodEmptyLinesBetween {
 
   void method() {
   
@@ -109,3 +109,116 @@ class MethodEmptyLinesBetween {
   }
 
 }
+
+interface InterfaceEmpty  {
+  
+
+
+
+
+}
+
+interface InterfaceEmptyLinesAtBeginning {
+
+
+
+
+
+  int i = 1;
+}
+
+interface InterfaceEmptyLinesAtEnd {
+  int i = 1;
+
+
+
+
+}
+
+interface InterfaceEmptyLinesBetween {
+  
+  int i = 1;
+
+
+  
+  int j = 2;
+
+}
+
+interface InterfaceEmptyLinesInFrontOfMethod {
+  
+
+  void doSomething();
+}
+
+interface InterfaceEmptyLinesAfterOfMethod {
+  void doSomething();
+
+
+
+}
+
+interface InterfaceNoEmptyLinesBetweenTwoMethods {
+  void doSomething();
+  void doElse();
+}
+
+interface InterfaceNoEmptyLinesBetweenFieldDeclarationAndMethod {
+  int i = 1;
+  void doElse();
+}
+
+interface InterfaceEmptyLinesBetweenFieldDeclarationAndMethod {
+
+  int i = 1;
+
+
+  
+  void doElse();
+}
+
+interface InterfaceMethodEmpty  {
+  
+  default void method() {
+
+
+
+
+  }
+
+}
+
+interface InterfaceMethodEmptyLinesAtBeginning {
+
+  default void method() {
+
+
+
+    int i;
+  }
+}
+
+interface InterfaceMethodEmptyLinesAtEnd {
+
+  default void method() {
+    int i;
+
+
+  }
+
+}
+
+interface InterfaceMethodEmptyLinesBetween {
+
+  default void method() {
+  
+    int i;
+
+
+    
+    int j;
+
+  }
+
+}
+

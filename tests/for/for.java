@@ -18,4 +18,22 @@ public class For {
     }
   }
 
+  public void continueSimple() {
+    for (int i = 0; i < 10; i++) {
+      if (i % 2 == 0) {
+        continue;
+      }
+      System.out.println(i);
+    }
+  }
+
+  public void continueWithIdentifier() {
+    for (int i = 0; i < 10; i++) {
+      if (i % 2 == 0) {
+        continue id;
+      }
+      System.out.println(i);
+    }
+  }
+
 }

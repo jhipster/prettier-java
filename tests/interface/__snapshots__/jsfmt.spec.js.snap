@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`interface.java 1`] = `
+public interface Interfaces {
+
+	boolean isAvailable(Object propertyId);
+
+	public static final Method METHOD = SomeStatic.findMethod();
+
+}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public interface Interfaces {
+
+    boolean isAvailable(Object propertyId);
+
+    public static final Method METHOD = SomeStatic.findMethod();
+}
+
+
+`;

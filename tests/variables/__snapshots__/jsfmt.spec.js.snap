@@ -7,12 +7,13 @@ public class Variables {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
 
   int packageVariable = 234;
-  private int privateVariable = 345;
+  private float privateVariable = 0.9f;
 
   private Integer nullVariable = null;
   private Integer createVariable = new Integer();
 
-  private List<String> genericVariable1 = new ArrayList<String>();
+  private List<String> genericVariable1 = new ArrayList<>();
+  private final Map<String, Button> buttonMap = new HashMap<>();
   private Bean<String> genericVariable2 = new Bean<String>("abc");
   private Bean<String> genericVariable2 = new Bean<String>("abc", "def", "ghi", "jkl");
   private Map<Integer, String> genericVariable4 = new HashMap<Integer, String>();
@@ -43,12 +44,14 @@ public class Variables {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
 
     int packageVariable = 234;
-    private int privateVariable = 345;
+    private float privateVariable = 0.9f;
 
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
 
-    private List<String> genericVariable1 = new ArrayList<String>();
+    private List<String> genericVariable1 = new ArrayList<>();
+    private final Map<String,
+    Button> buttonMap = new HashMap<>();
     private Bean<String> genericVariable2 = new Bean<String>("abc");
     private Bean<String> genericVariable2 = new Bean<String>("abc",
     "def",

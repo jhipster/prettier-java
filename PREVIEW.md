@@ -11,6 +11,11 @@ public abstract class AbstractClass {
 
 }
 ```
+# annotation_type_declaration
+```java
+}
+public @interface AnnotationTypeDeclaration {}
+```
 # args
 ```java
 
@@ -32,6 +37,17 @@ public class Args {
 
 }
 ```
+# class_body_block
+```java
+
+public class ClassBodyBlock {
+
+    static {}
+
+    {}
+
+}
+```
 # comment_javadoc
 ```java
 
@@ -49,6 +65,7 @@ public class Args {
 
 public class GenericClass<BEAN extends Comparable<BEAN>> {
     private BEAN bean;
+
     public GenericClass(BEAN bean) {
         this.bean = bean;
     }
@@ -109,6 +126,169 @@ public interface EmptyInterface {}
 # empty_lines
 ```java
 
+class ClassEmpty {}
+
+class ClassEmptyLinesAtBeginning {
+    int i;
+}
+
+class ClassEmptyLinesAtEnd {
+    int i;
+}
+
+class ClassEmptyLinesBetween {
+    int i;
+
+    int j;
+}
+
+class ClassEmptyLinesInFrontOfMethod {
+
+    void doSomething() {}
+
+}
+
+class ClassEmptyLinesAfterOfMethod {
+
+    void doSomething() {}
+
+}
+
+class ClassNoEmptyLinesBetweenTwoMethods {
+
+    void doSomething() {}
+
+    void doElse() {}
+
+}
+
+class ClassNoEmptyLinesBetweenFieldDeclarationAndMethod {
+    int i;
+
+    void doElse() {}
+
+}
+
+class ClassEmptyLinesBetweenFieldDeclarationAndMethod {
+    int i;
+
+    void doElse() {}
+
+}
+
+class ClassMethodEmpty {
+
+    void method() {}
+
+}
+
+class ClassMethodEmptyLinesAtBeginning {
+
+    void method() {
+        int i;
+    }
+
+}
+
+class ClassMethodEmptyLinesAtEnd {
+
+    void method() {
+        int i;
+    }
+
+}
+
+class ClassMethodEmptyLinesBetween {
+
+    void method() {
+        int i;
+
+        int j;
+    }
+
+}
+
+interface InterfaceEmpty {}
+
+interface InterfaceEmptyLinesAtBeginning {
+    int i = 1;
+}
+
+interface InterfaceEmptyLinesAtEnd {
+    int i = 1;
+}
+
+interface InterfaceEmptyLinesBetween {
+    int i = 1;
+
+    int j = 2;
+}
+
+interface InterfaceEmptyLinesInFrontOfMethod {
+
+    void doSomething();
+
+}
+
+interface InterfaceEmptyLinesAfterOfMethod {
+
+    void doSomething();
+
+}
+
+interface InterfaceNoEmptyLinesBetweenTwoMethods {
+
+    void doSomething();
+
+    void doElse();
+
+}
+
+interface InterfaceNoEmptyLinesBetweenFieldDeclarationAndMethod {
+    int i = 1;
+
+    void doElse();
+
+}
+
+interface InterfaceEmptyLinesBetweenFieldDeclarationAndMethod {
+    int i = 1;
+
+    void doElse();
+
+}
+
+interface InterfaceMethodEmpty {
+
+    void method() {}
+
+}
+
+interface InterfaceMethodEmptyLinesAtBeginning {
+
+    void method() {
+        int i;
+    }
+
+}
+
+interface InterfaceMethodEmptyLinesAtEnd {
+
+    void method() {
+        int i;
+    }
+
+}
+
+interface InterfaceMethodEmptyLinesBetween {
+
+    void method() {
+        int i;
+
+        int j;
+    }
+
+}
 ```
 # empty_method
 ```java
@@ -280,6 +460,24 @@ public class For {
         }
     }
 
+    public void continueSimple() {
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                continue;
+            }
+            System.out.println(i);
+        }
+    }
+
+    public void continueWithIdentifier() {
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                continue id;
+            }
+            System.out.println(i);
+        }
+    }
+
 }
 ```
 # generic_class
@@ -287,6 +485,7 @@ public class For {
 
 public class GenericClass<BEAN> {
     private BEAN bean;
+
     public GenericClass(BEAN bean) {
         this.bean = bean;
     }
@@ -400,6 +599,16 @@ public class ImplementsInterfaces implements Interface1, Interface2 {
 
 }
 ```
+# interface
+```java
+}
+public interface Interfaces {
+
+    boolean isAvailable(Object propertyId);
+
+    public static final Method METHOD = SomeStatic.findMethod();
+}
+```
 # lambda
 ```java
 
@@ -472,6 +681,7 @@ public class MarkerAnnotations {
     @NormalAnnotation("value")
     @MarkerAnnotation
     SomeService service;
+
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"
@@ -481,6 +691,21 @@ public class MarkerAnnotations {
     @MarkerAnnotation
     public void postConstruct() {
         System.out.println("post construct");
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings2(
+        {
+            "rawtypes",
+            "unchecked",
+            "something",
+            "something2",
+            "something3",
+            "something4"
+        }
+    )
+    public void elementValueArrayInitializer() {
+        System.out.println("element value array initializer");
     }
 
 }
@@ -573,6 +798,26 @@ public abstract class Return {
 
     Object returnCast() {
         return (BeanItemContainer<BEANTYPE>) super.getContainerDataSource();
+    }
+
+}
+```
+# switch
+```java
+
+class Switch {
+
+    void simple(Answer answer) {
+        while (answer) {
+            case YES:
+                System.out.println("YES");
+                break;
+            case NO:
+                System.out.println("NO");
+                break;
+            default:
+                break;
+        }
     }
 
 }
@@ -749,11 +994,16 @@ public class Types {
 public class Variables {
     public static int STATIC_VARIABLE = 123;
     private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
+
     int packageVariable = 234;
-    private int privateVariable = 345;
+    private float privateVariable = 0.9f;
+
     private Integer nullVariable = null;
     private Integer createVariable = new Integer();
-    private List<String> genericVariable1 = new ArrayList<String>();
+
+    private List<String> genericVariable1 = new ArrayList<>();
+    private final Map<String,
+    Button> buttonMap = new HashMap<>();
     private Bean<String> genericVariable2 = new Bean<String>("abc");
     private Bean<String> genericVariable2 = new Bean<String>("abc",
     "def",
@@ -768,6 +1018,7 @@ public class Variables {
     String> genericVariable5 = new HashMap<Integer,
     String,
     Integer>();
+
     private Object[] arrayVariable1[] = new Object[3];
     private Object[][] arrayVariable2[][] = new Object[3][3];
     private Object[] arrayVariable3[] = new Object[] { "abc", "def", "ghi" };
@@ -779,6 +1030,7 @@ public class Variables {
         "mno"
     };
     private Object[] arrayVariable5[] = { "abc", "def", "ghi" };
+
     private Interface anonymousClassVariable = new Interface() {
 
         @Override
@@ -787,6 +1039,7 @@ public class Variables {
         }
 
     };
+
     public void variableMethod(final int finalVariable) {
         int localVariable = 456;
         int castVariable = (int) (4 / 2);

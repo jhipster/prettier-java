@@ -27,4 +27,10 @@ public class MarkerAnnotations {
     System.out.println("post construct");
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings2({ "rawtypes", "unchecked", "something", "something2", "something3", "something4" })
+  public void elementValueArrayInitializer(){
+    System.out.println("element value array initializer");
+  }
+
 }
