@@ -645,6 +645,7 @@ function printExpressionStatement(node, path, print) {
   const index = Number(path.getName());
   if (
     node.followedEmptyLine &&
+    path.getParentNode().type === "BLOCK" &&
     index + 1 < path.getParentNode().statements.length
   ) {
     docs.push(hardline);
