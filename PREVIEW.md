@@ -503,6 +503,20 @@ public class GenericClass<BEAN> {
 
 }
 ```
+# generic_invocation
+```java
+
+public class GenericInvocation {
+
+    public void genericInvocation() {
+        <Bean>doSomething();
+
+        <Bean>doSomething2(abc,
+        def);
+    }
+
+}
+```
 # generic_questionmark
 ```java
 }

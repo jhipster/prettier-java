@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generic_invocation.java 1`] = `
+public class GenericInvocation {
+
+  public void genericInvocation() {
+    <Bean>doSomething();
+
+    <Bean>doSomething2(abc, def);
+  }
+
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public class GenericInvocation {
+
+    public void genericInvocation() {
+        <Bean>doSomething();
+
+        <Bean>doSomething2(abc,
+        def);
+    }
+
+}
+
+
+`;

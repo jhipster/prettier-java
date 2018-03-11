@@ -736,6 +736,24 @@ function printIdentifierNameElement(node, path, print) {
   return concat(docs);
 }
 
+function printIdentifierArguments(node, path, print) {
+  const docs = [];
+
+  // Add name
+  docs.push(path.call(print, "name"));
+
+  // Add open brace
+  docs.push("(");
+
+  // Add arguments
+  docs.push(path.call(print, "arguments"));
+
+  // Add close brace
+  docs.push(")");
+
+  return concat(docs);
+}
+
 function printForStatement(node, path, print) {
   const docs = [];
 
@@ -1328,6 +1346,18 @@ function printMethodInvocation(node, path, print) {
 
   // Add dimensions
   docs.push(concat(path.map(print, "dimensions")));
+
+  return concat(docs);
+}
+
+function printGenericInvocation(node, path, print) {
+  const docs = [];
+
+  // Add typeArguments
+  docs.push(path.call(print, "typeArguments"));
+
+  // Add invocation
+  docs.push(path.call(print, "invocation"));
 
   return concat(docs);
 }
@@ -2065,6 +2095,9 @@ function printNode(node, path, print) {
     case "IDENTIFIER_NAME_ELEMENT": {
       return printIdentifierNameElement(node, path, print);
     }
+    case "IDENTIFIER_ARGUMENTS": {
+      return printIdentifierArguments(node, path, print);
+    }
     case "FOR_STATEMENT": {
       return printForStatement(node, path, print);
     }
@@ -2151,6 +2184,9 @@ function printNode(node, path, print) {
     }
     case "METHOD_INVOCATION": {
       return printMethodInvocation(node, path, print);
+    }
+    case "GENERIC_INVOCATION": {
+      return printGenericInvocation(node, path, print);
     }
     case "QUALIFIED_NAME": {
       return printQualifiedName(node, path, print);
