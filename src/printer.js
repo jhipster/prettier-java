@@ -630,14 +630,13 @@ function printFormalParameter(node, path, print) {
   // Add type type
   if (node.typeType) {
     docs.push(path.call(print, "typeType"));
+    if (node.dotDotDot) {
+      docs.push("...");
+    }
     docs.push(" ");
   }
 
   docs.push(path.call(print, "id"));
-
-  if (node.dotDotDot) {
-    docs.push("...");
-  }
 
   return concat(docs);
 }
@@ -1536,6 +1535,23 @@ function printArrayInitializer(node, path, print) {
   return concat(docs);
 }
 
+function printElementValuePair(node, path, print) {
+  const docs = [];
+
+  // Add key
+  docs.push(path.call(print, "key"));
+  docs.push(" ");
+
+  // Add equals
+  docs.push("=");
+  docs.push(" ");
+
+  // Add value
+  docs.push(path.call(print, "value"));
+
+  return concat(docs);
+}
+
 function printElementValueArrayInitializer(node, path, print) {
   const docs = [];
 
@@ -2179,6 +2195,9 @@ function printNode(node, path, print) {
     }
     case "ARRAY_INITIALIZER": {
       return printArrayInitializer(node, path, print);
+    }
+    case "ELEMENT_VALUE_PAIR": {
+      return printElementValuePair(node, path, print);
     }
     case "ELEMENT_VALUE_ARRAY_INITIALIZER": {
       return printElementValueArrayInitializer(node, path, print);
