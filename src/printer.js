@@ -1062,7 +1062,7 @@ function printSwitchStatement(node, path, print) {
   docs.push(hardline);
 
   // Add while and open braces
-  docs.push("while");
+  docs.push("switch");
   docs.push(" ");
   docs.push("(");
 

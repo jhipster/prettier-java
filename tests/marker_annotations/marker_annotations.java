@@ -33,4 +33,9 @@ public class MarkerAnnotations {
     System.out.println("element value array initializer");
   }
 
+  @ArrayInitializersWithKey(key = { "abc", "def" }, key2 = { "ghi", "jkl" }, key3 = { "mno", "pqr" })
+  public void arrayInitializerWithKey(){
+    System.out.println("element value array initializer with key");
+  }
+
 }
