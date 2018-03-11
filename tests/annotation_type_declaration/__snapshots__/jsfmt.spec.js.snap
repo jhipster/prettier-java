@@ -2,8 +2,10 @@
 
 exports[`annotation_type_declaration.java 1`] = `
 public @interface AnnotationTypeDeclaration {
-
+    public String value() default "";
 }~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public @interface AnnotationTypeDeclaration {}
+public @interface AnnotationTypeDeclaration {
+    public String value default "";
+}
 
 `;

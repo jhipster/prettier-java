@@ -148,7 +148,6 @@ function printClassDeclaration(node, path, print) {
 
 function printInterfaceDeclaration(node, path, print) {
   const docs = [];
-
   docs.push("interface");
   docs.push(" ");
 
@@ -158,7 +157,7 @@ function printInterfaceDeclaration(node, path, print) {
   // Add type parameters
   if (node.typeParameters) {
     docs.push("<");
-    docs.push(group(printParameters("typeParameters", path, print)));
+    docs.push(path.call(print, "typeParameters"));
     docs.push(">");
   }
 
@@ -201,6 +200,52 @@ function printConstructorDeclaration(node, path, print) {
   // Add body
   docs.push(" ");
   docs.push(path.call(print, "body"));
+
+  return concat(docs);
+}
+
+function printAnnotationTypeElementDeclaration(node, path, print) {
+  const docs = [];
+
+  docs.push(hardline);
+
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add declaration
+  docs.push(path.call(print, "declaration"));
+
+  return concat(docs);
+}
+
+function printAnnotationTypeElementRest(node, path, print) {
+  const docs = [];
+
+  // Add typeType
+  docs.push(path.call(print, "typeType"));
+  docs.push(" ");
+
+  // Add name
+  docs.push(path.call(print, "name"));
+
+  // Add semicolon
+  docs.push(";");
+
+  return concat(docs);
+}
+
+function printAnnotationMethodRest(node, path, print) {
+  const docs = [];
+
+  // Add name
+  docs.push(path.call(print, "name"));
+  docs.push(" ");
+
+  // Add defaultValue
+  docs.push(path.call(print, "defaultValue"));
 
   return concat(docs);
 }
@@ -792,6 +837,29 @@ function printIfStatement(node, path, print) {
   return concat(docs);
 }
 
+function printSynchronizedStatement(node, path, print) {
+  const docs = [];
+
+  docs.push(hardline);
+
+  // Add synchronized and open braces
+  docs.push("synchronized");
+  docs.push(" ");
+  docs.push("(");
+
+  // Add condition
+  docs.push(path.call(print, "condition"));
+
+  // Add close braces and open curly braces
+  docs.push(")");
+  docs.push(" ");
+
+  // Add body
+  docs.push(path.call(print, "body"));
+
+  return concat(docs);
+}
+
 function printContinueStatement(node, path, print) {
   const docs = [];
 
@@ -1259,6 +1327,9 @@ function printMethodInvocation(node, path, print) {
   // Add close brace for method parameters
   docs.push(")");
 
+  // Add dimensions
+  docs.push(concat(path.map(print, "dimensions")));
+
   return concat(docs);
 }
 
@@ -1344,6 +1415,19 @@ function printIdentifiers(node, path, print) {
     // Add close brace
     docs.push(")");
   }
+
+  return concat(docs);
+}
+
+function printDefaultValue(node, path, print) {
+  const docs = [];
+
+  // Add default
+  docs.push("default");
+  docs.push(" ");
+
+  // Add value
+  docs.push(path.call(print, "value"));
 
   return concat(docs);
 }
@@ -1891,6 +1975,15 @@ function printNode(node, path, print) {
     case "CONSTRUCTOR_DECLARATION": {
       return printConstructorDeclaration(node, path, print);
     }
+    case "ANNOTATION_TYPE_ELEMENT_DECLARATION": {
+      return printAnnotationTypeElementDeclaration(node, path, print);
+    }
+    case "ANNOTATION_TYPE_ELEMENT_REST": {
+      return printAnnotationTypeElementRest(node, path, print);
+    }
+    case "ANNOTATION_METHOD_REST": {
+      return printAnnotationMethodRest(node, path, print);
+    }
     case "CLASS_BODY": {
       return printClassBody(node, path, print);
     }
@@ -1967,6 +2060,9 @@ function printNode(node, path, print) {
     }
     case "IF_STATEMENT": {
       return printIfStatement(node, path, print);
+    }
+    case "SYNCHRONIZED_STATEMENT": {
+      return printSynchronizedStatement(node, path, print);
     }
     case "RETURN_STATEMENT": {
       return printReturnStatement(node, path, print);
@@ -2058,9 +2154,13 @@ function printNode(node, path, print) {
     case "IDENTIFIERS": {
       return printIdentifiers(node, path, print);
     }
+    case "DEFAULT_VALUE": {
+      return printDefaultValue(node, path, print);
+    }
     case "BOOLEAN_LITERAL": {
       return printBooleanLiteral(node, path, print);
     }
+    case "CHAR_LITERAL":
     case "STRING_LITERAL": {
       return printStringLiteral(node, path, print);
     }

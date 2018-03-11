@@ -14,7 +14,9 @@ public abstract class AbstractClass {
 # annotation_type_declaration
 ```java
 }
-public @interface AnnotationTypeDeclaration {}
+public @interface AnnotationTypeDeclaration {
+    public String value default "";
+}
 ```
 # args
 ```java
@@ -817,6 +819,19 @@ class Switch {
                 break;
             default:
                 break;
+        }
+    }
+
+}
+```
+# synchronized
+```java
+}
+class Synchronized {
+
+    void doSomething() {
+        synchronized (this.var) {
+            doSynchronized();
         }
     }
 
