@@ -5,7 +5,7 @@ public @interface AnnotationTypeDeclaration {
     public String value() default "";
 }~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public @interface AnnotationTypeDeclaration {
-    public String value default "";
+    public String value() default "";
 }
 
 `;

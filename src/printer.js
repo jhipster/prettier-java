@@ -242,6 +242,8 @@ function printAnnotationMethodRest(node, path, print) {
 
   // Add name
   docs.push(path.call(print, "name"));
+  docs.push("(");
+  docs.push(")");
   docs.push(" ");
 
   // Add defaultValue
@@ -408,6 +410,12 @@ function printInterfaceBodyDeclaration(node, path, print) {
 function printInterfaceMethodDeclaration(node, path, print) {
   const docs = [];
 
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
   const start = [];
   // Add type type
   if (node.typeType) {
@@ -465,6 +473,9 @@ function printEnumDeclaration(node, path, print) {
   // TODO implements
   if (node.implements) {
     docs.push("implements");
+    docs.push(" ");
+    docs.push(path.call(print, "implements"));
+    docs.push(" ");
   }
 
   // Add open curly bracelet for class/interface beginning
@@ -702,6 +713,14 @@ function printCommaList(node, path, print) {
   const docs = [];
 
   docs.push(join(concat([",", line]), path.map(print, "list")));
+
+  return concat(docs);
+}
+
+function printAndList(node, path, print) {
+  const docs = [];
+
+  docs.push(join(concat([" ", "&", line]), path.map(print, "list")));
 
   return concat(docs);
 }
@@ -1315,6 +1334,11 @@ function printClassOrInterfaceTypeElement(node, path, print) {
     docs.push(path.call(print, "typeArguments"));
   }
 
+  //  Add dimensions
+  if (node.dimensions) {
+    docs.push(concat(path.map(print, "dimensions")));
+  }
+
   return concat(docs);
 }
 
@@ -1540,11 +1564,70 @@ function printArrayCreatorRest(node, path, print) {
   return concat(docs);
 }
 
+function printCreatorOptionalNonWildcardInnerCreator(node, path, print) {
+  const docs = [];
+
+  // Add new
+  docs.push("new");
+  docs.push(" ");
+
+  // Add typeArguments
+  if (node.typeArguments) {
+    docs.push(path.call(print, "typeArguments"));
+  }
+
+  // Add innerCreator
+  docs.push(path.call(print, "innerCreator"));
+
+  return concat(docs);
+}
+
+function printInnerCreator(node, path, print) {
+  const docs = [];
+
+  // Add id
+  docs.push(path.call(print, "id"));
+
+  // Add typeArguments
+  if (node.typeArguments) {
+    docs.push(path.call(print, "typeArguments"));
+  }
+
+  // Add rest
+  docs.push(path.call(print, "rest"));
+
+  return concat(docs);
+}
+
+function printNonWildcardCreator(node, path, print) {
+  const docs = [];
+
+  // Add new
+  docs.push("new");
+  docs.push(" ");
+
+  // Add typeArguments
+  if (node.typeArguments) {
+    docs.push(path.call(print, "typeArguments"));
+  }
+
+  // Add name
+  docs.push(path.call(print, "name"));
+
+  // Add rest
+  docs.push(path.call(print, "rest"));
+
+  return concat(docs);
+}
+
 function printArrayInitializer(node, path, print) {
   const docs = [];
 
   // Add statements
-  if (node.variableInitializers.length > 0) {
+  if (node.variableInitializers.length === 0) {
+    docs.push("{");
+    docs.push("}");
+  } else if (node.variableInitializers.length > 0) {
     docs.push(
       group(
         concat([
@@ -1708,6 +1791,9 @@ function printTypeArgument(node, path, print) {
 
   // Add super
   if (node.super) {
+    docs.push(" ");
+    docs.push("super");
+    docs.push(" ");
     docs.push(path.call(print, "super"));
   }
 
@@ -2080,11 +2166,14 @@ function printNode(node, path, print) {
     case "TYPE_LIST":
     case "VARIABLE_DECLARATORS":
     case "TYPE_PARAMETERS":
-    case "TYPE_BOUND":
     case "IDENTIFIER_LIST":
     case "QUALIFIED_NAME_LIST": {
       return printCommaList(node, path, print);
     }
+    case "TYPE_BOUND": {
+      return printAndList(node, path, print);
+    }
+
     case "CATCH_TYPE": {
       return printVerticalLineList(node, path, print);
     }
@@ -2228,6 +2317,15 @@ function printNode(node, path, print) {
     }
     case "ARRAY_CREATOR_REST": {
       return printArrayCreatorRest(node, path, print);
+    }
+    case "CREATOR_OPTIONAL_NON_WILDCARD_INNER_CREATOR": {
+      return printCreatorOptionalNonWildcardInnerCreator(node, path, print);
+    }
+    case "INNER_CREATOR": {
+      return printInnerCreator(node, path, print);
+    }
+    case "NON_WILDCARD_CREATOR": {
+      return printNonWildcardCreator(node, path, print);
     }
     case "ARRAY_INITIALIZER": {
       return printArrayInitializer(node, path, print);

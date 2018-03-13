@@ -360,13 +360,13 @@ interface InterfaceEmptyLinesBetweenFieldDeclarationAndMethod {
 
 interface InterfaceMethodEmpty {
 
-    void method() {}
+    default void method() {}
 
 }
 
 interface InterfaceMethodEmptyLinesAtBeginning {
 
-    void method() {
+    default void method() {
         int i;
     }
 
@@ -374,7 +374,7 @@ interface InterfaceMethodEmptyLinesAtBeginning {
 
 interface InterfaceMethodEmptyLinesAtEnd {
 
-    void method() {
+    default void method() {
         int i;
     }
 
@@ -382,7 +382,7 @@ interface InterfaceMethodEmptyLinesAtEnd {
 
 interface InterfaceMethodEmptyLinesBetween {
 
-    void method() {
+    default void method() {
         int i;
 
         int j;
