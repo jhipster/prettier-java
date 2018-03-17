@@ -52,7 +52,75 @@ public class ClassBodyBlock {
 ```
 # comment_javadoc
 ```java
+  
+/** PACKAGE
+ * another line
+ * @author me
+ */
+package comments;
 
+/** ABC */
+class EmptyComment {}
+
+/** BLUB */
+class MultiComments /** Abc */
+/** XYZ */
+/** Something 
+   * on two lines
+  */
+{
+    /** Something    * on two lines  */
+}
+
+class MultiCommentsWithEmptyLines /** Abc */
+/** XYZ */
+/** Something */
+{
+    /** Something */
+}
+
+class MultiCommentsWithDeclarationsAfter /** Something */
+{
+    /** Abc */
+    int i;
+
+    /** XYZ */
+    public void doSomething(int j) {
+        System.out.println("do");
+    }
+
+    /** Something */
+}
+
+class MethodComment {
+
+    public void doSomething1(int j) {
+        /** Abc */
+        System.out.println("do");
+
+        /** XYZ */
+        System.out.println("do");
+    }
+
+    public void doSomething2(int j) /** Something */
+    {
+        /** Abc */
+        System.out.println("do");
+
+        /** XYZ */
+        System.out.println("do");
+    }
+
+}
+
+/** Some
+ * comment */
+interface InterfaceComment {
+
+    /** comment */
+    void doSomething();
+
+}
 ```
 # comment_line
 ```java
