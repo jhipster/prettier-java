@@ -1979,6 +1979,23 @@ function printJavaDocComment(node) {
   return concat(docs);
 }
 
+function printLineCommentStandalone(node, path) {
+  const docs = [];
+
+  // Add value
+  docs.push(node.value);
+
+  const index = Number(path.getName());
+  if (
+    path.getParentNode().type !== "CLASS_BODY" ||
+    index !== path.getParentNode().declarations.length - 1
+  ) {
+    docs.push(hardline);
+  }
+
+  return concat(docs);
+}
+
 function printMethodReference(node, path, print) {
   const docs = [];
 
@@ -2389,6 +2406,9 @@ function printNode(node, path, print) {
     case "JavaDocComment": {
       return printJavaDocComment(node, path, print);
     }
+    case "LINE_COMMENT_STANDALONE": {
+      return printLineCommentStandalone(node, path, print);
+    }
     // MethodReference / Lambda
     case "METHOD_REFERENCE": {
       return printMethodReference(node, path, print);
@@ -2481,7 +2501,7 @@ function genericPrint(path, options, print) {
   const node = path.getValue();
   // console.log(node);
   // if (node.comments) {
-  //   // console.log(node.node, node.comments);
+  //   console.log(node.type, node.comments);
   // }
 
   // node["comments"] = [

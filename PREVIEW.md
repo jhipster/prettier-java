@@ -15,7 +15,7 @@ public abstract class AbstractClass {
 ```java
 }
 public @interface AnnotationTypeDeclaration {
-    public String value default "";
+    public String value() default "";
 }
 ```
 # args
@@ -262,13 +262,13 @@ interface InterfaceEmptyLinesBetweenFieldDeclarationAndMethod {
 
 interface InterfaceMethodEmpty {
 
-    void method() {}
+    default void method() {}
 
 }
 
 interface InterfaceMethodEmptyLinesAtBeginning {
 
-    void method() {
+    default void method() {
         int i;
     }
 
@@ -276,7 +276,7 @@ interface InterfaceMethodEmptyLinesAtBeginning {
 
 interface InterfaceMethodEmptyLinesAtEnd {
 
-    void method() {
+    default void method() {
         int i;
     }
 
@@ -284,7 +284,7 @@ interface InterfaceMethodEmptyLinesAtEnd {
 
 interface InterfaceMethodEmptyLinesBetween {
 
-    void method() {
+    default void method() {
         int i;
 
         int j;
@@ -499,6 +499,21 @@ public class GenericClass<BEAN> {
 
     public <T> T doSomething(T t) {
         return t;
+    }
+
+}
+
+public class ComplexGenericClass<BEAN extends AbstractBean &
+BeanItemSelect<BEANTYPE>,
+BEANTYPE,
+CONFIG extends BeanConfig<BEAN,
+BEANTYPE,
+CONFIG>>
+    extends AbstractBeanConfig<BEAN,
+    CONFIG> {
+
+    public <BEAN> List<? super BEAN> getBean(final Class<BEAN> beanClass) {
+        return new ArrayList<>();
     }
 
 }
@@ -1085,15 +1100,25 @@ public class Variables {
 
     private Object[] arrayVariable1[] = new Object[3];
     private Object[][] arrayVariable2[][] = new Object[3][3];
-    private Object[] arrayVariable3[] = new Object[] { "abc", "def", "ghi" };
-    private Object[] arrayVariable4[] = new Object[] {
+    private Object[] arrayVariable3[] = new Object[] {};
+    private Object[] arrayVariable4[] = new Object[] { "abc", "def", "ghi" };
+    private Object[] arrayVariable5[] = new Object[] {
         "abc",
         "def",
         "ghi",
         "jkl",
         "mno"
     };
-    private Object[] arrayVariable5[] = { "abc", "def", "ghi" };
+    private Object[] arrayVariable6[] = { "abc", "def", "ghi" };
+
+    private Range creator1 = this.dateRangeField.new Range(from,
+    to);
+    private Range creator2 = this.dateRangeField.new <Integer>Range(from,
+    to);
+    private Range<Date> creator3 = this.dateRangeField.new <Integer>Range<>(from,
+    to);
+    private Range<Date> creator3 = new <Integer>Range<>(from,
+    to);
 
     private Interface anonymousClassVariable = new Interface() {
 
@@ -1107,6 +1132,11 @@ public class Variables {
     public void variableMethod(final int finalVariable) {
         int localVariable = 456;
         int castVariable = (int) (4 / 2);
+    }
+
+    public void localVariables(
+
+    ) {final List<Filter> filterList = new ArrayList<>();
     }
 
 }

@@ -1,9 +1,6 @@
-// PACKAGE
-package comments;
-
 // ABC
 class EmptyComment {
-  //
+  //    
 }
 
 // BLUB
