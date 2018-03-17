@@ -10,7 +10,6 @@ class EmptyComment {
 
 /* BLUB */
 class MultiComments {
-  /**/
   /* */
   /* Abc */
   /* XYZ */
@@ -70,6 +69,6 @@ class MethodComment {
 /* Some
    comment */
 interface InterfaceComment {
-  /* comment*/
+  /* comment */
   void doSomething();
 }
