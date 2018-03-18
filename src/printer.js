@@ -75,9 +75,11 @@ function printCompilationUnit(node, path, print) {
 
     // Search in array
     const paths = [];
-    parts.forEach(part => {
-      paths.push(getImportPath(part));
-    });
+    if (parts.constructor === "Array") {
+      parts.forEach(part => {
+        paths.push(getImportPath(part));
+      });
+    }
     return paths;
   }
 }
