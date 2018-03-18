@@ -112,7 +112,8 @@ class MethodComment {
         System.out.println("do");
     }
 
-    public void doSomething2(int j) {
+    public void doSomething2(int j) // Something
+    {
         // Abc
         System.out.println("do");
 

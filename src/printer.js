@@ -1979,7 +1979,7 @@ function printJavaDocComment(node) {
   return concat(docs);
 }
 
-function printLineCommentStandalone(node, path) {
+function printCommentStandalone(node, path) {
   const docs = [];
 
   // Add value
@@ -2406,8 +2406,8 @@ function printNode(node, path, print) {
     case "JavaDocComment": {
       return printJavaDocComment(node, path, print);
     }
-    case "LINE_COMMENT_STANDALONE": {
-      return printLineCommentStandalone(node, path, print);
+    case "COMMENT_STANDALONE": {
+      return printCommentStandalone(node, path, print);
     }
     // MethodReference / Lambda
     case "METHOD_REFERENCE": {
