@@ -1,15 +1,9 @@
 "use strict";
 
-// const chevrotainJava = require("pegjs-java");
-const chevrotainJava = require("../../chevrotain-java/src/index");
+const chevrotainJava = require("chevrotain-java");
 
 function parse(text) {
-  /*parse(text, parsers, opts)*/
-  // try {
   return chevrotainJava.parse(text);
-  // } catch (error) {
-  //   throw new Error("Line " + error.location.start.line + ": " + error.message);
-  // }
 }
 
 module.exports = parse;

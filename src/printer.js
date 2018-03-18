@@ -75,7 +75,7 @@ function printCompilationUnit(node, path, print) {
 
     // Search in array
     const paths = [];
-    if (parts.constructor === "Array") {
+    if (parts.constructor === Array) {
       parts.forEach(part => {
         paths.push(getImportPath(part));
       });
@@ -1984,13 +1984,37 @@ function printJavaDocComment(node) {
 function printCommentStandalone(node, path) {
   const docs = [];
 
+  const index = Number(path.getName());
+  if (index !== 0) {
+    if (
+      (path.getParentNode().type === "CLASS_BODY" &&
+        (path.getParentNode().declarations[index - 1].type !==
+          "CLASS_BODY_MEMBER_DECLARATION" &&
+          path.getParentNode().declarations[index - 1].type !==
+            "COMMENT_STANDALONE")) ||
+      (path.getParentNode().type === "INTERFACE_BODY" &&
+        (path.getParentNode().declarations[index - 1].type !==
+          "INTERFACE_METHOD_DECLARATION" &&
+          path.getParentNode().declarations[index - 1].type !==
+            "COMMENT_STANDALONE")) ||
+      (path.getParentNode().type === "BLOCK" &&
+        path.getParentNode().statements[index - 1].type !==
+          "COMMENT_STANDALONE")
+    ) {
+      docs.push(hardline);
+    }
+  }
+
   // Add value
   docs.push(node.value);
 
-  const index = Number(path.getName());
   if (
-    path.getParentNode().type !== "CLASS_BODY" ||
-    index !== path.getParentNode().declarations.length - 1
+    (path.getParentNode().type !== "CLASS_BODY" ||
+      index !== path.getParentNode().declarations.length - 1) &&
+    (path.getParentNode().type !== "INTERFACE_BODY" ||
+      index !== path.getParentNode().declarations.length - 1) &&
+    (path.getParentNode().type !== "BLOCK" ||
+      index !== path.getParentNode().statements.length - 1)
   ) {
     docs.push(hardline);
   }

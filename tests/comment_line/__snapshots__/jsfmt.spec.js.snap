@@ -112,13 +112,14 @@ class MethodComment {
         System.out.println("do");
     }
 
-    public void doSomething2(int j) // Something
-    {
+    public void doSomething2(int j) {
         // Abc
         System.out.println("do");
 
         // XYZ
         System.out.println("do");
+
+        // Something
     }
 
 }

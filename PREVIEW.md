@@ -63,24 +63,21 @@ package comments;
 class EmptyComment {}
 
 /** BLUB */
-class MultiComments /** Abc */
-/** XYZ */
-/** Something 
+class MultiComments {
+    /** Something 
    * on two lines
   */
-{
-    /** Something    * on two lines  */
 }
 
-class MultiCommentsWithEmptyLines /** Abc */
-/** XYZ */
-/** Something */
-{
+class MultiCommentsWithEmptyLines {
+    /** Abc */
+
+    /** XYZ */
+
     /** Something */
 }
 
-class MultiCommentsWithDeclarationsAfter /** Something */
-{
+class MultiCommentsWithDeclarationsAfter {
     /** Abc */
     int i;
 
@@ -102,13 +99,14 @@ class MethodComment {
         System.out.println("do");
     }
 
-    public void doSomething2(int j) /** Something */
-    {
+    public void doSomething2(int j) {
         /** Abc */
         System.out.println("do");
 
         /** XYZ */
         System.out.println("do");
+
+        /** Something */
     }
 
 }
@@ -169,6 +167,8 @@ class MethodComment {
 
         // XYZ
         System.out.println("do");
+
+        // Something
     }
 
 }
@@ -193,23 +193,20 @@ package comments;
 class EmptyComment {}
 
 /* BLUB */
-class MultiComments /* Abc */
-/* XYZ */
-/* Something
+class MultiComments {
+    /* Something
      on two lines */
-{
-    /* Something     on two lines */
 }
 
-class MultiCommentsWithEmptyLines /* Abc */
-/* XYZ */
-/* Something */
-{
+class MultiCommentsWithEmptyLines {
+    /* Abc */
+
+    /* XYZ */
+
     /* Something */
 }
 
-class MultiCommentsWithDeclarationsAfter /* Something */
-{
+class MultiCommentsWithDeclarationsAfter {
     /* Abc */
     int i;
 
@@ -231,13 +228,14 @@ class MethodComment {
         System.out.println("do");
     }
 
-    public void doSomething2(int j) /* Something */
-    {
+    public void doSomething2(int j) {
         /* Abc */
         System.out.println("do");
 
         /* XYZ */
         System.out.println("do");
+
+        /* Something */
     }
 
 }

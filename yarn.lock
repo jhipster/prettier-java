@@ -525,6 +525,17 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
+chevrotain-java@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/chevrotain-java/-/chevrotain-java-0.0.3.tgz#d90abf3525fdf2c7e48159816891b486b58865e2"
+  dependencies:
+    chevrotain "^3.0.1"
+    xregexp "^4.0.0"
+
+chevrotain@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-3.0.1.tgz#4259e8ea707273e88b8d70c9f1e3fe108d9c2446"
+
 ci-info@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-1.1.2.tgz#03561259db48d0474c8bdc90f5b47b068b6bbfb4"
@@ -3553,6 +3564,10 @@ x-is-string@^0.1.0:
 xml-name-validator@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-2.0.1.tgz#4d8b8f1eccd3419aa362061becef515e1e559635"
+
+xregexp@^4.0.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-4.1.1.tgz#eb8a032aa028d403f7b1b22c47a5f16c24b21d8d"
 
 xtend@^4.0.1:
   version "4.0.1"
