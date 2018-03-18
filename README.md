@@ -1,12 +1,22 @@
+[![Join the chat at https://gitter.im/jlongster/prettier](https://badges.gitter.im/jlongster/prettier.svg)](https://gitter.im/jlongster/prettier)
+[![npm](https://img.shields.io/npm/v/prettier-plugin-java.svg)](https://www.npmjs.com/package/prettier-plugin-java)
+[![Build Status](https://travis-ci.org/thorbenvh8/prettier-plugin-java.svg?branch=master)](https://travis-ci.org/thorbenvh8/prettier-plugin-java)
+[![Coverage Status](https://coveralls.io/repos/thorbenvh8/prettier-plugin-java/badge.svg?branch=master)](https://coveralls.io/r/thorbenvh8/prettier-plugin-java?branch=master)
+[![Dependency status](https://img.shields.io/david/thorbenvh8/prettier-plugin-java.svg)](https://david-dm.org/thorbenvh8/prettier-plugin-java)
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+
 # Prettier Java
 
-![](https://i.giphy.com/media/GNvOUgBvLzVwA/giphy.webp)
+![Prettier Banner](https://raw.githubusercontent.com/prettier/prettier-logo/master/images/prettier-banner-light.png)
 
-Check back soon :)
+## Status
+* Working version released
+* Please file any bugs
 
+## ToDos
+* Make everything more prettier ;)
+* Increase performance (It's already fast though)
 ---
-
-<!--
 
 ## Install
 
@@ -20,13 +30,8 @@ yarn add --dev --exact prettier prettier-plugin-java
 prettier --write "**/*.java"
 ```
 
--->
-
 # Attention
 
-This project is currently based on a pegjs-java parser, because of speed problems and maintenable problems I'm currently working on implementing my own javascript java parser [chevrotain-java](https://github.com/thorbenvh8/chevrotain-java). Once that is done I will update the code here, the AST is a little different so there is some work to do here. If you want to help, please help me with the parser first.
-
-<!--
 If you're interested in contributing to the development of Prettier for Java, you can follow the [CONTRIBUTING guide from Prettier](https://github.com/prettier/prettier/blob/master/CONTRIBUTING.md), as it all applies to this repository too.
 
 To test it out on a Java file:
@@ -40,5 +45,3 @@ To test it out on a Java file:
 
 # Testing
 * You can call `yarn test`to test against all regular tests
-* You can call `yarn test-prettier`to test if prettier can parse its own output
--->
