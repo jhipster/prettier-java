@@ -46,4 +46,12 @@ public class TryCatch {
     }
   }
 
+  void resourceTry() {
+    try (Resource r = new Resource()) {
+        return br.readLine();
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+      System.out.println("Warning: Not breaking multi exceptions");
+    }
+  }
+
 }

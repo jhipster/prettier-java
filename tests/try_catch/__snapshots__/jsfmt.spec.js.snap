@@ -49,6 +49,14 @@ public class TryCatch {
     }
   }
 
+  void resourceTry() {
+    try (Resource r = new Resource()) {
+        return br.readLine();
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+      System.out.println("Warning: Not breaking multi exceptions");
+    }
+  }
+
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class TryCatch {
@@ -100,6 +108,14 @@ public class TryCatch {
             System.out.println("Warning: Breaking multi exceptions");
         } finally {
             System.out.println("Finally do something");
+        }
+    }
+
+    void resourceTry() {
+        try (Resource r = new Resource()){
+            return br.readLine();
+        } catch(ArithmeticException | ArrayIndexOutOfBoundsException e) {
+            System.out.println("Warning: Not breaking multi exceptions");
         }
     }
 

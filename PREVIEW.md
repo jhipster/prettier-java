@@ -500,6 +500,19 @@ public enum Enum {
     LAST_ENUM;
 
 }
+
+public enum Enum {
+
+    THIS_IS_GOOD,
+    THIS_IS_FINE;
+
+    public static final String thisWillBeDeleted = "DELETED";
+
+    public String toString() {
+        return "STRING";
+    }
+
+}
 ```
 # expressions
 ```java
@@ -883,30 +896,30 @@ public class Lambda {
 # marker_annotations
 ```java
 
+@MarkerAnnotation
+@NormalAnnotation("value")
+@SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
 @SingleMemberAnnotation2(
     name = "Something much long that breaks",
     date = "01/01/2018"
 )
-@SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
-@NormalAnnotation("value")
-@MarkerAnnotation
 public class MarkerAnnotations {
+    @MarkerAnnotation
+    @NormalAnnotation("value")
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"
     )
-    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
-    @NormalAnnotation("value")
-    @MarkerAnnotation
     SomeService service;
 
+    @MarkerAnnotation
+    @NormalAnnotation("value")
+    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
     @SingleMemberAnnotation2(
         name = "Something much long that breaks",
         date = "01/01/2018"
     )
-    @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
-    @NormalAnnotation("value")
-    @MarkerAnnotation
     public void postConstruct() {
         System.out.println("post construct");
     }
@@ -1219,6 +1232,14 @@ public class TryCatch {
             System.out.println("Warning: Breaking multi exceptions");
         } finally {
             System.out.println("Finally do something");
+        }
+    }
+
+    void resourceTry() {
+        try (Resource r = new Resource()){
+            return br.readLine();
+        } catch(ArithmeticException | ArrayIndexOutOfBoundsException e) {
+            System.out.println("Warning: Not breaking multi exceptions");
         }
     }
 

@@ -1016,8 +1016,9 @@ function printTryStatement(node, path, print) {
   docs.push(" ");
 
   // Add resource specification
-  // TODO
-  // docs.push(path.call(print, "resourceSpecification"));
+  if (node.resourceSpecification) {
+    docs.push(path.call(print, "resourceSpecification"));
+  }
 
   // Add body
   docs.push(path.call(print, "body"));
@@ -1029,6 +1030,56 @@ function printTryStatement(node, path, print) {
   // Add finally
   if (node.finally) {
     docs.push(path.call(print, "finally"));
+  }
+
+  return concat(docs);
+}
+
+function printResourceSpecification(node, path, print) {
+  const docs = [];
+
+  // Add open brace
+  docs.push("(");
+
+  // Add resources
+  docs.push(path.call(print, "resources"));
+
+  // Add close brace
+  docs.push(")");
+
+  return concat(docs);
+}
+
+function printResources(node, path, print) {
+  const docs = [];
+
+  // Add resources
+  docs.push(concat(path.map(print, "resources")));
+
+  return concat(docs);
+}
+
+function printResource(node, path, print) {
+  const docs = [];
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add typeType
+  docs.push(path.call(print, "typeType"));
+  docs.push(" ");
+
+  // Add id
+  docs.push(path.call(print, "id"));
+
+  // Add expression
+  if (node.expression) {
+    // Add equals
+    docs.push(" ");
+    docs.push("=");
+    docs.push(" ");
+
+    docs.push(path.call(print, "expression"));
   }
 
   return concat(docs);
@@ -2283,6 +2334,15 @@ function printNode(node, path, print) {
     }
     case "TRY_STATEMENT": {
       return printTryStatement(node, path, print);
+    }
+    case "RESOURCE_SPECIFICATION": {
+      return printResourceSpecification(node, path, print);
+    }
+    case "RESOURCES": {
+      return printResources(node, path, print);
+    }
+    case "RESOURCE": {
+      return printResource(node, path, print);
     }
     case "CATCH_CLAUSE": {
       return printCatchClause(node, path, print);
