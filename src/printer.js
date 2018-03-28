@@ -491,16 +491,18 @@ function printEnumDeclaration(node, path, print) {
   docs2.push(path.call(print, "enumConstants"));
   docs2.push(";");
 
-  // // Add class body
-  // TODO
-  // docs.push(concat(path.map(print, "body")));
-
   docs2.push(hardline);
 
   docs.push(indent(concat(docs2)));
 
+  if (node.body.declarations.length > 0) {
+    // Add class body
+    docs.push(path.call(print, "body"));
+  } else {
+    docs.push(hardline);
+  }
+
   // Add open curly bracelet for class/interface beginning
-  docs.push(hardline);
   docs.push("}");
 
   // Add line
@@ -524,6 +526,22 @@ function printEnumConstant(node, path, print) {
   // Add primitive type like void, int, etc.
   if (node.arguments && node.arguments.length > 0) {
     docs.push(group(printParameters("arguments", path, print)));
+  }
+
+  return concat(docs);
+}
+
+function printEnumDeclarations(node, path, print) {
+  const docs = [];
+
+  // Add declarations
+  if (node.declarations.length > 0) {
+    docs.push(
+      indent(
+        concat([hardline, join(hardline, path.map(print, "declarations"))])
+      )
+    );
+    docs.push(hardline);
   }
 
   return concat(docs);
@@ -2182,6 +2200,9 @@ function printNode(node, path, print) {
     }
     case "ENUM_CONSTANT": {
       return printEnumConstant(node, path, print);
+    }
+    case "ENUM_BODY_DECLARATIONS": {
+      return printEnumDeclarations(node, path, print);
     }
     case "CONSTANT_DECLARATION": {
       return printConstantDeclaration(node, path, print);
