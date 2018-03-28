@@ -2515,7 +2515,6 @@ function printAnnotations(path, print) {
   const docs = [];
 
   const annotations = [];
-  const annotationsMap = new Object();
 
   // Add only marker annotations in array
   path.each(annotationPath => {
@@ -2523,25 +2522,47 @@ function printAnnotations(path, print) {
     if (node.type === "ANNOTATION") {
       const annotation = annotationPath.call(print);
       docs.push(annotation);
+      annotations.push(annotation);
     }
   }, "modifiers");
 
-  // TODO sorting
+  // Sort imports
   annotations.sort((a, b) => {
-    if (a < b) {
+    if (!a.importPath) {
+      a.importPath = getAnnotationName(a.parts[1]);
+    }
+    if (!b.importPath) {
+      b.importPath = getAnnotationName(b.parts[1]);
+    }
+    if (a.importPath < b.importPath) {
       return -1;
     }
-    if (a > b) {
+    if (a.importPath > b.importPath) {
       return 1;
     }
     return 0;
   });
 
-  annotations.forEach(annotation => {
-    docs.push(annotationsMap[annotation]);
-  });
+  return concat(annotations);
 
-  return concat(docs);
+  function getAnnotationName(parts) {
+    if (typeof parts === "string") {
+      // If already string, just return
+      return parts;
+    } else if (parts.type && parts.type === "concat") {
+      // Search deeper in concat
+      return getAnnotationName(parts.parts).join("");
+    }
+
+    // Search in array
+    const paths = [];
+    if (parts.constructor === Array) {
+      parts.forEach(part => {
+        paths.push(getAnnotationName(part));
+      });
+    }
+    return paths;
+  }
 }
 
 function genericPrint(path, options, print) {
