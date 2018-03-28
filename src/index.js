@@ -6,7 +6,6 @@ const print = require("./printer");
 const languages = [
   {
     name: "Java",
-    since: "X.X.X", // FIXME
     parsers: ["java"],
     group: "Java",
     tmScope: "text.html.vue", // FIXME
