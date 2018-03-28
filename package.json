@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "chevrotain-java": "^0.0.3",
-    "pegjs-java": "^0.0.15",
     "prettier": "prettier/prettier#dbe0758b487be2da74a3f8cf4036472685d75fb0"
   },
   "devDependencies": {
