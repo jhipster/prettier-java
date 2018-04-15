@@ -18,10 +18,25 @@ const languages = [
   }
 ];
 
+function locStart(/* node */) {
+  return -1;
+}
+
+function locEnd(/* node */) {
+  return -1;
+}
+
+function hasPragma(/* text */) {
+  return false;
+}
+
 const parsers = {
   java: {
     parse,
-    astFormat: "java"
+    astFormat: "java",
+    locStart,
+    locEnd,
+    hasPragma
   }
 };
 
