@@ -524,8 +524,10 @@ function printEnumConstant(node, path, print) {
   docs.push(path.call(print, "name"));
 
   // Add primitive type like void, int, etc.
-  if (node.arguments && node.arguments.length > 0) {
-    docs.push(group(printParameters("arguments", path, print)));
+  if (node.arguments && node.arguments) {
+    docs.push("(");
+    docs.push(path.call(print, "arguments"));
+    docs.push(")");
   }
 
   return concat(docs);
@@ -2547,15 +2549,6 @@ function printNode(node, path, print) {
       console.error("Unknown Java node:", node);
       return "";
   }
-}
-
-function printParameters(childrensPathName, path, print) {
-  const docs = [];
-
-  docs.push(softline);
-  docs.push(join(concat([",", line]), path.map(print, childrensPathName)));
-
-  return indent(concat(docs));
 }
 
 function printModifiers(path, print) {
