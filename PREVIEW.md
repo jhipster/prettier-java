@@ -503,10 +503,16 @@ public enum Enum {
 
 public enum Enum {
 
-    THIS_IS_GOOD,
-    THIS_IS_FINE;
+    THIS_IS_GOOD("abc"),
+    THIS_IS_FINE("abc");
 
     public static final String thisWillBeDeleted = "DELETED";
+
+    private final String value;
+
+    public Enum(String value) {
+        this.value = value;
+    }
 
     public String toString() {
         return "STRING";
