@@ -556,16 +556,18 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
-chevrotain-java@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/chevrotain-java/-/chevrotain-java-0.0.4.tgz#e8368c70e4c643e34d3947ce000da1f2b1e077c2"
+chevrotain-java@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/chevrotain-java/-/chevrotain-java-0.0.5.tgz#a802bcb0908d9d5d641b9d2b0944673cc53373aa"
   dependencies:
-    chevrotain "^3.0.1"
+    chevrotain "^3.2.0"
     xregexp "^4.0.0"
 
-chevrotain@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-3.0.1.tgz#4259e8ea707273e88b8d70c9f1e3fe108d9c2446"
+chevrotain@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-3.2.0.tgz#576fbaf2bbed9c6254185a435e8a5c4d9283ced5"
+  dependencies:
+    regexp-to-ast "0.2.2"
 
 ci-info@^1.0.0:
   version "1.1.2"
@@ -2841,6 +2843,10 @@ regex-cache@^0.4.2:
   resolved "https://registry.yarnpkg.com/regex-cache/-/regex-cache-0.4.4.tgz#75bdc58a2a1496cec48a12835bc54c8d562336dd"
   dependencies:
     is-equal-shallow "^0.1.3"
+
+regexp-to-ast@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/regexp-to-ast/-/regexp-to-ast-0.2.2.tgz#58edee54a1157b9c20b205b9c05cc0d81be698d8"
 
 regexpp@^1.0.1:
   version "1.0.1"
