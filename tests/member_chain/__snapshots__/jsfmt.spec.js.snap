@@ -28,15 +28,21 @@ public class BreakLongFunctionCall {
     }
 
     public void doSomethingLongNew() {
-        return something().more().and().that().as().well().but().not().something().something();
+        return something().more().and().that().as().well().but().not(
+
+        ).something().something();
     }
 
     public void doSomethingLongNew2() {
-        return new Object().something().more().and().that().as().well().but().not().something();
+        return new Object().something().more().and().that().as().well().but(
+
+        ).not().something();
     }
 
     public void doSomethingLongStatic() {
-        return Object.something().more().and().that().as().well().but().not().something();
+        return Object.something().more().and().that().as().well().but().not(
+
+        ).something();
     }
 
 }

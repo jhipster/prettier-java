@@ -296,6 +296,38 @@ public class Constructors {
         System.out.println("constructor with boolean " + one + " and " + two);
     }
 
+    Constructors() {
+        super(
+            "lots",
+            "of",
+            "parameters",
+            "when there is not enough space",
+            "should wrap well"
+        );
+        System.out.println("constructor with super that wraps");
+    }
+
+    Constructors() {
+        super("enough parameter", "fit");
+        System.out.println("constructor with super that does not wrap");
+    }
+
+    Constructors() {
+        this(
+            "lots",
+            "of",
+            "parameters",
+            "when there is not enough space",
+            "should wrap well"
+        );
+        System.out.println("constructor with this that wraps");
+    }
+
+    Constructors() {
+        this("enough parameter", "fit");
+        System.out.println("constructor with this that does not wrap");
+    }
+
 }
 ```
 # empty_class
@@ -709,14 +741,13 @@ public class GenericClass<BEAN> {
 
 }
 
-public class ComplexGenericClass<BEAN extends AbstractBean &
-BeanItemSelect<BEANTYPE>,
-BEANTYPE,
-CONFIG extends BeanConfig<BEAN,
-BEANTYPE,
-CONFIG>>
-    extends AbstractBeanConfig<BEAN,
-    CONFIG> {
+public class ComplexGenericClass<
+    BEAN extends AbstractBean &
+    BeanItemSelect<BEANTYPE>,
+    BEANTYPE,
+    CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
+>
+    extends AbstractBeanConfig<BEAN, CONFIG> {
 
     public <BEAN> List<? super BEAN> getBean(final Class<BEAN> beanClass) {
         return new ArrayList<>();
@@ -732,8 +763,7 @@ public class GenericInvocation {
     public void genericInvocation() {
         <Bean>doSomething();
 
-        <Bean>doSomething2(abc,
-        def);
+        <Bean>doSomething2(abc, def);
     }
 
 }
@@ -836,6 +866,36 @@ public class ImplementsInterfaces implements Interface1, Interface2 {
 
 }
 ```
+# instantiation
+```java
+
+public class Instantiation {
+
+    public void instantiation() {
+        new Constructor("few", "arguments");
+
+        new Constructor(
+            "a",
+            "really",
+            "big",
+            "quantity",
+            "of",
+            "arguments",
+            new Nested(
+                "that",
+                "have",
+                "nested",
+                new Nested("instantiation"),
+                "everywhere",
+                "!"
+            ),
+            "should",
+            "wrap"
+        );
+    }
+
+}
+```
 # interface
 ```java
 }
@@ -852,45 +912,56 @@ public interface Interfaces {
 public class Lambda {
 
     public void singleArgumentWithParens() {
-        call(x -> {
-            System.out.println(x);
-            System.out.println(x);
-        });
+        call(
+            x -> {
+                System.out.println(x);
+                System.out.println(x);
+            }
+        );
     }
 
     public void singleArgumentWithoutParens() {
-        call(x -> {
-            System.out.println(x);
-            System.out.println(x);
-        });
+        call(
+            x -> {
+                System.out.println(x);
+                System.out.println(x);
+            }
+        );
     }
 
     public void multiArguments() {
-        call((x,
-        y) -> {
-            System.out.println(x);
-            System.out.println(y);
-        });
+        call(
+            (x, y) -> {
+                System.out.println(x);
+                System.out.println(y);
+            }
+        );
     }
 
     public void multiParameters() {
-        call((Object x, final String y) -> {
-            System.out.println(x);
-            System.out.println(y);
-        });
+        call(
+            (Object x, final String y) -> {
+                System.out.println(x);
+                System.out.println(y);
+            }
+        );
     }
 
     public void emptyArguments() {
-        call(() -> {
-            System.out.println();
-            System.out.println();
-        });
+        call(
+            () -> {
+                System.out.println();
+                System.out.println();
+            }
+        );
     }
 
     public void onlyOneMethodInBodyWithCurlyBraces() {
-        call(x -> {
-            System.out.println(x);
-        });
+        call(
+            x -> {
+                System.out.println(x);
+            }
+        );
     }
 
     public void onlyOneMethodInBody() {
@@ -969,15 +1040,21 @@ public class BreakLongFunctionCall {
     }
 
     public void doSomethingLongNew() {
-        return something().more().and().that().as().well().but().not().something().something();
+        return something().more().and().that().as().well().but().not(
+
+        ).something().something();
     }
 
     public void doSomethingLongNew2() {
-        return new Object().something().more().and().that().as().well().but().not().something();
+        return new Object().something().more().and().that().as().well().but(
+
+        ).not().something();
     }
 
     public void doSomethingLongStatic() {
-        return Object.something().more().and().that().as().well().but().not().something();
+        return Object.something().more().and().that().as().well().but().not(
+
+        ).something();
     }
 
 }
@@ -1286,7 +1363,9 @@ public class Types {
 
 public class Variables {
     public static int STATIC_VARIABLE = 123;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComplexFilterTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ComplexFilterTest.class
+    );
 
     int packageVariable = 234;
     private float privateVariable = 0.9f;
@@ -1295,22 +1374,24 @@ public class Variables {
     private Integer createVariable = new Integer();
 
     private List<String> genericVariable1 = new ArrayList<>();
-    private final Map<String,
-    Button> buttonMap = new HashMap<>();
+    private final Map<String, Button> buttonMap = new HashMap<>();
     private Bean<String> genericVariable2 = new Bean<String>("abc");
-    private Bean<String> genericVariable2 = new Bean<String>("abc",
-    "def",
-    "ghi",
-    "jkl");
-    private Map<Integer,
-    String> genericVariable4 = new HashMap<Integer,
-    String>();
-    private Map<Integer,
-    String,
-    Integer,
-    String> genericVariable5 = new HashMap<Integer,
-    String,
-    Integer>();
+    private Bean<String> genericVariable2 = new Bean<String>(
+        "abc",
+        "def",
+        "ghi",
+        "jkl"
+    );
+    private Map<Integer, String> genericVariable4 = new HashMap<
+        Integer,
+        String
+    >();
+    private Map<
+        Integer,
+        String,
+        Integer,
+        String
+    > genericVariable5 = new HashMap<Integer, String, Integer>();
 
     private Object[] arrayVariable1[] = new Object[3];
     private Object[][] arrayVariable2[][] = new Object[3][3];
@@ -1325,14 +1406,13 @@ public class Variables {
     };
     private Object[] arrayVariable6[] = { "abc", "def", "ghi" };
 
-    private Range creator1 = this.dateRangeField.new Range(from,
-    to);
-    private Range creator2 = this.dateRangeField.new <Integer>Range(from,
-    to);
-    private Range<Date> creator3 = this.dateRangeField.new <Integer>Range<>(from,
-    to);
-    private Range<Date> creator3 = new <Integer>Range<>(from,
-    to);
+    private Range creator1 = this.dateRangeField.new Range(from, to);
+    private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
+    private Range<Date> creator3 = this.dateRangeField.new <Integer>Range<>(
+        from,
+        to
+    );
+    private Range<Date> creator3 = new <Integer>Range<>(from, to);
 
     private Interface anonymousClassVariable = new Interface() {
 
