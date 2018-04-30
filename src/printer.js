@@ -1243,6 +1243,10 @@ function printSwitchLabelDefault() {
 function printFieldDeclaration(node, path, print) {
   const docs = [];
 
+  if (path.getParentNode().type === "BLOCK") {
+    docs.push(hardline);
+  }
+
   // Add typeType
   docs.push(path.call(print, "typeType"));
   docs.push(" ");

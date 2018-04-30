@@ -1348,9 +1348,8 @@ public class Variables {
         int castVariable = (int) (4 / 2);
     }
 
-    public void localVariables(
-
-    ) {final List<Filter> filterList = new ArrayList<>();
+    public void localVariables() {
+        final List<Filter> filterList = new ArrayList<>();
     }
 
 }
