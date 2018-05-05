@@ -27,6 +27,8 @@ public class Variables {
   private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
   private Range<Date> creator3 = this.dateRangeField.new <Integer>Range<>(from, to);
   private Range<Date> creator3 = new <Integer>Range<>(from, to);
+
+  private int	hexLiteral = 0x0000;
   
   private Interface anonymousClassVariable = new Interface(){
     @Override

@@ -2396,7 +2396,8 @@ function printNode(node, path, print) {
       return printStringLiteral(node, path, print);
     }
     case "DECIMAL_LITERAL":
-    case "FLOAT_LITERAL": {
+    case "FLOAT_LITERAL":
+    case "HEX_LITERAL": {
       return printNumberLiteral(node, path, print);
     }
     case "SIMPLE_CREATOR": {
