@@ -99,6 +99,24 @@ function printTypeDeclaration(node, path, print) {
   return concat(docs);
 }
 
+function printLocalTypeDeclaration(node, path, print) {
+  const docs = [];
+
+  docs.push(hardline);
+  docs.push(hardline);
+
+  // Add marker annotations like @Bean
+  docs.push(printAnnotations(path, print));
+
+  // Add modifiers like public, static, etc.
+  docs.push(printModifiers(path, print));
+
+  // Add declaration
+  docs.push(path.call(print, "declaration"));
+
+  return concat(docs);
+}
+
 function printClassDeclaration(node, path, print) {
   const docs = [];
 
@@ -2175,6 +2193,9 @@ function printNode(node, path, print) {
     }
     case "TYPE_DECLARATION": {
       return printTypeDeclaration(node, path, print);
+    }
+    case "LOCAL_TYPE_DECLARATION": {
+      return printLocalTypeDeclaration(node, path, print);
     }
     case "CLASS_DECLARATION": {
       return printClassDeclaration(node, path, print);
