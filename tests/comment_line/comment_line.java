@@ -70,3 +70,14 @@ interface InterfaceComment {
   // comment
   void doSomething();
 }
+
+class IfStatementInlineComment {
+  void testMethod() throws Exception {
+    String x;
+    if (true
+        // this is a sample comment
+        || true) {
+      x = "foo";
+    }
+  }
+}

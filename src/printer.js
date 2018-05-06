@@ -1490,7 +1490,7 @@ function printOperatorExpression(node, path, print) {
 
   // operator
   docs.push(" ");
-  docs.push(node.operator);
+  docs.push(path.call(print, "operator"));
   docs.push(" ");
 
   // right
@@ -1564,6 +1564,15 @@ function printBooleanLiteral(node) {
 
   // Add boolean value
   docs.push(node.value);
+
+  return concat(docs);
+}
+
+function printOperator(node) {
+  const docs = [];
+
+  // Add operator
+  docs.push(node.operator);
 
   return concat(docs);
 }
@@ -2411,6 +2420,9 @@ function printNode(node, path, print) {
     }
     case "BOOLEAN_LITERAL": {
       return printBooleanLiteral(node, path, print);
+    }
+    case "OPERATOR": {
+      return printOperator(node, path, print);
     }
     case "CHAR_LITERAL":
     case "STRING_LITERAL": {
