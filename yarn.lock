@@ -556,9 +556,9 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
-chevrotain-java@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/chevrotain-java/-/chevrotain-java-0.0.7.tgz#7743ce6701fc435802ead11f80e1180c6df42887"
+chevrotain-java@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/chevrotain-java/-/chevrotain-java-0.0.8.tgz#985ea152e97e9feb9acd81489b94294f10aa7bb1"
   dependencies:
     chevrotain "^3.2.0"
     xregexp "^4.0.0"

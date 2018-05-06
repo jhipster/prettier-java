@@ -88,18 +88,18 @@ public class Variables {
         String
     > genericVariable5 = new HashMap<Integer, String, Integer>();
 
-    private Object[] arrayVariable1[] = new Object[3];
-    private Object[][] arrayVariable2[][] = new Object[3][3];
-    private Object[] arrayVariable3[] = new Object[] {};
-    private Object[] arrayVariable4[] = new Object[] { "abc", "def", "ghi" };
-    private Object[] arrayVariable5[] = new Object[] {
+    private Object[] arrayVariable1 = new Object[3];
+    private Object[][] arrayVariable2 = new Object[3][3];
+    private Object[] arrayVariable3 = new Object[] {};
+    private Object[] arrayVariable4 = new Object[] { "abc", "def", "ghi" };
+    private Object[] arrayVariable5 = new Object[] {
         "abc",
         "def",
         "ghi",
         "jkl",
         "mno"
     };
-    private Object[] arrayVariable6[] = { "abc", "def", "ghi" };
+    private Object[] arrayVariable6 = { "abc", "def", "ghi" };
 
     private Range creator1 = this.dateRangeField.new Range(from, to);
     private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
