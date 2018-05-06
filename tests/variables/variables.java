@@ -46,4 +46,9 @@ public class Variables {
     final List<Filter> filterList = new ArrayList<>();
   }
 
+  public void multipleVariableDeclaration() {
+    String str = new String();
+    Map<String, String> map = new HashMap<>();
+  }
+
 }

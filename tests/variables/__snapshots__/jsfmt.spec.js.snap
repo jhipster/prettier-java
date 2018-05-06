@@ -49,6 +49,11 @@ public class Variables {
     final List<Filter> filterList = new ArrayList<>();
   }
 
+  public void multipleVariableDeclaration() {
+    String str = new String();
+    Map<String, String> map = new HashMap<>();
+  }
+
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class Variables {
@@ -122,6 +127,11 @@ public class Variables {
 
     public void localVariables() {
         final List<Filter> filterList = new ArrayList<>();
+    }
+
+    public void multipleVariableDeclaration() {
+        String str = new String();
+        Map<String, String> map = new HashMap<>();
     }
 
 }
