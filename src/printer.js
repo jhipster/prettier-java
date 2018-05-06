@@ -525,7 +525,7 @@ function printEnumDeclaration(node, path, print) {
 
   docs.push(indent(concat(docs2)));
 
-  if (node.body.declarations.length > 0) {
+  if (node.body && node.body.declarations.length > 0) {
     // Add class body
     docs.push(path.call(print, "body"));
   } else {
