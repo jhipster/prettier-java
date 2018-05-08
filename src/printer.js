@@ -2418,6 +2418,7 @@ function printNode(node, path, print) {
     }
     case "DECIMAL_LITERAL":
     case "FLOAT_LITERAL":
+    case "OCT_LITERAL":
     case "HEX_LITERAL": {
       return printNumberLiteral(node, path, print);
     }
