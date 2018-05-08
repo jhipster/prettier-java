@@ -1170,6 +1170,35 @@ function printWhileStatement(node, path, print) {
   return concat(docs);
 }
 
+function printDoWhileStatement(node, path, print) {
+  const docs = [];
+
+  // Add line
+  docs.push(hardline);
+
+  // Add do
+  docs.push("do");
+  docs.push(" ");
+
+  // Add body
+  docs.push(path.call(print, "body"));
+
+  // Add while and open braces
+  docs.push(" ");
+  docs.push("while");
+  docs.push(" ");
+  docs.push("(");
+
+  // Add condition
+  docs.push(path.call(print, "condition"));
+
+  // Add close braces and open curly braces
+  docs.push(")");
+  docs.push(";");
+
+  return concat(docs);
+}
+
 function printSwitchStatement(node, path, print) {
   const docs = [];
 
@@ -2339,6 +2368,9 @@ function printNode(node, path, print) {
     }
     case "WHILE_STATEMENT": {
       return printWhileStatement(node, path, print);
+    }
+    case "DO_WHILE_STATEMENT": {
+      return printDoWhileStatement(node, path, print);
     }
     case "SWITCH_STATEMENT": {
       return printSwitchStatement(node, path, print);
