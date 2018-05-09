@@ -6,4 +6,10 @@ public class While {
     }
   }
 
+  public void doWhile(boolean one) {
+    do {
+      System.out.println("one");
+    } while (one);
+  }
+
 }

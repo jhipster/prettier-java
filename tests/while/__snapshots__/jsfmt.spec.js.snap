@@ -9,6 +9,12 @@ public class While {
     }
   }
 
+  public void doWhile(boolean one) {
+    do {
+      System.out.println("one");
+    } while (one);
+  }
+
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class While {
@@ -17,6 +23,12 @@ public class While {
         while (one) {
             System.out.println("one");
         }
+    }
+
+    public void doWhile(boolean one) {
+        do {
+            System.out.println("one");
+        } while (one);
     }
 
 }
