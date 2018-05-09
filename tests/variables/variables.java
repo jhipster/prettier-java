@@ -29,7 +29,8 @@ public class Variables {
   private Range<Date> creator3 = new <Integer>Range<>(from, to);
 
   private int	hexLiteral = 0x0000;
-  
+  private int	octLiteral = 001;
+
   private Interface anonymousClassVariable = new Interface(){
     @Override
     void doSomething() {
