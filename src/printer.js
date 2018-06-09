@@ -1075,6 +1075,7 @@ function printTryStatement(node, path, print) {
   // Add resource specification
   if (node.resourceSpecification) {
     docs.push(path.call(print, "resourceSpecification"));
+    docs.push(" ");
   }
 
   // Add body
