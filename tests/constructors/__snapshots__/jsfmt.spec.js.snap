@@ -38,6 +38,14 @@ public class Constructors {
     System.out.println("constructor with this that does not wrap");
   }
 
+  Constructors() throws Exception {
+    throw new Exception("Exception in constructor");
+  }
+
+  Constructors() throws Exception, VeryVeryLongExceptionName, AnotherLongExceptionName {
+    throw new Exception("Exception in constructor");
+  }
+
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public class Constructors {
@@ -87,6 +95,18 @@ public class Constructors {
     Constructors() {
         this("enough parameter", "fit");
         System.out.println("constructor with this that does not wrap");
+    }
+
+    Constructors() throws Exception {
+        throw new Exception("Exception in constructor");
+    }
+
+    Constructors()
+        throws
+            Exception,
+            VeryVeryLongExceptionName,
+            AnotherLongExceptionName {
+        throw new Exception("Exception in constructor");
     }
 
 }

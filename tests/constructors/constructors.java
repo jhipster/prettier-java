@@ -35,4 +35,12 @@ public class Constructors {
     System.out.println("constructor with this that does not wrap");
   }
 
+  Constructors() throws Exception {
+    throw new Exception("Exception in constructor");
+  }
+
+  Constructors() throws Exception, VeryVeryLongExceptionName, AnotherLongExceptionName {
+    throw new Exception("Exception in constructor");
+  }
+
 }

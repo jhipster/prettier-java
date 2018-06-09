@@ -227,7 +227,13 @@ function printConstructorDeclaration(node, path, print) {
   docs.push(path.call(print, "parameters"));
 
   // Add throws
-  // TODO throws
+  if (node.throws) {
+    const throws = [];
+    throws.push(line);
+    throws.push("throws");
+    throws.push(indent(concat([line, path.call(print, "throws")])));
+    docs.push(group(indent(concat(throws))));
+  }
 
   // Add body
   docs.push(" ");
