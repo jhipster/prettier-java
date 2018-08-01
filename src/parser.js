@@ -1,6 +1,6 @@
 "use strict";
 
-const chevrotainJava = require("chevrotain-java");
+const chevrotainJava = require("chevrotain-apex");
 
 function parse(text) {
   return chevrotainJava.parse(text);
