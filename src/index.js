@@ -5,16 +5,16 @@ const print = require("./printer");
 
 const languages = [
   {
-    name: "Java",
-    parsers: ["java"],
-    group: "Java",
-    tmScope: "text.html.vue", // FIXME
-    aceMode: "html", // FIXME
-    codemirrorMode: "clike",
-    codemirrorMimeType: "text/x-java",
-    extensions: [".java"],
+    name: "Apex",
+    parsers: ["apex"],
+    group: "Apex",
+    // tmScope: "text.html.vue", // no Apex support
+    // aceMode: "html", // no Apex support
+    // codemirrorMode: "clike", // no Apex support
+    // codemirrorMimeType: "text/x-java", // no Apex support
+    extensions: [".apex"],
     linguistLanguageId: 181,
-    vscodeLanguageIds: ["java"]
+    vscodeLanguageIds: ["apex"]
   }
 ];
 
@@ -31,9 +31,9 @@ function hasPragma(/* text */) {
 }
 
 const parsers = {
-  java: {
+  apex: {
     parse,
-    astFormat: "java",
+    astFormat: "apex",
     locStart,
     locEnd,
     hasPragma
@@ -61,7 +61,7 @@ function clean(ast, newObj) {
 }
 
 const printers = {
-  java: {
+  apex: {
     print,
     // hasPrettierIgnore,
     printComment,
