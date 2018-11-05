@@ -10,14 +10,22 @@
 ![Prettier Banner](https://raw.githubusercontent.com/prettier/prettier-logo/master/images/prettier-banner-light.png)
 
 ## Status
+
 * Work In Progress
+* Unlinking original prettier-java repo in progress
+
+---
+###### This was originally forked from [thorbenvh8/prettier-java](https://github.com/thorbenvh8/prettier-java) but due to heavy changes I decided to move to another repo, not linked to prettier-java.
+
+###### Special thanks to [thorbenvh8](https://github.com/thorbenvh8) and the whole team behind [chevrotain-java](https://github.com/thorbenvh8/chevrotain-java) and [prettier-java](https://github.com/thorbenvh8/prettier-java)
+
 <!-- * Working version released -->
+
 <!-- * Please file any bugs -->
 
 <!-- ## ToDos
 * Make everything more prettier ;)
 * Increase performance (It's already fast though) -->
----
 
 <!-- ## Install
 
