@@ -10,12 +10,12 @@ version: 2
 jobs:
   build-node10:
     docker:
-      - image: circleci/node:10-browsers
+      - image: circleci/node:10
     <<: *base-build
 
   build-node8:
     docker:
-      - image: circleci/node:8-browsers
+      - image: circleci/node:8
     <<: *base-build
 
 workflows:
