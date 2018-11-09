@@ -34,7 +34,7 @@ each test verifies that for a given text input the produced AST is correct.
 
 ### Re-writer
 
-The [prettier-java](./packages/prettier-java) package prettifies source code by **re-writing** the AST
+The [prettier-java](./packages/prettier-plugin-java) package prettifies source code by **re-writing** the AST
 produced by the parser. It is tested by verifying pairs of expected input and output strings.
 
 TODO: cyclic AST tests & docs
