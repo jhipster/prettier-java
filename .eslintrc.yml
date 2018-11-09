@@ -1,20 +1,12 @@
 ---
 extends:
 - eslint:recommended
-- plugin:prettier/recommended
-- plugin:jest/recommended
-plugins:
-- import
 root: true
 env:
   es6: true
   node: true
-  jest: true
 rules:
   curly: error
-  import/no-extraneous-dependencies:
-  - error
-  - devDependencies: ["tests*/**", "scripts/**"]
   no-else-return: error
   no-inner-declarations: error
   no-unneeded-ternary: error
@@ -33,8 +25,10 @@ rules:
   - never
   - exceptRange: true
 overrides:
-- files: "tests/**/*.js"
+- files: "packages/*/tests/**/*.js"
   rules:
     strict: off
   globals:
-    run_spec: true
+    describe: true
+    it: true
+
