@@ -9,6 +9,7 @@
 
 ## ToDos
 
+- Fix parsing bugs
 - Make everything more prettier ;)
 - Increase performance (It's already fast though)
 
