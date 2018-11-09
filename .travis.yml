@@ -1,0 +1,20 @@
+language: node_js
+env:
+  global:
+    - CXX=g++-4.8
+cache: yarn
+node_js:
+  - "11"
+  - "10"
+  - "8"
+  - "6"
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+install:
+  - yarn
+script:
+  - yarn run ci
