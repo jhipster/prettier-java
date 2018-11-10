@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "java-parser-js": "0.1.0",
-    "prettier": "prettier/prettier#dbe0758b487be2da74a3f8cf4036472685d75fb0"
+    "prettier": "1.15.2"
   }
 }
