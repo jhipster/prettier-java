@@ -10,7 +10,7 @@
     "lint": "eslint packages/*/src/**/*.js packages/*/tests/**/*.js",
     "format": "prettier --write \"**/*.@(js|json|md)\"",
     "format_validate": "prettier --list-different \"**/*.@(js|json|md)\"",
-    "build": "node packages/java-parser/scripts/gen_diagrams.js",
+    "build": "node packages/java-parser-js/scripts/gen_diagrams.js",
     "prettier": "prettier --plugin=./packages/prettier-plugin-java --parser=java"
   },
   "devDependencies": {
