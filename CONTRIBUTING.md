@@ -29,7 +29,7 @@ and the [Chai](https://www.chaijs.com/) assertion library.
 
 ### Parser
 
-The [java-parser](./packages/java-parser-js) package is tested using simple [mocha](https://mochajs.org/) tests.
+The [java-parser](./packages/java-parser) package is tested using simple [mocha](https://mochajs.org/) tests.
 each test verifies that for a given text input the produced AST is correct.
 
 ### Re-writer

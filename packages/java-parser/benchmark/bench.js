@@ -2,7 +2,6 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
 const Benchmark = require("benchmark");
 const javaParserChev = require("../src/index");
-const javaParserPeg = require("java-parser");
 const fs = require("fs-extra");
 const path = require("path");
 const cp = require("child_process");
@@ -32,9 +31,6 @@ const sampleContent = fs.readFileSync(samplePath, "utf8");
 suite
   .add("Chevrotain Based Parser", () => {
     javaParserChev.parse(sampleContent);
-  })
-  .add("peg Based Parser", () => {
-    javaParserPeg.parse(sampleContent);
   })
   // add listeners
   .on("cycle", event => {

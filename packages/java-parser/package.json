@@ -1,16 +1,13 @@
 {
-  "name": "java-parser-js",
+  "name": "java-parser",
   "version": "0.1.0",
   "description": "Java Parser in JavaScript",
   "main": "src/index.js",
-  "repository": "https://github.com/jhipster/prettier-java/packages/java-parser-js",
+  "repository": "https://github.com/jhipster/prettier-java/packages/java-parser",
   "author": "Thorben von Hacht",
   "license": "MIT",
   "dependencies": {
     "chevrotain": "4.1.0",
     "xregexp": "4.0.0"
-  },
-  "devDependencies": {
-    "java-parser": "^0.0.2"
   }
 }

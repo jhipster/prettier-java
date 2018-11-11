@@ -1,9 +1,9 @@
 {
   "name": "prettier-plugin-java",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Prettier Java Plugin",
   "main": "src",
-  "repository": "https://github.com/thorbenvh8/prettier-java",
+  "repository": "https://github.com/jhipster/prettier-java/packages/java-parser",
   "author": "Thorben von Hacht <@thorbenvh8>",
   "license": "MIT",
   "files": [
@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "java-parser-js": "0.1.0",
+    "java-parser": "0.1.0",
     "prettier": "^1.10.0"
   }
 }
