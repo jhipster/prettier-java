@@ -9,14 +9,14 @@
 A Prettier plugin must first parse the source code of the target language
 into an **A**bstract **S**yntax **T**ree and then print out the AST in a "pretty" style.
 
-Prettier-Java uses a [Java-Parser](./packages/java-parser) implemented in JavaScript using the
+Prettier-Java uses a [Java-Parser](./packages/java-parser) implemented in JavaScript with the
 [Chevrotain parsing library](https://github.com/SAP/chevrotain).
-This means that unlike many other prettier plugins, prettier-java has **no additional pre-requisites** to run.
+What this means is that unlike many other prettier plugins, prettier-java has **no additional runtime pre-requisites**,
 It could even be used inside a browser.
 
 ## Status
 
-- Working version released
+- pre-alpha version released
 - Please file any bugs
 
 ## ToDos
