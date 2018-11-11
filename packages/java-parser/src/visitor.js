@@ -3570,18 +3570,9 @@ class SQLToAstVisitor extends BaseSQLVisitor {
     }
 
     if (ctx.CharLiteral) {
-      let value = ctx.CharLiteral[0].image;
-
-      // ugly but works for now
-      if (value === "'''") {
-        value = "'\\''";
-      } else {
-        value = JSON.stringify(value).slice(1, -1);
-      }
-
       return {
         type: "CHAR_LITERAL",
-        value: value
+        value: ctx.CharLiteral[0].image
       };
     }
 

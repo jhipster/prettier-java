@@ -3,7 +3,8 @@
 const javaParser = require("java-parser");
 
 function parse(text) {
-  return javaParser.parse(text);
+  const ast = javaParser.parse(text);
+  return ast;
 }
 
 module.exports = parse;

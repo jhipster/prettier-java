@@ -63,29 +63,29 @@ describe("literal", () => {
   it("charLiteral: t", () => {
     expect(Parser.parse("'\t'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\t'"
+      value: "'\t'"
     });
   });
   it("charLiteral: n", () => {
     expect(Parser.parse("'\n'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\n'"
+      value: "'\n'"
     });
   });
   it("charLiteral: r", () => {
     expect(Parser.parse("'\r'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\r'"
+      value: "'\r'"
     });
   });
   it("charLiteral: f", () => {
     expect(Parser.parse("'\f'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\f'"
+      value: "'\f'"
     });
   });
   it("charLiteral: '", () => {
-    expect(Parser.parse("'''", parser => parser.literal())).to.deep.equal({
+    expect(Parser.parse("'\\''", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
       value: "'\\''"
     });
@@ -93,7 +93,7 @@ describe("literal", () => {
   it("charLiteral: \\", () => {
     expect(Parser.parse("'\\'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\\\'"
+      value: "'\\'"
     });
   });
 
