@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Prettier Java Plugin",
   "main": "src",
-  "repository": "https://github.com/jhipster/prettier-java/packages/java-parser",
+  "repository": "https://github.com/jhipster/prettier-java",
   "author": "Thorben von Hacht <@thorbenvh8>",
   "license": "MIT",
   "files": [
