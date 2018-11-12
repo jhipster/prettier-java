@@ -7,7 +7,7 @@ matrix:
   include:
     - node_js: "11"
     - node_js: "10"
-      env: DEPLOY=true
+      env: PUBLISH=true
     - node_js: "8"
     - node_js: "6"
 addons:
@@ -26,6 +26,6 @@ deploy:
     on:
       tags: true
       all_branches: true
-      condition: $DEPLOY = true
+      condition: PUBLISH = true
     skip_cleanup: true
 
