@@ -3,11 +3,13 @@ env:
   global:
     - CXX=g++-4.8
 cache: yarn
-node_js:
-  - "11"
-  - "10"
-  - "8"
-  - "6"
+matrix:
+  include:
+    - node_js: "11"
+    - node_js: "10"
+      env: DEPLOY=true
+    - node_js: "8"
+    - node_js: "6"
 addons:
   apt:
     sources:
@@ -18,3 +20,12 @@ install:
   - yarn
 script:
   - yarn run ci
+deploy:
+  - provider: script
+    script: bash scripts/deploy.sh
+    on:
+      tags: true
+      all_branches: true
+      condition: $DEPLOY = true
+    skip_cleanup: true
+

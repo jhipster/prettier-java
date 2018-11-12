@@ -5,6 +5,8 @@
     "packages/*"
   ],
   "scripts": {
+    "version": "lerna version --no-push",
+    "release": "lerna publish from-git",
     "ci": "npm-run-all build lint format-validate test",
     "test": "mocha \"packages/*/tests/**/*-test.js\"",
     "lint": "eslint packages/*/src/**/*.js packages/*/tests/**/*.js",
