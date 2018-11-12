@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 "use strict";
-const chevrotain = require("chevrotain");
+const { createToken: createTokenOrg, Lexer } = require("chevrotain");
 const xregexp = require("xregexp");
 
 // A little mini DSL for easier lexer definition using xRegExp.
@@ -19,17 +20,120 @@ FRAGMENT("ExponentPart", "[eE][+-]?{{Digits}}");
 FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 
-const createToken = chevrotain.createToken;
-
-const Identifier = createToken({
+const Identifier = createTokenOrg({
   name: "Identifier",
   pattern: /[a-zA-Z_\\$][a-zA-Z_\\$0-9]*/
 });
 
+const allTokens = [];
+const tokenDictionary = {};
+function createToken(options) {
+  const newTokenType = createTokenOrg(options);
+  allTokens.push(newTokenType);
+  tokenDictionary[options.name] = newTokenType;
+  return newTokenType;
+}
 function createKeywordToken(options) {
   options.longer_alt = Identifier;
   return createToken(options);
 }
+
+const WhiteSpace = createToken({
+  name: "WhiteSpace",
+  pattern: /\s+/,
+  group: Lexer.SKIPPED,
+  line_breaks: true
+});
+
+const LineCommentStandalone = createToken({
+  name: "LineCommentStandalone",
+  // TODO: I think the s* in the end is meant to be \s*
+  pattern: /\/\/[^\n\r]*((\n|[\r][^\n]|\r\n)s*){2,}/,
+  line_breaks: true
+});
+
+const LineComment = createToken({
+  name: "LineComment",
+  pattern: /\/\/[^\n\r]*/
+});
+
+const JavaDocCommentStandalone = createToken({
+  name: "JavaDocCommentStandalone",
+  pattern: /\/\*\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
+  line_breaks: true
+});
+
+const JavaDocComment = createToken({
+  name: "JavaDocComment",
+  pattern: /\/\*\*([^*]|\*(?!\/))*\*\//,
+  line_breaks: true
+});
+
+const TraditionalCommentStandalone = createToken({
+  name: "TraditionalCommentStandalone",
+  pattern: /\/\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
+  line_breaks: true
+});
+
+const TraditionalComment = createToken({
+  name: "TraditionalComment",
+  pattern: /\/\*([^*]|\*(?!\/))*\*\//,
+  line_breaks: true
+});
+
+const BinaryLiteral = createToken({
+  name: "BinaryLiteral",
+  pattern: MAKE_PATTERN("0[bB][01]([01_]*[01])?[lL]?"),
+  label: "'BinaryLiteral'"
+});
+
+const OctLiteral = createToken({
+  name: "OctLiteral",
+  pattern: MAKE_PATTERN("0_*[0-7]([0-7_]*[0-7])?[lL]?"),
+  label: "'OctLiteral'"
+});
+
+const FloatLiteral = createToken({
+  name: "FloatLiteral",
+  pattern: MAKE_PATTERN(
+    "-?({{Digits}}\\.{{Digits}}?|\\.{{Digits}}){{ExponentPart}}?[fFdD]?|{{Digits}}({{ExponentPart}}[fFdD]?|[fFdD])"
+  ),
+  label: "'FloatLiteral'"
+});
+
+const HexFloatLiteral = createToken({
+  name: "HexFloatLiteral",
+  pattern: MAKE_PATTERN(
+    "0[xX]({{HexDigits}}\\.?|{{HexDigits}}?\\.{{HexDigits}})[pP][+-]?{{Digits}}[fFdD]?"
+  ),
+  label: "'HexFloatLiteral'"
+});
+
+const HexLiteral = createToken({
+  name: "HexLiteral",
+  pattern: MAKE_PATTERN("0[xX][0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?[lL]?"),
+  label: "'HexLiteral'"
+});
+
+const DecimalLiteral = createToken({
+  name: "DecimalLiteral",
+  pattern: MAKE_PATTERN("-?(0|[1-9]({{Digits}}?|_+{{Digits}}))[lL]?"),
+  label: "'DecimalLiteral'"
+});
+
+// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
+const CharLiteral = createToken({
+  name: "CharLiteral",
+  pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/,
+  start_chars_hint: ["'"],
+  label: "'CharLiteral'"
+});
+
+const StringLiteral = createToken({
+  name: "StringLiteral",
+  pattern: MAKE_PATTERN('"[^"\\\\]*(\\\\.[^"\\\\]*)*"'),
+  label: "'StringLiteral'"
+});
 
 const Package = createKeywordToken({
   name: "Package",
@@ -89,12 +193,6 @@ const Short = createKeywordToken({
   name: "Short",
   pattern: /short/,
   label: "'short'"
-});
-
-const Int = createKeywordToken({
-  name: "Int",
-  pattern: /int/,
-  label: "'int'"
 });
 
 const Long = createKeywordToken({
@@ -337,6 +435,12 @@ const Interface = createKeywordToken({
   label: "'interface'"
 });
 
+const Int = createKeywordToken({
+  name: "Int",
+  pattern: /int/,
+  label: "'int'"
+});
+
 const LBrace = createToken({
   name: "LBrace",
   pattern: /\(/,
@@ -381,22 +485,10 @@ const Pointer = createToken({
   label: "'->'"
 });
 
-const Less = createToken({
-  name: "Less",
-  pattern: /</,
-  label: "'<'"
-});
-
 const LessEquals = createToken({
   name: "LessEquals",
   pattern: /<=/,
   label: "'<='"
-});
-
-const LessLess = createToken({
-  name: "LessLess",
-  pattern: /<</,
-  label: "'<<'"
 });
 
 const LessLessEquals = createToken({
@@ -405,10 +497,16 @@ const LessLessEquals = createToken({
   label: "'<<='"
 });
 
-const Greater = createToken({
-  name: "Greater",
-  pattern: />/,
-  label: "'>'"
+const LessLess = createToken({
+  name: "LessLess",
+  pattern: /<</,
+  label: "'<<'"
+});
+
+const Less = createToken({
+  name: "Less",
+  pattern: /</,
+  label: "'<'"
 });
 
 const GreaterEquals = createToken({
@@ -427,6 +525,12 @@ const GreaterGreaterGreaterEquals = createToken({
   name: "GreaterGreaterGreaterEquals",
   pattern: />>>=/,
   label: "'>>>='"
+});
+
+const Greater = createToken({
+  name: "Greater",
+  pattern: />/,
+  label: "'>'"
 });
 
 const DotDotDot = createToken({
@@ -472,22 +576,16 @@ const Colon = createToken({
   label: "':'"
 });
 
-const Equals = createToken({
-  name: "Equals",
-  pattern: /=/,
-  label: "'='"
-});
-
 const EqualsEquals = createToken({
   name: "EqualsEquals",
   pattern: /==/,
   label: "'=='"
 });
 
-const Minus = createToken({
-  name: "Minus",
-  pattern: /-/,
-  label: "'-'"
+const Equals = createToken({
+  name: "Equals",
+  pattern: /=/,
+  label: "'='"
 });
 
 const MinusEquals = createToken({
@@ -502,10 +600,10 @@ const MinusMinus = createToken({
   label: "'--'"
 });
 
-const Plus = createToken({
-  name: "Plus",
-  pattern: /\+/,
-  label: "'+'"
+const Minus = createToken({
+  name: "Minus",
+  pattern: /-/,
+  label: "'-'"
 });
 
 const PlusEquals = createToken({
@@ -520,10 +618,10 @@ const PlusPlus = createToken({
   label: "'++'"
 });
 
-const And = createToken({
-  name: "And",
-  pattern: /&/,
-  label: "'&'"
+const Plus = createToken({
+  name: "Plus",
+  pattern: /\+/,
+  label: "'+'"
 });
 
 const AndAnd = createToken({
@@ -538,16 +636,16 @@ const AndEquals = createToken({
   label: "'&='"
 });
 
+const And = createToken({
+  name: "And",
+  pattern: /&/,
+  label: "'&'"
+});
+
 const At = createToken({
   name: "At",
   pattern: /@/,
   label: "'@'"
-});
-
-const Caret = createToken({
-  name: "Caret",
-  pattern: /\^/,
-  label: "'^'"
 });
 
 const CaretEquals = createToken({
@@ -556,16 +654,16 @@ const CaretEquals = createToken({
   label: "'^='"
 });
 
+const Caret = createToken({
+  name: "Caret",
+  pattern: /\^/,
+  label: "'^'"
+});
+
 const Questionmark = createToken({
   name: "Questionmark",
   pattern: /\?/,
   label: "'?'"
-});
-
-const Exclamationmark = createToken({
-  name: "Exclamationmark",
-  pattern: /!/,
-  label: "'!'"
 });
 
 const ExclamationmarkEquals = createToken({
@@ -574,22 +672,16 @@ const ExclamationmarkEquals = createToken({
   label: "'!='"
 });
 
+const Exclamationmark = createToken({
+  name: "Exclamationmark",
+  pattern: /!/,
+  label: "'!'"
+});
+
 const Tilde = createToken({
   name: "Tilde",
   pattern: /~/,
   label: "'~'"
-});
-
-const Or = createToken({
-  name: "Or",
-  pattern: /\|/,
-  label: "'|'"
-});
-
-const OrEquals = createToken({
-  name: "OrEquals",
-  pattern: /\|=/,
-  label: "'|='"
 });
 
 const OrOr = createToken({
@@ -598,10 +690,16 @@ const OrOr = createToken({
   label: "'||'"
 });
 
-const Star = createToken({
-  name: "Star",
-  pattern: /\*/,
-  label: "'*'"
+const OrEquals = createToken({
+  name: "OrEquals",
+  pattern: /\|=/,
+  label: "'|='"
+});
+
+const Or = createToken({
+  name: "Or",
+  pattern: /\|/,
+  label: "'|'"
 });
 
 const StarEquals = createToken({
@@ -610,10 +708,10 @@ const StarEquals = createToken({
   label: "'*='"
 });
 
-const Dash = createToken({
-  name: "Dash",
-  pattern: /\//,
-  label: "'/'"
+const Star = createToken({
+  name: "Star",
+  pattern: /\*/,
+  label: "'*'"
 });
 
 const DashEquals = createToken({
@@ -622,10 +720,10 @@ const DashEquals = createToken({
   label: "'/='"
 });
 
-const Percentage = createToken({
-  name: "Percentage",
-  pattern: /%/,
-  label: "'%'"
+const Dash = createToken({
+  name: "Dash",
+  pattern: /\//,
+  label: "'/'"
 });
 
 const PercentageEquals = createToken({
@@ -634,351 +732,18 @@ const PercentageEquals = createToken({
   label: "'%='"
 });
 
-const BinaryLiteral = createToken({
-  name: "BinaryLiteral",
-  pattern: MAKE_PATTERN("0[bB][01]([01_]*[01])?[lL]?"),
-  label: "'BinaryLiteral'"
+const Percentage = createToken({
+  name: "Percentage",
+  pattern: /%/,
+  label: "'%'"
 });
 
-const OctLiteral = createToken({
-  name: "OctLiteral",
-  pattern: MAKE_PATTERN("0_*[0-7]([0-7_]*[0-7])?[lL]?"),
-  label: "'OctLiteral'"
-});
-
-const HexLiteral = createToken({
-  name: "HexLiteral",
-  pattern: MAKE_PATTERN("0[xX][0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?[lL]?"),
-  label: "'HexLiteral'"
-});
-
-const FloatLiteral = createToken({
-  name: "FloatLiteral",
-  pattern: MAKE_PATTERN(
-    "-?({{Digits}}\\.{{Digits}}?|\\.{{Digits}}){{ExponentPart}}?[fFdD]?|{{Digits}}({{ExponentPart}}[fFdD]?|[fFdD])"
-  ),
-  label: "'FloatLiteral'"
-});
-
-const HexFloatLiteral = createToken({
-  name: "HexFloatLiteral",
-  pattern: MAKE_PATTERN(
-    "0[xX]({{HexDigits}}\\.?|{{HexDigits}}?\\.{{HexDigits}})[pP][+-]?{{Digits}}[fFdD]?"
-  ),
-  label: "'HexFloatLiteral'"
-});
-
-const DecimalLiteral = createToken({
-  name: "DecimalLiteral",
-  pattern: MAKE_PATTERN("-?(0|[1-9]({{Digits}}?|_+{{Digits}}))[lL]?"),
-  label: "'DecimalLiteral'"
-});
-
-// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
-const CharLiteral = createToken({
-  name: "CharLiteral",
-  pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/,
-  start_chars_hint: ["'"],
-  label: "'CharLiteral'"
-});
-
-const StringLiteral = createToken({
-  name: "StringLiteral",
-  pattern: MAKE_PATTERN('"[^"\\\\]*(\\\\.[^"\\\\]*)*"'),
-  label: "'StringLiteral'"
-});
-
-const LineComment = createToken({
-  name: "LineComment",
-  pattern: /\/\/[^\n\r]*/
-});
-
-const LineCommentStandalone = createToken({
-  name: "LineCommentStandalone",
-  // TODO: I think the s* in the end is meant to be \s*
-  pattern: /\/\/[^\n\r]*((\n|[\r][^\n]|\r\n)s*){2,}/,
-  line_breaks: true
-});
-
-const JavaDocComment = createToken({
-  name: "JavaDocComment",
-  pattern: /\/\*\*([^*]|\*(?!\/))*\*\//,
-  line_breaks: true
-});
-
-const JavaDocCommentStandalone = createToken({
-  name: "JavaDocCommentStandalone",
-  pattern: /\/\*\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
-  line_breaks: true
-});
-
-const TraditionalComment = createToken({
-  name: "TraditionalComment",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\//,
-  line_breaks: true
-});
-
-const TraditionalCommentStandalone = createToken({
-  name: "TraditionalCommentStandalone",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
-  line_breaks: true
-});
-
-const WhiteSpace = createToken({
-  name: "WhiteSpace",
-  pattern: /\s+/,
-  group: chevrotain.Lexer.SKIPPED,
-  line_breaks: true
-});
-
-// | PUBLIC
-// | PROTECTED
-// | PRIVATE
-// | STATIC
-// | ABSTRACT
-// | FINAL    // FINAL for class only -- does not apply to interfaces
-// | STRICTFP
-
-// note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
-const allTokens = [
-  WhiteSpace,
-  LineCommentStandalone,
-  LineComment,
-  JavaDocCommentStandalone,
-  JavaDocComment,
-  TraditionalCommentStandalone,
-  TraditionalComment,
-  // "keywords" appear before the Identifier
-  Boolean,
-  Char,
-  Byte,
-  Short,
-  Interface,
-  Int,
-  Long,
-  Float,
-  Double,
-  Void,
-  Public,
-  Protected,
-  Private,
-  Static,
-  Abstract,
-  Catch,
-  Finally,
-  Final,
-  Native,
-  Synchronized,
-  Transient,
-  Extends,
-  Implements,
-  New,
-  This,
-  Super,
-  Throws,
-  Throw,
-  Return,
-  Break,
-  Continue,
-  If,
-  Else,
-  While,
-  Do,
-  Try,
-  Switch,
-  For,
-  True,
-  False,
-  Null,
-  Assert,
-  Instanceof,
-  Volatile,
-  Strictfp,
-  Class,
-  Enum,
-  Import,
-  Package,
-  Default,
-  Case,
-  BinaryLiteral,
-  OctLiteral,
-  HexFloatLiteral,
-  HexLiteral,
-  FloatLiteral,
-  DecimalLiteral,
-  CharLiteral,
-  StringLiteral,
-  // The Identifier must appear after the keywords because all keywords are valid identifiers.
-  Identifier,
-  DotDotDot,
-  Dot,
-  Comma,
-  SemiColonWithFollowEmptyLine,
-  SemiColon,
-  ColonColon,
-  Colon,
-  EqualsEquals,
-  ExclamationmarkEquals,
-  Equals,
-  PlusPlus,
-  PlusEquals,
-  Plus,
-  Pointer,
-  MinusMinus,
-  MinusEquals,
-  Minus,
-  AndAnd,
-  AndEquals,
-  And,
-  OrOr,
-  OrEquals,
-  Or,
-  LBrace,
-  RBrace,
-  LCurly,
-  RCurly,
-  LSquare,
-  RSquare,
-  LessLessEquals,
-  LessLess,
-  LessEquals,
-  Less,
-  GreaterGreaterEquals,
-  GreaterGreaterGreaterEquals,
-  GreaterEquals,
-  Greater,
-  At,
-  CaretEquals,
-  Caret,
-  StarEquals,
-  Star,
-  DashEquals,
-  Dash,
-  PercentageEquals,
-  Percentage,
-  Questionmark,
-  Exclamationmark,
-  Tilde
-];
+// Identifier must appear AFTER all the keywords to avoid ambiguities.
+// See: https://github.com/SAP/chevrotain/blob/master/examples/lexer/keywords_vs_identifiers/keywords_vs_identifiers.js
+allTokens.push(Identifier);
+tokenDictionary["Identifier"] = Identifier;
 
 module.exports = {
   allTokens,
-  tokens: {
-    WhiteSpace,
-    LineCommentStandalone,
-    LineComment,
-    JavaDocCommentStandalone,
-    JavaDocComment,
-    TraditionalCommentStandalone,
-    TraditionalComment,
-    Boolean,
-    Char,
-    Byte,
-    Short,
-    Interface,
-    Int,
-    Long,
-    Float,
-    Double,
-    Void,
-    Public,
-    Protected,
-    Private,
-    Static,
-    Abstract,
-    Catch,
-    Finally,
-    Final,
-    Native,
-    Synchronized,
-    Transient,
-    Extends,
-    Implements,
-    New,
-    This,
-    Super,
-    Throws,
-    Throw,
-    Return,
-    Break,
-    Continue,
-    If,
-    Else,
-    While,
-    Do,
-    Try,
-    Switch,
-    For,
-    True,
-    False,
-    Null,
-    Assert,
-    Instanceof,
-    Volatile,
-    Strictfp,
-    Class,
-    Enum,
-    Import,
-    Package,
-    Default,
-    Case,
-    BinaryLiteral,
-    HexFloatLiteral,
-    HexLiteral,
-    OctLiteral,
-    FloatLiteral,
-    DecimalLiteral,
-    CharLiteral,
-    StringLiteral,
-    Identifier,
-    DotDotDot,
-    Dot,
-    Comma,
-    SemiColonWithFollowEmptyLine,
-    SemiColon,
-    ColonColon,
-    Colon,
-    EqualsEquals,
-    ExclamationmarkEquals,
-    Equals,
-    PlusPlus,
-    PlusEquals,
-    Plus,
-    Pointer,
-    MinusMinus,
-    MinusEquals,
-    Minus,
-    AndAnd,
-    AndEquals,
-    And,
-    OrOr,
-    OrEquals,
-    Or,
-    LBrace,
-    RBrace,
-    LCurly,
-    RCurly,
-    LSquare,
-    RSquare,
-    LessLessEquals,
-    LessLess,
-    LessEquals,
-    Less,
-    GreaterGreaterEquals,
-    GreaterGreaterGreaterEquals,
-    GreaterEquals,
-    Greater,
-    At,
-    CaretEquals,
-    Caret,
-    StarEquals,
-    Star,
-    DashEquals,
-    Dash,
-    PercentageEquals,
-    Percentage,
-    Questionmark,
-    Exclamationmark,
-    Tilde
-  }
+  tokens: tokenDictionary
 };
