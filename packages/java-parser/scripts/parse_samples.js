@@ -29,7 +29,8 @@ javaSampleFiles.forEach(fileDesc => {
 });
 
 const totalFiles = success + failed;
-const successPercentage = Math.floor((success / totalFiles) * 100);
+const successPercentage = (success / totalFiles).toFixed(3);
 
 console.log(`Total number of files: <${totalFiles}>`);
+console.warn(`Total number of failures: <${failed}>`);
 console.log(`Success Percentage: ${successPercentage}%`);

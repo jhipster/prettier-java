@@ -674,9 +674,10 @@ const DecimalLiteral = createToken({
   label: "'DecimalLiteral'"
 });
 
+// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 const CharLiteral = createToken({
   name: "CharLiteral",
-  pattern: MAKE_PATTERN("'((\\\\')|[^']|(\\\\\\\\)|(\\\\(u[a-zA-Z0-9]{4})?))'"),
+  pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/,
   start_chars_hint: ["'"],
   label: "'CharLiteral'"
 });

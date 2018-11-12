@@ -91,9 +91,9 @@ describe("literal", () => {
     });
   });
   it("charLiteral: \\", () => {
-    expect(Parser.parse("'\\'", parser => parser.literal())).to.deep.equal({
+    expect(Parser.parse("'\\\\'", parser => parser.literal())).to.deep.equal({
       type: "CHAR_LITERAL",
-      value: "'\\'"
+      value: "'\\\\'"
     });
   });
 
