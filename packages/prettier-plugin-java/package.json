@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "java-parser": "0.1.0",
+    "java-parser": "^0.1.0",
     "prettier": "^1.10.0"
   }
 }
