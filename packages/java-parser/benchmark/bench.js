@@ -5,6 +5,7 @@ const javaParserChev = require("../src/index");
 const fs = require("fs-extra");
 const path = require("path");
 const klawSync = require("klaw-sync");
+const JavaLexer = require("../src/lexer");
 
 // clone repo with benchmark samples
 const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
@@ -21,7 +22,10 @@ const suite = new Benchmark.Suite();
 
 // The bench suite
 suite
-  .add("Chevrotain Based Parser", () => {
+  .add("Lex Only", () => {
+    javaSamplesContent.forEach(sampleText => JavaLexer.tokenize(sampleText));
+  })
+  .add("Full Flow", () => {
     javaSamplesContent.forEach(sampleText => javaParserChev.parse(sampleText));
   })
   // add listeners
