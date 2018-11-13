@@ -28,4 +28,5 @@ deploy:
       all_branches: true
       condition: PUBLISH = true
     skip_cleanup: true
-
+notifications:
+  email: false
