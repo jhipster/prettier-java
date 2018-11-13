@@ -1,6 +1,7 @@
 <p align="center">
     :construction: Work in Progress! :construction:
 </p>
+
 [![Build Status](https://travis-ci.org/jhipster/prettier-java.svg?branch=master)](https://travis-ci.org/jhipster/prettier-java)
 
 # Prettier Java
