@@ -7,7 +7,6 @@
   "author": "Thorben von Hacht",
   "license": "MIT",
   "dependencies": {
-    "chevrotain": "4.1.0",
-    "xregexp": "4.0.0"
+    "chevrotain": "4.1.0"
   }
 }

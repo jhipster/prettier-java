@@ -1,17 +1,27 @@
 /* eslint-disable no-unused-vars */
 "use strict";
 const { createToken: createTokenOrg, Lexer } = require("chevrotain");
-const xregexp = require("xregexp");
 
-// A little mini DSL for easier lexer definition using xRegExp.
+// A little mini DSL for easier lexer definition.
 const fragments = {};
 
+function inlineFragments(def) {
+  let inlinedDef = def;
+  Object.keys(fragments).forEach(prevFragmentName => {
+    const prevFragmentDef = fragments[prevFragmentName];
+    const templateRegExp = new RegExp(`{{${prevFragmentName}}}`, "g");
+    inlinedDef = inlinedDef.replace(templateRegExp, prevFragmentDef);
+  });
+  return inlinedDef;
+}
+
 function FRAGMENT(name, def) {
-  fragments[name] = xregexp.build(def, fragments);
+  fragments[name] = inlineFragments(def);
 }
 
 function MAKE_PATTERN(def, flags) {
-  return xregexp.build(def, fragments, flags);
+  const inlinedDef = inlineFragments(def);
+  return new RegExp(inlinedDef, flags);
 }
 
 // The order of fragments definitions is important
@@ -83,20 +93,20 @@ const TraditionalComment = createToken({
 
 const BinaryLiteral = createToken({
   name: "BinaryLiteral",
-  pattern: MAKE_PATTERN("0[bB][01]([01_]*[01])?[lL]?"),
+  pattern: /0[bB][01]([01_]*[01])?[lL]?/,
   label: "'BinaryLiteral'"
 });
 
 const OctLiteral = createToken({
   name: "OctLiteral",
-  pattern: MAKE_PATTERN("0_*[0-7]([0-7_]*[0-7])?[lL]?"),
+  pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/,
   label: "'OctLiteral'"
 });
 
 const FloatLiteral = createToken({
   name: "FloatLiteral",
   pattern: MAKE_PATTERN(
-    "-?({{Digits}}\\.{{Digits}}?|\\.{{Digits}}){{ExponentPart}}?[fFdD]?|{{Digits}}({{ExponentPart}}[fFdD]?|[fFdD])"
+    "-?({{Digits}}\\.({{Digits}})?|\\.{{Digits}})({{ExponentPart}})?[fFdD]?|{{Digits}}({{ExponentPart}}[fFdD]?|[fFdD])"
   ),
   label: "'FloatLiteral'"
 });
@@ -104,20 +114,21 @@ const FloatLiteral = createToken({
 const HexFloatLiteral = createToken({
   name: "HexFloatLiteral",
   pattern: MAKE_PATTERN(
-    "0[xX]({{HexDigits}}\\.?|{{HexDigits}}?\\.{{HexDigits}})[pP][+-]?{{Digits}}[fFdD]?"
+    "0[xX]({{HexDigits}}\\.?|({{HexDigits}})?\\.{{HexDigits}})[pP][+-]?{{Digits}}[fFdD]?"
   ),
   label: "'HexFloatLiteral'"
 });
 
 const HexLiteral = createToken({
   name: "HexLiteral",
-  pattern: MAKE_PATTERN("0[xX][0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?[lL]?"),
+  pattern: /0[xX][0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?[lL]?/,
   label: "'HexLiteral'"
 });
 
 const DecimalLiteral = createToken({
   name: "DecimalLiteral",
-  pattern: MAKE_PATTERN("-?(0|[1-9]({{Digits}}?|_+{{Digits}}))[lL]?"),
+  // TODO: A decimal literal should not contain a minus character
+  pattern: MAKE_PATTERN("-?(0|[1-9](({{Digits}})?|_+{{Digits}}))[lL]?"),
   label: "'DecimalLiteral'"
 });
 
@@ -131,7 +142,8 @@ const CharLiteral = createToken({
 
 const StringLiteral = createToken({
   name: "StringLiteral",
-  pattern: MAKE_PATTERN('"[^"\\\\]*(\\\\.[^"\\\\]*)*"'),
+  // TODO: align with the spec, the pattern below is incorrect
+  pattern: /"[^"\\]*(\\.[^"\\]*)*"/,
   label: "'StringLiteral'"
 });
 

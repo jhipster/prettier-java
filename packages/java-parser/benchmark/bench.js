@@ -4,33 +4,25 @@ const Benchmark = require("benchmark");
 const javaParserChev = require("../src/index");
 const fs = require("fs-extra");
 const path = require("path");
-const cp = require("child_process");
+const klawSync = require("klaw-sync");
 
 // clone repo with benchmark samples
-const samplesDir = path.resolve(__dirname, "../samples");
-fs.emptyDirSync(path.resolve(samplesDir, "jsjavaparser"));
-fs.emptyDirSync(samplesDir);
-cp.execSync(
-  `git clone https://github.com/mazko/jsjavaparser.git --branch master --depth 1`,
-  {
-    cwd: samplesDir,
-    stdio: [0, 1, 2]
-  }
+const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
+const sampleFiles = klawSync(samplesDir, { nodir: true });
+const javaSampleFiles = sampleFiles.filter(fileDesc =>
+  fileDesc.path.endsWith(".java")
 );
 
+// Avoid IO affecting benchmark results by reading all the files to memory in advance.
+const javaSamplesContent = javaSampleFiles.map(fileDesc =>
+  fs.readFileSync(fileDesc.path, "utf8")
+);
 const suite = new Benchmark.Suite();
-const samplePath = path.resolve(
-  __dirname,
-  "../samples/jsjavaparser/tools/EclipseAST/Indenter.java"
-);
-
-// Clone repository that contains the samples for benching.
-const sampleContent = fs.readFileSync(samplePath, "utf8");
 
 // The bench suite
 suite
   .add("Chevrotain Based Parser", () => {
-    javaParserChev.parse(sampleContent);
+    javaSamplesContent.forEach(sampleText => javaParserChev.parse(sampleText));
   })
   // add listeners
   .on("cycle", event => {
