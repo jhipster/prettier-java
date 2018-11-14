@@ -2213,6 +2213,8 @@ class JavaParser extends Parser {
           }
         },
         {
+          // TODO: this does not make sense, there can be whitespace between
+          // These tokens
           ALT: () => {
             $.CONSUME(tokens.Greater);
             $.OPTION(() => {
