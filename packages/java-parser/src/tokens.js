@@ -147,6 +147,41 @@ const StringLiteral = createToken({
   label: "'StringLiteral'"
 });
 
+// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
+// TODO: how to handle the special rule (see spec above) for "requires" and "transitive"
+const restrictedKeywords = [
+  "open",
+  "module",
+  "requires",
+  "transitive",
+  "exports",
+  "opens",
+  "to",
+  "uses",
+  "provides",
+  "with"
+];
+
+// By sorting the keywords in descending order we avoid ambiguities
+// of common prefixes.
+const sortedByLengthRestrictedKeywords = restrictedKeywords.sort((a, b) => {
+  return (
+    b.length - a.length || a.localeCompare(b) // sort by length, if equal then
+  ); // sort by dictionary order
+});
+
+sortedByLengthRestrictedKeywords.forEach(word => {
+  createKeywordToken({
+    name: word[0].toUpperCase() + word.substr(1),
+    pattern: word,
+    label: `'${word}'`,
+    // restricted keywords can also be used as an Identifiers according to the spec.
+    // TODO: ensure this causes no ambiguities
+    categories: Identifier
+  });
+});
+
+// TODO: define keywords the same way restrictedKeywords are defined
 const Package = createKeywordToken({
   name: "Package",
   pattern: /package/,
