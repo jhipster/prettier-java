@@ -57,15 +57,13 @@ createToken({
   name: "WhiteSpace",
   // TODO: align with Java Spec
   pattern: /\s+/,
-  group: Lexer.SKIPPED,
-  line_breaks: true
+  group: Lexer.SKIPPED
 });
 
 createToken({
   name: "LineCommentStandalone",
   // TODO: I think the s* in the end is meant to be \s*
-  pattern: /\/\/[^\n\r]*((\n|[\r][^\n]|\r\n)s*){2,}/,
-  line_breaks: true
+  pattern: /\/\/[^\n\r]*((\n|[\r][^\n]|\r\n)s*){2,}/
 });
 
 createToken({
@@ -75,26 +73,22 @@ createToken({
 
 createToken({
   name: "JavaDocCommentStandalone",
-  pattern: /\/\*\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
-  line_breaks: true
+  pattern: /\/\*\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/
 });
 
 createToken({
   name: "JavaDocComment",
-  pattern: /\/\*\*([^*]|\*(?!\/))*\*\//,
-  line_breaks: true
+  pattern: /\/\*\*([^*]|\*(?!\/))*\*\//
 });
 
 createToken({
   name: "TraditionalCommentStandalone",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/,
-  line_breaks: true
+  pattern: /\/\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/
 });
 
 createToken({
   name: "TraditionalComment",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\//,
-  line_breaks: true
+  pattern: /\/\*([^*]|\*(?!\/))*\*\//
 });
 
 createToken({
@@ -153,6 +147,13 @@ createToken({
   label: "'StringLiteral'"
 });
 
+// Used a Token Category to mark all restricted keywords.
+// This could be used in syntax highlights implementation.
+const RestrictedKeyword = createToken({
+  name: "RestrictedKeyword",
+  pattern: Lexer.NA
+});
+
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
 // TODO: how to handle the special rule (see spec above) for "requires" and "transitive"
 const restrictedKeywords = [
@@ -177,8 +178,15 @@ sortDescLength(restrictedKeywords).forEach(word => {
     label: `'${word}'`,
     // restricted keywords can also be used as an Identifiers according to the spec.
     // TODO: inspect this causes no ambiguities
-    categories: Identifier
+    categories: [Identifier, RestrictedKeyword]
   });
+});
+
+// Used a Token Category to mark all keywords.
+// This could be used in syntax highlights implementation.
+const Keyword = createToken({
+  name: "Keyword",
+  pattern: Lexer.NA
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
@@ -244,7 +252,8 @@ sortDescLength(keywords).forEach(word => {
   createKeywordLikeToken({
     name: actualName[0].toUpperCase() + actualName.substr(1),
     pattern: actualPattern,
-    label: `'${actualName}'`
+    label: `'${actualName}'`,
+    categories: Keyword
   });
 });
 
@@ -284,8 +293,7 @@ createToken({ name: "Comma", pattern: /,/, label: "','" });
 createToken({
   name: "SemiColonWithFollowEmptyLine",
   pattern: /;[ \t]*(\r\n|\r[^\n]|\n)[ \t]*(\r\n|\r|\n)/,
-  label: "';'",
-  line_breaks: true
+  label: "';'"
 });
 createToken({ name: "SemiColon", pattern: /;/, label: "';'" });
 createToken({ name: "ColonColon", pattern: /::/, label: "'::'" });
