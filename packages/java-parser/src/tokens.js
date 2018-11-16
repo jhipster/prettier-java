@@ -136,7 +136,6 @@ createToken({
 createToken({
   name: "CharLiteral",
   pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/,
-  start_chars_hint: ["'"],
   label: "'CharLiteral'"
 });
 
