@@ -1,6 +1,6 @@
 "use strict";
 const { Parser } = require("chevrotain");
-const { allTokens, tokens: t } = require("./tokens");
+const { allTokens, tokens: t } = require("./tokens_new");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -28,6 +28,195 @@ class JavaParser extends Parser {
     super(allTokens);
 
     const $ = this;
+
+    // ---------------------
+    // Productions from §3 (Lexical Structure)
+    // ---------------------
+    $.RULE("typeIdentifier", () => {
+      // TODO: implement: Identifier but not var
+      $.CONSUME(t.Identifier);
+    });
+
+    // ---------------------
+    // Productions from §4 (Types, Values, and Variables)
+    // ---------------------
+    $.RULE("type", () => {
+      // Spec Deviation: Common prefix of "annotations" was extracted from
+      //                 "typeDeclaration" and "moduleDeclaration"
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.OR([
+        { ALT: () => $.SUBRULE($.primitiveType) },
+        { ALT: () => $.SUBRULE($.referenceType) }
+      ]);
+      // Spec Deviation: The common suffix of "arrayType" was extracted to the "type" nonTerminal
+      $.OPTION(() => {
+        $.SUBRULE($.dims);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-PrimitiveType
+    $.RULE("primitiveType", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.numericType) },
+        { ALT: () => $.CONSUME(t.Boolean) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-NumericType
+    $.RULE("numericType", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.integralType) },
+        { ALT: () => $.SUBRULE($.floatingPointType) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-IntegralType
+    $.RULE("integralType", () => {
+      $.OR([
+        { ALT: () => $.CONSUME(t.Byte) },
+        { ALT: () => $.CONSUME(t.Short) },
+        { ALT: () => $.CONSUME(t.Int) },
+        { ALT: () => $.CONSUME(t.Long) },
+        { ALT: () => $.CONSUME(t.Char) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-FloatingPointType
+    $.RULE("floatingPointType", () => {
+      $.OR([
+        { ALT: () => $.CONSUME(t.Float) },
+        { ALT: () => $.CONSUME(t.Double) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ReferenceType
+    $.RULE("referenceType", () => {
+      // Spec Deviation: Common prefix of "annotations" was to "type" nonTerminal
+      // Spec Deviation: "ClassOrInterfaceType", "ClassType", "InterfaceType", "TypeVariable"
+      //                 and "ArrayType" were merged into "referenceType" to to be LL(k)
+      // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+      $.CONSUME(t.Identifier);
+      $.OPTION(() => {
+        $.SUBRULE($.typeArguments);
+      });
+      $.MANY(() => {
+        $.CONSUME(t.Dot);
+        $.MANY2(() => {
+          $.SUBRULE($.annotation);
+        });
+        // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+        $.CONSUME2(t.Identifier);
+        $.OPTION2(() => {
+          $.SUBRULE2($.typeArguments);
+        });
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-Dims
+    $.RULE("dims", () => {
+      // Spec Deviation: Common prefix of "annotations" was to "type" nonTerminal
+      $.CONSUME(t.LSquare);
+      $.CONSUME(t.RSquare);
+
+      $.MANY(() => {
+        $.MANY2(() => {
+          $.SUBRULE($.annotation);
+        });
+        $.CONSUME2(t.LSquare);
+        $.CONSUME2(t.RSquare);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeParameter
+    $.RULE("typeParameter", () => {
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.SUBRULE($.typeIdentifier);
+      $.OPTION(() => {
+        $.SUBRULE($.typeBound);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeParameterModifier
+    $.RULE("typeParameterModifier", () => {
+      $.SUBRULE($.annotation);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeBound
+    $.RULE("typeBound", () => {
+      $.CONSUME(t.Extends);
+      // Spec Deviation: ("TypeVariable" | "ClassOrInterfaceType") were replaced
+      //                 with ( {annotations} referenceType)
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.SUBRULE($.referenceType);
+      $.MANY2(() => {
+        $.SUBRULE($.additionalBound);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-AdditionalBound
+    $.RULE("additionalBound", () => {
+      $.CONSUME(t.At);
+      $.SUBRULE($.typeArgumentList);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeArguments
+    $.RULE("typeArguments", () => {
+      $.CONSUME(t.Less);
+      $.SUBRULE($.typeArgumentList);
+      $.CONSUME(t.Greater);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeArgumentList
+    $.RULE("typeArgumentList", () => {
+      $.SUBRULE($.typeArgument);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.typeArgument);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeArgument
+    $.RULE("typeArgument", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.referenceType) },
+        { ALT: () => $.SUBRULE($.wildcard) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-Wildcard
+    $.RULE("wildcard", () => {
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.CONSUME(t.Questionmark);
+      $.OPTION(() => {
+        $.SUBRULE($.wildcardBounds);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-WildcardBounds
+    $.RULE("wildcardBounds", () => {
+      $.OR([
+        { ALT: () => $.CONSUME(t.Extends) },
+        { ALT: () => $.CONSUME(t.Super) }
+      ]);
+      // Spec Deviation: The annotations were extracted from "referenceType"
+      //                 so they must be re-added before.
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.SUBRULE($.referenceType);
+      // Spec Deviation: The common suffix of "arrayType" was extracted to the "type" nonTerminal
+      $.OPTION(() => {
+        $.SUBRULE($.dims);
+      });
+    });
 
     // ---------------------
     // Productions from §6 (Names)
@@ -181,7 +370,7 @@ class JavaParser extends Parser {
       });
       $.CONSUME(t.LCurly);
       $.MANY2(() => {
-        $.SUBRULE($.ModuleDirective);
+        $.SUBRULE($.moduleDirective);
       });
       $.CONSUME(t.RCurly);
     });
@@ -282,8 +471,16 @@ class JavaParser extends Parser {
       $.CONSUME(t.Interface);
     });
 
+    $.RULE("annotation", () => {
+      // TODO: TBD
+      $.CONSUME(t.At);
+    });
+
     this.performSelfAnalysis();
   }
 }
+
+// TODO: remove this - only used during development to force self analysis
+new JavaParser();
 
 module.exports = JavaParser;
