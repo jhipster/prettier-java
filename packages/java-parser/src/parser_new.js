@@ -42,7 +42,7 @@ class JavaParser extends Parser {
     // ---------------------
     $.RULE("type", () => {
       // Spec Deviation: Common prefix of "annotations" was extracted from
-      //                 "typeDeclaration" and "moduleDeclaration"
+      //                 "primitiveType" and "referenceType"
       $.MANY(() => {
         $.SUBRULE($.annotation);
       });
@@ -112,6 +112,19 @@ class JavaParser extends Parser {
           $.SUBRULE2($.typeArguments);
         });
       });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ClassType
+    $.RULE("classType", () => {
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.SUBRULE($.referenceType);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-InterfaceType
+    $.RULE("interfaceType", () => {
+      $.SUBRULE($.classType);
     });
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-Dims
@@ -458,9 +471,105 @@ class JavaParser extends Parser {
     // ---------------------
     // Productions from §8 (Classes)
     // ---------------------
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassDeclaration
     $.RULE("classDeclaration", () => {
-      // TODO: TBD
+      // Spec Deviation: extracted common "{classModifier}" prefix
+      $.MANY(() => {
+        $.SUBRULE($.classModifier);
+      });
+      $.OR([
+        { ALT: () => $.SUBRULE($.normalClassDeclaration) },
+        { ALT: () => $.SUBRULE($.enumDeclaration) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-NormalClassDeclaration
+    $.RULE("normalClassDeclaration", () => {
+      // Spec Deviation: extracted common "{classModifier}" to "classDeclaration"
       $.CONSUME(t.Class);
+      $.SUBRULE($.typeIdentifier);
+      $.OPTION(() => {
+        $.SUBRULE($.typeParameters);
+      });
+      $.OPTION2(() => {
+        $.SUBRULE($.superclass);
+      });
+      $.OPTION3(() => {
+        $.SUBRULE($.superinterfaces);
+      });
+      $.SUBRULE($.classBody);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassModifier
+    $.RULE("classModifier", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) },
+        { ALT: () => $.CONSUME(t.Abstract) },
+        { ALT: () => $.CONSUME(t.Static) },
+        { ALT: () => $.CONSUME(t.Final) },
+        { ALT: () => $.CONSUME(t.Strictfp) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-TypeParameters
+    $.RULE("typeParameters", () => {
+      $.CONSUME(t.Less);
+      $.SUBRULE($.typeParameterList);
+      $.CONSUME(t.Greater);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-TypeParameterList
+    $.RULE("typeParameterList", () => {
+      $.SUBRULE($.typeParameter);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.typeParameter);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-Superclass
+    $.RULE("superclass", () => {
+      $.CONSUME(t.Extends);
+      $.SUBRULE($.classType);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-Superinterfaces
+    $.RULE("superinterfaces", () => {
+      $.CONSUME(t.Implements);
+      $.SUBRULE($.interfaceTypeList);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-InterfaceTypeList
+    $.RULE("interfaceTypeList", () => {
+      $.SUBRULE($.interfaceType);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.interfaceType);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassBody
+    $.RULE("classBody", () => {
+      $.CONSUME(t.LCurly);
+      $.MANY(() => {
+        $.SUBRULE($.classBodyDeclaration);
+      });
+      $.CONSUME(t.RCurly);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassBodyDeclaration
+    $.RULE("classBodyDeclaration", () => {
+      // TODO: TBD
+      $.CONSUME(t.Static);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumDeclaration
+    $.RULE("enumDeclaration", () => {
+      // TODO: TBD
+      $.CONSUME(t.Enum);
     });
 
     // ---------------------
