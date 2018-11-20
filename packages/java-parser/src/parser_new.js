@@ -21,11 +21,17 @@ const { allTokens, tokens: t } = require("./tokens_new");
  *
  * This technique is used to simplify the parser when narrowing the set
  * of accepted inputs can more easily be done in a post parsing phase.
- *
  */
 class JavaParser extends Parser {
   constructor() {
-    super(allTokens);
+    super(allTokens, {
+      ignoredIssues: {
+        // ambiguity resolved by backtracking
+        referenceType: {
+          OR: true
+        }
+      }
+    });
 
     const $ = this;
 
@@ -41,23 +47,25 @@ class JavaParser extends Parser {
     // Productions from §4 (Types, Values, and Variables)
     // ---------------------
     $.RULE("type", () => {
-      // Spec Deviation: Common prefix of "annotations" was extracted from
-      //                 "primitiveType" and "referenceType"
-      $.MANY(() => {
-        $.SUBRULE($.annotation);
-      });
       $.OR([
-        { ALT: () => $.SUBRULE($.primitiveType) },
-        { ALT: () => $.SUBRULE($.referenceType) }
+        // "referenceType" must appear **before** "primitiveType" due to common prefix.
+        {
+          GATE: () => $.BACKTRACK($.referenceType),
+          ALT: () => $.SUBRULE($.referenceType)
+        },
+        {
+          // Backtracking not needed, because if its not a "referenceType"
+          // It must be a primitiveType
+          ALT: () => $.SUBRULE($.primitiveType)
+        }
       ]);
-      // Spec Deviation: The common suffix of "arrayType" was extracted to the "type" nonTerminal
-      $.OPTION(() => {
-        $.SUBRULE($.dims);
-      });
     });
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-PrimitiveType
     $.RULE("primitiveType", () => {
+      $.AT_LEAST_ONE(() => {
+        $.SUBRULE($.annotation);
+      });
       $.OR([
         { ALT: () => $.SUBRULE($.numericType) },
         { ALT: () => $.CONSUME(t.Boolean) }
@@ -93,20 +101,41 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ReferenceType
     $.RULE("referenceType", () => {
-      // Spec Deviation: Common prefix of "annotations" was to "type" nonTerminal
-      // Spec Deviation: "ClassOrInterfaceType", "ClassType", "InterfaceType", "TypeVariable"
-      //                 and "ArrayType" were merged into "referenceType" to to be LL(k)
-      // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+      $.OR([
+        // "arrayType" must appear **before** "classOrInterfaceType" due to common prefix.
+        {
+          GATE: () => $.BACKTRACK($.arrayType),
+          ALT: () => $.SUBRULE($.arrayType)
+        },
+        {
+          ALT: () => $.SUBRULE($.classOrInterfaceType)
+        }
+      ]);
+    });
+
+    $.RULE("classOrInterfaceType", () => {
+      // Spec Deviation: The spec says: "classType | interfaceType" but "interfaceType"
+      //                 is not mentioned in the parser because it is identical to "classType"
+      //                 The distinction is semantic not syntactic.
+      $.SUBRULE($.classType);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ClassType
+    $.RULE("classType", () => {
+      // Spec Deviation: Refactored left recursion and alternation to iterations
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
       $.CONSUME(t.Identifier);
       $.OPTION(() => {
         $.SUBRULE($.typeArguments);
       });
-      $.MANY(() => {
+      $.MANY2(() => {
         $.CONSUME(t.Dot);
-        $.MANY2(() => {
-          $.SUBRULE($.annotation);
+        $.MANY3(() => {
+          $.SUBRULE2($.annotation);
         });
-        // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+        // TODO: Semantic Check: This Identifier cannot be "var"
         $.CONSUME2(t.Identifier);
         $.OPTION2(() => {
           $.SUBRULE2($.typeArguments);
@@ -114,28 +143,43 @@ class JavaParser extends Parser {
       });
     });
 
-    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ClassType
-    $.RULE("classType", () => {
-      $.MANY(() => {
-        $.SUBRULE($.annotation);
-      });
-      $.SUBRULE($.referenceType);
-    });
-
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-InterfaceType
     $.RULE("interfaceType", () => {
       $.SUBRULE($.classType);
     });
 
+    $.RULE("typeVariable", () => {
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+      $.CONSUME(t.Identifier);
+    });
+
+    $.RULE("arrayType", () => {
+      $.OR([
+        {
+          GATE: () => $.BACKTRACK($.primitiveType),
+          ALT: () => $.SUBRULE($.primitiveType)
+        },
+        {
+          ALT: () => $.SUBRULE($.classOrInterfaceType)
+        }
+      ]);
+      $.SUBRULE($.dims);
+    });
+
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-Dims
     $.RULE("dims", () => {
-      // Spec Deviation: Common prefix of "annotations" was to "type" nonTerminal
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
       $.CONSUME(t.LSquare);
       $.CONSUME(t.RSquare);
 
-      $.MANY(() => {
-        $.MANY2(() => {
-          $.SUBRULE($.annotation);
+      $.MANY2(() => {
+        $.MANY3(() => {
+          $.SUBRULE2($.annotation);
         });
         $.CONSUME2(t.LSquare);
         $.CONSUME2(t.RSquare);
@@ -581,11 +625,18 @@ class JavaParser extends Parser {
     });
 
     $.RULE("annotation", () => {
-      // TODO: TBD
       $.CONSUME(t.At);
     });
 
     this.performSelfAnalysis();
+  }
+
+  // hack to turn off CST building side effects during backtracking
+  // TODO:
+  cstPostNonTerminal(ruleCstResult, ruleName) {
+    if (this.isBackTracking() === false) {
+      super.cstPostNonTerminal(ruleCstResult, ruleName);
+    }
   }
 }
 
