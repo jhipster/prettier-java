@@ -307,9 +307,7 @@ tokenDictionary["Identifier"] = Identifier;
 function sortDescLength(arr) {
   // sort is not stable, but that will not affect the lexing results.
   return arr.sort((a, b) => {
-    return (
-      b.length - a.length
-    );
+    return b.length - a.length;
   });
 }
 

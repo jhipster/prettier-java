@@ -55,7 +55,7 @@ class JavaParser extends Parser {
         },
         {
           // Backtracking not needed, because if its not a "referenceType"
-          // It must be a primitiveType
+          // It must be a primitiveType (or Error)
           ALT: () => $.SUBRULE($.primitiveType)
         }
       ]);
@@ -102,7 +102,8 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ReferenceType
     $.RULE("referenceType", () => {
       $.OR([
-        // "arrayType" must appear **before** "classOrInterfaceType" due to common prefix.
+        // Spec Deviation: "arrayType" must appear **before**
+        //                 "classOrInterfaceType" due to common prefix.
         {
           GATE: () => $.BACKTRACK($.arrayType),
           ALT: () => $.SUBRULE($.arrayType)
@@ -113,10 +114,11 @@ class JavaParser extends Parser {
       ]);
     });
 
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ClassOrInterfaceType
     $.RULE("classOrInterfaceType", () => {
       // Spec Deviation: The spec says: "classType | interfaceType" but "interfaceType"
       //                 is not mentioned in the parser because it is identical to "classType"
-      //                 The distinction is semantic not syntactic.
+      //                 The distinction is **semantic** not syntactic.
       $.SUBRULE($.classType);
     });
 
@@ -152,11 +154,14 @@ class JavaParser extends Parser {
       $.MANY(() => {
         $.SUBRULE($.annotation);
       });
-      // TODO: Semantic Check: This Identifier cannot be "var" and also followed by annotations/typeArguments
+      // TODO: Semantic Check: This Identifier cannot be "var"
       $.CONSUME(t.Identifier);
     });
 
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ArrayType
     $.RULE("arrayType", () => {
+      // Spec Deviation: The alternative with "TypeVariable" is not specified
+      //      because it's syntax is included in "classOrInterfaceType"
       $.OR([
         {
           GATE: () => $.BACKTRACK($.primitiveType),
@@ -189,7 +194,7 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeParameter
     $.RULE("typeParameter", () => {
       $.MANY(() => {
-        $.SUBRULE($.annotation);
+        $.SUBRULE($.typeParameterModifier);
       });
       $.SUBRULE($.typeIdentifier);
       $.OPTION(() => {
@@ -205,12 +210,9 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeBound
     $.RULE("typeBound", () => {
       $.CONSUME(t.Extends);
-      // Spec Deviation: ("TypeVariable" | "ClassOrInterfaceType") were replaced
-      //                 with ( {annotations} referenceType)
-      $.MANY(() => {
-        $.SUBRULE($.annotation);
-      });
-      $.SUBRULE($.referenceType);
+      // Spec Deviation: The alternative with "TypeVariable" is not specified
+      //      because it's syntax is included in "classOrInterfaceType"
+      $.SUBRULE($.classOrInterfaceType);
       $.MANY2(() => {
         $.SUBRULE($.additionalBound);
       });
@@ -219,7 +221,7 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-AdditionalBound
     $.RULE("additionalBound", () => {
       $.CONSUME(t.At);
-      $.SUBRULE($.typeArgumentList);
+      $.SUBRULE($.interfaceType);
     });
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeArguments
@@ -240,8 +242,12 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-TypeArgument
     $.RULE("typeArgument", () => {
+      // TODO: performance: evaluate flipping the order of alternatives
       $.OR([
-        { ALT: () => $.SUBRULE($.referenceType) },
+        {
+          GATE: () => $.BACKTRACK($.referenceType),
+          ALT: () => $.SUBRULE($.referenceType)
+        },
         { ALT: () => $.SUBRULE($.wildcard) }
       ]);
     });
@@ -259,20 +265,12 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-WildcardBounds
     $.RULE("wildcardBounds", () => {
+      // TODO: consider in-lining suffix into the alternatives to match the spec more strongly
       $.OR([
         { ALT: () => $.CONSUME(t.Extends) },
         { ALT: () => $.CONSUME(t.Super) }
       ]);
-      // Spec Deviation: The annotations were extracted from "referenceType"
-      //                 so they must be re-added before.
-      $.MANY(() => {
-        $.SUBRULE($.annotation);
-      });
       $.SUBRULE($.referenceType);
-      // Spec Deviation: The common suffix of "arrayType" was extracted to the "type" nonTerminal
-      $.OPTION(() => {
-        $.SUBRULE($.dims);
-      });
     });
 
     // ---------------------
