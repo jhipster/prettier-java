@@ -301,6 +301,7 @@ class JavaParser extends Parser {
       //                 But the parser does not check for that.
       // TODO: post parsing semantic check: last "Identifier" in a "typeName"
       //                                    cannot be the "var" keyword
+      // TODO: option 2 implement "Not Var" Ident using token categories?
       $.CONSUME(t.Identifier);
       $.MANY(() => {
         $.CONSUME(t.Dot);
@@ -308,12 +309,27 @@ class JavaParser extends Parser {
       });
     });
 
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-ExpressionName
+    $.RULE("expressionName", () => {
+      // Spec Deviation: in-lined "ambiguousName" to be LL(K)
+      $.CONSUME(t.Identifier);
+      $.MANY(() => {
+        $.CONSUME(t.Dot);
+        $.CONSUME2(t.Identifier);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-MethodName
+    $.RULE("methodName", () => {
+      $.CONSUME(t.Identifier);
+    });
+
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-PackageOrTypeName
     $.RULE("packageOrTypeName", () => {
       $.CONSUME(t.Identifier);
       $.MANY({
         // In some contexts a "Dot Star" (.*) may appear
-        // at the end of a packageOrTypeName, by default Chevrotain will
+        // after a "packageOrTypeName", by default Chevrotain will
         // only look a single token ahead (Dot) to determine if another iteration
         // exists which will cause a parsing error for inputs such as:
         // "import a.b.c.*"
@@ -322,6 +338,15 @@ class JavaParser extends Parser {
           $.CONSUME(t.Dot);
           $.CONSUME2(t.Identifier);
         }
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-AmbiguousName
+    $.RULE("ambiguousName", () => {
+      $.CONSUME(t.Identifier);
+      $.MANY(() => {
+        $.CONSUME(t.Dot);
+        $.CONSUME2(t.Identifier);
       });
     });
 
