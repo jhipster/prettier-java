@@ -1,5 +1,5 @@
 "use strict";
-const { Parser } = require("chevrotain");
+const { Parser, isRecognitionException } = require("chevrotain");
 const { allTokens, tokens: t } = require("./tokens_new");
 
 /**
@@ -21,13 +21,17 @@ const { allTokens, tokens: t } = require("./tokens_new");
  *
  * This technique is used to simplify the parser when narrowing the set
  * of accepted inputs can more easily be done in a post parsing phase.
+ *
  */
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
+      // ambiguities resolved by backtracking
       ignoredIssues: {
-        // ambiguity resolved by backtracking
         referenceType: {
+          OR: true
+        },
+        compilationUnit: {
           OR: true
         }
       }
@@ -63,7 +67,7 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-PrimitiveType
     $.RULE("primitiveType", () => {
-      $.AT_LEAST_ONE(() => {
+      $.MANY(() => {
         $.SUBRULE($.annotation);
       });
       $.OR([
@@ -356,38 +360,38 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
     $.RULE("compilationUnit", () => {
-      // Spec Deviation: "ordinaryCompilationUnit" and "modularCompilationUnit" have been combined
-      // due to possible common prefix.
-      let hasPackage = false;
+      // custom optimized backtracking lookahead logic
+      const isModule = this.isModuleCompilationUnit();
+      $.OR([
+        {
+          GATE: () => isModule === false,
+          ALT: () => $.SUBRULE($.ordinaryCompilationUnit)
+        },
+        {
+          ALT: () => $.SUBRULE($.modularCompilationUnit)
+        }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-OrdinaryCompilationUnit
+    $.RULE("ordinaryCompilationUnit", () => {
       $.OPTION(() => {
         $.SUBRULE($.packageDeclaration);
-        hasPackage = true;
       });
-
       $.MANY(() => {
         $.SUBRULE($.importDeclaration);
       });
-
       $.MANY2(() => {
-        // Spec Deviation: Common prefix of "annotations" was extracted from
-        //                 "typeDeclaration" and "moduleDeclaration"
-        $.MANY3(() => {
-          $.SUBRULE($.annotation);
-        });
-        // TODO: post parsing semantic check:
-        //       - "typeDeclarations" and "moduleDeclarations" cannot be mixed.
-        $.OR([
-          // ordinaryCompilationUnit
-          { ALT: () => $.SUBRULE($.typeDeclaration) },
-          // modularCompilationUnit
-          {
-            GATE: () => !hasPackage,
-            // TODO: post parsing semantic check:
-            //       - there can only be one moduleDeclaration per input.
-            ALT: () => $.SUBRULE($.moduleDeclaration)
-          }
-        ]);
+        $.SUBRULE($.typeDeclaration);
       });
+    });
+
+    //     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModularCompilationUnit
+    $.RULE("modularCompilationUnit", () => {
+      $.MANY(() => {
+        $.SUBRULE($.importDeclaration);
+      });
+      $.SUBRULE($.moduleDeclaration);
     });
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-PackageDeclaration
@@ -410,7 +414,7 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ImportDeclaration
     $.RULE("importDeclaration", () => {
-      // Spec Deviation: The spec defines our different kinds of import declarations.
+      // Spec Deviation: The spec defines four different kinds of import declarations.
       //                 Our grammar however combines those into a single rule due to difficulties
       //                 distinguishing between the alternatives due to unbound common prefix.
       // TODO: A post parsing step is required to align with the official specs.
@@ -429,8 +433,12 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
     $.RULE("typeDeclaration", () => {
+      const isClassDeclaration = this.isClassDeclaration();
       $.OR([
-        { ALT: () => $.SUBRULE($.classDeclaration) },
+        {
+          GATE: () => isClassDeclaration,
+          ALT: () => $.SUBRULE($.classDeclaration)
+        },
         { ALT: () => $.SUBRULE($.interfaceDeclaration) },
         { ALT: () => $.CONSUME(t.Semicolon) }
       ]);
@@ -438,18 +446,20 @@ class JavaParser extends Parser {
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModuleDeclaration
     $.RULE("moduleDeclaration", () => {
-      // Spec Deviation: Common prefix of "annotations" was extracted to "compilationUnit"
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
       $.OPTION(() => {
         $.CONSUME(t.Open);
       });
       $.CONSUME(t.Module);
       $.CONSUME(t.Identifier);
-      $.MANY(() => {
+      $.MANY2(() => {
         $.CONSUME(t.Dot);
         $.CONSUME2(t.Identifier);
       });
       $.CONSUME(t.LCurly);
-      $.MANY2(() => {
+      $.MANY3(() => {
         $.SUBRULE($.moduleDirective);
       });
       $.CONSUME(t.RCurly);
@@ -458,7 +468,7 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModuleDirective
     $.RULE("moduleDirective", () => {
       // Spec Deviation: Each of the alternatives of "moduleDirective" was extracted
-      //                 to its own nonTerminal.
+      //                 to its own nonTerminal, to reduce verbosity.
       $.OR([
         { ALT: () => $.SUBRULE($.requiresModuleDirective) },
         { ALT: () => $.SUBRULE($.exportsModuleDirective) },
@@ -649,6 +659,84 @@ class JavaParser extends Parser {
 
     $.RULE("annotation", () => {
       $.CONSUME(t.At);
+    });
+
+    // ---------------------
+    // Backtracking lookahead logic
+    // ---------------------
+    $.RULE("isModuleCompilationUnit", () => {
+      this.isBackTrackingStack.push(1);
+      const orgState = this.saveRecogState();
+      try {
+        $.OPTION(() => {
+          $.SUBRULE($.packageDeclaration);
+          // a Java Module source code may not contain a package declaration.
+          return false;
+        });
+
+        try {
+          // the "{importDeclaration}" is a common prefix
+          $.MANY(() => {
+            $.SUBRULE2($.importDeclaration);
+          });
+
+          $.MANY2(() => {
+            $.SUBRULE($.annotation);
+          });
+        } catch (e) {
+          // This means we had a syntax error in the imports or annotations
+          // So we can't keep parsing deep enough to make the decision
+          if (isRecognitionException(e)) {
+            // TODO: add original syntax error?
+            throw "Cannot Identify if the source code is an OrdinaryCompilationUnit or  ModularCompilationUnit";
+          } else {
+            throw e;
+          }
+        }
+
+        const nextTokenType = this.LA(1).tokenType;
+        return nextTokenType === t.Open || nextTokenType === t.Module;
+      } finally {
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
+      }
+    });
+
+    $.RULE("isClassDeclaration", () => {
+      this.isBackTrackingStack.push(1);
+      const orgState = this.saveRecogState();
+      try {
+        if (
+          $.OPTION(() => {
+            $.CONSUME(t.Semicolon);
+          })
+        ) {
+          // an empty "TypeDeclaration"
+          return false;
+        }
+
+        try {
+          // The {classModifier} is a super grammar of the "interfaceModifier"
+          // So we must parse all the "{classModifier}" before we can distinguish
+          // between the alternatives.
+          $.MANY(() => {
+            $.SUBRULE($.classModifier);
+          });
+        } catch (e) {
+          if (isRecognitionException(e)) {
+            // TODO: add original syntax error?
+            throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
+          } else {
+            throw e;
+          }
+        }
+
+        const nextTokenType = this.LA(1).tokenType;
+        return nextTokenType === t.Class || nextTokenType === t.Enum;
+      } finally {
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
+      }
     });
 
     this.performSelfAnalysis();
