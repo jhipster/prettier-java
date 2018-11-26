@@ -20,8 +20,10 @@ It could even be used inside a browser.
 
 ## Status
 
-- Re-architecture and re-write in progress, (see [#108](https://github.com/jhipster/prettier-java/issues/108))
-- pre-alpha version (initial architecture) released
+- Re-architecture and re-write in progress.
+  - see [#108](https://github.com/jhipster/prettier-java/issues/108))
+  - and [#109](https://github.com/jhipster/prettier-java/pull/109))
+- pre-alpha version (previous architecture) released.
 
 ---
 
