@@ -22,6 +22,8 @@ const { allTokens, tokens: t } = require("./tokens_new");
  * This technique is used to simplify the parser when narrowing the set
  * of accepted inputs can more easily be done in a post parsing phase.
  *
+ * TODO: document guide lines for using back tracking
+ *
  */
 class JavaParser extends Parser {
   constructor() {
@@ -32,6 +34,18 @@ class JavaParser extends Parser {
           OR: true
         },
         compilationUnit: {
+          OR: true
+        },
+        classBodyDeclaration: {
+          OR: true
+        },
+        classMemberDeclaration: {
+          OR: true
+        },
+        unannReferenceType: {
+          OR: true
+        },
+        formalParameter: {
           OR: true
         }
       }
@@ -113,6 +127,8 @@ class JavaParser extends Parser {
           ALT: () => $.SUBRULE($.arrayType)
         },
         {
+          // Spec Deviation: "typeVariable" alternative is missing because
+          //                 it is included in "classOrInterfaceType"
           ALT: () => $.SUBRULE($.classOrInterfaceType)
         }
       ]);
@@ -551,6 +567,8 @@ class JavaParser extends Parser {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassDeclaration
     $.RULE("classDeclaration", () => {
       // Spec Deviation: extracted common "{classModifier}" prefix
+      //      extraction is safe because there are no other references to
+      //      "normalClassDeclaration" and "enumDeclaration"
       $.MANY(() => {
         $.SUBRULE($.classModifier);
       });
@@ -637,16 +655,533 @@ class JavaParser extends Parser {
       $.CONSUME(t.RCurly);
     });
 
+    const classBodyTypes = {
+      unknown: 0,
+      fieldDeclaration: 1,
+      methodDeclaration: 2,
+      classDeclaration: 3,
+      interfaceDeclaration: 4,
+      semiColon: 5,
+      instanceInitializer: 6,
+      staticInitializer: 7,
+      constructorDeclaration: 8
+    };
+
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassBodyDeclaration
     $.RULE("classBodyDeclaration", () => {
-      // TODO: TBD
+      const nextRuleType = this.identifyClassBodyDeclarationType();
+
+      $.OR([
+        {
+          GATE: () =>
+            nextRuleType >= classBodyTypes.fieldDeclaration &&
+            nextRuleType <= classBodyTypes.semiColon,
+          ALT: () => $.SUBRULE($.classMemberDeclaration, nextRuleType)
+        },
+        // no gate needed for the initializers because these are LL(1) rules.
+        { ALT: () => $.SUBRULE($.instanceInitializer) },
+        { ALT: () => $.SUBRULE($.staticInitializer) },
+        {
+          GATE: () => nextRuleType === classBodyTypes.constructorDeclaration,
+          ALT: () => $.SUBRULE($.constructorDeclaration)
+        }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassMemberDeclaration
+    $.RULE("classMemberDeclaration", nextRuleType => {
+      $.OR([
+        {
+          GATE: () => nextRuleType === classBodyTypes.fieldDeclaration,
+          ALT: () => $.SUBRULE($.fieldDeclaration)
+        },
+        {
+          GATE: () => nextRuleType === classBodyTypes.methodDeclaration,
+          ALT: () => $.SUBRULE($.methodDeclaration)
+        },
+        {
+          GATE: () => nextRuleType === classBodyTypes.classDeclaration,
+          ALT: () => $.SUBRULE($.classDeclaration)
+        },
+        {
+          GATE: () => nextRuleType === classBodyTypes.interfaceDeclaration,
+          ALT: () => $.SUBRULE($.interfaceDeclaration)
+        },
+        {
+          // No GATE is needed as this is LL(1)
+          ALT: () => $.CONSUME(t.Semicolon)
+        }
+      ]);
+    });
+
+    // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-FieldDeclaration
+    $.RULE("fieldDeclaration", () => {
+      $.MANY(() => {
+        $.SUBRULE($.fieldModifier);
+      });
+      $.SUBRULE($.unannType);
+      $.SUBRULE($.variableDeclaratorList);
+      $.CONSUME(t.Semicolon);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-FieldModifier
+    $.RULE("fieldModifier", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) },
+        { ALT: () => $.CONSUME(t.Static) },
+        { ALT: () => $.CONSUME(t.Final) },
+        { ALT: () => $.CONSUME(t.Transient) },
+        { ALT: () => $.CONSUME(t.Volatile) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableDeclaratorList
+    $.RULE("variableDeclaratorList", () => {
+      $.SUBRULE($.variableDeclarator);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.variableDeclarator);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableDeclarator
+    $.RULE("variableDeclarator", () => {
+      $.SUBRULE($.variableDeclaratorId);
+      $.OPTION(() => {
+        $.CONSUME(t.Equals);
+        $.SUBRULE($.variableInitializer);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableDeclaratorId
+    $.RULE("variableDeclaratorId", () => {
+      $.CONSUME($.Identifier);
+      $.OPTION(() => {
+        $.SUBRULE($.dims);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableInitializer
+    $.RULE("variableInitializer", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.expression) },
+        { ALT: () => $.SUBRULE($.arrayInitializer) }
+      ]);
+    });
+
+    // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannType
+    $.RULE("unannType", () => {
+      $.OR([
+        // The "unannReferenceType" must appear before the "unannPrimitiveType" type
+        // due to common prefix
+        { ALT: () => $.SUBRULE($.unannReferenceType) },
+        { ALT: () => $.SUBRULE($.unannPrimitiveType) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannPrimitiveType
+    $.RULE("unannPrimitiveType", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.numericType) },
+        { ALT: () => $.CONSUME(t.Boolean) }
+      ]);
+    });
+
+    $.RULE("unannReferenceType", () => {
+      $.OR([
+        // "unannArrayType" must appear before "unannClassOrInterfaceType"
+        // due to common prefix.
+        {
+          GATE: () => $.BACKTRACK($.unannArrayType),
+          ALT: () => $.SUBRULE($.unannArrayType)
+        },
+        { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannClassType
+    $.RULE("unannClassOrInterfaceType", () => {
+      // Spec Deviation: The spec says: "UnannClassType  | UnannInterfaceType" but "UnannInterfaceType"
+      //                 is not mentioned in the parser because it is identical to "UnannClassType"
+      //                 The distinction is **semantic** not syntactic.
+      $.SUBRULE($.unannClassType);
+    });
+
+    $.RULE("unannClassType", () => {
+      // Spec Deviation: Refactored left recursion and alternation to iterations
+      $.CONSUME(t.Identifier);
+      $.OPTION(() => {
+        $.SUBRULE($.typeArguments);
+      });
+      $.MANY2(() => {
+        $.CONSUME(t.Dot);
+        $.MANY3(() => {
+          $.SUBRULE2($.annotation);
+        });
+        // TODO: Semantic Check: This Identifier cannot be "var"
+        $.CONSUME2(t.Identifier);
+        $.OPTION2(() => {
+          $.SUBRULE2($.typeArguments);
+        });
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannInterfaceType
+    $.RULE("unannInterfaceType", () => {
+      $.SUBRULE($.unannClassType);
+    });
+
+    $.RULE("unannTypeVariable", () => {
+      // TODO: Semantic Check: This Identifier cannot be "var"
+      // TODO: or define as token type?
+      $.CONSUME(t.Identifier);
+    });
+
+    $.RULE("unannArrayType", () => {
+      // Spec Deviation: The alternative with "unannTypeVariable" is not specified
+      //      because it's syntax is included in "unannClassOrInterfaceType"
+      $.OR([
+        { ALT: () => $.SUBRULE($.unannPrimitiveType) },
+        { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }
+      ]);
+      $.SUBRULE($.dims);
+    });
+
+    // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodDeclaration
+    $.RULE("methodDeclaration", () => {
+      $.MANY(() => {
+        $.SUBRULE($.methodModifier);
+      });
+      $.SUBRULE($.methodHeader);
+      $.SUBRULE($.methodBody);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodModifier
+    $.RULE("methodModifier", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) },
+        { ALT: () => $.CONSUME(t.Abstract) },
+        { ALT: () => $.CONSUME(t.Static) },
+        { ALT: () => $.CONSUME(t.Final) },
+        { ALT: () => $.CONSUME(t.Synchronized) },
+        { ALT: () => $.CONSUME(t.Native) },
+        { ALT: () => $.CONSUME(t.Strictfp) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodHeader
+    $.RULE("methodHeader", () => {
+      $.OPTION(() => {
+        $.SUBRULE($.typeParameters);
+        $.MANY(() => {
+          $.SUBRULE($.annotation);
+        });
+      });
+      $.SUBRULE($.result);
+      $.SUBRULE($.methodDeclarator);
+      $.OPTION2(() => {
+        $.SUBRULE($.throws);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-Result
+    $.RULE("result", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.unannType) },
+        { ALT: () => $.CONSUME(t.Void) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodHeader
+    $.RULE("methodDeclarator", () => {
+      $.CONSUME(t.Identifier);
+      $.CONSUME(t.LBrace);
+      $.OPTION(() => {
+        $.SUBRULE($.receiverParameter);
+        $.CONSUME(t.Comma);
+      });
+      $.OPTION2(() => {
+        $.SUBRULE($.formalParameterList);
+      });
+      $.CONSUME(t.RBrace);
+      $.OPTION3(() => {
+        $.SUBRULE($.dims);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ReceiverParameter
+    $.RULE("receiverParameter", () => {
+      $.MANY(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.SUBRULE($.unannType);
+      $.OPTION(() => {
+        $.CONSUME(t.Identifier);
+        $.CONSUME(t.Dot);
+      });
+      $.CONSUME(t.This);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-FormalParameterList
+    $.RULE("formalParameterList", () => {
+      $.SUBRULE($.formalParameter);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.formalParameter);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-FormalParameter
+    $.RULE("formalParameter", () => {
+      $.OR([
+        // Spec Deviation: extracted to "variableParaRegularParameter"
+        {
+          GATE: () => $.BACKTRACK($.variableParaRegularParameter),
+          ALT: () => $.SUBRULE($.variableParaRegularParameter)
+        },
+        { ALT: () => $.SUBRULE($.variableArityParameter) }
+      ]);
+    });
+
+    // Spec Deviation: extracted from "formalParameter"
+    $.RULE("variableParaRegularParameter", () => {
+      $.MANY(() => {
+        $.SUBRULE($.variableModifier);
+      });
+      $.SUBRULE($.unannType);
+      $.SUBRULE($.variableDeclaratorId);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableArityParameter
+    $.RULE("variableArityParameter", () => {
+      $.MANY(() => {
+        $.SUBRULE($.variableModifier);
+      });
+      $.SUBRULE($.unannType);
+      $.MANY2(() => {
+        $.SUBRULE($.annotation);
+      });
+      $.CONSUME(t.DotDotDot);
+      $.CONSUME(t.Identifier);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableModifier
+    $.RULE("variableModifier", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Final) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-Throws
+    $.RULE("throws", () => {
+      $.CONSUME(t.Throws);
+      $.SUBRULE($.exceptionTypeList);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ExceptionTypeList
+    $.RULE("exceptionTypeList", () => {
+      $.SUBRULE($.exceptionType);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.exceptionType);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ExceptionType
+    $.RULE("exceptionType", () => {
+      // Spec Deviation: "typeVariable" alternative is missing because
+      //                 it is contained in classType.
+      $.SUBRULE($.classType);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodBody
+    $.RULE("methodBody", () => {
+      // Spec Deviation: "typeVariable" alternative is missing because
+      //                 it is contained in classType.
+      $.SUBRULE($.block);
+      $.CONSUME(t.Semicolon);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-InstanceInitializer
+    $.RULE("instanceInitializer", () => {
+      $.SUBRULE($.block);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-StaticInitializer
+    $.RULE("staticInitializer", () => {
       $.CONSUME(t.Static);
+      $.SUBRULE($.block);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ConstructorDeclaration
+    $.RULE("constructorDeclaration", () => {
+      $.MANY(() => {
+        $.SUBRULE($.constructorModifier);
+      });
+      $.SUBRULE($.constructorDeclarator);
+      $.OPTION(() => {
+        $.SUBRULE($.throws);
+      });
+      $.SUBRULE($.constructorBody);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ConstructorModifier
+    $.RULE("constructorModifier", () => {
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) }
+      ]);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ConstructorDeclarator
+    $.RULE("constructorDeclarator", () => {
+      $.OPTION(() => {
+        $.SUBRULE($.typeParameters);
+      });
+      $.SUBRULE($.simpleTypeName);
+      $.CONSUME(t.LBrace);
+      $.OPTION2(() => {
+        $.SUBRULE($.receiverParameter);
+        $.CONSUME(t.Comma);
+      });
+      $.OPTION3(() => {
+        $.SUBRULE($.formalParameterList);
+      });
+      $.CONSUME(t.RBrace);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-SimpleTypeName
+    $.RULE("simpleTypeName", () => {
+      // TODO: implement: Identifier but not var
+      $.CONSUME(t.Identifier);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ConstructorBody
+    $.RULE("constructorBody", () => {
+      $.CONSUME(t.LCurly);
+      $.OPTION(() => {
+        $.SUBRULE($.explicitConstructorInvocation);
+      });
+      $.OPTION2(() => {
+        $.SUBRULE($.blockStatements);
+      });
+      $.CONSUME(t.RCurly);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ExplicitConstructorInvocation
+    $.RULE("explicitConstructorInvocation", () => {
+      let noPrefix = false;
+      $.OR([
+        {
+          GATE: () => $.isExpressionName(),
+          ALT: () => {
+            $.SUBRULE($.expressionName);
+            $.CONSUME(t.Dot);
+          }
+        },
+        {
+          ALT: () => {
+            $.SUBRULE($.primary);
+            $.CONSUME2(t.Dot);
+          }
+        },
+        // empty alt
+        { ALT: () => (noPrefix = true) }
+      ]);
+
+      $.OPTION(() => {
+        $.SUBRULE($.typeArguments);
+      });
+
+      $.OR2([
+        {
+          GATE: () => noPrefix,
+          ALT: () => $.CONSUME(t.This)
+        },
+        { ALT: () => $.CONSUME(t.Super) }
+      ]);
+
+      $.CONSUME(t.LBrace);
+      $.OPTION2(() => {
+        $.SUBRULE($.argumentList);
+      });
+      $.CONSUME(t.RBrace);
+      $.CONSUME(t.Semicolon);
     });
 
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumDeclaration
     $.RULE("enumDeclaration", () => {
-      // TODO: TBD
+      $.MANY(() => {
+        $.SUBRULE($.classModifier);
+      });
       $.CONSUME(t.Enum);
+      $.SUBRULE($.typeIdentifier);
+      $.OPTION(() => {
+        $.SUBRULE($.superinterfaces);
+      });
+      $.SUBRULE($.enumBody);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumBody
+    $.RULE("enumBody", () => {
+      $.CONSUME(t.LCurly);
+      $.OPTION(() => {
+        $.SUBRULE($.enumConstantList);
+      });
+      $.OPTION2(() => {
+        $.CONSUME(t.Comma);
+      });
+      $.OPTION3(() => {
+        $.SUBRULE($.enumBodyDeclarations);
+      });
+      $.CONSUME(t.RCurly);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumConstantList
+    $.RULE("enumConstantList", () => {
+      $.SUBRULE($.enumConstant);
+      $.MANY(() => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.enumConstant);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumConstant
+    $.RULE("enumConstant", () => {
+      $.MANY(() => {
+        $.SUBRULE($.enumConstantModifier);
+      });
+      $.CONSUME(t.Identifier);
+      $.CONSUME(t.LBrace);
+      $.OPTION(() => {
+        $.SUBRULE($.argumentList);
+      });
+      $.CONSUME(t.RBrace);
+      $.OPTION2(() => {
+        $.SUBRULE($.classBody);
+      });
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumConstantModifier
+    $.RULE("enumConstantModifier", () => {
+      $.SUBRULE($.annotation);
+    });
+
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumBodyDeclarations
+    $.RULE("enumBodyDeclarations", () => {
+      $.CONSUME(t.Semicolon);
+      $.MANY(() => {
+        $.SUBRULE($.classBodyDeclaration);
+      });
     });
 
     // ---------------------
@@ -662,8 +1197,67 @@ class JavaParser extends Parser {
     });
 
     // ---------------------
+    // Productions from §10 (Arrays)
+    // ---------------------
+    $.RULE("arrayInitializer", () => {
+      $.CONSUME(t.LCurly);
+      // TODO: TBD
+    });
+
+    // ---------------------
+    // Productions from §14 (Blocks and Statements)
+    // ---------------------
+    $.RULE("block", () => {
+      $.CONSUME(t.LCurly);
+      // TODO: TBD
+    });
+
+    $.RULE("blockStatements", () => {
+      $.CONSUME(t.Var);
+      // TODO: TBD
+    });
+
+    // ---------------------
+    // Productions from §15 (Expressions)
+    // ---------------------
+    $.RULE("expression", () => {
+      $.CONSUME(t.CharLiteral);
+      // TODO: TBD
+    });
+
+    $.RULE("primary", () => {
+      $.CONSUME(t.This);
+      // TODO: TBD
+    });
+
+    $.RULE("argumentList", () => {
+      $.SUBRULE($.expression);
+      // TODO: TBD
+    });
+
+    // ---------------------
     // Backtracking lookahead logic
     // ---------------------
+
+    $.RULE("isExpressionName", () => {
+      this.isBackTrackingStack.push(1);
+      const orgState = this.saveRecogState();
+      try {
+        $.SUBRULE($.expressionName);
+        const nextTokenType = this.LA(1).tokenType;
+        const nextNextTokenType = this.LA(2).tokenType;
+        return (
+          nextTokenType === t.Dot &&
+          (nextNextTokenType === t.Less || nextNextTokenType === t.Super)
+        );
+      } catch (e) {
+        return false;
+      } finally {
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
+      }
+    });
+
     $.RULE("isModuleCompilationUnit", () => {
       this.isBackTrackingStack.push(1);
       const orgState = this.saveRecogState();
@@ -733,6 +1327,111 @@ class JavaParser extends Parser {
 
         const nextTokenType = this.LA(1).tokenType;
         return nextTokenType === t.Class || nextTokenType === t.Enum;
+      } finally {
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
+      }
+    });
+
+    $.RULE("identifyClassBodyDeclarationType", () => {
+      this.isBackTrackingStack.push(1);
+      const orgState = this.saveRecogState();
+      try {
+        let nextTokenType = this.LA(1).tokenType;
+        let nextNextTokenType = this.LA(2).tokenType;
+
+        switch (nextTokenType) {
+          case t.Semicolon:
+            return classBodyTypes.semiColon;
+          case t.LCurly:
+            return classBodyTypes.instanceInitializer;
+          case t.Static:
+            switch (nextNextTokenType) {
+              case t.LCurly:
+                return classBodyTypes.staticInitializer;
+            }
+        }
+
+        // We have to look beyond the modifiers to distinguish between the declaration types.
+        $.MANY(() => {
+          // This alternation includes all possible modifiers for all types of "ClassBodyDeclaration"
+          // Certain combinations are syntactically invalid, this is **not** checked here,
+          // Invalid combinations will cause a descriptive parsing error message to be
+          // Created inside the relevant parsing rules **after** this lookahead
+          // analysis.
+          $.OR([
+            { ALT: () => $.SUBRULE($.annotation) },
+            { ALT: () => $.CONSUME(t.Public) },
+            { ALT: () => $.CONSUME(t.Protected) },
+            { ALT: () => $.CONSUME(t.Private) },
+            { ALT: () => $.CONSUME(t.Abstract) },
+            { ALT: () => $.CONSUME(t.Static) },
+            { ALT: () => $.CONSUME(t.Final) },
+            { ALT: () => $.CONSUME(t.Transient) },
+            { ALT: () => $.CONSUME(t.Volatile) },
+            { ALT: () => $.CONSUME(t.Synchronized) },
+            { ALT: () => $.CONSUME(t.Native) },
+            { ALT: () => $.CONSUME(t.Strictfp) }
+          ]);
+        });
+
+        nextTokenType = this.LA(1).tokenType;
+        nextNextTokenType = this.LA(2).tokenType;
+        if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+          return classBodyTypes.constructorDeclaration;
+        }
+
+        if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+          return classBodyTypes.classDeclaration;
+        }
+
+        if (nextTokenType === t.Interface || nextTokenType === t.At) {
+          return classBodyTypes.interfaceDeclaration;
+        }
+
+        if (nextTokenType === t.Void) {
+          // method with result type "void"
+          return classBodyTypes.methodDeclaration;
+        }
+
+        // Type Arguments common prefix
+        if (nextTokenType === t.Less) {
+          this.SUBRULE($.typeParameters);
+          const nextTokenType = this.LA(1).tokenType;
+          const nextNextTokenType = this.LA(2).tokenType;
+          // "<T> foo(" -> constructor
+          if (
+            nextTokenType === t.Identifier &&
+            nextNextTokenType === t.LBrace
+          ) {
+            return classBodyTypes.constructorDeclaration;
+          }
+          // typeParameters can only appear in method or constructor
+          // declarations, so if it is not a constructor it must be a method
+          return classBodyTypes.methodDeclaration;
+        }
+
+        // Only field or method declarations may be valid at this point.
+        // All other alternatives should have been attempted.
+        // **both** start with "unannType"
+        this.SUBRULE($.unannType);
+
+        nextTokenType = this.LA(1).tokenType;
+        nextNextTokenType = this.LA(2).tokenType;
+        // "foo(..." --> look like method start
+        if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+          return classBodyTypes.methodDeclaration;
+        }
+
+        // a valid field
+        if (nextTokenType === t.Identifier) {
+          return classBodyTypes.fieldDeclaration;
+        }
+
+        return classBodyTypes.unknown;
+      } catch (e) {
+        // TODO: add info from the original error
+        throw Error("Cannot Identify the type of a <classBodyDeclaration>");
       } finally {
         this.reloadRecogState(orgState);
         this.isBackTrackingStack.pop();
