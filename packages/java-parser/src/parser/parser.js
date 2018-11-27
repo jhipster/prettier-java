@@ -6,6 +6,7 @@ const names = require("./productions/names");
 const packagesModules = require("./productions/packages-and-modules");
 const classes = require("./productions/classes");
 const interfaces = require("./productions/interfaces");
+const arrays = require("./productions/arrays");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -87,19 +88,13 @@ class JavaParser extends Parser {
       $.CONSUME(t.Identifier);
     });
 
+    // Include the productions from all "chapters".
     typesValuesVariables.defineRules($, t);
     names.defineRules($, t);
     classes.defineRules($, t);
     packagesModules.defineRules($, t);
     interfaces.defineRules($, t);
-
-    // ---------------------
-    // Productions from §10 (Arrays)
-    // ---------------------
-    $.RULE("arrayInitializer", () => {
-      $.CONSUME(t.LCurly);
-      // TODO: TBD
-    });
+    arrays.defineRules($, t);
 
     // ---------------------
     // Productions from §14 (Blocks and Statements)
