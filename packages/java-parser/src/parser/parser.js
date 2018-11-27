@@ -1,11 +1,11 @@
 "use strict";
 const { Parser } = require("chevrotain");
 const { allTokens, tokens: t } = require("./tokens_new");
-const typesValuesVariables = require("./parser/types-values-and-variables");
-const names = require("./parser/names");
-const packagesModules = require("./parser/packages-and-modules");
-const classes = require("./parser/classes");
-const interfaces = require("./parser/interfaces");
+const typesValuesVariables = require("./productions/types-values-and-variables");
+const names = require("./productions/names");
+const packagesModules = require("./productions/packages-and-modules");
+const classes = require("./productions/classes");
+const interfaces = require("./productions/interfaces");
 
 /**
  * This parser attempts to strongly align with the specs style at:
