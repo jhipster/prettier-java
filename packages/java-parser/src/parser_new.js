@@ -5,6 +5,7 @@ const typesValuesVariables = require("./parser/types-values-and-variables");
 const names = require("./parser/names");
 const packagesModules = require("./parser/packages-and-modules");
 const classes = require("./parser/classes");
+const interfaces = require("./parser/interfaces");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -34,6 +35,24 @@ class JavaParser extends Parser {
     super(allTokens, {
       // ambiguities resolved by backtracking
       ignoredIssues: {
+        annotation: {
+          OR: true
+        },
+        annotationTypeMemberDeclaration: {
+          OR: true
+        },
+        typeDeclaration: {
+          OR: true
+        },
+        typeArgument: {
+          OR: true
+        },
+        arrayType: {
+          OR: true
+        },
+        type: {
+          OR: true
+        },
         referenceType: {
           OR: true
         },
@@ -50,6 +69,9 @@ class JavaParser extends Parser {
           OR: true
         },
         formalParameter: {
+          OR: true
+        },
+        interfaceMemberDeclaration: {
           OR: true
         }
       }
@@ -69,10 +91,7 @@ class JavaParser extends Parser {
     names.defineRules($, t);
     classes.defineRules($, t);
     packagesModules.defineRules($, t);
-
-    $.RULE("annotation", () => {
-      $.CONSUME(t.At);
-    });
+    interfaces.defineRules($, t);
 
     // ---------------------
     // Productions from §10 (Arrays)
@@ -111,6 +130,11 @@ class JavaParser extends Parser {
     $.RULE("argumentList", () => {
       $.SUBRULE($.expression);
       // TODO: TBD
+    });
+
+    $.RULE("conditionalExpression", () => {
+      // TODO: TBD
+      $.CONSUME(t.CharLiteral);
     });
 
     // ---------------------
