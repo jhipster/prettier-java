@@ -97,19 +97,6 @@ class JavaParser extends Parser {
     arrays.defineRules($, t);
 
     // ---------------------
-    // Productions from §14 (Blocks and Statements)
-    // ---------------------
-    $.RULE("block", () => {
-      $.CONSUME(t.LCurly);
-      // TODO: TBD
-    });
-
-    $.RULE("blockStatements", () => {
-      $.CONSUME(t.Var);
-      // TODO: TBD
-    });
-
-    // ---------------------
     // Productions from §15 (Expressions)
     // ---------------------
     $.RULE("expression", () => {
