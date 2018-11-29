@@ -7,6 +7,7 @@ const packagesModules = require("./productions/packages-and-modules");
 const classes = require("./productions/classes");
 const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
+const blocksStatements = require("./productions/blocks-and-statements");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -74,6 +75,9 @@ class JavaParser extends Parser {
         },
         interfaceMemberDeclaration: {
           OR: true
+        },
+        blockStatement: {
+          OR: true
         }
       }
     });
@@ -84,7 +88,7 @@ class JavaParser extends Parser {
     // Productions from §3 (Lexical Structure)
     // ---------------------
     $.RULE("typeIdentifier", () => {
-      // TODO: implement: Identifier but not var
+      // TODO: implement: Identifier but not var in the lexer
       $.CONSUME(t.Identifier);
     });
 
@@ -95,6 +99,7 @@ class JavaParser extends Parser {
     packagesModules.defineRules($, t);
     interfaces.defineRules($, t);
     arrays.defineRules($, t);
+    blocksStatements.defineRules($, t);
 
     // ---------------------
     // Productions from §15 (Expressions)
@@ -119,10 +124,20 @@ class JavaParser extends Parser {
       $.CONSUME(t.CharLiteral);
     });
 
+    $.RULE("constantExpression", () => {
+      $.SUBRULE($.expression);
+    });
+
+    $.RULE("fieldAccess", () => {
+      // TODO: TBD
+      $.CONSUME(t.Super);
+      $.CONSUME(t.Dot);
+      $.CONSUME(t.Identifier);
+    });
+
     // ---------------------
     // Backtracking lookahead logic
     // ---------------------
-
     $.RULE("isExpressionName", () => {
       this.isBackTrackingStack.push(1);
       const orgState = this.saveRecogState();
@@ -146,7 +161,7 @@ class JavaParser extends Parser {
   }
 
   // hack to turn off CST building side effects during backtracking
-  // TODO:
+  // TODO: should be patched in Chevrotain
   cstPostNonTerminal(ruleCstResult, ruleName) {
     if (this.isBackTracking() === false) {
       super.cstPostNonTerminal(ruleCstResult, ruleName);
