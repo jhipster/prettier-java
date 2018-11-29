@@ -320,6 +320,9 @@ function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
+  // ------------------------------------
+  // Special optimized backtracking rules.
+  // ------------------------------------
   $.RULE("identifyInterfaceBodyDeclarationType", () => {
     this.isBackTrackingStack.push(1);
     const orgState = this.saveRecogState();

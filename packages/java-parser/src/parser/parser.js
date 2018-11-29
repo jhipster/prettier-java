@@ -78,6 +78,9 @@ class JavaParser extends Parser {
         },
         blockStatement: {
           OR: true
+        },
+        forStatement: {
+          OR: true
         }
       }
     });

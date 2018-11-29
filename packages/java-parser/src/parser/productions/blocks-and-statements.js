@@ -219,9 +219,11 @@ function defineRules($, t) {
   });
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ForStatement
   $.RULE("forStatement", () => {
-    // TODO: implement optimized backtracking
     $.OR([
-      { ALT: () => $.SUBRULE($.basicForStatement) },
+      {
+        GATE: () => this.isBasicForStatement(),
+        ALT: () => $.SUBRULE($.basicForStatement)
+      },
       { ALT: () => $.SUBRULE($.enhancedForStatement) }
     ]);
   });
@@ -452,6 +454,30 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.expressionName) },
       { ALT: () => $.SUBRULE($.fieldAccess) }
     ]);
+  });
+
+  // ------------------------------------
+  // Special optimized backtracking rules.
+  // ------------------------------------
+  $.RULE("isBasicForStatement", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      $.CONSUME(t.For);
+      $.CONSUME(t.LBrace);
+      $.OPTION(() => {
+        $.SUBRULE($.forInit);
+      });
+      $.CONSUME(t.Semicolon);
+      // consuming the first semiColon distinguishes between
+      // "basic" and "enhanced" for statements
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
   });
 }
 
