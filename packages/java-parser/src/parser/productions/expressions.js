@@ -23,36 +23,16 @@ function defineRules($, t) {
     // });
   });
 
-  /**
-   *
-   * PrimaryNoNewArray:
-   *   Literal
-   *   ClassLiteral
-   *     - TypeName {[ ]} . class
-   *     - NumericType {[ ]} . class
-   *     - boolean {[ ]} . class
-   *     - void . class
-   *   this
-   *   TypeName . this
-   *   ( Expression )
-   *   ClassInstanceCreationExpression
-   *     - this has left recursion to "primary" maybe extract to loop?
-   *   FieldAccess
-   *     - this has left recursion to "primary" maybe extract to loop?
-   *   ArrayAccess
-   *   MethodInvocation
-   *     - this has left recursion to "primary" maybe extract to loop?
-   *   MethodReference
-   *     - this has left recursion to "primary" maybe extract to loop?
-   *     - this can start with primitives like class literal
-   */
+  // TODO: maybe refactor to LL(1)
+  // What is the advantage of backtracking if we are already deviating greatly from the
+  // Spec?
   $.RULE("primary", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.Super) },
-      // TODO: should this include ".super"? (YES)
+      // TODO: maybe this should be a more general type and include the primitive types?
       { ALT: () => $.SUBRULE($.ambiguousNameOrReferenceType) },
       { ALT: () => $.SUBRULE($.literal) },
-      // TODO: class literal shares common "primitives suffix" with methodRef
+      // TODO: class literal shares common "primitives suffix" with methodRef (referenceType)
       { ALT: () => $.SUBRULE($.classLiteralPrefix) },
       { ALT: () => $.CONSUME(t.This) },
       // "postFixExpression" may also start with parenthesis.
@@ -60,13 +40,21 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
       // TODO: rename to ---PREFIX?
       { ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression) },
-      { ALT: () => $.SUBRULE($.fieldAccessPrefix) },
       { ALT: () => $.SUBRULE($.arrayCreationExpression) }
     ]);
+
+    $.OPTION(() => {
+      $.SUBRULE($.superFieldAccess);
+    });
 
     $.MANY(() => {
       $.SUBRULE($.primaryNoNewArraySuffix);
     });
+  });
+
+  $.RULE("primaryNoNewArraySuffix", () => {
+    $.CONSUME(t.Dot);
+    $.CONSUME(t.Super);
   });
 
   $.RULE("primaryNoNewArraySuffix", () => {
