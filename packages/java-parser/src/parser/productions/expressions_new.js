@@ -93,8 +93,8 @@ function defineRules($, t) {
     });
 
     // FQN suffix
-    // {[ ]} . class - V
-    // .this - V
+    // {[ ]} . class - DONE
+    // .this - DONE
     // . UnqualifiedClassInstanceCreationExpression
     // [ Expression ]
     // ( [ArgumentList] )
@@ -105,7 +105,10 @@ function defineRules($, t) {
     // :: [TypeArguments] new
 
     // arrayType suffix
-    // :: new
+    // :: new - DONE
+
+    // TODO: we do not distinguish between arrayType and regular fqn here
+    //       so in fact we parse a **super** grammar of Java.
     $.OR([
       { ALT: () => $.SUBRULE($.classLiteralSuffix) },
       { ALT: () => $.SUBRULE($.thisSuffix) },
