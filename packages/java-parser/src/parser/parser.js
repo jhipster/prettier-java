@@ -8,6 +8,7 @@ const classes = require("./productions/classes");
 const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
+const expressions = require("./productions/expressions");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -103,24 +104,11 @@ class JavaParser extends Parser {
     interfaces.defineRules($, t);
     arrays.defineRules($, t);
     blocksStatements.defineRules($, t);
+    expressions.defineRules($, t);
 
     // ---------------------
     // Productions from §15 (Expressions)
     // ---------------------
-    $.RULE("expression", () => {
-      $.CONSUME(t.CharLiteral);
-      // TODO: TBD
-    });
-
-    $.RULE("primary", () => {
-      $.CONSUME(t.This);
-      // TODO: TBD
-    });
-
-    $.RULE("argumentList", () => {
-      $.SUBRULE($.expression);
-      // TODO: TBD
-    });
 
     $.RULE("conditionalExpression", () => {
       // TODO: TBD

@@ -1,172 +1,135 @@
 "use strict";
 function defineRules($, t) {
-  // TODO: reference existing Java Parsers (statementExpression)
-  /*
-  productions referenced from outside:
-    - primary
-    - ClassInstanceCreationExpression
-    - MethodInvocation
-    - ArgumentList
-    - conditionalExpression
-    - constantExpression
-      // TODO: after refactor this may be described as primary with specific suffix.
-    - fieldAccess
-    - assignment
-    - [pre|post] [increase|decrease] Expression
-  */
-
   $.RULE("expression", () => {
-    // $.CONSUME(t.Identifier);
-    // $.MANY(() => {
-    //   $.CONSUME(t.Dot);
-    //   $.CONSUME2(t.Identifier);
-    // });
+    $.SUBRULE($.primary);
   });
 
-  // TODO: maybe refactor to LL(1)
-  // What is the advantage of backtracking if we are already deviating greatly from the
-  // Spec?
   $.RULE("primary", () => {
-    $.OR([
-      { ALT: () => $.CONSUME(t.Super) },
-      // TODO: maybe this should be a more general type and include the primitive types?
-      { ALT: () => $.SUBRULE($.ambiguousNameOrReferenceType) },
-      { ALT: () => $.SUBRULE($.literal) },
-      // TODO: class literal shares common "primitives suffix" with methodRef (referenceType)
-      { ALT: () => $.SUBRULE($.classLiteralPrefix) },
-      { ALT: () => $.CONSUME(t.This) },
-      // "postFixExpression" may also start with parenthesis.
-      // Perhaps optimized backtracking would be needed to distinguish in ""postFixExpression"
-      { ALT: () => $.SUBRULE($.parenthesisExpression) },
-      // TODO: rename to ---PREFIX?
-      { ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression) },
-      { ALT: () => $.SUBRULE($.arrayCreationExpression) }
-    ]);
-
-    $.OPTION(() => {
-      $.SUBRULE($.superFieldAccess);
-    });
-
+    $.SUBRULE($.primaryPrefix);
     $.MANY(() => {
-      $.SUBRULE($.primaryNoNewArraySuffix);
+      $.SUBRULE($.primarySuffix);
     });
   });
 
-  $.RULE("primaryNoNewArraySuffix", () => {
-    $.CONSUME(t.Dot);
-    $.CONSUME(t.Super);
+  // PREFIX:
+  // literal
+  // this
+  // void
+  // numericType
+  // boolean
+  // fqn (that includes ".super")
+  //   - also referenceType
+  // ( Expression )
+  // UnqualifiedClassInstanceCreationExpression | ArrayCreationExpression ("new" Expression)
+  $.RULE("primaryPrefix", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.literal) },
+      { ALT: () => $.CONSUME(t.This) },
+      { ALT: () => $.CONSUME(t.Void) },
+      // should be extracted to primitive type with optional dims suffix?
+      { ALT: () => $.SUBRULE($.numericType) },
+      { ALT: () => $.CONSUME(t.boolean) },
+      { ALT: () => $.SUBRULE($.fqnOrRefType) },
+      { ALT: () => $.SUBRULE($.parenthesisExpression) },
+      { ALT: () => $.SUBRULE($.newExpression) }
+    ]);
   });
 
-  $.RULE("primaryNoNewArraySuffix", () => {
+  // SUFFIX:
+  // . this
+  // . UnqualifiedClassInstanceCreationExpression
+  // {[]}. class
+  // . Identifier
+  // [ Expression ]
+  // . [TypeArguments] Identifier ( [ArgumentList] )
+  // :: [TypeArguments] Identifier
+  // :: [TypeArguments] new
+  $.RULE("primarySuffix", () => {
     $.OR([
-      { ALT: () => $.SUBRULE($.fieldAccessSuffix) },
-      { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
-      { ALT: () => $.SUBRULE($.classInstanceCreationExpressionSuffix) },
+      {
+        ALT: () => {
+          $.CONSUME(t.Dot);
+          $.OR2([
+            { ALT: () => $.CONSUME(t.This) },
+            {
+              ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
+            },
+            { ALT: () => $.CONSUME(t.Identifier) },
+            { ALT: () => $.SUBRULE($.methodInvocationSuffix) }
+          ]);
+        }
+      },
       { ALT: () => $.SUBRULE($.classLiteralSuffix) },
-      { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
+      { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
       { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
     ]);
   });
 
-  $.RULE("ambiguousNameOrReferenceType", () => {
-    // a Reference Type is a superGrammar of a FQN (ambiguousName)
-    // TODO: the above statement may not be true if we consider TypeIdentifier vs Identifier.
-    // TODO: "referenceType" uses backtracking which we would rather avoid in a hotspot
-    //       such as the "primary" production.
-    //       evaluate optimizing the "referenceType rule."
-    $.SUBRULE($.referenceType);
+  $.RULE("fqnOrRefType", () => {
+    $.SUBRULE($.fqnOrRefTypePart);
+
+    $.MANY2(() => {
+      $.CONSUME(t.Dot);
+      $.SUBRULE2($.fqnOrRefTypePart);
+    });
   });
 
-  /**
-   * Like https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-ClassLiteral
-   * But without "TypeName {[ ]} . class" as that alternative would be parsed
-   * using the "ClassLiteralSuffix"
-   */
-  $.RULE("ClassLiteralPrefix", () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.OR2([
-            { ALT: () => $.SUBRULE($.numericType) },
-            { ALT: () => $.CONSUME(t.Boolean) }
-          ]);
-          $.MANY(() => {
-            $.CONSUME(t.LSquare);
-            $.CONSUME(t.RSquare);
-          });
-          $.CONSUME(t.Dot);
-          $.CONSUME(t.Class);
-        }
-      },
-      {
-        ALT: () => {
-          $.CONSUME(t.Void);
-          $.CONSUME(t.Dot);
-          $.CONSUME(t.Class);
-        }
+  // TODO: validation:
+  //       1. "annotation" cannot be mixed with "methodTypeArguments" or "Super".
+  //       2. "methodTypeArguments" cannot be mixed with "classTypeArguments" or "annotation".
+  //       3. "Super" cannot be mixed with "classTypeArguments" or "annotation".
+  //       4. At most one "Super" may be used.
+  //       5. "Super" may be last or one before last (last may also be first if there is only a single part).
+  $.RULE("fqnOrRefTypePart", () => {
+    $.MANY(() => {
+      $.SUBRULE($.annotation);
+    });
+
+    $.OPTION({
+      NAME: "methodTypeArguments",
+      DEF: () => {
+        $.SUBRULE($.typeArguments);
       }
-    ]);
-  });
-
-  $.RULE("fieldAccessSuffix", () => {
-    $.CONSUME(t.Dot);
-    $.CONSUME(t.Identifier);
-  });
-
-  $.RULE("methodInvocationSuffix", () => {
-    $.CONSUME(t.Dot);
-    $.OPTION(() => {
-      $.SUBRULE($.typeArguments);
-    });
-    $.CONSUME(t.Identifier);
-    $.CONSUME(t.LBrace);
-    $.OPTION2(() => {
-      $.SUBRULE($.argumentList);
-    });
-    $.CONSUME(t.RBrace);
-  });
-
-  $.RULE("methodReferenceSuffix", () => {
-    $.CONSUME(t.ColonColon);
-    $.OPTION(() => {
-      $.SUBRULE($.typeArguments);
     });
 
     $.OR([
       { ALT: () => $.CONSUME(t.Identifier) },
-      // TODO: a constructor method reference ("new") can only be used
-      //   in specific contexts, but perhaps this verification is best left
-      //   for a semantic analysis phase
-      { ALT: () => $.CONSUME(t.New) }
+      { ALT: () => $.CONSUME(t.Super) }
     ]);
-  });
 
-  $.RULE("argumentList", () => {
-    $.SUBRULE($.expression);
-    $.MANY(() => {
-      $.CONSUME(t.Comma);
-      $.SUBRULE($.expression);
+    $.OPTION2({
+      NAME: "classTypeArguments",
+      DEF: () => {
+        $.SUBRULE($.typeArguments);
+      }
     });
   });
 
-  $.RULE("classLiteralSuffix", () => {
-    $.MANY(() => {
-      $.CONSUME(t.LSquare);
-      $.CONSUME(t.RSquare);
-    });
-    $.CONSUME(t.Dot);
-    $.CONSUME(t.Class);
-  });
-
-  $.RULE("arrayAccessSuffix", () => {
-    $.CONSUME(t.LSquare);
+  $.RULE("parenthesisExpression", () => {
+    $.CONSUME(t.LBrace);
     $.SUBRULE($.expression);
-    $.CONSUME(t.RSquare);
+    $.CONSUME(t.RBrace);
   });
 
-  $.RULE("classInstanceCreationExpressionSuffix", () => {
-    $.CONSUME(t.Dot);
-    $.SUBRULE($.unqualifiedClassInstanceCreationExpression);
+  const newExpressionTypes = {
+    arrayCreationExpression: 1,
+    unqualifiedClassInstanceCreationExpression: 2
+  };
+  $.RULE("newExpression", () => {
+    const type = this.identifyNewExpressionType();
+
+    $.OR([
+      {
+        GATE: () => type === newExpressionTypes.arrayCreationExpression,
+        ALT: () => $.SUBRULE($.arrayCreationExpression)
+      },
+      {
+        GATE: () =>
+          type ===
+          newExpressionTypes.unqualifiedClassInstanceCreationExpression,
+        ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
+      }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-UnqualifiedClassInstanceCreationExpression
@@ -195,29 +158,106 @@ function defineRules($, t) {
       $.CONSUME(t.Dot);
       $.MANY3(() => {
         $.SUBRULE2($.annotation);
-        $.CONSUME2(t.Identifier);
       });
+      $.CONSUME2(t.Identifier);
     });
     $.SUBRULE($.typeArgumentsOrDiamond);
   });
 
-  $.RULE("primaryNoNewArraySuffix", () => {
+  $.RULE("typeArgumentsOrDiamond", () => {
     $.OR([
-      { ALT: () => $.SUBRULE($.typeArguments) },
-      {
-        ALT: () => {
-          $.CONSUME2(t.Less);
-          $.CONSUME2(t.Greater);
-        }
-      }
+      { ALT: () => $.SUBRULE($.diamond) },
+      { ALT: () => $.SUBRULE($.typeArguments) }
     ]);
   });
 
-  // Spec Deviation: extracted from "primaryNoNewArray"
-  $.RULE("parenthesisExpression", () => {
+  $.RULE("methodInvocationSuffix", () => {
+    $.OPTION(() => {
+      $.SUBRULE($.typeArguments);
+    });
+    $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
-    $.SUBRULE($.expression);
+    $.OPTION(() => {
+      $.SUBRULE($.argumentList);
+    });
     $.CONSUME(t.RBrace);
+  });
+
+  $.RULE("argumentList", () => {
+    $.SUBRULE($.expression);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE($.expression);
+    });
+  });
+
+  $.RULE("classLiteralSuffix", () => {
+    $.MANY(() => {
+      $.CONSUME(t.LSquare);
+      $.CONSUME(t.RSquare);
+    });
+    $.CONSUME(t.Dot);
+    $.CONSUME(t.Class);
+  });
+
+  $.RULE("arrayAccessSuffix", () => {
+    $.CONSUME(t.LSquare);
+    $.SUBRULE($.expression);
+    $.CONSUME(t.RSquare);
+  });
+
+  $.RULE("methodReferenceSuffix", () => {
+    $.CONSUME(t.ColonColon);
+    $.OPTION(() => {
+      $.SUBRULE($.typeArguments);
+    });
+
+    $.OR([
+      { ALT: () => $.CONSUME(t.Identifier) },
+      // TODO: a constructor method reference ("new") can only be used
+      //   in specific contexts, but perhaps this verification is best left
+      //   for a semantic analysis phase
+      { ALT: () => $.CONSUME(t.New) }
+    ]);
+  });
+
+  // backtracking lookahead logic
+  $.RULE("identifyNewExpressionType", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      $.CONSUME(t.New);
+      const firstTokenAfterNew = this.LA(1).tokenType;
+
+      // not an array initialization due to the prefix "TypeArguments"
+      if (firstTokenAfterNew === t.Less) {
+        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
+      }
+
+      const classTypeCst = $.SUBRULE($.classType);
+      // not an array initialization due to the fqn "TypeArguments"
+      if (classTypeCst.typeArguments.length > 0) {
+        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
+      }
+
+      const firstTokenAfterClassType = this.LA(1).tokenType;
+      if (firstTokenAfterClassType === t.LBrace) {
+        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
+      }
+
+      // The LBrace above is mandatory in "classInstanceCreation..." so
+      // it must be an "arrayCreationExp" (if the input is valid)
+      // TODO: upgrade the logic to return "unknown" type if at this
+      //       point it does not match "arrayCreation" either.
+      //   - This will provide a better error message to the user
+      //     in case of invalid inputs
+      return newExpressionTypes.arrayCreationExpression;
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
   });
 }
 

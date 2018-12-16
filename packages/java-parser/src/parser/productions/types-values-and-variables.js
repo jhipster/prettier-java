@@ -99,8 +99,14 @@ function defineRules($, t) {
       });
       // TODO: Semantic Check: This Identifier cannot be "var"
       $.CONSUME2(t.Identifier);
-      $.OPTION2(() => {
-        $.SUBRULE2($.typeArguments);
+      $.OPTION2({
+        // To avoid confusion with "TypeArgumentsOrDiamond" rule
+        // as we use the "classType" rule in the "identifyNewExpressionType"
+        // optimized lookahead rule.
+        GATE: () => $.LA(2).tokenType !== t.Greater,
+        DEF: () => {
+          $.SUBRULE2($.typeArguments);
+        }
       });
     });
   });
