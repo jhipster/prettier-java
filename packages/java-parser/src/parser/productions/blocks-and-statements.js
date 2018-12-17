@@ -177,13 +177,9 @@ function defineRules($, t) {
           $.CONSUME(t.Colon);
         }
       },
-      {
-        ALT: () => {
-          $.CONSUME2(t.Case);
-          $.SUBRULE($.enumConstantName);
-          $.CONSUME2(t.Colon);
-        }
-      },
+      // SPEC Deviation: the variant with "enumConstantName"
+      // can be matched by the "constantExpression" variant
+      // the distinction is semantic not syntactic.
       {
         ALT: () => {
           $.CONSUME(t.Default);

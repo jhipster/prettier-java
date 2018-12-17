@@ -28,7 +28,7 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Void) },
       // should be extracted to primitive type with optional dims suffix?
       { ALT: () => $.SUBRULE($.numericType) },
-      { ALT: () => $.CONSUME(t.boolean) },
+      { ALT: () => $.CONSUME(t.Boolean) },
       { ALT: () => $.SUBRULE($.fqnOrRefType) },
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
       { ALT: () => $.SUBRULE($.newExpression) }
@@ -54,8 +54,8 @@ function defineRules($, t) {
             {
               ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
             },
-            { ALT: () => $.CONSUME(t.Identifier) },
-            { ALT: () => $.SUBRULE($.methodInvocationSuffix) }
+            { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
+            { ALT: () => $.CONSUME(t.Identifier) }
           ]);
         }
       },
@@ -86,9 +86,9 @@ function defineRules($, t) {
     });
 
     $.OPTION({
-      NAME: "methodTypeArguments",
+      NAME: "$methodTypeArguments",
       DEF: () => {
-        $.SUBRULE($.typeArguments);
+        $.SUBRULE2($.typeArguments);
       }
     });
 
@@ -98,9 +98,9 @@ function defineRules($, t) {
     ]);
 
     $.OPTION2({
-      NAME: "classTypeArguments",
+      NAME: "$classTypeArguments",
       DEF: () => {
-        $.SUBRULE($.typeArguments);
+        $.SUBRULE3($.typeArguments);
       }
     });
   });
@@ -171,13 +171,18 @@ function defineRules($, t) {
     ]);
   });
 
+  $.RULE("diamond", () => {
+    $.CONSUME(t.Less);
+    $.CONSUME(t.Greater);
+  });
+
   $.RULE("methodInvocationSuffix", () => {
     $.OPTION(() => {
       $.SUBRULE($.typeArguments);
     });
     $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
-    $.OPTION(() => {
+    $.OPTION2(() => {
       $.SUBRULE($.argumentList);
     });
     $.CONSUME(t.RBrace);
@@ -187,8 +192,55 @@ function defineRules($, t) {
     $.SUBRULE($.expression);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE($.expression);
+      $.SUBRULE2($.expression);
     });
+  });
+
+  $.RULE("arrayCreationExpression", () => {
+    $.CONSUME(t.New);
+    $.OR([
+      {
+        GATE: () => $.BACKTRACK($.primitiveType),
+        ALT: () => $.SUBRULE($.primitiveType)
+      },
+      { ALT: () => $.SUBRULE($.classOrInterfaceType) }
+    ]);
+
+    $.OR2([
+      {
+        GATE: () => $.BACKTRACK($.arrayCreationDefaultInitSuffix),
+        ALT: () => $.SUBRULE($.arrayCreationDefaultInitSuffix)
+      },
+      { ALT: () => $.SUBRULE($.arrayCreationExplicitInitSuffix) }
+    ]);
+  });
+
+  $.RULE("arrayCreationDefaultInitSuffix", () => {
+    $.SUBRULE($.dimExprs);
+    $.OPTION(() => {
+      $.SUBRULE($.dims);
+    });
+  });
+
+  $.RULE("arrayCreationExplicitInitSuffix", () => {
+    $.SUBRULE($.dims);
+    $.SUBRULE($.arrayInitializer);
+  });
+
+  $.RULE("dimExprs", () => {
+    $.SUBRULE($.dimExpr);
+    $.OPTION(() => {
+      $.SUBRULE2($.dimExpr);
+    });
+  });
+
+  $.RULE("dimExpr", () => {
+    $.MANY(() => {
+      $.SUBRULE($.annotation);
+    });
+    $.CONSUME(t.LSquare);
+    $.SUBRULE($.expression);
+    $.CONSUME(t.RSquare);
   });
 
   $.RULE("classLiteralSuffix", () => {

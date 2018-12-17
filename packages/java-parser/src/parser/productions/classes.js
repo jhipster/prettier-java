@@ -518,37 +518,41 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ExplicitConstructorInvocation
   $.RULE("explicitConstructorInvocation", () => {
-    let noPrefix = false;
+    // Spec Deviation: split into two separate sub rules.
     $.OR([
-      {
-        GATE: () => $.isExpressionName(),
-        ALT: () => {
-          $.SUBRULE($.expressionName);
-          $.CONSUME(t.Dot);
-        }
-      },
-      {
-        ALT: () => {
-          $.SUBRULE($.primary);
-          $.CONSUME2(t.Dot);
-        }
-      },
-      // empty alt
-      { ALT: () => (noPrefix = true) }
+      { ALT: () => $.SUBRULE($.unqualifiedExplicitConstructorInvocation) },
+      { ALT: () => $.SUBRULE($.qualifiedExplicitConstructorInvocation) }
     ]);
+  });
 
+  $.RULE("unqualifiedExplicitConstructorInvocation", () => {
     $.OPTION(() => {
       $.SUBRULE($.typeArguments);
     });
+    $.OR([{ ALT: () => $.CONSUME(t.This) }, { ALT: () => $.CONSUME(t.Super) }]);
+    $.CONSUME(t.LBrace);
+    $.OPTION2(() => {
+      $.SUBRULE($.argumentList);
+    });
+    $.CONSUME(t.RBrace);
+    $.CONSUME(t.Semicolon);
+  });
 
-    $.OR2([
-      {
-        GATE: () => noPrefix,
-        ALT: () => $.CONSUME(t.This)
-      },
-      { ALT: () => $.CONSUME(t.Super) }
-    ]);
-
+  $.RULE("qualifiedExplicitConstructorInvocation", () => {
+    // Spec Deviation: According to the spec the prefix may be a "primary' as well,
+    //                 however, most primary variants don't make sense here
+    // TODO: discover which primary forms could be valid here
+    //       and handle only those specific cases.
+    //       It is best if we avoid referencing "primary" rule from
+    //       outside the expressions rules as the expressions rules are not aligned
+    //       to the spec style, so we want the smallest possible "external api"
+    //       for the expressions rules.
+    $.SUBRULE($.expressionName);
+    $.CONSUME(t.Dot);
+    $.OPTION(() => {
+      $.SUBRULE($.typeArguments);
+    });
+    $.CONSUME(t.Super);
     $.CONSUME(t.LBrace);
     $.OPTION2(() => {
       $.SUBRULE($.argumentList);

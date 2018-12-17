@@ -1,6 +1,7 @@
 "use strict";
 const { Parser } = require("chevrotain");
 const { allTokens, tokens: t } = require("./tokens_new");
+const lexicalStructure = require("./productions/lexical-structure");
 const typesValuesVariables = require("./productions/types-values-and-variables");
 const names = require("./productions/names");
 const packagesModules = require("./productions/packages-and-modules");
@@ -82,6 +83,13 @@ class JavaParser extends Parser {
         },
         forStatement: {
           OR: true
+        },
+        newExpression: {
+          OR: true
+        },
+        arrayCreationExpression: {
+          OR: true,
+          OR2: true
         }
       }
     });
@@ -97,6 +105,7 @@ class JavaParser extends Parser {
     });
 
     // Include the productions from all "chapters".
+    lexicalStructure.defineRules($, t);
     typesValuesVariables.defineRules($, t);
     names.defineRules($, t);
     classes.defineRules($, t);
@@ -124,28 +133,6 @@ class JavaParser extends Parser {
       $.CONSUME(t.Super);
       $.CONSUME(t.Dot);
       $.CONSUME(t.Identifier);
-    });
-
-    // ---------------------
-    // Backtracking lookahead logic
-    // ---------------------
-    $.RULE("isExpressionName", () => {
-      this.isBackTrackingStack.push(1);
-      const orgState = this.saveRecogState();
-      try {
-        $.SUBRULE($.expressionName);
-        const nextTokenType = this.LA(1).tokenType;
-        const nextNextTokenType = this.LA(2).tokenType;
-        return (
-          nextTokenType === t.Dot &&
-          (nextNextTokenType === t.Less || nextNextTokenType === t.Super)
-        );
-      } catch (e) {
-        return false;
-      } finally {
-        this.reloadRecogState(orgState);
-        this.isBackTrackingStack.pop();
-      }
     });
 
     this.performSelfAnalysis();

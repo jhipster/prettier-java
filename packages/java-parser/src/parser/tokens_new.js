@@ -89,7 +89,7 @@ createToken({
   pattern: /\/\*([^*]|\*(?!\/))*\*\//
 });
 createToken({ name: "BinaryLiteral", pattern: /0[bB][01]([01_]*[01])?[lL]?/ });
-createToken({ name: "OctLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
+createToken({ name: "OctalLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
 createToken({
   name: "FloatLiteral",
   pattern: MAKE_PATTERN(
