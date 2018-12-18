@@ -90,6 +90,15 @@ class JavaParser extends Parser {
         arrayCreationExpression: {
           OR: true,
           OR2: true
+        },
+        expression: {
+          OR: true
+        },
+        lambdaParameterList: {
+          OR: true
+        },
+        lambdaParameter: {
+          OR: true
         }
       }
     });

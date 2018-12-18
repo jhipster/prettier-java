@@ -252,7 +252,7 @@ createToken({ name: "LCurly", pattern: "{" });
 createToken({ name: "RCurly", pattern: "}" });
 createToken({ name: "LSquare", pattern: "[" });
 createToken({ name: "RSquare", pattern: "]" });
-createToken({ name: "Pointer", pattern: "->" });
+createToken({ name: "Arrow", pattern: "->" });
 createToken({ name: "LessEquals", pattern: "<=" });
 createToken({ name: "LessLessEquals", pattern: "<<=" });
 createToken({ name: "LessLess", pattern: "<<" });

@@ -133,9 +133,7 @@ function defineRules($, t) {
         GATE: () => $.BACKTRACK($.primitiveType),
         ALT: () => $.SUBRULE($.primitiveType)
       },
-      {
-        ALT: () => $.SUBRULE($.classOrInterfaceType)
-      }
+      { ALT: () => $.SUBRULE($.classOrInterfaceType) }
     ]);
     $.SUBRULE($.dims);
   });

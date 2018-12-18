@@ -1,6 +1,103 @@
 "use strict";
 function defineRules($, t) {
   $.RULE("expression", () => {
+    $.OR([
+      {
+        GATE: $.isLambdaExpression(),
+        ALT: () => $.SUBRULE($.lambdaExpression)
+      },
+      { ALT: () => $.SUBRULE($.assignmentExpression) }
+    ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-LambdaExpression
+  $.RULE("lambdaExpression", () => {
+    $.SUBRULE($.lambdaParameters);
+    $.CONSUME(t.Arrow);
+    $.SUBRULE($.lambdaBody);
+  });
+
+  $.RULE("lambdaParameters", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.lambdaParametersWithBraces) },
+      { ALT: () => $.CONSUME(t.Identifier) }
+    ]);
+  });
+
+  $.RULE("lambdaParametersWithBraces", () => {
+    $.CONSUME(t.LBrace);
+    $.OPTION(() => {
+      $.SUBRULE($.lambdaParameterList);
+    });
+    $.CONSUME(t.RBrace);
+  });
+
+  $.RULE("lambdaParameterList", () => {
+    $.OR([
+      {
+        GATE: () => {
+          const nextTokType = this.LA(1).tokenType;
+          const nextNextTokType = this.LA(2).tokenType;
+          return (
+            nextTokType === t.Identifier &&
+            (nextNextTokType === t.RBrace || nextNextTokType === t.Comma)
+          );
+        },
+        ALT: () => $.SUBRULE($.inferredLambdaParameterList)
+      },
+      { ALT: () => $.SUBRULE($.explicitLambdaParameterList) }
+    ]);
+  });
+
+  $.RULE("inferredLambdaParameterList", () => {
+    $.CONSUME(t.Identifier);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.CONSUME2(t.Identifier);
+    });
+  });
+
+  $.RULE("explicitLambdaParameterList", () => {
+    $.SUBRULE($.lambdaParameter);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE2($.lambdaParameter);
+    });
+  });
+
+  $.RULE("lambdaParameter", () => {
+    $.OR([
+      {
+        GATE: () => $.BACKTRACK($.regularLambdaParameter),
+        ALT: () => $.SUBRULE($.regularLambdaParameter)
+      },
+      { ALT: () => $.SUBRULE($.variableArityParameter) }
+    ]);
+  });
+
+  $.RULE("regularLambdaParameter", () => {
+    $.MANY(() => {
+      $.SUBRULE($.variableModifier);
+    });
+    $.SUBRULE($.lambdaParameterType);
+    $.SUBRULE($.variableDeclaratorId);
+  });
+
+  $.RULE("lambdaParameterType", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.unannType) },
+      { ALT: () => $.CONSUME(t.Var) }
+    ]);
+  });
+
+  $.RULE("lambdaBody", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.expression) },
+      { ALT: () => $.SUBRULE($.block) }
+    ]);
+  });
+
+  $.RULE("assignmentExpression", () => {
     $.SUBRULE($.primary);
   });
 
@@ -304,6 +401,29 @@ function defineRules($, t) {
       //   - This will provide a better error message to the user
       //     in case of invalid inputs
       return newExpressionTypes.arrayCreationExpression;
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  });
+
+  // Optimized backtracking, only scan ahead until the arrow("->").
+  $.RULE("isLambdaExpression", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      const firstTokenType = this.LA(1).tokenType;
+      const secondTokenType = this.LA(2).tokenType;
+      // no parent lambda "x -> x * 2"
+      if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {
+        return true;
+      }
+
+      $.SUBRULE($.lambdaParametersWithBraces);
+      const followedByArrow = this.LA(1).tokenType === t.Arrow;
+      return followedByArrow;
     } catch (e) {
       return false;
     } finally {
