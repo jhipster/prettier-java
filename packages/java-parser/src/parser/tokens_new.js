@@ -65,6 +65,28 @@ function createKeywordLikeToken(options) {
   return createToken(options);
 }
 
+// Token Categories
+// Used a Token Category to mark all restricted keywords.
+// This could be used in syntax highlights implementation.
+const RestrictedKeyword = createToken({
+  name: "RestrictedKeyword",
+  pattern: Lexer.NA
+});
+
+// Used a Token Category to mark all keywords.
+// This could be used in syntax highlights implementation.
+const Keyword = createToken({
+  name: "Keyword",
+  pattern: Lexer.NA
+});
+
+const BinaryOperator = createToken({
+  name: "BinaryOperator",
+  pattern: Lexer.NA
+});
+
+const UnaryOperator = createToken({ name: "UnaryOperator", pattern: Lexer.NA });
+
 // TODO: align with Java Spec
 createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
 
@@ -75,15 +97,7 @@ createToken({
 });
 
 createToken({ name: "LineComment", pattern: /\/\/[^\n\r]*/ });
-createToken({
-  name: "JavaDocCommentStandalone",
-  pattern: /\/\*\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/
-});
 createToken({ name: "JavaDocComment", pattern: /\/\*\*([^*]|\*(?!\/))*\*\// });
-createToken({
-  name: "TraditionalCommentStandalone",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\/(((\n)|([\r][^\n])|(\r\n))\s*){2,}/
-});
 createToken({
   name: "TraditionalComment",
   pattern: /\/\*([^*]|\*(?!\/))*\*\//
@@ -122,13 +136,6 @@ createToken({
   pattern: /"[^"\\]*(\\.[^"\\]*)*"/
 });
 
-// Used a Token Category to mark all restricted keywords.
-// This could be used in syntax highlights implementation.
-const RestrictedKeyword = createToken({
-  name: "RestrictedKeyword",
-  pattern: Lexer.NA
-});
-
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
 // TODO: how to handle the special rule (see spec above) for "requires" and "transitive"
 const restrictedKeywords = [
@@ -154,13 +161,6 @@ sortDescLength(restrictedKeywords).forEach(word => {
     // TODO: inspect this causes no ambiguities
     categories: [Identifier, RestrictedKeyword]
   });
-});
-
-// Used a Token Category to mark all keywords.
-// This could be used in syntax highlights implementation.
-const Keyword = createToken({
-  name: "Keyword",
-  pattern: Lexer.NA
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
@@ -192,7 +192,7 @@ const keywords = [
   "throws",
   "case",
   "enum",
-  "instanceof",
+  // "instanceof", // special handling for "instanceof" operator below
   "return",
   "transient",
   "catch",
@@ -237,6 +237,12 @@ sortDescLength(keywords).forEach(word => {
 });
 
 createKeywordLikeToken({
+  name: "Instanceof",
+  pattern: "instanceof",
+  categories: [Keyword, BinaryOperator]
+});
+
+createKeywordLikeToken({
   name: "Var",
   pattern: "var",
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Keyword
@@ -246,58 +252,115 @@ createKeywordLikeToken({
 createKeywordLikeToken({ name: "True", pattern: "true" });
 createKeywordLikeToken({ name: "False", pattern: "false" });
 createKeywordLikeToken({ name: "Null", pattern: "null" });
+
+// punctuation and symbols
+createToken({ name: "At", pattern: "@" });
+createToken({ name: "Arrow", pattern: "->" });
+createToken({ name: "DotDotDot", pattern: "..." });
+createToken({ name: "Dot", pattern: "." });
+createToken({ name: "Comma", pattern: "," });
+createToken({ name: "Semicolon", pattern: ";" });
+createToken({ name: "ColonColon", pattern: "::" });
+createToken({ name: "Colon", pattern: ":" });
+createToken({ name: "QuestionMark", pattern: "?" });
 createToken({ name: "LBrace", pattern: "(" });
 createToken({ name: "RBrace", pattern: ")" });
 createToken({ name: "LCurly", pattern: "{" });
 createToken({ name: "RCurly", pattern: "}" });
 createToken({ name: "LSquare", pattern: "[" });
 createToken({ name: "RSquare", pattern: "]" });
-createToken({ name: "Arrow", pattern: "->" });
-createToken({ name: "LessEquals", pattern: "<=" });
-createToken({ name: "LessLessEquals", pattern: "<<=" });
-createToken({ name: "LessLess", pattern: "<<" });
-createToken({ name: "Less", pattern: "<" });
-createToken({ name: "GreaterEquals", pattern: ">=" });
-createToken({ name: "GreaterGreaterEquals", pattern: ">>=" });
-createToken({ name: "GreaterGreaterGreaterEquals", pattern: ">>>=" });
-createToken({ name: "Greater", pattern: ">" });
-createToken({ name: "DotDotDot", pattern: "..." });
-createToken({ name: "Dot", pattern: "." });
-createToken({ name: "Comma", pattern: "," });
+
+// prefix and suffix operators
+// must be defined before "-"
+createToken({ name: "MinusMinus", pattern: "--", categories: [UnaryOperator] });
+// must be defined before "+"
+createToken({ name: "PlusPlus", pattern: "++", categories: [UnaryOperator] });
+createToken({ name: "Complement", pattern: "~", categories: [UnaryOperator] });
+
 createToken({
-  name: "SemicolonWithFollowEmptyLine",
-  pattern: /;[ \t]*(\r\n|\r[^\n]|\n)[ \t]*(\r\n|\r|\n)/
+  name: "LessEquals",
+  pattern: "<=",
+  categories: [BinaryOperator]
 });
-createToken({ name: "Semicolon", pattern: ";" });
-createToken({ name: "ColonColon", pattern: "::" });
-createToken({ name: "Colon", pattern: ":" });
-createToken({ name: "EqualsEquals", pattern: "==" });
-createToken({ name: "Equals", pattern: "=" });
-createToken({ name: "MinusEquals", pattern: "-=" });
-createToken({ name: "MinusMinus", pattern: "--" });
-createToken({ name: "Minus", pattern: "-" });
-createToken({ name: "PlusEquals", pattern: "+=" });
-createToken({ name: "PlusPlus", pattern: "++" });
-createToken({ name: "Plus", pattern: "+" });
-createToken({ name: "AndAnd", pattern: "&&" });
-createToken({ name: "AndEquals", pattern: "&=" });
-createToken({ name: "And", pattern: "&" });
-createToken({ name: "At", pattern: "@" });
-createToken({ name: "CaretEquals", pattern: "^=" });
-createToken({ name: "Caret", pattern: "^" });
-createToken({ name: "Questionmark", pattern: "?" });
-createToken({ name: "ExclamationmarkEquals", pattern: "!=" });
-createToken({ name: "Exclamationmark", pattern: "!" });
-createToken({ name: "Tilde", pattern: "~" });
-createToken({ name: "OrOr", pattern: "||" });
-createToken({ name: "OrEquals", pattern: "|=" });
-createToken({ name: "Or", pattern: "|" });
-createToken({ name: "StarEquals", pattern: "*=" });
-createToken({ name: "Star", pattern: "*" });
-createToken({ name: "DashEquals", pattern: "/=" });
-createToken({ name: "Dash", pattern: "/" });
-createToken({ name: "PercentageEquals", pattern: "%=" });
-createToken({ name: "Percentage", pattern: "%" });
+createToken({
+  name: "LessLessEquals",
+  pattern: "<<=",
+  categories: [BinaryOperator]
+});
+createToken({ name: "LessLess", pattern: "<<", categories: [BinaryOperator] });
+createToken({ name: "Less", pattern: "<", categories: [BinaryOperator] });
+createToken({
+  name: "GreaterEquals",
+  pattern: ">=",
+  categories: [BinaryOperator]
+});
+createToken({
+  name: "GreaterGreaterEquals",
+  pattern: ">>=",
+  categories: [BinaryOperator]
+});
+createToken({
+  name: "GreaterGreaterGreaterEquals",
+  pattern: ">>>=",
+  categories: [BinaryOperator]
+});
+createToken({ name: "Greater", pattern: ">", categories: [BinaryOperator] });
+createToken({
+  name: "EqualsEquals",
+  pattern: "==",
+  categories: [BinaryOperator]
+});
+createToken({ name: "Equals", pattern: "=", categories: [BinaryOperator] });
+createToken({
+  name: "MinusEquals",
+  pattern: "-=",
+  categories: [BinaryOperator]
+});
+createToken({
+  name: "Minus",
+  pattern: "-",
+  categories: [BinaryOperator, UnaryOperator]
+});
+createToken({
+  name: "PlusEquals",
+  pattern: "+=",
+  categories: [BinaryOperator]
+});
+createToken({
+  name: "Plus",
+  pattern: "+",
+  categories: [BinaryOperator, UnaryOperator]
+});
+createToken({ name: "AndAnd", pattern: "&&", categories: [BinaryOperator] });
+createToken({ name: "AndEquals", pattern: "&=", categories: [BinaryOperator] });
+createToken({ name: "And", pattern: "&", categories: [BinaryOperator] });
+createToken({ name: "XorEquals", pattern: "^=", categories: [BinaryOperator] });
+createToken({ name: "Xor", pattern: "^", categories: [BinaryOperator] });
+createToken({ name: "NotEquals", pattern: "!=", categories: [BinaryOperator] });
+createToken({ name: "OrOr", pattern: "||", categories: [BinaryOperator] });
+createToken({ name: "OrEquals", pattern: "|=", categories: [BinaryOperator] });
+createToken({ name: "Or", pattern: "|", categories: [BinaryOperator] });
+createToken({
+  name: "MultiplyEquals",
+  pattern: "*=",
+  categories: [BinaryOperator]
+});
+createToken({ name: "Star", pattern: "*", categories: [BinaryOperator] });
+createToken({
+  name: "DivideEquals",
+  pattern: "/=",
+  categories: [BinaryOperator]
+});
+createToken({ name: "Divide", pattern: "/", categories: [BinaryOperator] });
+createToken({
+  name: "ModuloEquals",
+  pattern: "%=",
+  categories: [BinaryOperator]
+});
+createToken({ name: "Modulo", pattern: "%", categories: [BinaryOperator] });
+
+// must be defined after "!="
+createToken({ name: "Not", pattern: "!", categories: [UnaryOperator] });
 
 // Identifier must appear AFTER all the keywords to avoid ambiguities.
 // See: https://github.com/SAP/chevrotain/blob/master/examples/lexer/keywords_vs_identifiers/keywords_vs_identifiers.js

@@ -220,7 +220,7 @@ function defineRules($, t) {
     $.MANY(() => {
       $.SUBRULE($.annotation);
     });
-    $.CONSUME(t.Questionmark);
+    $.CONSUME(t.QuestionMark);
     $.OPTION(() => {
       $.SUBRULE($.wildcardBounds);
     });

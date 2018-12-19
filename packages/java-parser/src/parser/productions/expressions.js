@@ -98,6 +98,24 @@ function defineRules($, t) {
   });
 
   $.RULE("assignmentExpression", () => {
+    $.SUBRULE($.binaryExpression);
+    $.OPTION(() => {
+      $.CONSUME(t.QuestionMark);
+      $.SUBRULE($.assignmentExpression);
+      $.CONSUME(t.Colon);
+      $.SUBRULE2($.assignmentExpression);
+    });
+  });
+
+  $.RULE("binaryExpression", () => {
+    $.SUBRULE($.unaryExpression);
+    $.MANY(() => {
+      $.CONSUME(t.BinaryOperator);
+      $.SUBRULE2($.unaryExpression);
+    });
+  });
+
+  $.RULE("unaryExpression", () => {
     $.SUBRULE($.primary);
   });
 
