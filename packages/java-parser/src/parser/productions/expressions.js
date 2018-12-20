@@ -3,7 +3,7 @@ function defineRules($, t) {
   $.RULE("expression", () => {
     $.OR([
       {
-        GATE: $.isLambdaExpression(),
+        GATE: this.isLambdaExpression(),
         ALT: () => $.SUBRULE($.lambdaExpression)
       },
       { ALT: () => $.SUBRULE($.assignmentExpression) }
@@ -116,7 +116,23 @@ function defineRules($, t) {
   });
 
   $.RULE("unaryExpression", () => {
+    $.MANY(() => {
+      $.CONSUME(t.UnaryPrefixOperator);
+    });
     $.SUBRULE($.primary);
+    $.MANY2(() => {
+      $.CONSUME(t.UnarySuffixOperator);
+    });
+  });
+
+  $.RULE("unaryExpressionNotPlusMinus", () => {
+    $.MANY(() => {
+      $.CONSUME(t.UnaryPrefixOperatorNotPlusMinus);
+    });
+    $.SUBRULE($.primary);
+    $.MANY2(() => {
+      $.CONSUME(t.UnarySuffixOperator);
+    });
   });
 
   $.RULE("primary", () => {
@@ -126,17 +142,12 @@ function defineRules($, t) {
     });
   });
 
-  // PREFIX:
-  // literal
-  // this
-  // void
-  // numericType
-  // boolean
-  // fqn (that includes ".super")
-  //   - also referenceType
-  // ( Expression )
-  // UnqualifiedClassInstanceCreationExpression | ArrayCreationExpression ("new" Expression)
   $.RULE("primaryPrefix", () => {
+    let isCastExpression = false;
+    if ($.LA(1).tokenType === t.LBrace) {
+      isCastExpression = this.isCastExpression();
+    }
+
     $.OR([
       { ALT: () => $.SUBRULE($.literal) },
       { ALT: () => $.CONSUME(t.This) },
@@ -145,20 +156,15 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.numericType) },
       { ALT: () => $.CONSUME(t.Boolean) },
       { ALT: () => $.SUBRULE($.fqnOrRefType) },
+      {
+        GATE: () => isCastExpression,
+        ALT: () => $.SUBRULE($.castExpression)
+      },
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
       { ALT: () => $.SUBRULE($.newExpression) }
     ]);
   });
 
-  // SUFFIX:
-  // . this
-  // . UnqualifiedClassInstanceCreationExpression
-  // {[]}. class
-  // . Identifier
-  // [ Expression ]
-  // . [TypeArguments] Identifier ( [ArgumentList] )
-  // :: [TypeArguments] Identifier
-  // :: [TypeArguments] new
   $.RULE("primarySuffix", () => {
     $.OR([
       {
@@ -224,6 +230,39 @@ function defineRules($, t) {
     $.CONSUME(t.LBrace);
     $.SUBRULE($.expression);
     $.CONSUME(t.RBrace);
+  });
+
+  $.RULE("castExpression", () => {
+    $.OR([
+      {
+        GATE: () => this.isPrimitiveCastExpression(),
+        ALT: () => $.SUBRULE($.primitiveCastExpression)
+      },
+      { ALT: () => $.SUBRULE($.referenceTypeCastExpression) }
+    ]);
+  });
+
+  $.RULE("primitiveCastExpression", () => {
+    $.CONSUME(t.LBrace);
+    $.SUBRULE($.primitiveType);
+    $.CONSUME(t.RBrace);
+    $.SUBRULE($.unaryExpression);
+  });
+
+  $.RULE("referenceTypeCastExpression", () => {
+    $.CONSUME(t.LBrace);
+    $.SUBRULE($.referenceType);
+    $.MANY(() => {
+      $.SUBRULE($.additionalBound);
+    });
+    $.CONSUME(t.RBrace);
+    $.OR([
+      {
+        GATE: this.isLambdaExpression(),
+        ALT: () => $.SUBRULE($.lambdaExpression)
+      },
+      { ALT: () => $.SUBRULE($.unaryExpressionNotPlusMinus) }
+    ]);
   });
 
   const newExpressionTypes = {
@@ -442,6 +481,78 @@ function defineRules($, t) {
       $.SUBRULE($.lambdaParametersWithBraces);
       const followedByArrow = this.LA(1).tokenType === t.Arrow;
       return followedByArrow;
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  });
+
+  $.RULE("isCastExpression", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      if (this.isPrimitiveCastExpression()) {
+        return true;
+      }
+      return this.isReferenceTypeCastExpression();
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  });
+
+  $.RULE("isPrimitiveCastExpression", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      $.CONSUME(t.LBrace);
+      $.SUBRULE($.primitiveType);
+      // No dims so this is not a reference Type
+      $.CONSUME(t.RBrace);
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  });
+
+  let firstForUnaryExpressionNotPlusMinus = undefined;
+  $.RULE("isReferenceTypeCastExpression", () => {
+    if (firstForUnaryExpressionNotPlusMinus === undefined) {
+      const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
+        "unaryExpressionNotPlusMinus",
+        []
+      );
+      const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
+        x => x.nextTokenType
+      );
+      // uniq
+      firstForUnaryExpressionNotPlusMinus = nextTokTypes.filter(
+        (v, i, a) => a.indexOf(v) === i
+      );
+    }
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      $.CONSUME(t.LBrace);
+      $.SUBRULE($.referenceType);
+      $.MANY(() => {
+        $.SUBRULE($.additionalBound);
+      });
+      $.CONSUME(t.RBrace);
+      const firstTokTypeAfterRBrace = this.LA(1).tokenType;
+
+      return (
+        firstForUnaryExpressionNotPlusMinus.find(
+          tokType => tokType === firstTokTypeAfterRBrace
+        ) !== undefined
+      );
     } catch (e) {
       return false;
     } finally {

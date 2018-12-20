@@ -99,6 +99,15 @@ class JavaParser extends Parser {
         },
         lambdaParameter: {
           OR: true
+        },
+        primaryPrefix: {
+          OR: true
+        },
+        castExpression: {
+          OR: true
+        },
+        referenceTypeCastExpression: {
+          OR: true
         }
       }
     });
@@ -157,6 +166,6 @@ class JavaParser extends Parser {
 }
 
 // TODO: remove this - only used during development to force self analysis
-new JavaParser();
+const parserInstance = new JavaParser();
 
 module.exports = JavaParser;

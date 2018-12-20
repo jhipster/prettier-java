@@ -85,7 +85,19 @@ const BinaryOperator = createToken({
   pattern: Lexer.NA
 });
 
-const UnaryOperator = createToken({ name: "UnaryOperator", pattern: Lexer.NA });
+const UnaryPrefixOperator = createToken({
+  name: "UnaryPrefixOperator",
+  pattern: Lexer.NA
+});
+const UnaryPrefixOperatorNotPlusMinus = createToken({
+  name: "UnaryPrefixOperatorNotPlusMinus",
+  pattern: Lexer.NA
+});
+
+const UnarySuffixOperator = createToken({
+  name: "UnarySuffixOperator",
+  pattern: Lexer.NA
+});
 
 // TODO: align with Java Spec
 createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
@@ -272,10 +284,30 @@ createToken({ name: "RSquare", pattern: "]" });
 
 // prefix and suffix operators
 // must be defined before "-"
-createToken({ name: "MinusMinus", pattern: "--", categories: [UnaryOperator] });
+createToken({
+  name: "MinusMinus",
+  pattern: "--",
+  categories: [
+    UnaryPrefixOperator,
+    UnarySuffixOperator,
+    UnaryPrefixOperatorNotPlusMinus
+  ]
+});
 // must be defined before "+"
-createToken({ name: "PlusPlus", pattern: "++", categories: [UnaryOperator] });
-createToken({ name: "Complement", pattern: "~", categories: [UnaryOperator] });
+createToken({
+  name: "PlusPlus",
+  pattern: "++",
+  categories: [
+    UnaryPrefixOperator,
+    UnarySuffixOperator,
+    UnaryPrefixOperatorNotPlusMinus
+  ]
+});
+createToken({
+  name: "Complement",
+  pattern: "~",
+  categories: [UnaryPrefixOperator, UnaryPrefixOperatorNotPlusMinus]
+});
 
 createToken({
   name: "LessEquals",
@@ -319,7 +351,7 @@ createToken({
 createToken({
   name: "Minus",
   pattern: "-",
-  categories: [BinaryOperator, UnaryOperator]
+  categories: [BinaryOperator, UnaryPrefixOperator]
 });
 createToken({
   name: "PlusEquals",
@@ -329,7 +361,7 @@ createToken({
 createToken({
   name: "Plus",
   pattern: "+",
-  categories: [BinaryOperator, UnaryOperator]
+  categories: [BinaryOperator, UnaryPrefixOperator]
 });
 createToken({ name: "AndAnd", pattern: "&&", categories: [BinaryOperator] });
 createToken({ name: "AndEquals", pattern: "&=", categories: [BinaryOperator] });
@@ -360,7 +392,11 @@ createToken({
 createToken({ name: "Modulo", pattern: "%", categories: [BinaryOperator] });
 
 // must be defined after "!="
-createToken({ name: "Not", pattern: "!", categories: [UnaryOperator] });
+createToken({
+  name: "Not",
+  pattern: "!",
+  categories: [UnaryPrefixOperator, UnaryPrefixOperatorNotPlusMinus]
+});
 
 // Identifier must appear AFTER all the keywords to avoid ambiguities.
 // See: https://github.com/SAP/chevrotain/blob/master/examples/lexer/keywords_vs_identifiers/keywords_vs_identifiers.js
