@@ -108,6 +108,15 @@ class JavaParser extends Parser {
         },
         referenceTypeCastExpression: {
           OR: true
+        },
+        elementValue: {
+          OR: true
+        },
+        resource: {
+          OR: true
+        },
+        forInit: {
+          OR: true
         }
       }
     });
@@ -132,26 +141,6 @@ class JavaParser extends Parser {
     arrays.defineRules($, t);
     blocksStatements.defineRules($, t);
     expressions.defineRules($, t);
-
-    // ---------------------
-    // Productions from §15 (Expressions)
-    // ---------------------
-
-    $.RULE("conditionalExpression", () => {
-      // TODO: TBD
-      $.CONSUME(t.CharLiteral);
-    });
-
-    $.RULE("constantExpression", () => {
-      $.SUBRULE($.expression);
-    });
-
-    $.RULE("fieldAccess", () => {
-      // TODO: TBD
-      $.CONSUME(t.Super);
-      $.CONSUME(t.Dot);
-      $.CONSUME(t.Identifier);
-    });
 
     this.performSelfAnalysis();
   }

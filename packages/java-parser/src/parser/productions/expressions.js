@@ -1,5 +1,9 @@
 "use strict";
 function defineRules($, t) {
+  $.RULE("constantExpression", () => {
+    $.SUBRULE($.expression);
+  });
+
   $.RULE("expression", () => {
     $.OR([
       {

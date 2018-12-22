@@ -277,10 +277,19 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValue
   $.RULE("elementValue", () => {
+    const isSimpleElementValueAnnotation = this.isSimpleElementValueAnnotation();
     $.OR([
-      { ALT: () => $.SUBRULE($.conditionalExpression) },
+      // Spec Deviation: "conditionalExpression" replaced with "expression"
+      // Because we cannot differentiate between the two using fixed lookahead.
+      {
+        GATE: () => isSimpleElementValueAnnotation === false,
+        ALT: () => $.SUBRULE($.expression)
+      },
       { ALT: () => $.SUBRULE($.elementValueArrayInitializer) },
-      { ALT: () => $.SUBRULE($.annotation) }
+      {
+        GATE: () => isSimpleElementValueAnnotation === true,
+        ALT: () => $.SUBRULE($.annotation)
+      }
     ]);
   });
 
@@ -466,6 +475,31 @@ function defineRules($, t) {
           return InterfaceType.normalClassDeclaration;
         default:
           return InterfaceType.unknown;
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  });
+
+  $.RULE("isSimpleElementValueAnnotation", () => {
+    this.isBackTrackingStack.push(1);
+    const orgState = this.saveRecogState();
+    try {
+      $.SUBRULE($.annotation);
+      const nextTokenType = this.LA(1).tokenType;
+      switch (nextTokenType) {
+        // annotation in "ElementValue" would be followed by one of those
+        // any other TokenType would indicate it is an annotation in a "referenceType"
+        // as part of a "methodReference" in "primary"
+        case t.Comma:
+        case t.Semicolon:
+        case t.RCurly:
+        case t.RBrace:
+        default:
+          return false;
       }
     } catch (e) {
       return false;

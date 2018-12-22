@@ -108,10 +108,12 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementExpression
   $.RULE("statementExpression", () => {
-    // TODO: implement after the expressions have been implemented
-    $.CONSUME(t.Identifier);
-    $.CONSUME(t.Equals);
-    $.CONSUME(t.CharLiteral);
+    // Spec deviation: The many alternatives here were replaced with
+    //                 the "expression" rule as it contains them all,
+    //                 and distinguishing between the alternatives cannot be done
+    //                 using a fixed lookahead.
+    // TODO: verify the resulting expression is one of the valid alternatives?
+    $.SUBRULE($.expression);
   });
 
   // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
@@ -177,8 +179,8 @@ function defineRules($, t) {
           $.CONSUME(t.Colon);
         }
       },
-      // SPEC Deviation: the variant with "enumConstantName"
-      // can be matched by the "constantExpression" variant
+      // SPEC Deviation: the variant with "enumConstantName" was removed
+      // as it can be matched by the "constantExpression" variant
       // the distinction is semantic not syntactic.
       {
         ALT: () => {
@@ -245,10 +247,12 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ForInit
   $.RULE("forInit", () => {
-    // TODO: this may need backtracking
     $.OR([
-      { ALT: () => $.SUBRULE($.statementExpressionList) },
-      { ALT: () => $.SUBRULE($.localVariableDeclaration) }
+      {
+        GATE: () => $.BACKTRACK($.localVariableDeclaration),
+        ALT: () => $.SUBRULE($.localVariableDeclaration)
+      },
+      { ALT: () => $.SUBRULE($.statementExpressionList) }
     ]);
   });
 
@@ -446,10 +450,10 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-VariableAccess
   $.RULE("variableAccess", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.expressionName) },
-      { ALT: () => $.SUBRULE($.fieldAccess) }
-    ]);
+    // Spec Deviation: both "expressionName" and "fieldAccess" can be parsed
+    //                 by the "primary" rule
+    // TODO: verify that the primary is a fieldAccess or an expressionName.
+    $.SUBRULE($.primary);
   });
 
   // ------------------------------------
