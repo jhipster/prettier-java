@@ -5,7 +5,7 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
-    const isModule = this.isModuleCompilationUnit();
+    const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
     $.OR([
       {
         GATE: () => isModule === false,
@@ -49,6 +49,7 @@ function defineRules($, t) {
       $.CONSUME(t.Dot);
       $.CONSUME2(t.Identifier);
     });
+    $.CONSUME2(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-PackageModifier
@@ -190,41 +191,33 @@ function defineRules($, t) {
   });
 
   $.RULE("isModuleCompilationUnit", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
+    $.OPTION(() => {
+      $.SUBRULE($.packageDeclaration);
+      // a Java Module source code may not contain a package declaration.
+      return false;
+    });
+
     try {
-      $.OPTION(() => {
-        $.SUBRULE($.packageDeclaration);
-        // a Java Module source code may not contain a package declaration.
-        return false;
+      // the "{importDeclaration}" is a common prefix
+      $.MANY(() => {
+        $.SUBRULE2($.importDeclaration);
       });
 
-      try {
-        // the "{importDeclaration}" is a common prefix
-        $.MANY(() => {
-          $.SUBRULE2($.importDeclaration);
-        });
-
-        $.MANY2(() => {
-          $.SUBRULE($.annotation);
-        });
-      } catch (e) {
-        // This means we had a syntax error in the imports or annotations
-        // So we can't keep parsing deep enough to make the decision
-        if (isRecognitionException(e)) {
-          // TODO: add original syntax error?
-          throw "Cannot Identify if the source code is an OrdinaryCompilationUnit or  ModularCompilationUnit";
-        } else {
-          throw e;
-        }
+      $.MANY2(() => {
+        $.SUBRULE($.annotation);
+      });
+    } catch (e) {
+      // This means we had a syntax error in the imports or annotations
+      // So we can't keep parsing deep enough to make the decision
+      if (isRecognitionException(e)) {
+        // TODO: add original syntax error?
+        throw "Cannot Identify if the source code is an OrdinaryCompilationUnit or  ModularCompilationUnit";
+      } else {
+        throw e;
       }
-
-      const nextTokenType = this.LA(1).tokenType;
-      return nextTokenType === t.Open || nextTokenType === t.Module;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
     }
+    const nextTokenType = this.LA(1).tokenType;
+    return nextTokenType === t.Open || nextTokenType === t.Module;
   });
 }
 

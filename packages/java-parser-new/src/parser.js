@@ -1,6 +1,6 @@
 "use strict";
-const { Parser } = require("chevrotain");
-const { allTokens, tokens: t } = require("./tokens_new");
+const { Parser, isRecognitionException } = require("chevrotain");
+const { allTokens, tokens: t } = require("./tokens");
 const lexicalStructure = require("./productions/lexical-structure");
 const typesValuesVariables = require("./productions/types-values-and-variables");
 const names = require("./productions/names");
@@ -37,6 +37,7 @@ const expressions = require("./productions/expressions");
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
+      maxLookahead: 2,
       // ambiguities resolved by backtracking
       ignoredIssues: {
         annotation: {
@@ -132,15 +133,15 @@ class JavaParser extends Parser {
     });
 
     // Include the productions from all "chapters".
-    lexicalStructure.defineRules($, t);
-    typesValuesVariables.defineRules($, t);
-    names.defineRules($, t);
-    classes.defineRules($, t);
-    packagesModules.defineRules($, t);
-    interfaces.defineRules($, t);
-    arrays.defineRules($, t);
-    blocksStatements.defineRules($, t);
-    expressions.defineRules($, t);
+    lexicalStructure.defineRules.call(this, $, t);
+    typesValuesVariables.defineRules.call(this, $, t);
+    names.defineRules.call(this, $, t);
+    classes.defineRules.call(this, $, t);
+    packagesModules.defineRules.call(this, $, t);
+    interfaces.defineRules.call(this, $, t);
+    arrays.defineRules.call(this, $, t);
+    blocksStatements.defineRules.call(this, $, t);
+    expressions.defineRules.call(this, $, t);
 
     this.performSelfAnalysis();
   }
@@ -152,9 +153,50 @@ class JavaParser extends Parser {
       super.cstPostNonTerminal(ruleCstResult, ruleName);
     }
   }
-}
 
-// TODO: remove this - only used during development to force self analysis
-const parserInstance = new JavaParser();
+  BACKTRACK_LOOKAHEAD(production, errValue = false) {
+    this.isBackTrackingStack.push(1);
+    // TODO: "saveRecogState" does not handle the occurrence stack
+    const orgState = this.saveRecogState();
+    try {
+      // hack to enable outputting none CST values from grammar rules.
+      this.outputCst = false;
+      return production.call(this);
+    } catch (e) {
+      if (isRecognitionException(e)) {
+        return errValue;
+      }
+      throw e;
+    } finally {
+      this.outputCst = true;
+      this.reloadRecogState(orgState);
+      this.isBackTrackingStack.pop();
+    }
+  }
+
+  // BACKTRACK_RULE(name, logic) {
+  //   // define a regular rule so the grammar would be analyzed
+  //   this.RULE(name, logic);
+  //
+  //   // overwrite the regular rule with our special backtracking logic
+  //   this[name] = function() {
+  //     this.isBackTrackingStack.push(1);
+  //     const orgState = this.saveRecogState();
+  //     try {
+  //       return logic.call(this);
+  //     } catch (e) {
+  //       if (isRecognitionException(e)) {
+  //         // todo: is a custom return type needed?
+  //         // TODO: how to throw custom errors?
+  //         return false;
+  //       }
+  //       throw e;
+  //     } finally {
+  //       this.reloadRecogState(orgState);
+  //       this.isBackTrackingStack.pop();
+  //     }
+  //   };
+  // }
+}
 
 module.exports = JavaParser;

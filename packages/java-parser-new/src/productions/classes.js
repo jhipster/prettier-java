@@ -108,14 +108,16 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassBodyDeclaration
   $.RULE("classBodyDeclaration", () => {
-    const nextRuleType = this.identifyClassBodyDeclarationType();
+    const nextRuleType = $.BACKTRACK_LOOKAHEAD(
+      $.identifyClassBodyDeclarationType
+    );
 
     $.OR([
       {
         GATE: () =>
           nextRuleType >= classBodyTypes.fieldDeclaration &&
           nextRuleType <= classBodyTypes.semiColon,
-        ALT: () => $.SUBRULE($.classMemberDeclaration, nextRuleType)
+        ALT: () => $.SUBRULE($.classMemberDeclaration, { ARGS: [nextRuleType] })
       },
       // no gate needed for the initializers because these are LL(1) rules.
       { ALT: () => $.SUBRULE($.instanceInitializer) },
@@ -197,7 +199,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-VariableDeclaratorId
   $.RULE("variableDeclaratorId", () => {
-    $.CONSUME($.Identifier);
+    $.CONSUME(t.Identifier);
     $.OPTION(() => {
       $.SUBRULE($.dims);
     });
@@ -234,7 +236,7 @@ function defineRules($, t) {
       // "unannArrayType" must appear before "unannClassOrInterfaceType"
       // due to common prefix.
       {
-        GATE: () => $.BACKTRACK($.unannArrayType),
+        GATE: $.BACKTRACK($.unannArrayType),
         ALT: () => $.SUBRULE($.unannArrayType)
       },
       { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }
@@ -665,8 +667,6 @@ function defineRules($, t) {
   });
 
   $.RULE("identifyClassBodyDeclarationType", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
     try {
       let nextTokenType = this.LA(1).tokenType;
       let nextNextTokenType = this.LA(2).tokenType;
@@ -760,9 +760,6 @@ function defineRules($, t) {
     } catch (e) {
       // TODO: add info from the original error
       throw Error("Cannot Identify the type of a <classBodyDeclaration>");
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
     }
   });
 }

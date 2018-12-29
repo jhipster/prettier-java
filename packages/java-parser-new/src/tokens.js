@@ -101,18 +101,15 @@ const UnarySuffixOperator = createToken({
 
 // TODO: align with Java Spec
 createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
-
 createToken({
-  name: "LineCommentStandalone",
-  // TODO: I think the s* in the end is meant to be \s*
-  pattern: /\/\/[^\n\r]*((\n|[\r][^\n]|\r\n)s*){2,}/
+  name: "LineComment",
+  pattern: /\/\/[^\n\r]*/,
+  group: "comments"
 });
-
-createToken({ name: "LineComment", pattern: /\/\/[^\n\r]*/ });
-createToken({ name: "JavaDocComment", pattern: /\/\*\*([^*]|\*(?!\/))*\*\// });
 createToken({
   name: "TraditionalComment",
-  pattern: /\/\*([^*]|\*(?!\/))*\*\//
+  pattern: /\/\*([^*]|\*(?!\/))*\*\//,
+  group: "comments"
 });
 createToken({ name: "BinaryLiteral", pattern: /0[bB][01]([01_]*[01])?[lL]?/ });
 createToken({ name: "OctalLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
