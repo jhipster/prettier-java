@@ -8,7 +8,7 @@ function defineRules($, t) {
     $.OR([
       // "referenceType" must appear **before** "primitiveType" due to common prefix.
       {
-        GATE: () => $.BACKTRACK($.referenceType),
+        GATE: $.BACKTRACK($.referenceType),
         ALT: () => $.SUBRULE($.referenceType)
       },
       {
@@ -63,7 +63,7 @@ function defineRules($, t) {
       // Spec Deviation: "arrayType" must appear **before**
       //                 "classOrInterfaceType" due to common prefix.
       {
-        GATE: () => $.BACKTRACK($.arrayType),
+        GATE: $.BACKTRACK($.arrayType),
         ALT: () => $.SUBRULE($.arrayType)
       },
       {
@@ -130,7 +130,7 @@ function defineRules($, t) {
     //      because it's syntax is included in "classOrInterfaceType"
     $.OR([
       {
-        GATE: () => $.BACKTRACK($.primitiveType),
+        GATE: $.BACKTRACK($.primitiveType),
         ALT: () => $.SUBRULE($.primitiveType)
       },
       { ALT: () => $.SUBRULE($.classOrInterfaceType) }
@@ -208,7 +208,7 @@ function defineRules($, t) {
     // TODO: performance: evaluate flipping the order of alternatives
     $.OR([
       {
-        GATE: () => $.BACKTRACK($.referenceType),
+        GATE: $.BACKTRACK($.referenceType),
         ALT: () => $.SUBRULE($.referenceType)
       },
       { ALT: () => $.SUBRULE($.wildcard) }

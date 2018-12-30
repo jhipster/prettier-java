@@ -236,13 +236,13 @@ function defineRules($, t) {
   $.RULE("annotation", () => {
     $.OR([
       {
-        GATE: () => $.BACKTRACK($.normalAnnotation),
+        GATE: $.BACKTRACK($.normalAnnotation),
         ALT: () => $.SUBRULE($.normalAnnotation)
       },
       // "singleElementAnnotation" must appear before "markerAnnotation" due to common
       // prefix.
       {
-        GATE: () => $.BACKTRACK($.singleElementAnnotation),
+        GATE: $.BACKTRACK($.singleElementAnnotation),
         ALT: () => $.SUBRULE($.singleElementAnnotation)
       },
       { ALT: () => $.SUBRULE($.markerAnnotation) }

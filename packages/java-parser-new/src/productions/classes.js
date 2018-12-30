@@ -339,19 +339,15 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodHeader
+  // https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-MethodDeclarator
   $.RULE("methodDeclarator", () => {
     $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
     $.OPTION(() => {
-      $.SUBRULE($.receiverParameter);
-      $.CONSUME(t.Comma);
-    });
-    $.OPTION2(() => {
       $.SUBRULE($.formalParameterList);
     });
     $.CONSUME(t.RBrace);
-    $.OPTION3(() => {
+    $.OPTION2(() => {
       $.SUBRULE($.dims);
     });
   });
@@ -383,7 +379,7 @@ function defineRules($, t) {
     $.OR([
       // Spec Deviation: extracted to "variableParaRegularParameter"
       {
-        GATE: () => $.BACKTRACK($.variableParaRegularParameter),
+        GATE: $.BACKTRACK($.variableParaRegularParameter),
         ALT: () => $.SUBRULE($.variableParaRegularParameter)
       },
       { ALT: () => $.SUBRULE($.variableArityParameter) }
@@ -490,9 +486,14 @@ function defineRules($, t) {
     });
     $.SUBRULE($.simpleTypeName);
     $.CONSUME(t.LBrace);
-    $.OPTION2(() => {
-      $.SUBRULE($.receiverParameter);
-      $.CONSUME(t.Comma);
+    $.OPTION2({
+      // a "formalParameterList" and a "receiverParameter"
+      // cannot be distinguished using fixed lookahead.
+      GATE: $.BACKTRACK($.receiverParameter),
+      DEF: () => {
+        $.SUBRULE($.receiverParameter);
+        $.CONSUME(t.Comma);
+      }
     });
     $.OPTION3(() => {
       $.SUBRULE($.formalParameterList);

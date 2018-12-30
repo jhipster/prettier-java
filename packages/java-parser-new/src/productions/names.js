@@ -40,7 +40,7 @@ function defineRules($, t) {
       // expressionName could be called by "qualifiedExplicitConstructorInvocation"
       // in that case it may be followed by ".super" so we need to look two tokens
       // ahead.
-      GATE: this.LA(2).tokenType === t.Identifier,
+      GATE: () => this.LA(2).tokenType === t.Identifier,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.CONSUME2(t.Identifier);

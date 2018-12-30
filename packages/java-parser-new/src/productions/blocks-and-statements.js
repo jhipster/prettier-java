@@ -25,7 +25,7 @@ function defineRules($, t) {
       {
         // A variable declaration is normally short, so we uss regular
         // **non optimized** backtracking for simplicity.
-        GATE: () => $.BACKTRACK($.localVariableDeclarationStatement),
+        GATE: $.BACKTRACK($.localVariableDeclarationStatement),
         ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
       },
       {
@@ -249,7 +249,7 @@ function defineRules($, t) {
   $.RULE("forInit", () => {
     $.OR([
       {
-        GATE: () => $.BACKTRACK($.localVariableDeclaration),
+        GATE: $.BACKTRACK($.localVariableDeclaration),
         ALT: () => $.SUBRULE($.localVariableDeclaration)
       },
       { ALT: () => $.SUBRULE($.statementExpressionList) }
@@ -428,7 +428,7 @@ function defineRules($, t) {
   $.RULE("resource", () => {
     $.OR([
       {
-        GATE: () => $.BACKTRACK($.resourceInit),
+        GATE: $.BACKTRACK($.resourceInit),
         // Spec Deviation: extracted this alternative to "resourceInit"
         //                 to enable backtracking.
         ALT: () => $.SUBRULE($.resourceInit)
