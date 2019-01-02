@@ -10,7 +10,7 @@ console.log("parse start time (ms): " + totalTime);
 
 // Our visitor has no state, so a single instance is sufficient.
 
-function parse(inputText, entryPoint = parser => parser.compilationUnit()) {
+function parse(inputText, entryPoint = "compilationUnit") {
   // Lex
   const lexResult = JavaLexer.tokenize(inputText);
   parser.input = lexResult.tokens;
@@ -28,7 +28,7 @@ function parse(inputText, entryPoint = parser => parser.compilationUnit()) {
   }
 
   // Automatic CST created when parsing
-  const cst = entryPoint(parser);
+  const cst = parser[entryPoint]();
   if (parser.errors.length > 0) {
     const error = parser.errors[0];
     throw Error(
@@ -37,7 +37,9 @@ function parse(inputText, entryPoint = parser => parser.compilationUnit()) {
         ", column: " +
         error.token.startColumn +
         "!\n" +
-        error.message
+        error.message +
+        "!\n\t->" +
+        error.context.ruleStack.join("\n\t->")
     );
   }
 

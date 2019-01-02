@@ -25,6 +25,7 @@ function defineRules($, t) {
       {
         // A variable declaration is normally short, so we uss regular
         // **non optimized** backtracking for simplicity.
+        // TODO: performance: scan only until the equals operator.
         GATE: $.BACKTRACK($.localVariableDeclarationStatement),
         ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
       },
@@ -219,7 +220,7 @@ function defineRules($, t) {
   $.RULE("forStatement", () => {
     $.OR([
       {
-        GATE: () => this.isBasicForStatement(),
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isBasicForStatement),
         ALT: () => $.SUBRULE($.basicForStatement)
       },
       { ALT: () => $.SUBRULE($.enhancedForStatement) }

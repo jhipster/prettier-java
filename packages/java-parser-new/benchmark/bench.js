@@ -20,10 +20,26 @@ const javaSamplesContent = javaSampleFiles.map(fileDesc => {
 });
 const suite = new Benchmark.Suite();
 
+const failFast = false;
+
+let success = 0;
 javaSamplesContent.forEach(sample => {
-  console.log(sample.file.path);
-  javaParserChev.parse(sample.text);
+  try {
+    console.log(sample.file.path);
+    javaParserChev.parse(sample.text);
+    success++;
+  } catch (e) {
+    if (failFast === true) {
+      throw e;
+    }
+  }
 });
+
+const total = javaSamplesContent.length;
+console.log((success / total) * 100);
+
+const input = `StringBuilder builder = new StringBuilder();`;
+javaParserChev.parse(input, "blockStatement");
 
 // The bench suite
 // suite

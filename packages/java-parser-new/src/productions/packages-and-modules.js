@@ -78,7 +78,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
   $.RULE("typeDeclaration", () => {
-    const isClassDeclaration = this.isClassDeclaration();
+    const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
     $.OR([
       {
         GATE: () => isClassDeclaration,

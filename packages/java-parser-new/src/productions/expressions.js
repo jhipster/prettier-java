@@ -7,7 +7,7 @@ function defineRules($, t) {
   $.RULE("expression", () => {
     $.OR([
       {
-        GATE: this.isLambdaExpression(),
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isLambdaExpression),
         ALT: () => $.SUBRULE($.lambdaExpression)
       },
       { ALT: () => $.SUBRULE($.assignmentExpression) }
@@ -149,7 +149,7 @@ function defineRules($, t) {
   $.RULE("primaryPrefix", () => {
     let isCastExpression = false;
     if ($.LA(1).tokenType === t.LBrace) {
-      isCastExpression = this.isCastExpression();
+      isCastExpression = this.BACKTRACK_LOOKAHEAD($.isCastExpression);
     }
 
     $.OR([
@@ -179,11 +179,12 @@ function defineRules($, t) {
             {
               ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
             },
-            { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
+            // TODO: this should probably not be preceded by a "dot"
             { ALT: () => $.CONSUME(t.Identifier) }
           ]);
         }
       },
+      { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
       { ALT: () => $.SUBRULE($.classLiteralSuffix) },
       { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
       { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
@@ -193,9 +194,13 @@ function defineRules($, t) {
   $.RULE("fqnOrRefType", () => {
     $.SUBRULE($.fqnOrRefTypePart);
 
-    $.MANY2(() => {
-      $.CONSUME(t.Dot);
-      $.SUBRULE2($.fqnOrRefTypePart);
+    $.MANY2({
+      // ".class" is a classLiteralSuffix
+      GATE: () => this.LA(2).tokenType !== t.Class,
+      DEF: () => {
+        $.CONSUME(t.Dot);
+        $.SUBRULE2($.fqnOrRefTypePart);
+      }
     });
   });
 
@@ -239,7 +244,7 @@ function defineRules($, t) {
   $.RULE("castExpression", () => {
     $.OR([
       {
-        GATE: () => this.isPrimitiveCastExpression(),
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression),
         ALT: () => $.SUBRULE($.primitiveCastExpression)
       },
       { ALT: () => $.SUBRULE($.referenceTypeCastExpression) }
@@ -262,7 +267,7 @@ function defineRules($, t) {
     $.CONSUME(t.RBrace);
     $.OR([
       {
-        GATE: this.isLambdaExpression(),
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isLambdaExpression),
         ALT: () => $.SUBRULE($.lambdaExpression)
       },
       { ALT: () => $.SUBRULE($.unaryExpressionNotPlusMinus) }
@@ -274,7 +279,7 @@ function defineRules($, t) {
     unqualifiedClassInstanceCreationExpression: 2
   };
   $.RULE("newExpression", () => {
-    const type = this.identifyNewExpressionType();
+    const type = this.BACKTRACK_LOOKAHEAD($.identifyNewExpressionType);
 
     $.OR([
       {
@@ -319,7 +324,9 @@ function defineRules($, t) {
       });
       $.CONSUME2(t.Identifier);
     });
-    $.SUBRULE($.typeArgumentsOrDiamond);
+    $.OPTION(() => {
+      $.SUBRULE($.typeArgumentsOrDiamond);
+    });
   });
 
   $.RULE("typeArgumentsOrDiamond", () => {
@@ -335,10 +342,6 @@ function defineRules($, t) {
   });
 
   $.RULE("methodInvocationSuffix", () => {
-    $.OPTION(() => {
-      $.SUBRULE($.typeArguments);
-    });
-    $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
     $.OPTION2(() => {
       $.SUBRULE($.argumentList);
@@ -433,97 +436,63 @@ function defineRules($, t) {
 
   // backtracking lookahead logic
   $.RULE("identifyNewExpressionType", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.CONSUME(t.New);
-      const firstTokenAfterNew = this.LA(1).tokenType;
+    $.CONSUME(t.New);
+    const firstTokenAfterNew = this.LA(1).tokenType;
 
-      // not an array initialization due to the prefix "TypeArguments"
-      if (firstTokenAfterNew === t.Less) {
-        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
-      }
-
-      const classTypeCst = $.SUBRULE($.classType);
-      // not an array initialization due to the fqn "TypeArguments"
-      if (classTypeCst.typeArguments.length > 0) {
-        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
-      }
-
-      const firstTokenAfterClassType = this.LA(1).tokenType;
-      if (firstTokenAfterClassType === t.LBrace) {
-        return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
-      }
-
-      // The LBrace above is mandatory in "classInstanceCreation..." so
-      // it must be an "arrayCreationExp" (if the input is valid)
-      // TODO: upgrade the logic to return "unknown" type if at this
-      //       point it does not match "arrayCreation" either.
-      //   - This will provide a better error message to the user
-      //     in case of invalid inputs
-      return newExpressionTypes.arrayCreationExpression;
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    // not an array initialization due to the prefix "TypeArguments"
+    if (firstTokenAfterNew === t.Less) {
+      return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
     }
+
+    try {
+      $.SUBRULE($.classOrInterfaceTypeToInstantiate);
+    } catch (e) {
+      // if it is not a "classOrInterfaceTypeToInstantiate" then
+      // (assuming a valid input) we are looking at an "arrayCreationExpression"
+      return newExpressionTypes.arrayCreationExpression;
+    }
+
+    const firstTokenAfterClassType = this.LA(1).tokenType;
+    if (firstTokenAfterClassType === t.LBrace) {
+      return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
+    }
+
+    // The LBrace above is mandatory in "classInstanceCreation..." so
+    // it must be an "arrayCreationExp" (if the input is valid)
+    // TODO: upgrade the logic to return "unknown" type if at this
+    //       point it does not match "arrayCreation" either.
+    //   - This will provide a better error message to the user
+    //     in case of invalid inputs
+    return newExpressionTypes.arrayCreationExpression;
   });
 
   // Optimized backtracking, only scan ahead until the arrow("->").
   $.RULE("isLambdaExpression", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      const firstTokenType = this.LA(1).tokenType;
-      const secondTokenType = this.LA(2).tokenType;
-      // no parent lambda "x -> x * 2"
-      if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {
-        return true;
-      }
-
-      $.SUBRULE($.lambdaParametersWithBraces);
-      const followedByArrow = this.LA(1).tokenType === t.Arrow;
-      return followedByArrow;
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    const firstTokenType = this.LA(1).tokenType;
+    const secondTokenType = this.LA(2).tokenType;
+    // no parent lambda "x -> x * 2"
+    if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {
+      return true;
     }
+
+    $.SUBRULE($.lambdaParametersWithBraces);
+    const followedByArrow = this.LA(1).tokenType === t.Arrow;
+    return followedByArrow;
   });
 
   $.RULE("isCastExpression", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      if (this.isPrimitiveCastExpression()) {
-        return true;
-      }
-      return this.isReferenceTypeCastExpression();
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    if (this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression)) {
+      return true;
     }
+    return this.BACKTRACK_LOOKAHEAD($.isReferenceTypeCastExpression);
   });
 
   $.RULE("isPrimitiveCastExpression", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.CONSUME(t.LBrace);
-      $.SUBRULE($.primitiveType);
-      // No dims so this is not a reference Type
-      $.CONSUME(t.RBrace);
-      return true;
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
-    }
+    $.CONSUME(t.LBrace);
+    $.SUBRULE($.primitiveType);
+    // No dims so this is not a reference Type
+    $.CONSUME(t.RBrace);
+    return true;
   });
 
   let firstForUnaryExpressionNotPlusMinus = undefined;
@@ -541,28 +510,19 @@ function defineRules($, t) {
         (v, i, a) => a.indexOf(v) === i
       );
     }
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.CONSUME(t.LBrace);
-      $.SUBRULE($.referenceType);
-      $.MANY(() => {
-        $.SUBRULE($.additionalBound);
-      });
-      $.CONSUME(t.RBrace);
-      const firstTokTypeAfterRBrace = this.LA(1).tokenType;
+    $.CONSUME(t.LBrace);
+    $.SUBRULE($.referenceType);
+    $.MANY(() => {
+      $.SUBRULE($.additionalBound);
+    });
+    $.CONSUME(t.RBrace);
+    const firstTokTypeAfterRBrace = this.LA(1).tokenType;
 
-      return (
-        firstForUnaryExpressionNotPlusMinus.find(
-          tokType => tokType === firstTokTypeAfterRBrace
-        ) !== undefined
-      );
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
-    }
+    return (
+      firstForUnaryExpressionNotPlusMinus.find(
+        tokType => tokType === firstTokTypeAfterRBrace
+      ) !== undefined
+    );
   });
 }
 

@@ -277,7 +277,9 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValue
   $.RULE("elementValue", () => {
-    const isSimpleElementValueAnnotation = this.isSimpleElementValueAnnotation();
+    const isSimpleElementValueAnnotation = this.BACKTRACK_LOOKAHEAD(
+      $.isSimpleElementValueAnnotation
+    );
     $.OR([
       // Spec Deviation: "conditionalExpression" replaced with "expression"
       // Because we cannot differentiate between the two using fixed lookahead.

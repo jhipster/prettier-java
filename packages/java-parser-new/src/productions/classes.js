@@ -440,10 +440,10 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodBody
   $.RULE("methodBody", () => {
-    // Spec Deviation: "typeVariable" alternative is missing because
-    //                 it is contained in classType.
-    $.SUBRULE($.block);
-    $.CONSUME(t.Semicolon);
+    $.OR([
+      { ALT: () => $.SUBRULE($.block) },
+      { ALT: () => $.CONSUME(t.Semicolon) }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-InstanceInitializer
@@ -510,8 +510,11 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ConstructorBody
   $.RULE("constructorBody", () => {
     $.CONSUME(t.LCurly);
-    $.OPTION(() => {
-      $.SUBRULE($.explicitConstructorInvocation);
+    $.OPTION({
+      GATE: $.BACKTRACK($.explicitConstructorInvocation),
+      DEF: () => {
+        $.SUBRULE($.explicitConstructorInvocation);
+      }
     });
     $.OPTION2(() => {
       $.SUBRULE($.blockStatements);
@@ -532,7 +535,14 @@ function defineRules($, t) {
     $.OPTION(() => {
       $.SUBRULE($.typeArguments);
     });
-    $.OR([{ ALT: () => $.CONSUME(t.This) }, { ALT: () => $.CONSUME(t.Super) }]);
+    $.OR([
+      {
+        ALT: () => $.CONSUME(t.This)
+      },
+      {
+        ALT: () => $.CONSUME(t.Super)
+      }
+    ]);
     $.CONSUME(t.LBrace);
     $.OPTION2(() => {
       $.SUBRULE($.argumentList);
