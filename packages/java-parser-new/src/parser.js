@@ -118,6 +118,9 @@ class JavaParser extends Parser {
         },
         forInit: {
           OR: true
+        },
+        interfaceDeclaration: {
+          OR: true
         }
       }
     });

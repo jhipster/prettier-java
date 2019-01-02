@@ -2,17 +2,17 @@
 function defineRules($, t) {
   const InterfaceType = {
     unknown: 0,
-    normalClassDeclaration: 1,
+    normalInterfaceDeclaration: 1,
     annotationTypeDeclaration: 2
   };
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
-    const type = this.identifyInterfaceType();
+    const type = this.BACKTRACK_LOOKAHEAD($.identifyInterfaceType);
     $.OR([
       {
-        GATE: () => type === InterfaceType.normalClassDeclaration,
-        ALT: () => $.SUBRULE($.normalClassDeclaration)
+        GATE: () => type === InterfaceType.normalInterfaceDeclaration,
+        ALT: () => $.SUBRULE($.normalInterfaceDeclaration)
       },
       {
         GATE: () => type === InterfaceType.annotationTypeDeclaration,
@@ -462,27 +462,18 @@ function defineRules($, t) {
   });
 
   $.RULE("identifyInterfaceType", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.MANY(() => {
-        $.SUBRULE($.interfaceModifier);
-      });
-      const nextTokenType = this.LA(1).tokenType;
+    $.MANY(() => {
+      $.SUBRULE($.interfaceModifier);
+    });
+    const nextTokenType = this.LA(1).tokenType;
 
-      switch (nextTokenType) {
-        case t.Interface:
-          return InterfaceType.normalClassDeclaration;
-        case t.At:
-          return InterfaceType.normalClassDeclaration;
-        default:
-          return InterfaceType.unknown;
-      }
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    switch (nextTokenType) {
+      case t.Interface:
+        return InterfaceType.normalInterfaceDeclaration;
+      case t.At:
+        return InterfaceType.annotationTypeDeclaration;
+      default:
+        return InterfaceType.unknown;
     }
   });
 
