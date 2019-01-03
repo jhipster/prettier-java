@@ -20,7 +20,7 @@ const javaSamplesContent = javaSampleFiles.map(fileDesc => {
 });
 const suite = new Benchmark.Suite();
 
-const failFast = false;
+const failFast = true;
 
 let success = 0;
 javaSamplesContent.forEach(sample => {
@@ -29,7 +29,7 @@ javaSamplesContent.forEach(sample => {
     javaParserChev.parse(sample.text);
     success++;
   } catch (e) {
-    if (failFast === true) {
+    if (failFast === false) {
       throw e;
     }
   }

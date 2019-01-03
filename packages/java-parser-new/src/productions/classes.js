@@ -618,11 +618,11 @@ function defineRules($, t) {
       $.SUBRULE($.enumConstantModifier);
     });
     $.CONSUME(t.Identifier);
-    $.CONSUME(t.LBrace);
     $.OPTION(() => {
+      $.CONSUME(t.LBrace);
       $.SUBRULE($.argumentList);
+      $.CONSUME(t.RBrace);
     });
-    $.CONSUME(t.RBrace);
     $.OPTION2(() => {
       $.SUBRULE($.classBody);
     });
