@@ -15,9 +15,13 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-10.html#jls-VariableInitializerList
   $.RULE("variableInitializerList", () => {
     $.SUBRULE($.variableInitializer);
-    $.MANY(() => {
-      $.CONSUME(t.Comma);
-      $.SUBRULE2($.variableInitializer);
+    $.MANY({
+      // The optional last "Comma" of an "arrayInitializer"
+      GATE: () => this.LA(2).tokenType !== t.RCurly,
+      DEF: () => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.variableInitializer);
+      }
     });
   });
 }
