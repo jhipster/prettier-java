@@ -76,7 +76,9 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("interfaceMemberDeclaration", () => {
-    const detectedType = this.identifyInterfaceBodyDeclarationType();
+    const detectedType = this.BACKTRACK_LOOKAHEAD(
+      $.identifyInterfaceBodyDeclarationType
+    );
     $.OR([
       {
         GATE: () => detectedType === InterfaceBodyTypes.constantDeclaration,
@@ -335,69 +337,59 @@ function defineRules($, t) {
   // Special optimized backtracking rules.
   // ------------------------------------
   $.RULE("identifyInterfaceBodyDeclarationType", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      let nextTokenType = this.LA(1).tokenType;
-      if (nextTokenType === t.Semicolon) {
-        return InterfaceBodyTypes.semiColon;
-      }
-
-      // We have to look beyond the modifiers to distinguish between the declaration types.
-      $.MANY(() => {
-        // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
-        // Certain combinations are syntactically invalid, this is **not** checked here,
-        // Invalid combinations will cause a descriptive parsing error message to be
-        // Created inside the relevant parsing rules **after** this lookahead
-        // analysis.
-        $.OR([
-          { ALT: () => $.SUBRULE($.annotation) },
-          { ALT: () => $.CONSUME(t.Public) },
-          { ALT: () => $.CONSUME(t.Protected) },
-          { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Final) },
-          { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Default) },
-          { ALT: () => $.CONSUME(t.Strictfp) }
-        ]);
-      });
-
-      nextTokenType = this.LA(1).tokenType;
-      if (nextTokenType === t.Class || nextTokenType === t.Enum) {
-        return InterfaceBodyTypes.classDeclaration;
-      }
-      if (nextTokenType === t.Interface || nextTokenType === t.At) {
-        return InterfaceBodyTypes.interfaceDeclaration;
-      }
-      if (nextTokenType === t.Void) {
-        // method with result type "void"
-        return InterfaceBodyTypes.interfaceMethodDeclaration;
-      }
-
-      // Only constant or interfaceMethod declarations may be valid at this point.
-      // All other alternatives should have been attempted.
-      // **both** start with "unannType"
-      this.SUBRULE($.unannType);
-
-      nextTokenType = this.LA(1).tokenType;
-      const nextNextTokenType = this.LA(2).tokenType;
-      // "foo(..." --> look like method start
-      if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
-        return InterfaceBodyTypes.interfaceMethodDeclaration;
-      }
-      // a valid constant
-      if (nextTokenType === t.Identifier) {
-        return InterfaceBodyTypes.constantDeclaration;
-      }
-      return InterfaceBodyTypes.unknown;
-    } catch (e) {
-      // TODO: add info from the original error?
-      throw Error("Cannot Identify the type of a <interfaceMemberDeclaration>");
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    let nextTokenType = this.LA(1).tokenType;
+    if (nextTokenType === t.Semicolon) {
+      return InterfaceBodyTypes.semiColon;
     }
+
+    // We have to look beyond the modifiers to distinguish between the declaration types.
+    $.MANY(() => {
+      // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
+      // Certain combinations are syntactically invalid, this is **not** checked here,
+      // Invalid combinations will cause a descriptive parsing error message to be
+      // Created inside the relevant parsing rules **after** this lookahead
+      // analysis.
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) },
+        { ALT: () => $.CONSUME(t.Static) },
+        { ALT: () => $.CONSUME(t.Final) },
+        { ALT: () => $.CONSUME(t.Abstract) },
+        { ALT: () => $.CONSUME(t.Default) },
+        { ALT: () => $.CONSUME(t.Strictfp) }
+      ]);
+    });
+
+    nextTokenType = this.LA(1).tokenType;
+    if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+      return InterfaceBodyTypes.classDeclaration;
+    }
+    if (nextTokenType === t.Interface || nextTokenType === t.At) {
+      return InterfaceBodyTypes.interfaceDeclaration;
+    }
+    if (nextTokenType === t.Void) {
+      // method with result type "void"
+      return InterfaceBodyTypes.interfaceMethodDeclaration;
+    }
+
+    // Only constant or interfaceMethod declarations may be valid at this point.
+    // All other alternatives should have been attempted.
+    // **both** start with "unannType"
+    this.SUBRULE($.unannType);
+
+    nextTokenType = this.LA(1).tokenType;
+    const nextNextTokenType = this.LA(2).tokenType;
+    // "foo(..." --> look like method start
+    if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+      return InterfaceBodyTypes.interfaceMethodDeclaration;
+    }
+    // a valid constant
+    if (nextTokenType === t.Identifier) {
+      return InterfaceBodyTypes.constantDeclaration;
+    }
+    return InterfaceBodyTypes.unknown;
   });
 
   $.RULE("identifyAnnotationBodyDeclarationType", () => {

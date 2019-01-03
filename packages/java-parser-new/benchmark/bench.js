@@ -20,7 +20,7 @@ const javaSamplesContent = javaSampleFiles.map(fileDesc => {
 });
 const suite = new Benchmark.Suite();
 
-const failFast = false;
+const failFast = falsey;
 
 let success = 0;
 javaSamplesContent.forEach(sample => {
