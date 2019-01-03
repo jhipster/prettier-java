@@ -140,7 +140,7 @@ function defineRules($, t) {
       $.CONSUME(t.Colon);
       $.SUBRULE2($.expression);
     });
-    $.CONSUME(t.Comma);
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchStatement
