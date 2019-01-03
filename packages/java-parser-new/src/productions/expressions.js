@@ -192,14 +192,19 @@ function defineRules($, t) {
   });
 
   $.RULE("fqnOrRefType", () => {
-    $.SUBRULE($.fqnOrRefTypePart);
+    // TODO: Identify ReferenceType followed by "::" here?
+    //       and pass result as argument to the "part" rule?
+    const isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD(
+      $.isRefTypeInMethodRef
+    );
+    $.SUBRULE($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });
 
     $.MANY2({
       // ".class" is a classLiteralSuffix
       GATE: () => this.LA(2).tokenType !== t.Class,
       DEF: () => {
         $.CONSUME(t.Dot);
-        $.SUBRULE2($.fqnOrRefTypePart);
+        $.SUBRULE2($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });
       }
     });
   });
@@ -210,7 +215,7 @@ function defineRules($, t) {
   //       3. "Super" cannot be mixed with "classTypeArguments" or "annotation".
   //       4. At most one "Super" may be used.
   //       5. "Super" may be last or one before last (last may also be first if there is only a single part).
-  $.RULE("fqnOrRefTypePart", () => {
+  $.RULE("fqnOrRefTypePart", isRefTypeInMethodRef => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
     });
@@ -229,6 +234,11 @@ function defineRules($, t) {
 
     $.OPTION2({
       NAME: "$classTypeArguments",
+      // unrestricted typeArguments here would create an ambiguity with "LessThan" operator
+      // e.g: "var x = a < b;"
+      // The "<" would be parsed as the beginning of a "typeArguments"
+      // and we will get an error: "expecting '>' but found: ';'"
+      GATE: () => isRefTypeInMethodRef,
       DEF: () => {
         $.SUBRULE3($.typeArguments);
       }
@@ -523,6 +533,12 @@ function defineRules($, t) {
         tokType => tokType === firstTokTypeAfterRBrace
       ) !== undefined
     );
+  });
+
+  $.RULE("isRefTypeInMethodRef", () => {
+    $.SUBRULE($.referenceType);
+    const firstTokTypeAfterRefType = this.LA(1).tokenType;
+    return firstTokTypeAfterRefType === t.ColonColon;
   });
 }
 
