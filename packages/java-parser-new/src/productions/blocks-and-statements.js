@@ -7,7 +7,9 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Block
   $.RULE("block", () => {
     $.CONSUME(t.LCurly);
-    $.SUBRULE($.blockStatements);
+    $.OPTION(() => {
+      $.SUBRULE($.blockStatements);
+    });
     $.CONSUME(t.RCurly);
   });
 
