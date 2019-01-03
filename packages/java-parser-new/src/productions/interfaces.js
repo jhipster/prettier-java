@@ -177,7 +177,9 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("annotationTypeMemberDeclaration", () => {
-    const detectedType = this.identifyAnnotationBodyDeclarationType();
+    const detectedType = this.BACKTRACK_LOOKAHEAD(
+      $.identifyAnnotationBodyDeclarationType
+    );
     $.OR([
       {
         GATE: () =>
@@ -393,64 +395,54 @@ function defineRules($, t) {
   });
 
   $.RULE("identifyAnnotationBodyDeclarationType", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      let nextTokenType = this.LA(1).tokenType;
-      if (nextTokenType === t.Semicolon) {
-        return AnnotationBodyTypes.semiColon;
-      }
-
-      // We have to look beyond the modifiers to distinguish between the declaration types.
-      $.MANY(() => {
-        // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
-        // Certain combinations are syntactically invalid, this is **not** checked here,
-        // Invalid combinations will cause a descriptive parsing error message to be
-        // Created inside the relevant parsing rules **after** this lookahead
-        // analysis.
-        $.OR([
-          { ALT: () => $.SUBRULE($.annotation) },
-          { ALT: () => $.CONSUME(t.Public) },
-          { ALT: () => $.CONSUME(t.Protected) },
-          { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Final) },
-          { ALT: () => $.CONSUME(t.Strictfp) }
-        ]);
-      });
-
-      nextTokenType = this.LA(1).tokenType;
-      if (nextTokenType === t.Class || nextTokenType === t.Enum) {
-        return AnnotationBodyTypes.classDeclaration;
-      }
-      if (nextTokenType === t.Interface || nextTokenType === t.At) {
-        return AnnotationBodyTypes.interfaceDeclaration;
-      }
-
-      // Only constant or annotationTypeElement declarations may be valid at this point.
-      // All other alternatives should have been attempted.
-      // **both** start with "unannType"
-      this.SUBRULE($.unannType);
-
-      nextTokenType = this.LA(1).tokenType;
-      const nextNextTokenType = this.LA(2).tokenType;
-      // "foo(..." --> look like annotationTypeElement start
-      if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
-        return AnnotationBodyTypes.annotationTypeElementDeclaration;
-      }
-      // a valid constant
-      if (nextTokenType === t.Identifier) {
-        return AnnotationBodyTypes.constantDeclaration;
-      }
-      return AnnotationBodyTypes.unknown;
-    } catch (e) {
-      // TODO: add info from the original error?
-      throw Error("Cannot Identify the type of a <interfaceMemberDeclaration>");
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    let nextTokenType = this.LA(1).tokenType;
+    if (nextTokenType === t.Semicolon) {
+      return AnnotationBodyTypes.semiColon;
     }
+
+    // We have to look beyond the modifiers to distinguish between the declaration types.
+    $.MANY(() => {
+      // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
+      // Certain combinations are syntactically invalid, this is **not** checked here,
+      // Invalid combinations will cause a descriptive parsing error message to be
+      // Created inside the relevant parsing rules **after** this lookahead
+      // analysis.
+      $.OR([
+        { ALT: () => $.SUBRULE($.annotation) },
+        { ALT: () => $.CONSUME(t.Public) },
+        { ALT: () => $.CONSUME(t.Protected) },
+        { ALT: () => $.CONSUME(t.Private) },
+        { ALT: () => $.CONSUME(t.Abstract) },
+        { ALT: () => $.CONSUME(t.Static) },
+        { ALT: () => $.CONSUME(t.Final) },
+        { ALT: () => $.CONSUME(t.Strictfp) }
+      ]);
+    });
+
+    nextTokenType = this.LA(1).tokenType;
+    if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+      return AnnotationBodyTypes.classDeclaration;
+    }
+    if (nextTokenType === t.Interface || nextTokenType === t.At) {
+      return AnnotationBodyTypes.interfaceDeclaration;
+    }
+
+    // Only constant or annotationTypeElement declarations may be valid at this point.
+    // All other alternatives should have been attempted.
+    // **both** start with "unannType"
+    this.SUBRULE($.unannType);
+
+    nextTokenType = this.LA(1).tokenType;
+    const nextNextTokenType = this.LA(2).tokenType;
+    // "foo(..." --> look like annotationTypeElement start
+    if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+      return AnnotationBodyTypes.annotationTypeElementDeclaration;
+    }
+    // a valid constant
+    if (nextTokenType === t.Identifier) {
+      return AnnotationBodyTypes.constantDeclaration;
+    }
+    return AnnotationBodyTypes.unknown;
   });
 
   $.RULE("identifyInterfaceType", () => {
@@ -470,27 +462,18 @@ function defineRules($, t) {
   });
 
   $.RULE("isSimpleElementValueAnnotation", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.SUBRULE($.annotation);
-      const nextTokenType = this.LA(1).tokenType;
-      switch (nextTokenType) {
-        // annotation in "ElementValue" would be followed by one of those
-        // any other TokenType would indicate it is an annotation in a "referenceType"
-        // as part of a "methodReference" in "primary"
-        case t.Comma:
-        case t.Semicolon:
-        case t.RCurly:
-        case t.RBrace:
-        default:
-          return false;
-      }
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    $.SUBRULE($.annotation);
+    const nextTokenType = this.LA(1).tokenType;
+    switch (nextTokenType) {
+      // annotation in "ElementValue" would be followed by one of those
+      // any other TokenType would indicate it is an annotation in a "referenceType"
+      // as part of a "methodReference" in "primary"
+      case t.Comma:
+      case t.Semicolon:
+      case t.RCurly:
+      case t.RBrace:
+      default:
+        return false;
     }
   });
 }
