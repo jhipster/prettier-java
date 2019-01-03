@@ -642,40 +642,33 @@ function defineRules($, t) {
   });
 
   $.RULE("isClassDeclaration", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      if (
-        $.OPTION(() => {
-          $.CONSUME(t.Semicolon);
-        })
-      ) {
-        // an empty "TypeDeclaration"
-        return false;
-      }
-
-      try {
-        // The {classModifier} is a super grammar of the "interfaceModifier"
-        // So we must parse all the "{classModifier}" before we can distinguish
-        // between the alternatives.
-        $.MANY(() => {
-          $.SUBRULE($.classModifier);
-        });
-      } catch (e) {
-        if (isRecognitionException(e)) {
-          // TODO: add original syntax error?
-          throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
-        } else {
-          throw e;
-        }
-      }
-
-      const nextTokenType = this.LA(1).tokenType;
-      return nextTokenType === t.Class || nextTokenType === t.Enum;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    if (
+      $.OPTION(() => {
+        $.CONSUME(t.Semicolon);
+      })
+    ) {
+      // an empty "TypeDeclaration"
+      return false;
     }
+
+    try {
+      // The {classModifier} is a super grammar of the "interfaceModifier"
+      // So we must parse all the "{classModifier}" before we can distinguish
+      // between the alternatives.
+      $.MANY(() => {
+        $.SUBRULE($.classModifier);
+      });
+    } catch (e) {
+      if (isRecognitionException(e)) {
+        // TODO: add original syntax error?
+        throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
+      } else {
+        throw e;
+      }
+    }
+
+    const nextTokenType = this.LA(1).tokenType;
+    return nextTokenType === t.Class || nextTokenType === t.Enum;
   });
 
   $.RULE("identifyClassBodyDeclarationType", () => {

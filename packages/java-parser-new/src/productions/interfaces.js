@@ -449,7 +449,7 @@ function defineRules($, t) {
     $.MANY(() => {
       $.SUBRULE($.interfaceModifier);
     });
-    const nextTokenType = this.LA(1).tokenType;
+    const nextTokenType = $.LA(1).tokenType;
 
     switch (nextTokenType) {
       case t.Interface:
@@ -472,6 +472,7 @@ function defineRules($, t) {
       case t.Semicolon:
       case t.RCurly:
       case t.RBrace:
+        return true;
       default:
         return false;
     }
