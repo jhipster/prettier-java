@@ -318,6 +318,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodHeader
   $.RULE("methodHeader", () => {
+    // Spec Deviation: extracted common prefix from both alternatives
     $.OPTION(() => {
       $.SUBRULE($.typeParameters);
       $.MANY(() => {

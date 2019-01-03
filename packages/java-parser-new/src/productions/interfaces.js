@@ -369,7 +369,7 @@ function defineRules($, t) {
     if (nextTokenType === t.Interface || nextTokenType === t.At) {
       return InterfaceBodyTypes.interfaceDeclaration;
     }
-    if (nextTokenType === t.Void) {
+    if (nextTokenType === t.Void || nextTokenType === t.Less) {
       // method with result type "void"
       return InterfaceBodyTypes.interfaceMethodDeclaration;
     }

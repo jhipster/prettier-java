@@ -20,7 +20,7 @@ const javaSamplesContent = javaSampleFiles.map(fileDesc => {
 });
 const suite = new Benchmark.Suite();
 
-const failFast = falsey;
+const failFast = false;
 
 let success = 0;
 javaSamplesContent.forEach(sample => {
@@ -37,24 +37,3 @@ javaSamplesContent.forEach(sample => {
 
 const total = javaSamplesContent.length;
 console.log((success / total) * 100);
-
-const input = `StringBuilder builder = new StringBuilder();`;
-javaParserChev.parse(input, "blockStatement");
-
-// The bench suite
-// suite
-//   .add("Lex Only", () => {
-//     javaSamplesContent.forEach(sample => JavaLexer.tokenize(sample.text));
-//   })
-//   .add("Full Flow", () => {
-//     javaSamplesContent.forEach(sampleText => javaParserChev.parse(sampleText));
-//   })
-//   // add listeners
-//   .on("cycle", event => {
-//     console.log(String(event.target));
-//   })
-//   .on("complete", function() {
-//     console.log("Fastest is " + this.filter("fastest").map("name"));
-//   })
-//   // run async
-//   .run({ async: true });
