@@ -331,7 +331,6 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-TryStatement
   $.RULE("tryStatement", () => {
-    // TODO: this may need backtracking
     $.OR([
       {
         ALT: () => {

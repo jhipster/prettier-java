@@ -6,7 +6,10 @@ const path = require("path");
 const klawSync = require("klaw-sync");
 
 // clone repo with benchmark samples
-const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
+const samplesDir = path.resolve(
+  __dirname,
+  "../samples/java-design-patterns/async-method-invocation/src/test/java/com/iluwatar//async//method/invocation"
+);
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")
@@ -16,15 +19,14 @@ const javaSamplesContent = javaSampleFiles.map(fileDesc => {
   return { text: fs.readFileSync(fileDesc.path, "utf8"), file: fileDesc };
 });
 
-const failFast = false;
+const failFast = true;
 let i = 0;
 let success = 0;
 const start = new Date().getTime();
 
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 20; i++) {
   javaSamplesContent.forEach(sample => {
     try {
-      console.log(sample.file.path);
       const fileStart = new Date().getTime();
       javaParserChev.parse(sample.text);
       const fileEnd = new Date().getTime();
@@ -41,6 +43,3 @@ for (let i = 0; i < 1; i++) {
 const end = new Date().getTime();
 
 console.log((end - start) / 1000);
-
-const total = javaSamplesContent.length;
-console.log((success / total) * 100);

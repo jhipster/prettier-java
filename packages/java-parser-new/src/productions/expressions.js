@@ -192,8 +192,8 @@ function defineRules($, t) {
   });
 
   $.RULE("fqnOrRefType", () => {
-    // TODO: Identify ReferenceType followed by "::" here?
-    //       and pass result as argument to the "part" rule?
+    // TODO: this causes 20-30% performance reduction.
+    //  can we optimize this?
     const isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD(
       $.isRefTypeInMethodRef
     );
@@ -254,6 +254,8 @@ function defineRules($, t) {
   $.RULE("castExpression", () => {
     $.OR([
       {
+        // TODO: can avoid backtracking again here, parent rule could have this information
+        //       when it checks isCastExpression (refactor needed)
         GATE: () => this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression),
         ALT: () => $.SUBRULE($.primitiveCastExpression)
       },
@@ -478,6 +480,7 @@ function defineRules($, t) {
 
   // Optimized backtracking, only scan ahead until the arrow("->").
   $.RULE("isLambdaExpression", () => {
+    // TODO: this check of next two tokens is probably redundant as the normal lookahead should take care of this.
     const firstTokenType = this.LA(1).tokenType;
     const secondTokenType = this.LA(2).tokenType;
     // no parent lambda "x -> x * 2"

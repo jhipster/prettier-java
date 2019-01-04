@@ -176,30 +176,6 @@ class JavaParser extends Parser {
       this.isBackTrackingStack.pop();
     }
   }
-
-  // BACKTRACK_RULE(name, logic) {
-  //   // define a regular rule so the grammar would be analyzed
-  //   this.RULE(name, logic);
-  //
-  //   // overwrite the regular rule with our special backtracking logic
-  //   this[name] = function() {
-  //     this.isBackTrackingStack.push(1);
-  //     const orgState = this.saveRecogState();
-  //     try {
-  //       return logic.call(this);
-  //     } catch (e) {
-  //       if (isRecognitionException(e)) {
-  //         // todo: is a custom return type needed?
-  //         // TODO: how to throw custom errors?
-  //         return false;
-  //       }
-  //       throw e;
-  //     } finally {
-  //       this.reloadRecogState(orgState);
-  //       this.isBackTrackingStack.pop();
-  //     }
-  //   };
-  // }
 }
 
 module.exports = JavaParser;
