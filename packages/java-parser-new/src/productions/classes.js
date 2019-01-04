@@ -1,6 +1,6 @@
 "use strict";
 
-const { isRecognitionException } = require("chevrotain");
+const { isRecognitionException, tokenMatcher } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassDeclaration
@@ -749,15 +749,19 @@ function defineRules($, t) {
       // **both** start with "unannType"
       this.SUBRULE($.unannType);
 
-      nextTokenType = this.LA(1).tokenType;
+      let nextToken = this.LA(1);
       nextNextTokenType = this.LA(2).tokenType;
       // "foo(..." --> look like method start
-      if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+      if (
+        tokenMatcher(nextToken, t.Identifier) &&
+        nextNextTokenType === t.LBrace
+      ) {
         return classBodyTypes.methodDeclaration;
       }
 
       // a valid field
-      if (nextTokenType === t.Identifier) {
+      // TODO: because we use token categories we should use tokenMatcher everywhere.
+      if (tokenMatcher(nextToken, t.Identifier)) {
         return classBodyTypes.fieldDeclaration;
       }
 
