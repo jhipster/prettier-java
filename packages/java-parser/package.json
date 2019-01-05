@@ -4,9 +4,8 @@
   "description": "Java Parser in JavaScript",
   "main": "src/index.js",
   "repository": "https://github.com/jhipster/prettier-java/packages/java-parser",
-  "author": "Thorben von Hacht",
   "license": "MIT",
   "dependencies": {
-    "chevrotain": "4.1.0"
+    "chevrotain": "^4.1.1"
   }
 }

@@ -20,31 +20,31 @@ It could even be used inside a browser.
 
 ## Status
 
-- pre-alpha version released
-- Please file any bugs
+- Redesign & Rewrite **in progress**.
 
-## ToDos
+## Road map / TODO
 
-- Finish Devops task related to project transfer
-- Fix parsing bugs
-- Make everything more prettier ;)
-- Increase performance (It's already fast though)
+- Parser Package:
+
+  - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
+  - [x] Milestone 1 - Success parsing "Java Design Patterns" repo.
+  - [ ] Milestone 2 - Success parsing "spring-boot" repo (Currently **93.8%**).
+  - [ ] Investigate performance optimizations.
+
+- prettier-java package
+
+  - [ ] POC: Rewriter based on a Chevrotain CST instead of an AST.
+  - [ ] Milestone 1 - Success cyclic rewriting "Java Design Patterns" repo.
+  - [ ] Milestone 2 - Success parsing "spring-boot" repo.
 
 ---
-
-## Install
-
-```bash
-yarn add --dev --exact prettier prettier-plugin-java
-```
-
-## Use
-
-```bash
-prettier --write "**/*.java"
-```
 
 ## Contributing
 
 Contributions are very welcome.
 See the [contribution guide](./CONTRIBUTING.md) to get started.
+
+## Credits
+
+Special thanks to @thorbenvh8 for creating the original prettier-java
+plugin and the associated Java Parser implemented JavaScript.
