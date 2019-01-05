@@ -1,8 +1,0 @@
-public class ClassBodyBlock {
-
-  static {}
-
-  {}
-
-}
-
