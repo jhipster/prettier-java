@@ -749,7 +749,7 @@ function defineRules($, t) {
       // **both** start with "unannType"
       this.SUBRULE($.unannType);
 
-      let nextToken = this.LA(1);
+      const nextToken = this.LA(1);
       nextNextTokenType = this.LA(2).tokenType;
       // "foo(..." --> look like method start
       if (

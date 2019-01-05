@@ -2,11 +2,11 @@
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
 
-const startTime = new Date().getTime();
+// const startTime = new Date().getTime();
 const parser = new JavaParser();
-const endTime = new Date().getTime();
-const totalTime = endTime - startTime;
-console.log("parse start time (ms): " + totalTime);
+// const endTime = new Date().getTime();
+// const totalTime = endTime - startTime;
+// console.log("parse start time (ms): " + totalTime);
 
 // Our visitor has no state, so a single instance is sufficient.
 
