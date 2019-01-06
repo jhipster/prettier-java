@@ -238,6 +238,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-Annotation
   $.RULE("annotation", () => {
+    // TODO: performance optimization: implement optimized backtracking here.
     $.OR([
       {
         GATE: $.BACKTRACK($.normalAnnotation),
@@ -454,6 +455,9 @@ function defineRules($, t) {
     switch (nextTokenType) {
       case t.Interface:
         return InterfaceType.normalInterfaceDeclaration;
+      // TODO: an interfaceModifier may start with an "@" (annotation)
+      //   we need to check more specifically for "@interface" two tokens sequence
+      //   specifically in the repetition above (add gate?)
       case t.At:
         return InterfaceType.annotationTypeDeclaration;
       default:

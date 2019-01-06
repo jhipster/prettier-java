@@ -23,12 +23,15 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BlockStatement
   $.RULE("blockStatement", () => {
+    const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(
+      $.isLocalVariableDeclaration
+    );
     $.OR([
       {
         // A variable declaration is normally short, so we uss regular
         // **non optimized** backtracking for simplicity.
         // TODO: performance: scan only until the equals operator.
-        GATE: $.BACKTRACK($.localVariableDeclarationStatement),
+        GATE: () => isLocalVariableDeclaration,
         ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
       },
       {
@@ -252,7 +255,7 @@ function defineRules($, t) {
   $.RULE("forInit", () => {
     $.OR([
       {
-        GATE: $.BACKTRACK($.localVariableDeclaration),
+        GATE: () => $.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration),
         ALT: () => $.SUBRULE($.localVariableDeclaration)
       },
       { ALT: () => $.SUBRULE($.statementExpressionList) }
@@ -462,23 +465,35 @@ function defineRules($, t) {
   // Special optimized backtracking rules.
   // ------------------------------------
   $.RULE("isBasicForStatement", () => {
-    this.isBackTrackingStack.push(1);
-    const orgState = this.saveRecogState();
-    try {
-      $.CONSUME(t.For);
-      $.CONSUME(t.LBrace);
-      $.OPTION(() => {
-        $.SUBRULE($.forInit);
-      });
-      $.CONSUME(t.Semicolon);
-      // consuming the first semiColon distinguishes between
-      // "basic" and "enhanced" for statements
-      return true;
-    } catch (e) {
-      return false;
-    } finally {
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
+    $.CONSUME(t.For);
+    $.CONSUME(t.LBrace);
+    $.OPTION(() => {
+      $.SUBRULE($.forInit);
+    });
+    $.CONSUME(t.Semicolon);
+    // consuming the first semiColon distinguishes between
+    // "basic" and "enhanced" for statements
+    return true;
+  });
+
+  $.RULE("isLocalVariableDeclaration", () => {
+    $.MANY(() => {
+      $.SUBRULE($.variableModifier);
+    });
+    $.SUBRULE($.localVariableType);
+    $.SUBRULE($.variableDeclaratorId);
+
+    const nextTokenType = this.LA(1).tokenType;
+    switch (nextTokenType) {
+      // Int x;
+      case t.Semicolon:
+      // Int x, y, z;
+      case t.Comma:
+      // Int x = 5;
+      case t.Equals:
+        return true;
+      default:
+        return false;
     }
   });
 }

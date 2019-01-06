@@ -70,6 +70,8 @@ function defineRules($, t) {
   });
 
   $.RULE("lambdaParameter", () => {
+    // TODO: performance, investigate the performance boost that could
+    //       be gained by refactoring out the backtracking.
     $.OR([
       {
         GATE: $.BACKTRACK($.regularLambdaParameter),
@@ -258,7 +260,7 @@ function defineRules($, t) {
   $.RULE("castExpression", () => {
     $.OR([
       {
-        // TODO: can avoid backtracking again here, parent rule could have this information
+        // TODO: performance: can avoid backtracking again here, parent rule could have this information
         //       when it checks isCastExpression (refactor needed)
         GATE: () => this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression),
         ALT: () => $.SUBRULE($.primitiveCastExpression)
@@ -496,9 +498,8 @@ function defineRules($, t) {
       $.SUBRULE($.lambdaParametersWithBraces);
       const followedByArrow = this.LA(1).tokenType === t.Arrow;
       return followedByArrow;
-    } 
-      return false;
-    
+    }
+    return false;
   });
 
   $.RULE("isCastExpression", () => {

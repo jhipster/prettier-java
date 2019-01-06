@@ -6,6 +6,7 @@ env:
   es6: true
   node: true
 rules:
+  no-fallthrough: off
   curly: error
   no-else-return: error
   no-inner-declarations: error
