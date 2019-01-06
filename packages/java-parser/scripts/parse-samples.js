@@ -16,7 +16,7 @@ if (options.printProgress) {
   printProgress = console.log;
 }
 
-const samplesDir = path.resolve(__dirname, "../samples/spring-boot");
+const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")

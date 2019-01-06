@@ -21,6 +21,7 @@ fs.emptyDirSync(samplesDir);
 sampleRepos.forEach(cloneRepo);
 
 function cloneRepo({ repoUrl, branch }) {
+  console.log(`cloning ${repoUrl}`);
   cp.execSync(`git clone ${repoUrl} --branch ${branch} --depth 1`, {
     cwd: samplesDir,
     stdio: [0, 1, 2]
