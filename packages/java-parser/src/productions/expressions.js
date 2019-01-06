@@ -491,10 +491,14 @@ function defineRules($, t) {
     if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {
       return true;
     }
-
-    $.SUBRULE($.lambdaParametersWithBraces);
-    const followedByArrow = this.LA(1).tokenType === t.Arrow;
-    return followedByArrow;
+    // Performance optimizations, fail fast if it is not a LBrace.
+    else if (firstTokenType === t.LBrace) {
+      $.SUBRULE($.lambdaParametersWithBraces);
+      const followedByArrow = this.LA(1).tokenType === t.Arrow;
+      return followedByArrow;
+    } 
+      return false;
+    
   });
 
   $.RULE("isCastExpression", () => {

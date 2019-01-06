@@ -37,6 +37,8 @@ const expressions = require("./productions/expressions");
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
+      // TODO: performance: maxLookahead = 1 may be faster, but could we refactor the grammar to it?
+      //       and more importantly, do we want to?
       maxLookahead: 2,
       // ambiguities resolved by backtracking
       ignoredIssues: {
