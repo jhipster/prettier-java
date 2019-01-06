@@ -59,6 +59,9 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ReferenceType
   $.RULE("referenceType", () => {
+    // TODO: performance: evaluate refactoring the grammar of "type"
+    //  - the array type could be a common suffix.
+    //  -  we do multiple nesting of backtracking here, it is horribly inefficient...
     $.OR([
       // Spec Deviation: "arrayType" must appear **before**
       //                 "classOrInterfaceType" due to common prefix.

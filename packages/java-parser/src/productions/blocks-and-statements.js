@@ -28,9 +28,6 @@ function defineRules($, t) {
     );
     $.OR([
       {
-        // A variable declaration is normally short, so we uss regular
-        // **non optimized** backtracking for simplicity.
-        // TODO: performance: scan only until the equals operator.
         GATE: () => isLocalVariableDeclaration,
         ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
       },
