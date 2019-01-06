@@ -192,19 +192,14 @@ function defineRules($, t) {
   });
 
   $.RULE("fqnOrRefType", () => {
-    // TODO: this causes 20-30% performance reduction.
-    //  can we optimize this?
-    const isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD(
-      $.isRefTypeInMethodRef
-    );
-    $.SUBRULE($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });
+    $.SUBRULE($.fqnOrRefTypePart);
 
     $.MANY2({
       // ".class" is a classLiteralSuffix
       GATE: () => this.LA(2).tokenType !== t.Class,
       DEF: () => {
         $.CONSUME(t.Dot);
-        $.SUBRULE2($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });
+        $.SUBRULE2($.fqnOrRefTypePart);
       }
     });
   });
@@ -215,7 +210,7 @@ function defineRules($, t) {
   //       3. "Super" cannot be mixed with "classTypeArguments" or "annotation".
   //       4. At most one "Super" may be used.
   //       5. "Super" may be last or one before last (last may also be first if there is only a single part).
-  $.RULE("fqnOrRefTypePart", isRefTypeInMethodRef => {
+  $.RULE("fqnOrRefTypePart", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
     });
@@ -231,6 +226,15 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Identifier) },
       { ALT: () => $.CONSUME(t.Super) }
     ]);
+
+    let isRefTypeInMethodRef = false;
+    // Performance optimization, only perform this backtracking when a '<' is found
+    // TODO: performance optimization evaluation: avoid doing this backtracking for every "<" encountered.
+    //       we could do it once (using global state) per "fqnOrRefType"
+    // We could do it only once for
+    if ($.LA(1).tokenType === t.Less) {
+      isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD($.isRefTypeInMethodRef);
+    }
 
     $.OPTION2({
       NAME: "$classTypeArguments",
@@ -539,7 +543,29 @@ function defineRules($, t) {
   });
 
   $.RULE("isRefTypeInMethodRef", () => {
-    $.SUBRULE($.referenceType);
+    $.SUBRULE($.typeArguments);
+
+    // arrayType
+    const hasDims = $.OPTION(() => {
+      $.SUBRULE($.dims);
+    });
+
+    const firstTokTypeAfterTypeArgs = this.LA(1).tokenType;
+    if (firstTokTypeAfterTypeArgs === t.ColonColon) {
+      return true;
+    }
+    // we must be at the end of a "referenceType" if "dims" were encountered
+    // So there is not point to check farther
+    else if (hasDims) {
+      return false;
+    }
+
+    // in the middle of a "classReferenceType"
+    $.OPTION2(() => {
+      $.CONSUME(t.Dot);
+      $.SUBRULE($.classOrInterfaceType);
+    });
+
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
     return firstTokTypeAfterRefType === t.ColonColon;
   });
