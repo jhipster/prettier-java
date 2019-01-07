@@ -235,6 +235,7 @@ function defineRules($, t) {
     $.OR([
       // "unannArrayType" must appear before "unannClassOrInterfaceType"
       // due to common prefix.
+      // TODO: performance: evaluate getting rid of backtracking
       {
         GATE: $.BACKTRACK($.unannArrayType),
         ALT: () => $.SUBRULE($.unannArrayType)

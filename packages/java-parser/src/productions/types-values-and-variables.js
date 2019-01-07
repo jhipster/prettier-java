@@ -4,20 +4,6 @@ function defineRules($, t) {
   // ---------------------
   // Productions from §4 (Types, Values, and Variables)
   // ---------------------
-  $.RULE("type", () => {
-    $.OR([
-      // "referenceType" must appear **before** "primitiveType" due to common prefix.
-      {
-        GATE: $.BACKTRACK($.referenceType),
-        ALT: () => $.SUBRULE($.referenceType)
-      },
-      {
-        // Backtracking not needed, because if its not a "referenceType"
-        // It must be a primitiveType (or Error)
-        ALT: () => $.SUBRULE($.primitiveType)
-      }
-    ]);
-  });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-PrimitiveType
   $.RULE("primitiveType", () => {
@@ -59,20 +45,31 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ReferenceType
   $.RULE("referenceType", () => {
-    // TODO: performance: evaluate refactoring the grammar of "type"
-    //  - the array type could be a common suffix.
-    //  -  we do multiple nesting of backtracking here, it is horribly inefficient...
+    $.MANY(() => {
+      // Spec Deviation: by extracting the common "annotation" prefix
+      // we can avoid backtracking and thus improve performance.
+      // Note that the annotation prefix is still present inside
+      // "primitiveType" and "classOrInterfaceType"
+      $.SUBRULE($.annotation);
+    });
+    // Spec Deviation: The array type "dims" suffix was extracted to this rule
+    // to avoid backtracking for performance reasons.
     $.OR([
-      // Spec Deviation: "arrayType" must appear **before**
-      //                 "classOrInterfaceType" due to common prefix.
       {
-        GATE: $.BACKTRACK($.arrayType),
-        ALT: () => $.SUBRULE($.arrayType)
+        ALT: () => {
+          $.SUBRULE($.primitiveType);
+          $.SUBRULE($.dims);
+        }
       },
       {
         // Spec Deviation: "typeVariable" alternative is missing because
         //                 it is included in "classOrInterfaceType"
-        ALT: () => $.SUBRULE($.classOrInterfaceType)
+        ALT: () => {
+          $.SUBRULE($.classOrInterfaceType);
+          $.OPTION(() => {
+            $.SUBRULE2($.dims);
+          });
+        }
       }
     ]);
   });
@@ -125,20 +122,6 @@ function defineRules($, t) {
     });
     // TODO: Semantic Check: This Identifier cannot be "var"
     $.CONSUME(t.Identifier);
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ArrayType
-  $.RULE("arrayType", () => {
-    // Spec Deviation: The alternative with "TypeVariable" is not specified
-    //      because it's syntax is included in "classOrInterfaceType"
-    $.OR([
-      {
-        GATE: $.BACKTRACK($.primitiveType),
-        ALT: () => $.SUBRULE($.primitiveType)
-      },
-      { ALT: () => $.SUBRULE($.classOrInterfaceType) }
-    ]);
-    $.SUBRULE($.dims);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-Dims

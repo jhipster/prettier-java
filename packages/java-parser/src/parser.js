@@ -54,9 +54,6 @@ class JavaParser extends Parser {
         typeArgument: {
           OR: true
         },
-        arrayType: {
-          OR: true
-        },
         type: {
           OR: true
         },

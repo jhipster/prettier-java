@@ -250,39 +250,6 @@
   },
   {
     "type": "Rule",
-    "name": "type",
-    "orgText": "() => {\r\n    $.OR([\r\n      // \"referenceType\" must appear **before** \"primitiveType\" due to common prefix.\r\n      {\r\n        GATE: $.BACKTRACK($.referenceType),\r\n        ALT: () => $.SUBRULE($.referenceType)\r\n      },\r\n      {\r\n        // Backtracking not needed, because if its not a \"referenceType\"\r\n        // It must be a primitiveType (or Error)\r\n        ALT: () => $.SUBRULE($.primitiveType)\r\n      }\r\n    ]);\r\n  }",
-    "definition": [
-      {
-        "type": "Alternation",
-        "idx": 0,
-        "definition": [
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "referenceType",
-                "idx": 0
-              }
-            ]
-          },
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "primitiveType",
-                "idx": 0
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "Rule",
     "name": "primitiveType",
     "orgText": "() => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.annotation);\r\n    });\r\n    $.OR([\r\n      { ALT: () => $.SUBRULE($.numericType) },\r\n      { ALT: () => $.CONSUME(t.Boolean) }\r\n    ]);\r\n  }",
     "definition": [
@@ -473,8 +440,19 @@
   {
     "type": "Rule",
     "name": "referenceType",
-    "orgText": "() => {\r\n    $.OR([\r\n      // Spec Deviation: \"arrayType\" must appear **before**\r\n      //                 \"classOrInterfaceType\" due to common prefix.\r\n      {\r\n        GATE: $.BACKTRACK($.arrayType),\r\n        ALT: () => $.SUBRULE($.arrayType)\r\n      },\r\n      {\r\n        // Spec Deviation: \"typeVariable\" alternative is missing because\r\n        //                 it is included in \"classOrInterfaceType\"\r\n        ALT: () => $.SUBRULE($.classOrInterfaceType)\r\n      }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    $.MANY(() => {\r\n      // Spec Deviation: by extracting the common \"annotation\" prefix\r\n      // we can avoid backtracking and thus improve performance.\r\n      // Note that the annotation prefix is still present inside\r\n      // \"primitiveType\" and \"classOrInterfaceType\"\r\n      $.SUBRULE($.annotation);\r\n    });\r\n    // Spec Deviation: The array type \"dims\" suffix was extracted to this rule\r\n    // to avoid backtracking for performance reasons.\r\n    $.OR([\r\n      {\r\n        ALT: () => {\r\n          $.SUBRULE($.primitiveType);\r\n          $.SUBRULE($.dims);\r\n        }\r\n      },\r\n      {\r\n        // Spec Deviation: \"typeVariable\" alternative is missing because\r\n        //                 it is included in \"classOrInterfaceType\"\r\n        ALT: () => {\r\n          $.SUBRULE($.classOrInterfaceType);\r\n          $.OPTION(() => {\r\n            $.SUBRULE2($.dims);\r\n          });\r\n        }\r\n      }\r\n    ]);\r\n  }",
     "definition": [
+      {
+        "type": "Repetition",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "NonTerminal",
+            "name": "annotation",
+            "idx": 0
+          }
+        ]
+      },
       {
         "type": "Alternation",
         "idx": 0,
@@ -484,7 +462,12 @@
             "definition": [
               {
                 "type": "NonTerminal",
-                "name": "arrayType",
+                "name": "primitiveType",
+                "idx": 0
+              },
+              {
+                "type": "NonTerminal",
+                "name": "dims",
                 "idx": 0
               }
             ]
@@ -496,6 +479,17 @@
                 "type": "NonTerminal",
                 "name": "classOrInterfaceType",
                 "idx": 0
+              },
+              {
+                "type": "Option",
+                "idx": 0,
+                "definition": [
+                  {
+                    "type": "NonTerminal",
+                    "name": "dims",
+                    "idx": 2
+                  }
+                ]
               }
             ]
           }
@@ -627,44 +621,6 @@
         "label": "Identifier",
         "idx": 0,
         "pattern": "[a-zA-Z_\\\\$][a-zA-Z_\\\\$0-9]*"
-      }
-    ]
-  },
-  {
-    "type": "Rule",
-    "name": "arrayType",
-    "orgText": "() => {\r\n    // Spec Deviation: The alternative with \"TypeVariable\" is not specified\r\n    //      because it's syntax is included in \"classOrInterfaceType\"\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.primitiveType),\r\n        ALT: () => $.SUBRULE($.primitiveType)\r\n      },\r\n      { ALT: () => $.SUBRULE($.classOrInterfaceType) }\r\n    ]);\r\n    $.SUBRULE($.dims);\r\n  }",
-    "definition": [
-      {
-        "type": "Alternation",
-        "idx": 0,
-        "definition": [
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "primitiveType",
-                "idx": 0
-              }
-            ]
-          },
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "classOrInterfaceType",
-                "idx": 0
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "NonTerminal",
-        "name": "dims",
-        "idx": 0
       }
     ]
   },
@@ -2024,7 +1980,7 @@
   {
     "type": "Rule",
     "name": "unannReferenceType",
-    "orgText": "() => {\r\n    $.OR([\r\n      // \"unannArrayType\" must appear before \"unannClassOrInterfaceType\"\r\n      // due to common prefix.\r\n      {\r\n        GATE: $.BACKTRACK($.unannArrayType),\r\n        ALT: () => $.SUBRULE($.unannArrayType)\r\n      },\r\n      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    $.OR([\r\n      // \"unannArrayType\" must appear before \"unannClassOrInterfaceType\"\r\n      // due to common prefix.\r\n      // TODO: performance: evaluate getting rid of backtracking\r\n      {\r\n        GATE: $.BACKTRACK($.unannArrayType),\r\n        ALT: () => $.SUBRULE($.unannArrayType)\r\n      },\r\n      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -5203,7 +5159,7 @@
   {
     "type": "Rule",
     "name": "annotation",
-    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.normalAnnotation),\r\n        ALT: () => $.SUBRULE($.normalAnnotation)\r\n      },\r\n      // \"singleElementAnnotation\" must appear before \"markerAnnotation\" due to common\r\n      // prefix.\r\n      {\r\n        GATE: $.BACKTRACK($.singleElementAnnotation),\r\n        ALT: () => $.SUBRULE($.singleElementAnnotation)\r\n      },\r\n      { ALT: () => $.SUBRULE($.markerAnnotation) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    // TODO: performance optimization: implement optimized backtracking here.\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.normalAnnotation),\r\n        ALT: () => $.SUBRULE($.normalAnnotation)\r\n      },\r\n      // \"singleElementAnnotation\" must appear before \"markerAnnotation\" due to common\r\n      // prefix.\r\n      {\r\n        GATE: $.BACKTRACK($.singleElementAnnotation),\r\n        ALT: () => $.SUBRULE($.singleElementAnnotation)\r\n      },\r\n      { ALT: () => $.SUBRULE($.markerAnnotation) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -5769,7 +5725,7 @@
   {
     "type": "Rule",
     "name": "identifyInterfaceType",
-    "orgText": "() => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.interfaceModifier);\r\n    });\r\n    const nextTokenType = $.LA(1).tokenType;\r\n\r\n    switch (nextTokenType) {\r\n      case t.Interface:\r\n        return InterfaceType.normalInterfaceDeclaration;\r\n      case t.At:\r\n        return InterfaceType.annotationTypeDeclaration;\r\n      default:\r\n        return InterfaceType.unknown;\r\n    }\r\n  }",
+    "orgText": "() => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.interfaceModifier);\r\n    });\r\n    const nextTokenType = $.LA(1).tokenType;\r\n\r\n    switch (nextTokenType) {\r\n      case t.Interface:\r\n        return InterfaceType.normalInterfaceDeclaration;\r\n      // TODO: an interfaceModifier may start with an \"@\" (annotation)\r\n      //   we need to check more specifically for \"@interface\" two tokens sequence\r\n      //   specifically in the repetition above (add gate?)\r\n      case t.At:\r\n        return InterfaceType.annotationTypeDeclaration;\r\n      default:\r\n        return InterfaceType.unknown;\r\n    }\r\n  }",
     "definition": [
       {
         "type": "Repetition",
@@ -5929,7 +5885,7 @@
   {
     "type": "Rule",
     "name": "blockStatement",
-    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        // A variable declaration is normally short, so we uss regular\r\n        // **non optimized** backtracking for simplicity.\r\n        // TODO: performance: scan only until the equals operator.\r\n        GATE: $.BACKTRACK($.localVariableDeclarationStatement),\r\n        ALT: () => $.SUBRULE($.localVariableDeclarationStatement)\r\n      },\r\n      {\r\n        ALT: () => $.SUBRULE($.classDeclaration)\r\n      },\r\n      { ALT: () => $.SUBRULE($.statement) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(\r\n      $.isLocalVariableDeclaration\r\n    );\r\n    $.OR([\r\n      {\r\n        GATE: () => isLocalVariableDeclaration,\r\n        ALT: () => $.SUBRULE($.localVariableDeclarationStatement)\r\n      },\r\n      {\r\n        ALT: () => $.SUBRULE($.classDeclaration)\r\n      },\r\n      { ALT: () => $.SUBRULE($.statement) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -6787,7 +6743,7 @@
   {
     "type": "Rule",
     "name": "forInit",
-    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.localVariableDeclaration),\r\n        ALT: () => $.SUBRULE($.localVariableDeclaration)\r\n      },\r\n      { ALT: () => $.SUBRULE($.statementExpressionList) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        GATE: () => $.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration),\r\n        ALT: () => $.SUBRULE($.localVariableDeclaration)\r\n      },\r\n      { ALT: () => $.SUBRULE($.statementExpressionList) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -7487,7 +7443,7 @@
   {
     "type": "Rule",
     "name": "isBasicForStatement",
-    "orgText": "() => {\r\n    this.isBackTrackingStack.push(1);\r\n    const orgState = this.saveRecogState();\r\n    try {\r\n      $.CONSUME(t.For);\r\n      $.CONSUME(t.LBrace);\r\n      $.OPTION(() => {\r\n        $.SUBRULE($.forInit);\r\n      });\r\n      $.CONSUME(t.Semicolon);\r\n      // consuming the first semiColon distinguishes between\r\n      // \"basic\" and \"enhanced\" for statements\r\n      return true;\r\n    } catch (e) {\r\n      return false;\r\n    } finally {\r\n      this.reloadRecogState(orgState);\r\n      this.isBackTrackingStack.pop();\r\n    }\r\n  }",
+    "orgText": "() => {\r\n    $.CONSUME(t.For);\r\n    $.CONSUME(t.LBrace);\r\n    $.OPTION(() => {\r\n      $.SUBRULE($.forInit);\r\n    });\r\n    $.CONSUME(t.Semicolon);\r\n    // consuming the first semiColon distinguishes between\r\n    // \"basic\" and \"enhanced\" for statements\r\n    return true;\r\n  }",
     "definition": [
       {
         "type": "Terminal",
@@ -7520,6 +7476,34 @@
         "label": "';'",
         "idx": 0,
         "pattern": ";"
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "isLocalVariableDeclaration",
+    "orgText": "() => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.variableModifier);\r\n    });\r\n    $.SUBRULE($.localVariableType);\r\n    $.SUBRULE($.variableDeclaratorId);\r\n\r\n    const nextTokenType = this.LA(1).tokenType;\r\n    switch (nextTokenType) {\r\n      // Int x;\r\n      case t.Semicolon:\r\n      // Int x, y, z;\r\n      case t.Comma:\r\n      // Int x = 5;\r\n      case t.Equals:\r\n        return true;\r\n      default:\r\n        return false;\r\n    }\r\n  }",
+    "definition": [
+      {
+        "type": "Repetition",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "NonTerminal",
+            "name": "variableModifier",
+            "idx": 0
+          }
+        ]
+      },
+      {
+        "type": "NonTerminal",
+        "name": "localVariableType",
+        "idx": 0
+      },
+      {
+        "type": "NonTerminal",
+        "name": "variableDeclaratorId",
+        "idx": 0
       }
     ]
   },
@@ -7759,7 +7743,7 @@
   {
     "type": "Rule",
     "name": "lambdaParameter",
-    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.regularLambdaParameter),\r\n        ALT: () => $.SUBRULE($.regularLambdaParameter)\r\n      },\r\n      { ALT: () => $.SUBRULE($.variableArityParameter) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    // TODO: performance, investigate the performance boost that could\r\n    //       be gained by refactoring out the backtracking.\r\n    $.OR([\r\n      {\r\n        GATE: $.BACKTRACK($.regularLambdaParameter),\r\n        ALT: () => $.SUBRULE($.regularLambdaParameter)\r\n      },\r\n      { ALT: () => $.SUBRULE($.variableArityParameter) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -8273,7 +8257,7 @@
   {
     "type": "Rule",
     "name": "fqnOrRefType",
-    "orgText": "() => {\r\n    // TODO: this causes 20-30% performance reduction.\r\n    //  can we optimize this?\r\n    const isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD(\r\n      $.isRefTypeInMethodRef\r\n    );\r\n    $.SUBRULE($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });\r\n\r\n    $.MANY2({\r\n      // \".class\" is a classLiteralSuffix\r\n      GATE: () => this.LA(2).tokenType !== t.Class,\r\n      DEF: () => {\r\n        $.CONSUME(t.Dot);\r\n        $.SUBRULE2($.fqnOrRefTypePart, { ARGS: [isRefTypeInMethodRef] });\r\n      }\r\n    });\r\n  }",
+    "orgText": "() => {\r\n    $.SUBRULE($.fqnOrRefTypePart);\r\n\r\n    $.MANY2({\r\n      // \".class\" is a classLiteralSuffix\r\n      GATE: () => this.LA(2).tokenType !== t.Class,\r\n      DEF: () => {\r\n        $.CONSUME(t.Dot);\r\n        $.SUBRULE2($.fqnOrRefTypePart);\r\n      }\r\n    });\r\n  }",
     "definition": [
       {
         "type": "NonTerminal",
@@ -8303,7 +8287,7 @@
   {
     "type": "Rule",
     "name": "fqnOrRefTypePart",
-    "orgText": "isRefTypeInMethodRef => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.annotation);\r\n    });\r\n\r\n    $.OPTION({\r\n      NAME: \"$methodTypeArguments\",\r\n      DEF: () => {\r\n        $.SUBRULE2($.typeArguments);\r\n      }\r\n    });\r\n\r\n    $.OR([\r\n      { ALT: () => $.CONSUME(t.Identifier) },\r\n      { ALT: () => $.CONSUME(t.Super) }\r\n    ]);\r\n\r\n    $.OPTION2({\r\n      NAME: \"$classTypeArguments\",\r\n      // unrestricted typeArguments here would create an ambiguity with \"LessThan\" operator\r\n      // e.g: \"var x = a < b;\"\r\n      // The \"<\" would be parsed as the beginning of a \"typeArguments\"\r\n      // and we will get an error: \"expecting '>' but found: ';'\"\r\n      GATE: () => isRefTypeInMethodRef,\r\n      DEF: () => {\r\n        $.SUBRULE3($.typeArguments);\r\n      }\r\n    });\r\n  }",
+    "orgText": "() => {\r\n    $.MANY(() => {\r\n      $.SUBRULE($.annotation);\r\n    });\r\n\r\n    $.OPTION({\r\n      NAME: \"$methodTypeArguments\",\r\n      DEF: () => {\r\n        $.SUBRULE2($.typeArguments);\r\n      }\r\n    });\r\n\r\n    $.OR([\r\n      { ALT: () => $.CONSUME(t.Identifier) },\r\n      { ALT: () => $.CONSUME(t.Super) }\r\n    ]);\r\n\r\n    let isRefTypeInMethodRef = false;\r\n    // Performance optimization, only perform this backtracking when a '<' is found\r\n    // TODO: performance optimization evaluation: avoid doing this backtracking for every \"<\" encountered.\r\n    //       we could do it once (using global state) per \"fqnOrRefType\"\r\n    // We could do it only once for\r\n    if ($.LA(1).tokenType === t.Less) {\r\n      isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD($.isRefTypeInMethodRef);\r\n    }\r\n\r\n    $.OPTION2({\r\n      NAME: \"$classTypeArguments\",\r\n      // unrestricted typeArguments here would create an ambiguity with \"LessThan\" operator\r\n      // e.g: \"var x = a < b;\"\r\n      // The \"<\" would be parsed as the beginning of a \"typeArguments\"\r\n      // and we will get an error: \"expecting '>' but found: ';'\"\r\n      GATE: () => isRefTypeInMethodRef,\r\n      DEF: () => {\r\n        $.SUBRULE3($.typeArguments);\r\n      }\r\n    });\r\n  }",
     "definition": [
       {
         "type": "Repetition",
@@ -8399,7 +8383,7 @@
   {
     "type": "Rule",
     "name": "castExpression",
-    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        // TODO: can avoid backtracking again here, parent rule could have this information\r\n        //       when it checks isCastExpression (refactor needed)\r\n        GATE: () => this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression),\r\n        ALT: () => $.SUBRULE($.primitiveCastExpression)\r\n      },\r\n      { ALT: () => $.SUBRULE($.referenceTypeCastExpression) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    $.OR([\r\n      {\r\n        // TODO: performance: can avoid backtracking again here, parent rule could have this information\r\n        //       when it checks isCastExpression (refactor needed)\r\n        GATE: () => this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression),\r\n        ALT: () => $.SUBRULE($.primitiveCastExpression)\r\n      },\r\n      { ALT: () => $.SUBRULE($.referenceTypeCastExpression) }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -9115,7 +9099,7 @@
   {
     "type": "Rule",
     "name": "isLambdaExpression",
-    "orgText": "() => {\r\n    // TODO: this check of next two tokens is probably redundant as the normal lookahead should take care of this.\r\n    const firstTokenType = this.LA(1).tokenType;\r\n    const secondTokenType = this.LA(2).tokenType;\r\n    // no parent lambda \"x -> x * 2\"\r\n    if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {\r\n      return true;\r\n    }\r\n\r\n    $.SUBRULE($.lambdaParametersWithBraces);\r\n    const followedByArrow = this.LA(1).tokenType === t.Arrow;\r\n    return followedByArrow;\r\n  }",
+    "orgText": "() => {\r\n    // TODO: this check of next two tokens is probably redundant as the normal lookahead should take care of this.\r\n    const firstTokenType = this.LA(1).tokenType;\r\n    const secondTokenType = this.LA(2).tokenType;\r\n    // no parent lambda \"x -> x * 2\"\r\n    if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {\r\n      return true;\r\n    }\r\n    // Performance optimizations, fail fast if it is not a LBrace.\r\n    else if (firstTokenType === t.LBrace) {\r\n      $.SUBRULE($.lambdaParametersWithBraces);\r\n      const followedByArrow = this.LA(1).tokenType === t.Arrow;\r\n      return followedByArrow;\r\n    }\r\n    return false;\r\n  }",
     "definition": [
       {
         "type": "NonTerminal",
@@ -9196,12 +9180,41 @@
   {
     "type": "Rule",
     "name": "isRefTypeInMethodRef",
-    "orgText": "() => {\r\n    $.SUBRULE($.referenceType);\r\n    const firstTokTypeAfterRefType = this.LA(1).tokenType;\r\n    return firstTokTypeAfterRefType === t.ColonColon;\r\n  }",
+    "orgText": "() => {\r\n    $.SUBRULE($.typeArguments);\r\n\r\n    // arrayType\r\n    const hasDims = $.OPTION(() => {\r\n      $.SUBRULE($.dims);\r\n    });\r\n\r\n    const firstTokTypeAfterTypeArgs = this.LA(1).tokenType;\r\n    if (firstTokTypeAfterTypeArgs === t.ColonColon) {\r\n      return true;\r\n    }\r\n    // we must be at the end of a \"referenceType\" if \"dims\" were encountered\r\n    // So there is not point to check farther\r\n    else if (hasDims) {\r\n      return false;\r\n    }\r\n\r\n    // in the middle of a \"classReferenceType\"\r\n    $.OPTION2(() => {\r\n      $.CONSUME(t.Dot);\r\n      $.SUBRULE($.classOrInterfaceType);\r\n    });\r\n\r\n    const firstTokTypeAfterRefType = this.LA(1).tokenType;\r\n    return firstTokTypeAfterRefType === t.ColonColon;\r\n  }",
     "definition": [
       {
         "type": "NonTerminal",
-        "name": "referenceType",
+        "name": "typeArguments",
         "idx": 0
+      },
+      {
+        "type": "Option",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "NonTerminal",
+            "name": "dims",
+            "idx": 0
+          }
+        ]
+      },
+      {
+        "type": "Option",
+        "idx": 2,
+        "definition": [
+          {
+            "type": "Terminal",
+            "name": "Dot",
+            "label": "'.'",
+            "idx": 0,
+            "pattern": "."
+          },
+          {
+            "type": "NonTerminal",
+            "name": "classOrInterfaceType",
+            "idx": 0
+          }
+        ]
       }
     ]
   }

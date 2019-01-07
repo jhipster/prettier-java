@@ -56,5 +56,5 @@ const successPercentage = ((success / totalFiles) * 100).toFixed(3);
 
 console.log(`Total number of files: <${totalFiles}>`);
 console.warn(`Total number of failures: <${failed}>`);
-console.log(`Total time: <${fullTotalTime}>`);
+console.log(`Total time: <${fullTotalTime}ms>`);
 console.log(`Success Percentage: ${successPercentage}%`);
