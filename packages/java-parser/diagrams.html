@@ -1980,7 +1980,7 @@
   {
     "type": "Rule",
     "name": "unannReferenceType",
-    "orgText": "() => {\r\n    $.OR([\r\n      // \"unannArrayType\" must appear before \"unannClassOrInterfaceType\"\r\n      // due to common prefix.\r\n      // TODO: performance: evaluate getting rid of backtracking\r\n      {\r\n        GATE: $.BACKTRACK($.unannArrayType),\r\n        ALT: () => $.SUBRULE($.unannArrayType)\r\n      },\r\n      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }\r\n    ]);\r\n  }",
+    "orgText": "() => {\r\n    // Spec Deviation: The array type \"dims\" suffix was extracted to this rule\r\n    // to avoid backtracking for performance reasons.\r\n    $.OR([\r\n      {\r\n        ALT: () => {\r\n          $.SUBRULE($.unannPrimitiveType);\r\n          $.SUBRULE($.dims);\r\n        }\r\n      },\r\n      {\r\n        ALT: () => {\r\n          $.SUBRULE($.unannClassOrInterfaceType);\r\n          $.OPTION(() => {\r\n            $.SUBRULE2($.dims);\r\n          });\r\n        }\r\n      }\r\n    ]);\r\n  }",
     "definition": [
       {
         "type": "Alternation",
@@ -1991,7 +1991,12 @@
             "definition": [
               {
                 "type": "NonTerminal",
-                "name": "unannArrayType",
+                "name": "unannPrimitiveType",
+                "idx": 0
+              },
+              {
+                "type": "NonTerminal",
+                "name": "dims",
                 "idx": 0
               }
             ]
@@ -2003,6 +2008,17 @@
                 "type": "NonTerminal",
                 "name": "unannClassOrInterfaceType",
                 "idx": 0
+              },
+              {
+                "type": "Option",
+                "idx": 0,
+                "definition": [
+                  {
+                    "type": "NonTerminal",
+                    "name": "dims",
+                    "idx": 2
+                  }
+                ]
               }
             ]
           }
@@ -2112,44 +2128,6 @@
         "label": "Identifier",
         "idx": 0,
         "pattern": "[a-zA-Z_\\\\$][a-zA-Z_\\\\$0-9]*"
-      }
-    ]
-  },
-  {
-    "type": "Rule",
-    "name": "unannArrayType",
-    "orgText": "() => {\r\n    // Spec Deviation: The alternative with \"unannTypeVariable\" is not specified\r\n    //      because it's syntax is included in \"unannClassOrInterfaceType\"\r\n    $.OR([\r\n      { ALT: () => $.SUBRULE($.unannPrimitiveType) },\r\n      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }\r\n    ]);\r\n    $.SUBRULE($.dims);\r\n  }",
-    "definition": [
-      {
-        "type": "Alternation",
-        "idx": 0,
-        "definition": [
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "unannPrimitiveType",
-                "idx": 0
-              }
-            ]
-          },
-          {
-            "type": "Flat",
-            "definition": [
-              {
-                "type": "NonTerminal",
-                "name": "unannClassOrInterfaceType",
-                "idx": 0
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "NonTerminal",
-        "name": "dims",
-        "idx": 0
       }
     ]
   },
