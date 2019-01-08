@@ -22,17 +22,23 @@ const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")
 );
 
+const javaPathAndText = _.map(javaSampleFiles, fileDesc => {
+  const currJavaFileString = fs.readFileSync(fileDesc.path, "utf8");
+  const relativePath = path.relative(__dirname, fileDesc.path);
+
+  return { path: relativePath, text: currJavaFileString };
+});
+
 let success = 0;
 let failed = 0;
 
 const fullStartTime = new Date().getTime();
-javaSampleFiles.forEach(fileDesc => {
+javaPathAndText.forEach(fileDesc => {
   // TODO: read the files BEFORE the benchmark started to only bench the parsing speed...
-  const currJavaFileString = fs.readFileSync(fileDesc.path, "utf8");
-  const relativePath = path.relative(__dirname, fileDesc.path);
+  const relativePath = fileDesc.path;
   try {
     const sampleStartTime = _.now();
-    javaParser.parse(currJavaFileString);
+    javaParser.parse(fileDesc.text);
     const sampleEndTime = _.now();
     const totalSampleTime = sampleEndTime - sampleStartTime;
     printProgress(
