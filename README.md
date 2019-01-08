@@ -29,7 +29,7 @@ It could even be used inside a browser.
   - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
   - [x] Milestone 1 - Success parsing "Java Design Patterns" repo.
   - [ ] Milestone 2 - Success parsing "spring-boot" repo (Currently **93.8%**).
-  - [ ] Investigate performance optimizations.
+  - [x] Investigate performance optimizations.
 
 - prettier-java package
 
