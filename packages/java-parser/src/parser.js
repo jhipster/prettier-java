@@ -42,9 +42,6 @@ class JavaParser extends Parser {
       maxLookahead: 2,
       // ambiguities resolved by backtracking
       ignoredIssues: {
-        annotation: {
-          OR: true
-        },
         annotationTypeMemberDeclaration: {
           OR: true
         },

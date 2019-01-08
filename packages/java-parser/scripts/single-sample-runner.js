@@ -6,6 +6,10 @@
 
 const javaParserChev = require("../src/index");
 
-const input = `private int to;`;
+const input = `  @RequestMapping("/product")
+  public Void put(String key, Object value) {
+    properties.put(key, value);
+    return null;
+  }`;
 
 javaParserChev.parse(input, "classBodyDeclaration");

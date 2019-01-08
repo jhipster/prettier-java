@@ -27,6 +27,7 @@ let failed = 0;
 
 const fullStartTime = new Date().getTime();
 javaSampleFiles.forEach(fileDesc => {
+  // TODO: read the files BEFORE the benchmark started to only bench the parsing speed...
   const currJavaFileString = fs.readFileSync(fileDesc.path, "utf8");
   const relativePath = path.relative(__dirname, fileDesc.path);
   try {

@@ -238,31 +238,28 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-Annotation
   $.RULE("annotation", () => {
-    // TODO: performance optimization: implement optimized backtracking here.
-    $.OR([
-      {
-        GATE: $.BACKTRACK($.normalAnnotation),
-        ALT: () => $.SUBRULE($.normalAnnotation)
-      },
-      // "singleElementAnnotation" must appear before "markerAnnotation" due to common
-      // prefix.
-      {
-        GATE: $.BACKTRACK($.singleElementAnnotation),
-        ALT: () => $.SUBRULE($.singleElementAnnotation)
-      },
-      { ALT: () => $.SUBRULE($.markerAnnotation) }
-    ]);
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
-  $.RULE("normalAnnotation", () => {
+    // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
+    // This was done to avoid the use of backtracking for performance reasons.
     $.CONSUME(t.At);
     $.SUBRULE($.typeName);
-    $.CONSUME(t.LBrace);
+
+    // If this optional grammar was not invoked we have a markerAnnotation
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
     $.OPTION(() => {
-      $.SUBRULE($.elementValuePairList);
+      $.CONSUME(t.LBrace);
+      $.OR([
+        // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+        { ALT: () => $.SUBRULE($.elementValuePairList) },
+        // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+        { ALT: () => $.SUBRULE($.elementValue) },
+        {
+          ALT: () => {
+            /* empty normal annotation contents */
+          }
+        }
+      ]);
+      $.CONSUME(t.RBrace);
     });
-    $.CONSUME(t.RBrace);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValuePairList
@@ -319,21 +316,6 @@ function defineRules($, t) {
       $.CONSUME(t.Comma);
       $.SUBRULE2($.elementValue);
     });
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
-  $.RULE("markerAnnotation", () => {
-    $.CONSUME(t.At);
-    $.SUBRULE($.typeName);
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
-  $.RULE("singleElementAnnotation", () => {
-    $.CONSUME(t.At);
-    $.SUBRULE($.typeName);
-    $.CONSUME(t.LBrace);
-    $.SUBRULE($.elementValue);
-    $.CONSUME(t.RBrace);
   });
 
   // ------------------------------------
