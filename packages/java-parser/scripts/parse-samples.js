@@ -7,16 +7,22 @@ const javaParser = require("../src/index");
 const _ = require("lodash");
 
 const options = {
-  failFast: false,
-  printProgress: false
+  failFast: true,
+  printProgress: false,
+  printErrors: true
 };
 
 let printProgress = _.noop;
+let printErrors = _.noop;
 if (options.printProgress) {
   printProgress = console.log;
 }
 
-const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
+if (options.printErrors) {
+  printErrors = console.error;
+}
+
+const samplesDir = path.resolve(__dirname, "../samples/spring-boot");
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")
@@ -47,12 +53,12 @@ javaPathAndText.forEach(fileDesc => {
 
     success++;
   } catch (e) {
+    printErrors(`Failed parsing: <${relativePath}>`);
     if (options.failFast) {
       throw e;
     }
     failed++;
-    printProgress(`Failed parsing: <${relativePath}>`);
-    printProgress(e.message);
+    printErrors(e.message);
   }
 });
 const fullEndTime = new Date().getTime();

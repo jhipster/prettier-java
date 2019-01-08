@@ -116,8 +116,20 @@ function defineRules($, t) {
   $.RULE("binaryExpression", () => {
     $.SUBRULE($.unaryExpression);
     $.MANY(() => {
-      $.CONSUME(t.BinaryOperator);
-      $.SUBRULE2($.unaryExpression);
+      $.OR([
+        {
+          ALT: () => {
+            $.CONSUME(t.Instanceof);
+            $.SUBRULE($.referenceType);
+          }
+        },
+        {
+          ALT: () => {
+            $.CONSUME(t.BinaryOperator);
+            $.SUBRULE2($.unaryExpression);
+          }
+        }
+      ]);
     });
   });
 
@@ -198,10 +210,21 @@ function defineRules($, t) {
 
     $.MANY2({
       // ".class" is a classLiteralSuffix
-      GATE: () => this.LA(2).tokenType !== t.Class,
+      GATE: () =>
+        this.LA(2).tokenType !== t.Class && this.LA(2).tokenType !== t.This,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.SUBRULE2($.fqnOrRefTypePart);
+      }
+    });
+
+    // in case of an arrayType
+    $.OPTION({
+      // it is not enough to check only the opening "[", we must avoid conflict with
+      // arrayAccessSuffix
+      GATE: () => $.LA(1).tokenType === t.At || $.LA(2).tokenType === t.RSquare,
+      DEF: () => {
+        $.SUBRULE($.dims);
       }
     });
   });
