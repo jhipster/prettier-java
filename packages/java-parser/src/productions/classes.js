@@ -231,16 +231,25 @@ function defineRules($, t) {
     ]);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannReferenceType
   $.RULE("unannReferenceType", () => {
+    // Spec Deviation: The array type "dims" suffix was extracted to this rule
+    // to avoid backtracking for performance reasons.
     $.OR([
-      // "unannArrayType" must appear before "unannClassOrInterfaceType"
-      // due to common prefix.
-      // TODO: performance: evaluate getting rid of backtracking
       {
-        GATE: $.BACKTRACK($.unannArrayType),
-        ALT: () => $.SUBRULE($.unannArrayType)
+        ALT: () => {
+          $.SUBRULE($.unannPrimitiveType);
+          $.SUBRULE($.dims);
+        }
       },
-      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }
+      {
+        ALT: () => {
+          $.SUBRULE($.unannClassOrInterfaceType);
+          $.OPTION(() => {
+            $.SUBRULE2($.dims);
+          });
+        }
+      }
     ]);
   });
 
@@ -280,16 +289,6 @@ function defineRules($, t) {
     // TODO: Semantic Check: This Identifier cannot be "var"
     // TODO: or define as token type?
     $.CONSUME(t.Identifier);
-  });
-
-  $.RULE("unannArrayType", () => {
-    // Spec Deviation: The alternative with "unannTypeVariable" is not specified
-    //      because it's syntax is included in "unannClassOrInterfaceType"
-    $.OR([
-      { ALT: () => $.SUBRULE($.unannPrimitiveType) },
-      { ALT: () => $.SUBRULE($.unannClassOrInterfaceType) }
-    ]);
-    $.SUBRULE($.dims);
   });
 
   // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-MethodDeclaration
