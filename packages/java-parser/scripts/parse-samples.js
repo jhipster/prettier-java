@@ -7,7 +7,7 @@ const javaParser = require("../src/index");
 const _ = require("lodash");
 
 const options = {
-  failFast: true,
+  failFast: false,
   printProgress: false,
   printErrors: true
 };
@@ -22,7 +22,7 @@ if (options.printErrors) {
   printErrors = console.error;
 }
 
-const samplesDir = path.resolve(__dirname, "../samples/spring-boot");
+const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")

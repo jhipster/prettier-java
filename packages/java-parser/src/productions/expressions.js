@@ -107,9 +107,10 @@ function defineRules($, t) {
     $.SUBRULE($.binaryExpression);
     $.OPTION(() => {
       $.CONSUME(t.QuestionMark);
-      $.SUBRULE($.assignmentExpression);
+      $.SUBRULE($.expression);
       $.CONSUME(t.Colon);
-      $.SUBRULE2($.assignmentExpression);
+      // TODO: in the grammar this is limited to "lambdaExpression: or "conditionalExpression"
+      $.SUBRULE2($.expression);
     });
   });
 

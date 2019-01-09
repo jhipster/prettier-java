@@ -6,6 +6,8 @@
 
 const javaParserChev = require("../src/index");
 
-const input = `map(String[]::new)`;
+const input = `
+public @interface ConfigurationProperties {}
+`;
 
-javaParserChev.parse(input, "expression");
+javaParserChev.parse(input, "typeDeclaration");

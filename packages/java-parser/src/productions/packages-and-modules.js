@@ -78,6 +78,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
   $.RULE("typeDeclaration", () => {
+    // TODO: consider extracting the prefix modifiers here to avoid backtracking
     const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
     $.OR([
       {

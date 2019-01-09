@@ -8,6 +8,8 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
+    // TODO: PERFORMANCE
+    //  1. consider extracting the common modifiers prefix to avoid the backtracking
     const type = this.BACKTRACK_LOOKAHEAD($.identifyInterfaceType);
     $.OR([
       {
@@ -429,8 +431,14 @@ function defineRules($, t) {
   });
 
   $.RULE("identifyInterfaceType", () => {
-    $.MANY(() => {
-      $.SUBRULE($.interfaceModifier);
+    $.MANY({
+      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
+      GATE: () =>
+        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+        false,
+      DEF: () => {
+        $.SUBRULE($.interfaceModifier);
+      }
     });
     const nextTokenType = $.LA(1).tokenType;
 

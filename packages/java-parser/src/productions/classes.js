@@ -655,8 +655,13 @@ function defineRules($, t) {
       // The {classModifier} is a super grammar of the "interfaceModifier"
       // So we must parse all the "{classModifier}" before we can distinguish
       // between the alternatives.
-      $.MANY(() => {
-        $.SUBRULE($.classModifier);
+      $.MANY({
+        GATE: () =>
+          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+          false,
+        DEF: () => {
+          $.SUBRULE($.classModifier);
+        }
       });
     } catch (e) {
       if (isRecognitionException(e)) {
@@ -689,26 +694,36 @@ function defineRules($, t) {
       }
 
       // We have to look beyond the modifiers to distinguish between the declaration types.
-      $.MANY(() => {
-        // This alternation includes all possible modifiers for all types of "ClassBodyDeclaration"
-        // Certain combinations are syntactically invalid, this is **not** checked here,
-        // Invalid combinations will cause a descriptive parsing error message to be
-        // Created inside the relevant parsing rules **after** this lookahead
-        // analysis.
-        $.OR([
-          { ALT: () => $.SUBRULE($.annotation) },
-          { ALT: () => $.CONSUME(t.Public) },
-          { ALT: () => $.CONSUME(t.Protected) },
-          { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Final) },
-          { ALT: () => $.CONSUME(t.Transient) },
-          { ALT: () => $.CONSUME(t.Volatile) },
-          { ALT: () => $.CONSUME(t.Synchronized) },
-          { ALT: () => $.CONSUME(t.Native) },
-          { ALT: () => $.CONSUME(t.Strictfp) }
-        ]);
+      $.MANY({
+        GATE: () =>
+          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+          false,
+        DEF: () => {
+          // This alternation includes all possible modifiers for all types of "ClassBodyDeclaration"
+          // Certain combinations are syntactically invalid, this is **not** checked here,
+          // Invalid combinations will cause a descriptive parsing error message to be
+          // Created inside the relevant parsing rules **after** this lookahead
+          // analysis.
+          $.OR([
+            {
+              GATE: () =>
+                ($.LA(1).tokenType === t.At &&
+                  $.LA(2).tokenType === t.Interface) === false,
+              ALT: () => $.SUBRULE($.annotation)
+            },
+            { ALT: () => $.CONSUME(t.Public) },
+            { ALT: () => $.CONSUME(t.Protected) },
+            { ALT: () => $.CONSUME(t.Private) },
+            { ALT: () => $.CONSUME(t.Abstract) },
+            { ALT: () => $.CONSUME(t.Static) },
+            { ALT: () => $.CONSUME(t.Final) },
+            { ALT: () => $.CONSUME(t.Transient) },
+            { ALT: () => $.CONSUME(t.Volatile) },
+            { ALT: () => $.CONSUME(t.Synchronized) },
+            { ALT: () => $.CONSUME(t.Native) },
+            { ALT: () => $.CONSUME(t.Strictfp) }
+          ]);
+        }
       });
 
       nextTokenType = this.LA(1).tokenType;
