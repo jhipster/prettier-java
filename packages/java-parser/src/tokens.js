@@ -321,7 +321,6 @@ createToken({
   pattern: "<<=",
   categories: [AssignmentOperator]
 });
-createToken({ name: "LessLess", pattern: "<<", categories: [BinaryOperator] });
 createToken({ name: "Less", pattern: "<", categories: [BinaryOperator] });
 createToken({
   name: "GreaterEquals",
