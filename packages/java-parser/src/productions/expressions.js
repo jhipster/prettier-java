@@ -10,7 +10,7 @@ function defineRules($, t) {
         GATE: () => this.BACKTRACK_LOOKAHEAD($.isLambdaExpression),
         ALT: () => $.SUBRULE($.lambdaExpression)
       },
-      { ALT: () => $.SUBRULE($.assignmentExpression) }
+      { ALT: () => $.SUBRULE($.ternaryExpression) }
     ]);
   });
 
@@ -103,7 +103,7 @@ function defineRules($, t) {
     ]);
   });
 
-  $.RULE("assignmentExpression", () => {
+  $.RULE("ternaryExpression", () => {
     $.SUBRULE($.binaryExpression);
     $.OPTION(() => {
       $.CONSUME(t.QuestionMark);
@@ -122,6 +122,12 @@ function defineRules($, t) {
           ALT: () => {
             $.CONSUME(t.Instanceof);
             $.SUBRULE($.referenceType);
+          }
+        },
+        {
+          ALT: () => {
+            $.CONSUME(t.AssignmentOperator);
+            $.SUBRULE2($.expression);
           }
         },
         {

@@ -80,6 +80,11 @@ const Keyword = createToken({
   pattern: Lexer.NA
 });
 
+const AssignmentOperator = createToken({
+  name: "AssignmentOperator",
+  pattern: Lexer.NA
+});
+
 const BinaryOperator = createToken({
   name: "BinaryOperator",
   pattern: Lexer.NA
@@ -314,7 +319,7 @@ createToken({
 createToken({
   name: "LessLessEquals",
   pattern: "<<=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({ name: "LessLess", pattern: "<<", categories: [BinaryOperator] });
 createToken({ name: "Less", pattern: "<", categories: [BinaryOperator] });
@@ -326,12 +331,12 @@ createToken({
 createToken({
   name: "GreaterGreaterEquals",
   pattern: ">>=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({
   name: "GreaterGreaterGreaterEquals",
   pattern: ">>>=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({ name: "Greater", pattern: ">", categories: [BinaryOperator] });
 createToken({
@@ -339,11 +344,15 @@ createToken({
   pattern: "==",
   categories: [BinaryOperator]
 });
-createToken({ name: "Equals", pattern: "=", categories: [BinaryOperator] });
+createToken({
+  name: "Equals",
+  pattern: "=",
+  categories: [BinaryOperator, AssignmentOperator]
+});
 createToken({
   name: "MinusEquals",
   pattern: "-=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({
   name: "Minus",
@@ -353,7 +362,7 @@ createToken({
 createToken({
   name: "PlusEquals",
   pattern: "+=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({
   name: "Plus",
@@ -361,30 +370,42 @@ createToken({
   categories: [BinaryOperator, UnaryPrefixOperator]
 });
 createToken({ name: "AndAnd", pattern: "&&", categories: [BinaryOperator] });
-createToken({ name: "AndEquals", pattern: "&=", categories: [BinaryOperator] });
+createToken({
+  name: "AndEquals",
+  pattern: "&=",
+  categories: [AssignmentOperator]
+});
 createToken({ name: "And", pattern: "&", categories: [BinaryOperator] });
-createToken({ name: "XorEquals", pattern: "^=", categories: [BinaryOperator] });
+createToken({
+  name: "XorEquals",
+  pattern: "^=",
+  categories: [AssignmentOperator]
+});
 createToken({ name: "Xor", pattern: "^", categories: [BinaryOperator] });
 createToken({ name: "NotEquals", pattern: "!=", categories: [BinaryOperator] });
 createToken({ name: "OrOr", pattern: "||", categories: [BinaryOperator] });
-createToken({ name: "OrEquals", pattern: "|=", categories: [BinaryOperator] });
+createToken({
+  name: "OrEquals",
+  pattern: "|=",
+  categories: [AssignmentOperator]
+});
 createToken({ name: "Or", pattern: "|", categories: [BinaryOperator] });
 createToken({
   name: "MultiplyEquals",
   pattern: "*=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({ name: "Star", pattern: "*", categories: [BinaryOperator] });
 createToken({
   name: "DivideEquals",
   pattern: "/=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({ name: "Divide", pattern: "/", categories: [BinaryOperator] });
 createToken({
   name: "ModuloEquals",
   pattern: "%=",
-  categories: [BinaryOperator]
+  categories: [AssignmentOperator]
 });
 createToken({ name: "Modulo", pattern: "%", categories: [BinaryOperator] });
 

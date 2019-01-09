@@ -22,6 +22,7 @@ if (options.printErrors) {
   printErrors = console.error;
 }
 
+// const samplesDir = path.resolve(__dirname, "../samples/java-design-patterns");
 const samplesDir = path.resolve(__dirname, "../samples/spring-boot");
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
