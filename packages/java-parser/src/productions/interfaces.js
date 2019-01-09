@@ -198,6 +198,7 @@ function defineRules($, t) {
     $.MANY(() => {
       $.SUBRULE($.annotationTypeElementModifier);
     });
+    $.SUBRULE($.unannType);
     $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
     $.CONSUME(t.RBrace);
