@@ -1,33 +1,21 @@
 "use strict";
 function defineRules($, t) {
-  const InterfaceType = {
-    unknown: 0,
-    normalInterfaceDeclaration: 1,
-    annotationTypeDeclaration: 2
-  };
-
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
-    // TODO: PERFORMANCE
-    //  1. consider extracting the common modifiers prefix to avoid the backtracking
-    const type = this.BACKTRACK_LOOKAHEAD($.identifyInterfaceType);
+    // Spec Deviation: extracted the common "interfaceModifier" prefix to avoid backtracking.
+    $.MANY(() => {
+      $.SUBRULE($.interfaceModifier);
+    });
+
     $.OR([
-      {
-        GATE: () => type === InterfaceType.normalInterfaceDeclaration,
-        ALT: () => $.SUBRULE($.normalInterfaceDeclaration)
-      },
-      {
-        GATE: () => type === InterfaceType.annotationTypeDeclaration,
-        ALT: () => $.SUBRULE($.annotationTypeDeclaration)
-      }
+      { ALT: () => $.SUBRULE($.normalInterfaceDeclaration) },
+      { ALT: () => $.SUBRULE($.annotationTypeDeclaration) }
     ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalInterfaceDeclaration
   $.RULE("normalInterfaceDeclaration", () => {
-    $.MANY(() => {
-      $.SUBRULE($.interfaceModifier);
-    });
+    // Spec Deviation: The "interfaceModifier" prefix was extracted to the "interfaceDeclaration"
     $.CONSUME(t.Interface);
     $.SUBRULE($.typeIdentifier);
     $.OPTION(() => {
@@ -150,9 +138,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeDeclaration
   $.RULE("annotationTypeDeclaration", () => {
-    $.MANY(() => {
-      $.SUBRULE($.interfaceModifier);
-    });
+    // Spec Deviation: The "interfaceModifier" prefix was extracted to the "interfaceDeclaration"
     $.CONSUME(t.At);
     $.CONSUME(t.Interface);
     $.SUBRULE($.typeIdentifier);
@@ -239,30 +225,34 @@ function defineRules($, t) {
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-Annotation
-  $.RULE("annotation", () => {
-    // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
-    // This was done to avoid the use of backtracking for performance reasons.
-    $.CONSUME(t.At);
-    $.SUBRULE($.typeName);
+  $.RULE(
+    "annotation",
+    () => {
+      // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
+      // This was done to avoid the use of backtracking for performance reasons.
+      $.CONSUME(t.At);
+      $.SUBRULE($.typeName);
 
-    // If this optional grammar was not invoked we have a markerAnnotation
-    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
-    $.OPTION(() => {
-      $.CONSUME(t.LBrace);
-      $.OR([
-        // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
-        { ALT: () => $.SUBRULE($.elementValuePairList) },
-        // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
-        { ALT: () => $.SUBRULE($.elementValue) },
-        {
-          ALT: () => {
-            /* empty normal annotation contents */
+      // If this optional grammar was not invoked we have a markerAnnotation
+      // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
+      $.OPTION(() => {
+        $.CONSUME(t.LBrace);
+        $.OR([
+          // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+          { ALT: () => $.SUBRULE($.elementValuePairList) },
+          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+          { ALT: () => $.SUBRULE($.elementValue) },
+          {
+            ALT: () => {
+              /* empty normal annotation contents */
+            }
           }
-        }
-      ]);
-      $.CONSUME(t.RBrace);
-    });
-  });
+        ]);
+        $.CONSUME(t.RBrace);
+      });
+    },
+    "annotation"
+  );
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValuePairList
   $.RULE("elementValuePairList", () => {
@@ -330,23 +320,29 @@ function defineRules($, t) {
     }
 
     // We have to look beyond the modifiers to distinguish between the declaration types.
-    $.MANY(() => {
-      // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
-      // Certain combinations are syntactically invalid, this is **not** checked here,
-      // Invalid combinations will cause a descriptive parsing error message to be
-      // Created inside the relevant parsing rules **after** this lookahead
-      // analysis.
-      $.OR([
-        { ALT: () => $.SUBRULE($.annotation) },
-        { ALT: () => $.CONSUME(t.Public) },
-        { ALT: () => $.CONSUME(t.Protected) },
-        { ALT: () => $.CONSUME(t.Private) },
-        { ALT: () => $.CONSUME(t.Static) },
-        { ALT: () => $.CONSUME(t.Final) },
-        { ALT: () => $.CONSUME(t.Abstract) },
-        { ALT: () => $.CONSUME(t.Default) },
-        { ALT: () => $.CONSUME(t.Strictfp) }
-      ]);
+    $.MANY({
+      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
+      GATE: () =>
+        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+        false,
+      DEF: () => {
+        // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
+        // Certain combinations are syntactically invalid, this is **not** checked here,
+        // Invalid combinations will cause a descriptive parsing error message to be
+        // Created inside the relevant parsing rules **after** this lookahead
+        // analysis.
+        $.OR([
+          { ALT: () => $.SUBRULE($.annotation) },
+          { ALT: () => $.CONSUME(t.Public) },
+          { ALT: () => $.CONSUME(t.Protected) },
+          { ALT: () => $.CONSUME(t.Private) },
+          { ALT: () => $.CONSUME(t.Static) },
+          { ALT: () => $.CONSUME(t.Final) },
+          { ALT: () => $.CONSUME(t.Abstract) },
+          { ALT: () => $.CONSUME(t.Default) },
+          { ALT: () => $.CONSUME(t.Strictfp) }
+        ]);
+      }
     });
 
     nextTokenType = this.LA(1).tokenType;
@@ -386,22 +382,28 @@ function defineRules($, t) {
     }
 
     // We have to look beyond the modifiers to distinguish between the declaration types.
-    $.MANY(() => {
-      // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
-      // Certain combinations are syntactically invalid, this is **not** checked here,
-      // Invalid combinations will cause a descriptive parsing error message to be
-      // Created inside the relevant parsing rules **after** this lookahead
-      // analysis.
-      $.OR([
-        { ALT: () => $.SUBRULE($.annotation) },
-        { ALT: () => $.CONSUME(t.Public) },
-        { ALT: () => $.CONSUME(t.Protected) },
-        { ALT: () => $.CONSUME(t.Private) },
-        { ALT: () => $.CONSUME(t.Abstract) },
-        { ALT: () => $.CONSUME(t.Static) },
-        { ALT: () => $.CONSUME(t.Final) },
-        { ALT: () => $.CONSUME(t.Strictfp) }
-      ]);
+    $.MANY({
+      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
+      GATE: () =>
+        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+        false,
+      DEF: () => {
+        // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
+        // Certain combinations are syntactically invalid, this is **not** checked here,
+        // Invalid combinations will cause a descriptive parsing error message to be
+        // Created inside the relevant parsing rules **after** this lookahead
+        // analysis.
+        $.OR([
+          { ALT: () => $.SUBRULE($.annotation) },
+          { ALT: () => $.CONSUME(t.Public) },
+          { ALT: () => $.CONSUME(t.Protected) },
+          { ALT: () => $.CONSUME(t.Private) },
+          { ALT: () => $.CONSUME(t.Abstract) },
+          { ALT: () => $.CONSUME(t.Static) },
+          { ALT: () => $.CONSUME(t.Final) },
+          { ALT: () => $.CONSUME(t.Strictfp) }
+        ]);
+      }
     });
 
     nextTokenType = this.LA(1).tokenType;
@@ -428,31 +430,6 @@ function defineRules($, t) {
       return AnnotationBodyTypes.constantDeclaration;
     }
     return AnnotationBodyTypes.unknown;
-  });
-
-  $.RULE("identifyInterfaceType", () => {
-    $.MANY({
-      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
-      GATE: () =>
-        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-        false,
-      DEF: () => {
-        $.SUBRULE($.interfaceModifier);
-      }
-    });
-    const nextTokenType = $.LA(1).tokenType;
-
-    switch (nextTokenType) {
-      case t.Interface:
-        return InterfaceType.normalInterfaceDeclaration;
-      // TODO: an interfaceModifier may start with an "@" (annotation)
-      //   we need to check more specifically for "@interface" two tokens sequence
-      //   specifically in the repetition above (add gate?)
-      case t.At:
-        return InterfaceType.annotationTypeDeclaration;
-      default:
-        return InterfaceType.unknown;
-    }
   });
 
   $.RULE("isSimpleElementValueAnnotation", () => {
