@@ -29,6 +29,7 @@ FRAGMENT("Digits", "[0-9]([0-9_]*[0-9])?");
 FRAGMENT("ExponentPart", "[eE][+-]?{{Digits}}");
 FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
+FRAGMENT("FloatTypeSuffix", "[fFdD]");
 
 const Identifier = createTokenOrg({
   name: "Identifier",
@@ -121,7 +122,10 @@ createToken({ name: "OctalLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
 createToken({
   name: "FloatLiteral",
   pattern: MAKE_PATTERN(
-    "-?({{Digits}}\\.({{Digits}})?|\\.{{Digits}})({{ExponentPart}})?[fFdD]?|{{Digits}}({{ExponentPart}}[fFdD]?|[fFdD])"
+    "{{Digits}}\\.({{Digits}})?({{FloatTypeSuffix}})?|" +
+      "\\.{{Digits}}({{ExponentPart}})?({{FloatTypeSuffix}})?|" +
+      "{{Digits}}{{ExponentPart}}({{FloatTypeSuffix}})?|" +
+      "{{Digits}}({{ExponentPart}})?{{FloatTypeSuffix}}"
   )
 });
 createToken({
@@ -136,8 +140,7 @@ createToken({
 });
 createToken({
   name: "DecimalLiteral",
-  // TODO: A decimal literal should not contain a minus character
-  pattern: MAKE_PATTERN("-?(0|[1-9](({{Digits}})?|_+{{Digits}}))[lL]?")
+  pattern: MAKE_PATTERN("(0|[1-9](({{Digits}})?|_+{{Digits}}))[lL]?")
 });
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({

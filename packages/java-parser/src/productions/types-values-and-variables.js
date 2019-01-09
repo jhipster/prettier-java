@@ -169,7 +169,7 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-AdditionalBound
   $.RULE("additionalBound", () => {
-    $.CONSUME(t.At);
+    $.CONSUME(t.And);
     $.SUBRULE($.interfaceType);
   });
 
