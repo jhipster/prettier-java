@@ -33,7 +33,7 @@ It could even be used inside a browser.
   - [x] Milestone 1 - Success parsing "Java Design Patterns" repo.
   - [x] Milestone 2 - Success parsing "spring-boot" repo.
   - [x] Investigate performance optimizations.
-  - [ ] Release Alpha version to npm.
+  - [x] Release Alpha version to npm. - https://www.npmjs.com/package/java-parser
 
 - prettier-java package
 
