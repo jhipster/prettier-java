@@ -8,8 +8,6 @@ const parser = new JavaParser();
 // const totalTime = endTime - startTime;
 // console.log("parse start time (ms): " + totalTime);
 
-// Our visitor has no state, so a single instance is sufficient.
-
 function parse(inputText, entryPoint = "compilationUnit") {
   // Lex
   const lexResult = JavaLexer.tokenize(inputText);
