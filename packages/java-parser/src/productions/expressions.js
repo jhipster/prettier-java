@@ -247,7 +247,10 @@ function defineRules($, t) {
     $.MANY2({
       // ".class" is a classLiteralSuffix
       GATE: () =>
-        this.LA(2).tokenType !== t.Class && this.LA(2).tokenType !== t.This,
+        // avoids ambiguity with ".this" and ".new" which are parsed as a primary suffix.
+        this.LA(2).tokenType !== t.Class &&
+        this.LA(2).tokenType !== t.This &&
+        this.LA(2).tokenType !== t.New,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.SUBRULE2($.fqnOrRefTypePart);
