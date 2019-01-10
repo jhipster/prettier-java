@@ -22,18 +22,18 @@ It could even be used inside a browser.
 
 - Redesign & Rewrite **in progress**.
 
-## Road map / TODO
+## Road map to Alpha
 
 - Parser Package:
 
   - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
   - [x] Milestone 1 - Success parsing "Java Design Patterns" repo.
-  - [ ] Milestone 2 - Success parsing "spring-boot" repo (Currently **99.866%**).
+  - [x] Milestone 2 - Success parsing "spring-boot" repo.
   - [x] Investigate performance optimizations.
 
 - prettier-java package
 
-  - [ ] POC: Rewriter based on a Chevrotain CST instead of an AST.
+  - [ ] POC: Prettier "Re-writer" based on a Chevrotain CST instead of an AST.
   - [ ] Milestone 1 - Success cyclic rewriting "Java Design Patterns" repo.
   - [ ] Milestone 2 - Success parsing "spring-boot" repo.
 

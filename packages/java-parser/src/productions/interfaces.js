@@ -1,4 +1,6 @@
 "use strict";
+const { tokenMatcher } = require("chevrotain");
+
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
@@ -363,14 +365,17 @@ function defineRules($, t) {
     // **both** start with "unannType"
     this.SUBRULE($.unannType);
 
-    nextTokenType = this.LA(1).tokenType;
+    const nextToken = this.LA(1);
     const nextNextTokenType = this.LA(2).tokenType;
     // "foo(..." --> look like method start
-    if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+    if (
+      tokenMatcher(nextToken, t.Identifier) &&
+      nextNextTokenType === t.LBrace
+    ) {
       return InterfaceBodyTypes.interfaceMethodDeclaration;
     }
     // a valid constant
-    if (nextTokenType === t.Identifier) {
+    if (tokenMatcher(nextToken, t.Identifier)) {
       return InterfaceBodyTypes.constantDeclaration;
     }
     return InterfaceBodyTypes.unknown;
