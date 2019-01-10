@@ -204,8 +204,14 @@ function defineRules($, t) {
         $.SUBRULE2($.importDeclaration);
       });
 
-      $.MANY2(() => {
-        $.SUBRULE($.annotation);
+      $.MANY2({
+        // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
+        GATE: () =>
+          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
+          false,
+        DEF: () => {
+          $.SUBRULE($.annotation);
+        }
       });
     } catch (e) {
       // This means we had a syntax error in the imports or annotations
