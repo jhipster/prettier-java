@@ -17,7 +17,9 @@ But it could also be used as the basis for other Java related tools in the JavaS
 ```sh
 npm install java-parser --save-dev
 ```
+
 or
+
 ```sh
 yarn add java-parser --dev
 ```
