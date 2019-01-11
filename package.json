@@ -10,7 +10,7 @@
     "ci": "npm-run-all build lint format:validate test",
     "test": "lerna run test",
     "lint": "eslint packages/**/*.js",
-    "format": "prettier --write \"**/*.@(js|json|md)\"",
+    "format:fix": "prettier --write \"**/*.@(js|json|md)\"",
     "format:validate": "prettier --list-different \"**/*.@(js|json|md)\"",
     "build": "node packages/java-parser/scripts/gen-diagrams.js",
     "prettier": "prettier --plugin=./packages/prettier-plugin-java --parser=java",

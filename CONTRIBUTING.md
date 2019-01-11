@@ -19,7 +19,7 @@ The prettier-java source code is (unsurprisingly) formatted using prettier.
 Make sure to properly format the source code before committing by running:
 
 ```bash
-yarn run format
+yarn run format:fix
 ```
 
 ## Unit Testing
