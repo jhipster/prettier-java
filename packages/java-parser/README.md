@@ -14,7 +14,15 @@ But it could also be used as the basis for other Java related tools in the JavaS
 
 ## Installation
 
-- **npm**: `npm install chevrotain --save-dev`
+```sh
+npm install java-parser --save-dev
+```
+
+or
+
+```sh
+yarn add java-parser --dev
+```
 
 ## Usage
 
