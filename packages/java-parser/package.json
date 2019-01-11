@@ -4,7 +4,7 @@
   "description": "Java Parser in JavaScript",
   "main": "src/index.js",
   "repository": "https://github.com/jhipster/prettier-java/packages/java-parser",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "chevrotain": "4.1.1"
   },
