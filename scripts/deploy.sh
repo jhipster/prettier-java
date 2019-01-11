@@ -3,4 +3,4 @@ echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 # but it won't tell us what are the files, the "git status" command will help
 # debug CI failures (e.g in travis)
 git status
-yarn run lerna-publish
+yarn run lerna:publish
