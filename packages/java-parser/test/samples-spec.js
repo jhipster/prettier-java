@@ -1,3 +1,5 @@
+"use strict";
+
 const _ = require("lodash");
 const path = require("path");
 const klawSync = require("klaw-sync");
@@ -5,12 +7,14 @@ const { expect } = require("chai");
 const fs = require("fs");
 const javaParser = require("../src/index");
 
-describe("The Java Parser", function() {
-  context("java-design-patterns samples", () => {
-    const samplesDir = path.resolve(
-      __dirname,
-      "../samples/java-design-patterns"
-    );
+describe("The Java Parser", () => {
+  createSampleSpecs("java-design-patterns");
+  createSampleSpecs("spring-boot");
+});
+
+function createSampleSpecs(sampleName) {
+  context(sampleName + " samples", () => {
+    const samplesDir = path.resolve(__dirname, "../samples/" + sampleName);
     const sampleFiles = klawSync(samplesDir, { nodir: true });
     const javaSampleFiles = sampleFiles.filter(fileDesc =>
       fileDesc.path.endsWith(".java")
@@ -27,4 +31,4 @@ describe("The Java Parser", function() {
       });
     });
   });
-});
+}

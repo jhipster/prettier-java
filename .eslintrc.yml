@@ -26,10 +26,11 @@ rules:
   - never
   - exceptRange: true
 overrides:
-- files: "packages/*/tests/**/*.js"
+- files: "packages/*/test/**/*.js"
   rules:
     strict: off
   globals:
+    context: true
     describe: true
     it: true
     before: true
