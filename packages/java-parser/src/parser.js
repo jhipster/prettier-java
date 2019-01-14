@@ -126,6 +126,7 @@ class JavaParser extends Parser {
     // ---------------------
     // Productions from §3 (Lexical Structure)
     // ---------------------
+    // TODO: move this rule to the correct file
     $.RULE("typeIdentifier", () => {
       // TODO: implement: Identifier but not var in the lexer
       $.CONSUME(t.Identifier);

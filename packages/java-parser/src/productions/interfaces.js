@@ -228,34 +228,30 @@ function defineRules($, t) {
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-Annotation
-  $.RULE(
-    "annotation",
-    () => {
-      // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
-      // This was done to avoid the use of backtracking for performance reasons.
-      $.CONSUME(t.At);
-      $.SUBRULE($.typeName);
+  $.RULE("annotation", () => {
+    // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
+    // This was done to avoid the use of backtracking for performance reasons.
+    $.CONSUME(t.At);
+    $.SUBRULE($.typeName);
 
-      // If this optional grammar was not invoked we have a markerAnnotation
-      // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
-      $.OPTION(() => {
-        $.CONSUME(t.LBrace);
-        $.OR([
-          // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
-          { ALT: () => $.SUBRULE($.elementValuePairList) },
-          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
-          { ALT: () => $.SUBRULE($.elementValue) },
-          {
-            ALT: () => {
-              /* empty normal annotation contents */
-            }
+    // If this optional grammar was not invoked we have a markerAnnotation
+    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
+    $.OPTION(() => {
+      $.CONSUME(t.LBrace);
+      $.OR([
+        // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+        { ALT: () => $.SUBRULE($.elementValuePairList) },
+        // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+        { ALT: () => $.SUBRULE($.elementValue) },
+        {
+          ALT: () => {
+            /* empty normal annotation contents */
           }
-        ]);
-        $.CONSUME(t.RBrace);
-      });
-    },
-    "annotation"
-  );
+        }
+      ]);
+      $.CONSUME(t.RBrace);
+    });
+  });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValuePairList
   $.RULE("elementValuePairList", () => {

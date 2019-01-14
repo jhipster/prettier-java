@@ -1,56 +1,121 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+
 class InterfacesPrettierVisitor {
-  interfaceDeclaration(ctx) {}
+  interfaceDeclaration(ctx) {
+    return "interfaceDeclaration";
+  }
 
-  normalInterfaceDeclaration(ctx) {}
+  normalInterfaceDeclaration(ctx) {
+    return "normalInterfaceDeclaration";
+  }
 
-  interfaceModifier(ctx) {}
+  interfaceModifier(ctx) {
+    return "interfaceModifier";
+  }
 
-  extendsInterfaces(ctx) {}
+  extendsInterfaces(ctx) {
+    return "extendsInterfaces";
+  }
 
-  interfaceBody(ctx) {}
+  interfaceBody(ctx) {
+    return "interfaceBody";
+  }
 
-  interfaceMemberDeclaration(ctx) {}
+  interfaceMemberDeclaration(ctx) {
+    return "interfaceMemberDeclaration";
+  }
 
-  constantDeclaration(ctx) {}
+  constantDeclaration(ctx) {
+    return "constantDeclaration";
+  }
 
-  constantModifier(ctx) {}
+  constantModifier(ctx) {
+    return "constantModifier";
+  }
 
-  interfaceMethodDeclaration(ctx) {}
+  interfaceMethodDeclaration(ctx) {
+    return "interfaceMethodDeclaration";
+  }
 
-  interfaceMethodModifier(ctx) {}
+  interfaceMethodModifier(ctx) {
+    return "interfaceMethodModifier";
+  }
 
-  annotationTypeDeclaration(ctx) {}
+  annotationTypeDeclaration(ctx) {
+    return "annotationTypeDeclaration";
+  }
 
-  annotationTypeBody(ctx) {}
+  annotationTypeBody(ctx) {
+    return "annotationTypeBody";
+  }
 
-  annotationTypeMemberDeclaration(ctx) {}
+  annotationTypeMemberDeclaration(ctx) {
+    return "annotationTypeMemberDeclaration";
+  }
 
-  annotationTypeElementDeclaration(ctx) {}
+  annotationTypeElementDeclaration(ctx) {
+    return "annotationTypeElementDeclaration";
+  }
 
-  annotationTypeElementModifier(ctx) {}
+  annotationTypeElementModifier(ctx) {
+    return "annotationTypeElementModifier";
+  }
 
-  defaultValue(ctx) {}
+  defaultValue(ctx) {
+    return "defaultValue";
+  }
 
-  annotation(ctx) {}
+  annotation(ctx) {
+    const fqn = this.visit(ctx.typeName);
 
-  elementValuePairList(ctx) {}
+    const annoArgs = [];
+    if (ctx.LBrace) {
+      annoArgs.push("(");
+      if (ctx.elementValuePair) {
+        annoArgs.push(this.visit(ctx.elementValuePair));
+      } else if (ctx.elementValue) {
+        annoArgs.push(this.visit(ctx.elementValue));
+      }
+      annoArgs.push(")");
+    }
 
-  elementValuePair(ctx) {}
+    return concat(["@", fqn, concat(annoArgs), line]);
+  }
 
-  elementValue(ctx) {}
+  elementValuePairList(ctx) {
+    return "elementValuePairList";
+  }
 
-  elementValueArrayInitializer(ctx) {}
+  elementValuePair(ctx) {
+    return "TBD";
+  }
 
-  elementValueList(ctx) {}
+  elementValue(ctx) {
+    return "TBD";
+  }
 
-  identifyInterfaceBodyDeclarationType(ctx) {}
+  elementValueArrayInitializer(ctx) {
+    return "elementValueArrayInitializer";
+  }
 
-  identifyAnnotationBodyDeclarationType(ctx) {}
+  elementValueList(ctx) {
+    return "elementValueList";
+  }
 
-  isSimpleElementValueAnnotation(ctx) {}
+  identifyInterfaceBodyDeclarationType(ctx) {
+    return "identifyInterfaceBodyDeclarationType";
+  }
+
+  identifyAnnotationBodyDeclarationType(ctx) {
+    return "identifyAnnotationBodyDeclarationType";
+  }
+
+  isSimpleElementValueAnnotation(ctx) {
+    return "isSimpleElementValueAnnotation";
+  }
 }
 
 module.exports = {

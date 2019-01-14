@@ -2,97 +2,189 @@
 /* eslint-disable no-unused-vars */
 
 class BlocksAndStatementPrettierVisitor {
-  block(ctx) {}
+  block(ctx) {
+    return "block";
+  }
 
-  blockStatements(ctx) {}
+  blockStatements(ctx) {
+    return "blockStatements";
+  }
 
-  blockStatement(ctx) {}
+  blockStatement(ctx) {
+    return "blockStatement";
+  }
 
-  localVariableDeclarationStatement(ctx) {}
+  localVariableDeclarationStatement(ctx) {
+    return "localVariableDeclarationStatement";
+  }
 
-  localVariableDeclaration(ctx) {}
+  localVariableDeclaration(ctx) {
+    return "localVariableDeclaration";
+  }
 
-  localVariableType(ctx) {}
+  localVariableType(ctx) {
+    return "localVariableType";
+  }
 
-  statement(ctx) {}
+  statement(ctx) {
+    return "statement";
+  }
 
-  statementWithoutTrailingSubstatement(ctx) {}
+  statementWithoutTrailingSubstatement(ctx) {
+    return "statementWithoutTrailingSubstatement";
+  }
 
-  emptyStatement(ctx) {}
+  emptyStatement(ctx) {
+    return "emptyStatement";
+  }
 
-  labeledStatement(ctx) {}
+  labeledStatement(ctx) {
+    return "labeledStatement";
+  }
 
-  expressionStatement(ctx) {}
+  expressionStatement(ctx) {
+    return "expressionStatement";
+  }
 
-  statementExpression(ctx) {}
+  statementExpression(ctx) {
+    return "statementExpression";
+  }
 
-  ifStatement(ctx) {}
+  ifStatement(ctx) {
+    return "ifStatement";
+  }
 
-  assertStatement(ctx) {}
+  assertStatement(ctx) {
+    return "assertStatement";
+  }
 
-  switchStatement(ctx) {}
+  switchStatement(ctx) {
+    return "switchStatement";
+  }
 
-  switchBlock(ctx) {}
+  switchBlock(ctx) {
+    return "switchBlock";
+  }
 
-  switchCase(ctx) {}
+  switchCase(ctx) {
+    return "switchCase";
+  }
 
-  switchLabel(ctx) {}
+  switchLabel(ctx) {
+    return "switchLabel";
+  }
 
-  enumConstantName(ctx) {}
+  enumConstantName(ctx) {
+    return "enumConstantName";
+  }
 
-  whileStatement(ctx) {}
+  whileStatement(ctx) {
+    return "whileStatement";
+  }
 
-  doStatement(ctx) {}
+  doStatement(ctx) {
+    return "doStatement";
+  }
 
-  forStatement(ctx) {}
+  forStatement(ctx) {
+    return "forStatement";
+  }
 
-  basicForStatement(ctx) {}
+  basicForStatement(ctx) {
+    return "basicForStatement";
+  }
 
-  forInit(ctx) {}
+  forInit(ctx) {
+    return "forInit";
+  }
 
-  forUpdate(ctx) {}
+  forUpdate(ctx) {
+    return "forUpdate";
+  }
 
-  statementExpressionList(ctx) {}
+  statementExpressionList(ctx) {
+    return "statementExpressionList";
+  }
 
-  enhancedForStatement(ctx) {}
+  enhancedForStatement(ctx) {
+    return "enhancedForStatement";
+  }
 
-  breakStatement(ctx) {}
+  breakStatement(ctx) {
+    return "breakStatement";
+  }
 
-  continueStatement(ctx) {}
+  continueStatement(ctx) {
+    return "continueStatement";
+  }
 
-  returnStatement(ctx) {}
+  returnStatement(ctx) {
+    return "returnStatement";
+  }
 
-  throwStatement(ctx) {}
+  throwStatement(ctx) {
+    return "throwStatement";
+  }
 
-  synchronizedStatement(ctx) {}
+  synchronizedStatement(ctx) {
+    return "synchronizedStatement";
+  }
 
-  tryStatement(ctx) {}
+  tryStatement(ctx) {
+    return "tryStatement";
+  }
 
-  catches(ctx) {}
+  catches(ctx) {
+    return "catches";
+  }
 
-  catchClause(ctx) {}
+  catchClause(ctx) {
+    return "catchClause";
+  }
 
-  catchFormalParameter(ctx) {}
+  catchFormalParameter(ctx) {
+    return "catchFormalParameter";
+  }
 
-  catchType(ctx) {}
+  catchType(ctx) {
+    return "catchType";
+  }
 
-  finally(ctx) {}
+  finally(ctx) {
+    return "finally";
+  }
 
-  tryWithResourcesStatement(ctx) {}
+  tryWithResourcesStatement(ctx) {
+    return "tryWithResourcesStatement";
+  }
 
-  resourceSpecification(ctx) {}
+  resourceSpecification(ctx) {
+    return "resourceSpecification";
+  }
 
-  resourceList(ctx) {}
+  resourceList(ctx) {
+    return "resourceList";
+  }
 
-  resource(ctx) {}
+  resource(ctx) {
+    return "resource";
+  }
 
-  resourceInit(ctx) {}
+  resourceInit(ctx) {
+    return "resourceInit";
+  }
 
-  variableAccess(ctx) {}
+  variableAccess(ctx) {
+    return "variableAccess";
+  }
 
-  isBasicForStatement(ctx) {}
+  isBasicForStatement(ctx) {
+    return "isBasicForStatement";
+  }
 
-  isLocalVariableDeclaration(ctx) {}
+  isLocalVariableDeclaration(ctx) {
+    return "isLocalVariableDeclaration";
+  }
 }
 
 module.exports = {

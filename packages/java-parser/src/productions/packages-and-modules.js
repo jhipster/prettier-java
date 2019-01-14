@@ -194,6 +194,7 @@ function defineRules($, t) {
   $.RULE("isModuleCompilationUnit", () => {
     $.OPTION(() => {
       $.SUBRULE($.packageDeclaration);
+      // TODO: this return must be outside the OPTION at the top level rule
       // a Java Module source code may not contain a package declaration.
       return false;
     });

@@ -1,22 +1,40 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const { buildFqn } = require("./printer-utils");
+
 class NamesPrettierVisitor {
-  typeIdentifier(ctx) {}
+  typeIdentifier(ctx) {
+    return ctx.Identifier[0].image;
+  }
 
-  moduleName(ctx) {}
+  moduleName(ctx) {
+    return "moduleName";
+  }
 
-  packageName(ctx) {}
+  packageName(ctx) {
+    return "packageName";
+  }
 
-  typeName(ctx) {}
+  typeName(ctx) {
+    return buildFqn(ctx.Identifier);
+  }
 
-  expressionName(ctx) {}
+  expressionName(ctx) {
+    return "expressionName";
+  }
 
-  methodName(ctx) {}
+  methodName(ctx) {
+    return "methodName";
+  }
 
-  packageOrTypeName(ctx) {}
+  packageOrTypeName(ctx) {
+    return "packageOrTypeName";
+  }
 
-  ambiguousName(ctx) {}
+  ambiguousName(ctx) {
+    return "ambiguousName";
+  }
 }
 
 module.exports = {
