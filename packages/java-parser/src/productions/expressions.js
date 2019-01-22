@@ -229,8 +229,14 @@ function defineRules($, t) {
             {
               ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
             },
-            // TODO: this should probably not be preceded by a "dot"
-            { ALT: () => $.CONSUME(t.Identifier) }
+            {
+              ALT: () => {
+                $.OPTION(() => {
+                  $.SUBRULE($.typeArguments);
+                });
+                $.CONSUME(t.Identifier);
+              }
+            }
           ]);
         }
       },
