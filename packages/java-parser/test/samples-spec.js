@@ -9,6 +9,7 @@ const javaParser = require("../src/index");
 
 describe("The Java Parser", () => {
   createSampleSpecs("java-design-patterns");
+  createSampleSpecs("guava");
   createSampleSpecs("spring-boot");
 });
 
