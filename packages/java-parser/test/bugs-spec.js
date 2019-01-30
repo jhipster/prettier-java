@@ -9,3 +9,10 @@ describe("The Java Parser fixed bugs", () => {
     expect(() => javaParser.parse(input, "expression")).to.not.throw();
   });
 });
+
+describe("The Java Parser fixed bugs", () => {
+  it("issue #130 - enumConstantList", () => {
+    const input = "enum Foo { BAR, }";
+    expect(() => javaParser.parse(input)).to.not.throw();
+  });
+});
