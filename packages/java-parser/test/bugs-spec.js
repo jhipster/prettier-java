@@ -9,3 +9,10 @@ describe("The Java Parser fixed bugs", () => {
     expect(() => javaParser.parse(input, "expression")).to.not.throw();
   });
 });
+
+describe("The Java Parser fixed bugs", () => {
+  it("issue #131 - 1.0e-10", () => {
+    const input = "1.0e-10";
+    expect(() => javaParser.parse(input, "expression")).to.not.throw();
+  });
+});
