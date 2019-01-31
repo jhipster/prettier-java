@@ -606,9 +606,17 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-EnumConstantList
   $.RULE("enumConstantList", () => {
     $.SUBRULE($.enumConstant);
-    $.MANY(() => {
-      $.CONSUME(t.Comma);
-      $.SUBRULE2($.enumConstant);
+    $.MANY({
+      GATE: () => {
+        const nextToken = $.LA(2);
+        return (
+          tokenMatcher(nextToken, t.Identifier) || tokenMatcher(nextToken, t.At)
+        );
+      },
+      DEF: () => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.enumConstant);
+      }
     });
   });
 
