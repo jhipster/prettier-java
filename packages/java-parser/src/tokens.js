@@ -122,9 +122,8 @@ createToken({ name: "OctalLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
 createToken({
   name: "FloatLiteral",
   pattern: MAKE_PATTERN(
-    "\\.{{Digits}}({{ExponentPart}})?({{FloatTypeSuffix}})?|" +
-      "{{Digits}}\\.({{Digits}})?({{ExponentPart}})?({{FloatTypeSuffix}})?|" +
-      "{{Digits}}\\.({{Digits}})?({{FloatTypeSuffix}})?|" +
+    "{{Digits}}\\.({{Digits}})?({{ExponentPart}})?({{FloatTypeSuffix}})?|" +
+      "\\.{{Digits}}({{ExponentPart}})?({{FloatTypeSuffix}})?|" +
       "{{Digits}}{{ExponentPart}}({{FloatTypeSuffix}})?|" +
       "{{Digits}}({{ExponentPart}})?{{FloatTypeSuffix}}"
   )
