@@ -607,9 +607,12 @@ function defineRules($, t) {
   $.RULE("enumConstantList", () => {
     $.SUBRULE($.enumConstant);
     $.MANY({
-      GATE: () =>
-        $.LA(1).tokenType === t.Comma &&
-        ($.LA(2).tokenType === t.Identifier || $.LA(2).tokenType === t.At),
+      GATE: () => {
+        const nextToken = $.LA(2);
+        return (
+          tokenMatcher(nextToken, t.Identifier) || tokenMatcher(nextToken, t.At)
+        );
+      },
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.enumConstant);
