@@ -11,6 +11,13 @@ describe("The Java Parser fixed bugs", () => {
 });
 
 describe("The Java Parser fixed bugs", () => {
+  it("issue #131 - 1.0e-10", () => {
+    const input = "1.0e-10";
+    expect(() => javaParser.parse(input, "expression")).to.not.throw();
+  });
+});
+
+describe("The Java Parser fixed bugs", () => {
   it("issue #130 - enumConstantList", () => {
     const input = "enum Foo { BAR, }";
     expect(() => javaParser.parse(input)).to.not.throw();
