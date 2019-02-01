@@ -14,6 +14,10 @@ const sampleRepos = [
   {
     repoUrl: "https://github.com/spring-projects/spring-boot.git",
     branch: "v2.1.0.RELEASE"
+  },
+  {
+    repoUrl: "https://github.com/google/guava.git",
+    branch: "v27.0.1"
   }
 ];
 
