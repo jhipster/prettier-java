@@ -34,7 +34,7 @@ function createSampleSpecs(sampleName) {
   });
 }
 
-function createFailingSampleSpec(sampleName, maxFailAllowed, timeout) {
+function createFailingSampleSpec(sampleName, failAllowed, timeout) {
   context(sampleName + " samples", () => {
     const samplesDir = path.resolve(__dirname, "../samples/" + sampleName);
     const sampleFiles = klawSync(samplesDir, { nodir: true });
@@ -63,9 +63,7 @@ function createFailingSampleSpec(sampleName, maxFailAllowed, timeout) {
         }
       });
 
-      expect(errors.length, `Can not Parse ${errors}`).to.be.at.most(
-        maxFailAllowed
-      );
+      expect(errors.length, `Can not Parse ${errors}`).to.equal(failAllowed);
     });
   });
 }
