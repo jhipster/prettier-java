@@ -294,6 +294,7 @@ function defineRules($, t) {
     $.OPTION(() => {
       $.CONSUME(t.Identifier);
     });
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ContinueStatement
