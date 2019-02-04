@@ -628,10 +628,12 @@ function defineRules($, t) {
     $.CONSUME(t.Identifier);
     $.OPTION(() => {
       $.CONSUME(t.LBrace);
-      $.SUBRULE($.argumentList);
+      $.OPTION2(() => {
+        $.SUBRULE($.argumentList);
+      });
       $.CONSUME(t.RBrace);
     });
-    $.OPTION2(() => {
+    $.OPTION3(() => {
       $.SUBRULE($.classBody);
     });
   });
