@@ -443,6 +443,7 @@ function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("arrayCreationExpression", () => {
     $.CONSUME(t.New);
     $.OR([
@@ -462,6 +463,7 @@ function defineRules($, t) {
     ]);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("arrayCreationDefaultInitSuffix", () => {
     $.SUBRULE($.dimExprs);
     $.OPTION(() => {
@@ -469,18 +471,22 @@ function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("arrayCreationExplicitInitSuffix", () => {
     $.SUBRULE($.dims);
     $.SUBRULE($.arrayInitializer);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("dimExprs", () => {
     $.SUBRULE($.dimExpr);
-    $.OPTION(() => {
-      $.SUBRULE2($.dimExpr);
+    $.OPTION({
+      GATE: $.BACKTRACK($.dimExpr),
+      DEF: () => $.SUBRULE2($.dimExpr)
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("dimExpr", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
