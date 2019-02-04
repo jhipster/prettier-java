@@ -2,101 +2,197 @@
 /* eslint-disable no-unused-vars */
 
 class ExpressionsPrettierVisitor {
-  constantExpression(ctx) {}
+  constantExpression(ctx) {
+    return "constantExpression";
+  }
 
-  expression(ctx) {}
+  expression(ctx) {
+    return "expression";
+  }
 
-  lambdaExpression(ctx) {}
+  lambdaExpression(ctx) {
+    return "lambdaExpression";
+  }
 
-  lambdaParameters(ctx) {}
+  lambdaParameters(ctx) {
+    return "lambdaParameters";
+  }
 
-  lambdaParametersWithBraces(ctx) {}
+  lambdaParametersWithBraces(ctx) {
+    return "lambdaParametersWithBraces";
+  }
 
-  lambdaParameterList(ctx) {}
+  lambdaParameterList(ctx) {
+    return "lambdaParameterList";
+  }
 
-  inferredLambdaParameterList(ctx) {}
+  inferredLambdaParameterList(ctx) {
+    return "inferredLambdaParameterList";
+  }
 
-  explicitLambdaParameterList(ctx) {}
+  explicitLambdaParameterList(ctx) {
+    return "explicitLambdaParameterList";
+  }
 
-  lambdaParameter(ctx) {}
+  lambdaParameter(ctx) {
+    return "lambdaParameter";
+  }
 
-  regularLambdaParameter(ctx) {}
+  regularLambdaParameter(ctx) {
+    return "regularLambdaParameter";
+  }
 
-  lambdaParameterType(ctx) {}
+  lambdaParameterType(ctx) {
+    return "lambdaParameterType";
+  }
 
-  lambdaBody(ctx) {}
+  lambdaBody(ctx) {
+    return "lambdaBody";
+  }
 
-  ternaryExpression(ctx) {}
+  ternaryExpression(ctx) {
+    return "ternaryExpression";
+  }
 
-  binaryExpression(ctx) {}
+  binaryExpression(ctx) {
+    return "binaryExpression";
+  }
 
-  unaryExpression(ctx) {}
+  unaryExpression(ctx) {
+    return "unaryExpression";
+  }
 
-  unaryExpressionNotPlusMinus(ctx) {}
+  unaryExpressionNotPlusMinus(ctx) {
+    return "unaryExpressionNotPlusMinus";
+  }
 
-  primary(ctx) {}
+  primary(ctx) {
+    return "primary";
+  }
 
-  primaryPrefix(ctx) {}
+  primaryPrefix(ctx) {
+    return "primaryPrefix";
+  }
 
-  primarySuffix(ctx) {}
+  primarySuffix(ctx) {
+    return "primarySuffix";
+  }
 
-  fqnOrRefType(ctx) {}
+  fqnOrRefType(ctx) {
+    return "fqnOrRefType";
+  }
 
-  fqnOrRefTypePart(ctx) {}
+  fqnOrRefTypePart(ctx) {
+    return "fqnOrRefTypePart";
+  }
 
-  fqnOrRefTypePart$methodTypeArguments(ctx) {}
+  fqnOrRefTypePart$methodTypeArguments(ctx) {
+    return "methodTypeArguments";
+  }
 
-  fqnOrRefTypePart$classTypeArguments(ctx) {}
+  fqnOrRefTypePart$classTypeArguments(ctx) {
+    return "classTypeArguments";
+  }
 
-  parenthesisExpression(ctx) {}
+  parenthesisExpression(ctx) {
+    return "parenthesisExpression";
+  }
 
-  castExpression(ctx) {}
+  castExpression(ctx) {
+    return "castExpression";
+  }
 
-  primitiveCastExpression(ctx) {}
+  primitiveCastExpression(ctx) {
+    return "primitiveCastExpression";
+  }
 
-  referenceTypeCastExpression(ctx) {}
+  referenceTypeCastExpression(ctx) {
+    return "referenceTypeCastExpression";
+  }
 
-  newExpression(ctx) {}
+  newExpression(ctx) {
+    return "newExpression";
+  }
 
-  unqualifiedClassInstanceCreationExpression(ctx) {}
+  unqualifiedClassInstanceCreationExpression(ctx) {
+    return "unqualifiedClassInstanceCreationExpression";
+  }
 
-  classOrInterfaceTypeToInstantiate(ctx) {}
+  classOrInterfaceTypeToInstantiate(ctx) {
+    return "classOrInterfaceTypeToInstantiate";
+  }
 
-  typeArgumentsOrDiamond(ctx) {}
+  typeArgumentsOrDiamond(ctx) {
+    return "typeArgumentsOrDiamond";
+  }
 
-  diamond(ctx) {}
+  diamond(ctx) {
+    return "diamond";
+  }
 
-  methodInvocationSuffix(ctx) {}
+  methodInvocationSuffix(ctx) {
+    return "methodInvocationSuffix";
+  }
 
-  argumentList(ctx) {}
+  argumentList(ctx) {
+    return "argumentList";
+  }
 
-  arrayCreationExpression(ctx) {}
+  arrayCreationExpression(ctx) {
+    return "arrayCreationExpression";
+  }
 
-  arrayCreationDefaultInitSuffix(ctx) {}
+  arrayCreationDefaultInitSuffix(ctx) {
+    return "arrayCreationDefaultInitSuffix";
+  }
 
-  arrayCreationExplicitInitSuffix(ctx) {}
+  arrayCreationExplicitInitSuffix(ctx) {
+    return "arrayCreationExplicitInitSuffix";
+  }
 
-  dimExprs(ctx) {}
+  dimExprs(ctx) {
+    return "dimExprs";
+  }
 
-  dimExpr(ctx) {}
+  dimExpr(ctx) {
+    return "dimExpr";
+  }
 
-  classLiteralSuffix(ctx) {}
+  classLiteralSuffix(ctx) {
+    return "classLiteralSuffix";
+  }
 
-  arrayAccessSuffix(ctx) {}
+  arrayAccessSuffix(ctx) {
+    return "arrayAccessSuffix";
+  }
 
-  methodReferenceSuffix(ctx) {}
+  methodReferenceSuffix(ctx) {
+    return "methodReferenceSuffix";
+  }
 
-  identifyNewExpressionType(ctx) {}
+  identifyNewExpressionType(ctx) {
+    return "identifyNewExpressionType";
+  }
 
-  isLambdaExpression(ctx) {}
+  isLambdaExpression(ctx) {
+    return "isLambdaExpression";
+  }
 
-  isCastExpression(ctx) {}
+  isCastExpression(ctx) {
+    return "isCastExpression";
+  }
 
-  isPrimitiveCastExpression(ctx) {}
+  isPrimitiveCastExpression(ctx) {
+    return "isPrimitiveCastExpression";
+  }
 
-  isReferenceTypeCastExpression(ctx) {}
+  isReferenceTypeCastExpression(ctx) {
+    return "isReferenceTypeCastExpression";
+  }
 
-  isRefTypeInMethodRef(ctx) {}
+  isRefTypeInMethodRef(ctx) {
+    return "isRefTypeInMethodRef";
+  }
 }
 
 module.exports = {
