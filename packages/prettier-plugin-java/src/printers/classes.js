@@ -20,7 +20,8 @@ class ClassesPrettierVisitor {
       : ctx.enumDeclaration;
     const classDoc = this.visit(classCST);
 
-    return concat([modifiers, classDoc]);
+    const modifierSpace = modifiers.length > 0 ? " " : "";
+    return concat([join(" ", modifiers), modifierSpace, classDoc]);
   }
 
   normalClassDeclaration(ctx) {

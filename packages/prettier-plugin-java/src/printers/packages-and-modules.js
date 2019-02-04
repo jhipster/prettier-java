@@ -21,7 +21,8 @@ class PackagesAndModulesPrettierVisitor {
       packageDecl,
       line,
       join(line, importsDecl),
-      join(line, typesDecl)
+      join(line, typesDecl),
+      line
     ]);
   }
 
