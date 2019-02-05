@@ -2,43 +2,81 @@
 /* eslint-disable no-unused-vars */
 
 class TypesValuesAndVariablesPrettierVisitor {
-  primitiveType(ctx) {}
+  primitiveType(ctx) {
+    return "primitiveType";
+  }
 
-  numericType(ctx) {}
+  numericType(ctx) {
+    return "numericType";
+  }
 
-  integralType(ctx) {}
+  integralType(ctx) {
+    return "integralType";
+  }
 
-  floatingPointType(ctx) {}
+  floatingPointType(ctx) {
+    return "floatingPointType";
+  }
 
-  referenceType(ctx) {}
+  referenceType(ctx) {
+    return "referenceType";
+  }
 
-  classOrInterfaceType(ctx) {}
+  classOrInterfaceType(ctx) {
+    return "classOrInterfaceType";
+  }
 
-  classType(ctx) {}
+  classType(ctx) {
+    return "classType";
+  }
 
-  interfaceType(ctx) {}
+  interfaceType(ctx) {
+    return "interfaceType";
+  }
 
-  typeVariable(ctx) {}
+  typeVariable(ctx) {
+    return "typeVariable";
+  }
 
-  dims(ctx) {}
+  dims(ctx) {
+    return "dims";
+  }
 
-  typeParameter(ctx) {}
+  typeParameter(ctx) {
+    return "typeParameter";
+  }
 
-  typeParameterModifier(ctx) {}
+  typeParameterModifier(ctx) {
+    return "typeParameterModifier";
+  }
 
-  typeBound(ctx) {}
+  typeBound(ctx) {
+    return "typeBound";
+  }
 
-  additionalBound(ctx) {}
+  additionalBound(ctx) {
+    return "additionalBound";
+  }
 
-  typeArguments(ctx) {}
+  typeArguments(ctx) {
+    return "typeArguments";
+  }
 
-  typeArgumentList(ctx) {}
+  typeArgumentList(ctx) {
+    return "typeArgumentList";
+  }
 
-  typeArgument(ctx) {}
+  typeArgument(ctx) {
+    return "typeArgument";
+  }
 
-  wildcard(ctx) {}
+  wildcard(ctx) {
+    return "wildcard";
+  }
 
-  wildcardBounds(ctx) {}
+  wildcardBounds(ctx) {
+    return "wildcardBounds";
+  }
 }
 
 module.exports = {

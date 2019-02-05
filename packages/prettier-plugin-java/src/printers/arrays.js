@@ -1,9 +1,13 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 class ArraysPrettierVisitor {
-  arrayInitializer(ctx) {}
+  arrayInitializer(ctx) {
+    return "arrayInitializer";
+  }
 
-  variableInitializerList(ctx) {}
+  variableInitializerList(ctx) {
+    return "variableInitializerList";
+  }
 }
 
 module.exports = {

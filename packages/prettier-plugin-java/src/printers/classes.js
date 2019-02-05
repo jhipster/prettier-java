@@ -1,120 +1,297 @@
 "use strict";
 /* eslint-disable no-unused-vars */
+const {
+  concat,
+  join,
+  line,
+  ifBreak,
+  group,
+  indent,
+  dedent
+} = require("prettier").doc.builders;
+const { rejectAndJoin } = require("./printer-utils");
 
 class ClassesPrettierVisitor {
-  classDeclaration(ctx) {}
+  classDeclaration(ctx) {
+    const modifiers = this.mapVisit(ctx.classModifier);
 
-  normalClassDeclaration(ctx) {}
+    const classCST = ctx.normalClassDeclaration
+      ? ctx.normalClassDeclaration
+      : ctx.enumDeclaration;
+    const classDoc = this.visit(classCST);
 
-  classModifier(ctx) {}
+    const modifierSpace = modifiers.length > 0 ? " " : "";
+    return concat([join(" ", modifiers), modifierSpace, classDoc]);
+  }
 
-  typeParameters(ctx) {}
+  normalClassDeclaration(ctx) {
+    const name = this.visit(ctx.typeIdentifier);
+    const typeParams = this.visit(ctx.typeParameters);
+    const superClasses = this.visit(ctx.superclass);
+    const superInterfaces = this.visit(ctx.superinterfaces);
+    const body = this.visit(ctx.classBody);
 
-  typeParameterList(ctx) {}
+    return rejectAndJoin(" ", [
+      "class",
+      name,
+      typeParams,
+      superClasses,
+      superInterfaces,
+      body
+    ]);
+  }
 
-  superclass(ctx) {}
+  classModifier(ctx) {
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    // public | protected | private | ...
+    return this.getSingle(ctx).image;
+  }
 
-  superinterfaces(ctx) {}
+  typeParameters(ctx) {
+    return "TBD";
+  }
 
-  interfaceTypeList(ctx) {}
+  typeParameterList(ctx) {
+    return "typeParameterList";
+  }
 
-  classBody(ctx) {}
+  superclass(ctx) {
+    return "TBD";
+  }
 
-  classBodyDeclaration(ctx) {}
+  superinterfaces(ctx) {
+    return "TBD";
+  }
 
-  classMemberDeclaration(ctx) {}
+  interfaceTypeList(ctx) {
+    return "interfaceTypeList";
+  }
 
-  fieldDeclaration(ctx) {}
+  classBody(ctx) {
+    const classBodyDecls = this.mapVisit(ctx.classBodyDeclaration);
+    return concat([
+      "{",
+      indent(concat([line, join(line, classBodyDecls)])),
+      line,
+      "}"
+    ]);
+  }
 
-  fieldModifier(ctx) {}
+  classBodyDeclaration(ctx) {
+    return this.visitSingle(ctx);
+  }
 
-  variableDeclaratorList(ctx) {}
+  classMemberDeclaration(ctx) {
+    return this.visitSingle(ctx);
+  }
 
-  variableDeclarator(ctx) {}
+  fieldDeclaration(ctx) {
+    return "fieldDeclaration";
+  }
 
-  variableDeclaratorId(ctx) {}
+  fieldModifier(ctx) {
+    return "fieldModifier";
+  }
 
-  variableInitializer(ctx) {}
+  variableDeclaratorList(ctx) {
+    return "variableDeclaratorList";
+  }
 
-  unannType(ctx) {}
+  variableDeclarator(ctx) {
+    return "variableDeclarator";
+  }
 
-  unannPrimitiveType(ctx) {}
+  variableDeclaratorId(ctx) {
+    return "variableDeclaratorId";
+  }
 
-  unannReferenceType(ctx) {}
+  variableInitializer(ctx) {
+    return "variableInitializer";
+  }
 
-  unannClassOrInterfaceType(ctx) {}
+  unannType(ctx) {
+    return "unannType";
+  }
 
-  unannClassType(ctx) {}
+  unannPrimitiveType(ctx) {
+    return "unannPrimitiveType";
+  }
 
-  unannInterfaceType(ctx) {}
+  unannReferenceType(ctx) {
+    return "unannReferenceType";
+  }
 
-  unannTypeVariable(ctx) {}
+  unannClassOrInterfaceType(ctx) {
+    return "unannClassOrInterfaceType";
+  }
 
-  methodDeclaration(ctx) {}
+  unannClassType(ctx) {
+    return "unannClassType";
+  }
 
-  methodModifier(ctx) {}
+  unannInterfaceType(ctx) {
+    return "unannInterfaceType";
+  }
 
-  methodHeader(ctx) {}
+  unannTypeVariable(ctx) {
+    return "unannTypeVariable";
+  }
 
-  result(ctx) {}
+  methodDeclaration(ctx) {
+    const modifiers = this.mapVisit(ctx.methodModifier);
+    const header = this.visit(ctx.methodHeader);
+    const body = this.visit(ctx.methodBody);
 
-  methodDeclarator(ctx) {}
+    return concat([rejectAndJoin(" ", modifiers), " ", header, " ", body]);
+  }
 
-  receiverParameter(ctx) {}
+  methodModifier(ctx) {
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    // public | protected | private | Synchronized | ...
+    return this.getSingle(ctx).image;
+  }
 
-  formalParameterList(ctx) {}
+  methodHeader(ctx) {
+    const typeParameters = this.visit(ctx.typeParameters);
+    const annotations = this.mapVisit(ctx.annotation);
+    const result = this.visit(ctx.result);
+    const declarator = this.visit(ctx.methodDeclarator);
+    const throws = this.visit(ctx.throws);
 
-  formalParameter(ctx) {}
+    return concat([
+      rejectAndJoin(" ", [
+        typeParameters,
+        join(line, annotations),
+        result,
+        declarator,
+        throws
+      ])
+    ]);
+  }
 
-  variableParaRegularParameter(ctx) {}
+  result(ctx) {
+    return "result";
+  }
 
-  variableArityParameter(ctx) {}
+  methodDeclarator(ctx) {
+    return "methodDeclarator";
+  }
 
-  variableModifier(ctx) {}
+  receiverParameter(ctx) {
+    return "receiverParameter";
+  }
 
-  throws(ctx) {}
+  formalParameterList(ctx) {
+    return "formalParameterList";
+  }
 
-  exceptionTypeList(ctx) {}
+  formalParameter(ctx) {
+    return "formalParameter";
+  }
 
-  exceptionType(ctx) {}
+  variableParaRegularParameter(ctx) {
+    return "variableParaRegularParameter";
+  }
 
-  methodBody(ctx) {}
+  variableArityParameter(ctx) {
+    return "variableArityParameter";
+  }
 
-  instanceInitializer(ctx) {}
+  variableModifier(ctx) {
+    return "variableModifier";
+  }
 
-  staticInitializer(ctx) {}
+  throws(ctx) {
+    return "throws";
+  }
 
-  constructorDeclaration(ctx) {}
+  exceptionTypeList(ctx) {
+    return "exceptionTypeList";
+  }
 
-  constructorModifier(ctx) {}
+  exceptionType(ctx) {
+    return "exceptionType";
+  }
 
-  constructorDeclarator(ctx) {}
+  methodBody(ctx) {
+    return "methodBody";
+  }
 
-  simpleTypeName(ctx) {}
+  instanceInitializer(ctx) {
+    return "instanceInitializer";
+  }
 
-  constructorBody(ctx) {}
+  staticInitializer(ctx) {
+    return "staticInitializer";
+  }
 
-  explicitConstructorInvocation(ctx) {}
+  constructorDeclaration(ctx) {
+    return "constructorDeclaration";
+  }
 
-  unqualifiedExplicitConstructorInvocation(ctx) {}
+  constructorModifier(ctx) {
+    return "constructorModifier";
+  }
 
-  qualifiedExplicitConstructorInvocation(ctx) {}
+  constructorDeclarator(ctx) {
+    return "constructorDeclarator";
+  }
 
-  enumDeclaration(ctx) {}
+  simpleTypeName(ctx) {
+    return "simpleTypeName";
+  }
 
-  enumBody(ctx) {}
+  constructorBody(ctx) {
+    return "constructorBody";
+  }
 
-  enumConstantList(ctx) {}
+  explicitConstructorInvocation(ctx) {
+    return "explicitConstructorInvocation";
+  }
 
-  enumConstant(ctx) {}
+  unqualifiedExplicitConstructorInvocation(ctx) {
+    return "unqualifiedExplicitConstructorInvocation";
+  }
 
-  enumConstantModifier(ctx) {}
+  qualifiedExplicitConstructorInvocation(ctx) {
+    return "qualifiedExplicitConstructorInvocation";
+  }
 
-  enumBodyDeclarations(ctx) {}
+  enumDeclaration(ctx) {
+    return "enumDeclaration";
+  }
 
-  isClassDeclaration(ctx) {}
+  enumBody(ctx) {
+    return "enumBody";
+  }
 
-  identifyClassBodyDeclarationType(ctx) {}
+  enumConstantList(ctx) {
+    return "enumConstantList";
+  }
+
+  enumConstant(ctx) {
+    return "enumConstant";
+  }
+
+  enumConstantModifier(ctx) {
+    return "enumConstantModifier";
+  }
+
+  enumBodyDeclarations(ctx) {
+    return "enumBodyDeclarations";
+  }
+
+  isClassDeclaration(ctx) {
+    return "isClassDeclaration";
+  }
+
+  identifyClassBodyDeclarationType(ctx) {
+    return "identifyClassBodyDeclarationType";
+  }
 }
 
 module.exports = {

@@ -1,38 +1,89 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+const { buildFqn } = require("./printer-utils");
+
 class PackagesAndModulesPrettierVisitor {
-  compilationUnit(ctx) {}
+  compilationUnit(ctx) {
+    return this.visitSingle(ctx);
+  }
 
-  ordinaryCompilationUnit(ctx) {}
+  ordinaryCompilationUnit(ctx) {
+    const packageDecl = this.visit(ctx.packageDeclaration);
+    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
+    // TODO2: should the imports be grouped in some manner?
+    const importsDecl = this.mapVisit(ctx.importDeclaration);
+    const typesDecl = this.mapVisit(ctx.typeDeclaration);
 
-  modularCompilationUnit(ctx) {}
+    // TODO: utility to add item+line (or multiple lines) but only if an item exists
+    return concat([
+      packageDecl,
+      line,
+      join(line, importsDecl),
+      join(line, typesDecl),
+      line
+    ]);
+  }
 
-  packageDeclaration(ctx) {}
+  modularCompilationUnit(ctx) {
+    return "modularCompilationUnit";
+  }
 
-  packageModifier(ctx) {}
+  packageDeclaration(ctx) {
+    const modifiers = this.mapVisit(ctx.packageModifier);
+    const name = buildFqn(ctx.Identifier);
 
-  importDeclaration(ctx) {}
+    return concat([join(" ", modifiers), "package", " ", name, ";"]);
+  }
 
-  typeDeclaration(ctx) {}
+  packageModifier(ctx) {
+    return this.visitSingle(ctx);
+  }
 
-  moduleDeclaration(ctx) {}
+  importDeclaration(ctx) {
+    return "import a";
+  }
 
-  moduleDirective(ctx) {}
+  typeDeclaration(ctx) {
+    return this.visitSingle(ctx);
+  }
 
-  requiresModuleDirective(ctx) {}
+  moduleDeclaration(ctx) {
+    return "moduleDeclaration";
+  }
 
-  exportsModuleDirective(ctx) {}
+  moduleDirective(ctx) {
+    return "moduleDirective";
+  }
 
-  opensModuleDirective(ctx) {}
+  requiresModuleDirective(ctx) {
+    return "requiresModuleDirective";
+  }
 
-  usesModuleDirective(ctx) {}
+  exportsModuleDirective(ctx) {
+    return "exportsModuleDirective";
+  }
 
-  providesModuleDirective(ctx) {}
+  opensModuleDirective(ctx) {
+    return "opensModuleDirective";
+  }
 
-  requiresModifier(ctx) {}
+  usesModuleDirective(ctx) {
+    return "usesModuleDirective";
+  }
 
-  isModuleCompilationUnit(ctx) {}
+  providesModuleDirective(ctx) {
+    return "providesModuleDirective";
+  }
+
+  requiresModifier(ctx) {
+    return "requiresModifier";
+  }
+
+  isModuleCompilationUnit(ctx) {
+    return "isModuleCompilationUnit";
+  }
 }
 
 module.exports = {
