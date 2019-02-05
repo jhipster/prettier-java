@@ -480,8 +480,8 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("dimExprs", () => {
     $.SUBRULE($.dimExpr);
-    $.OPTION({
-      GATE: $.BACKTRACK($.dimExpr),
+    $.MANY({
+      GATE: () => $.LA(2).tokenType !== t.RSquare,
       DEF: () => $.SUBRULE2($.dimExpr)
     });
   });
