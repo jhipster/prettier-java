@@ -443,6 +443,7 @@ function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
   $.RULE("arrayCreationExpression", () => {
     $.CONSUME(t.New);
     $.OR([
@@ -474,13 +475,20 @@ function defineRules($, t) {
     $.SUBRULE($.arrayInitializer);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-DimExprs
   $.RULE("dimExprs", () => {
     $.SUBRULE($.dimExpr);
-    $.OPTION(() => {
-      $.SUBRULE2($.dimExpr);
+    $.MANY({
+      // The GATE is to distinguish DimExpr from Dims :
+      // the only difference between these two is the presence of an expression in the DimExpr
+      // Example: If the GATE is not present double[3][] won't be parsed as the parser will try to parse "[]"
+      // as a dimExpr instead of a dims
+      GATE: () => $.LA(2).tokenType !== t.RSquare,
+      DEF: () => $.SUBRULE2($.dimExpr)
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-DimExpr
   $.RULE("dimExpr", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
