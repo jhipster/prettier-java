@@ -303,6 +303,7 @@ function defineRules($, t) {
     $.OPTION(() => {
       $.CONSUME(t.Identifier);
     });
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ReturnStatement
@@ -311,14 +312,14 @@ function defineRules($, t) {
     $.OPTION(() => {
       $.SUBRULE($.expression);
     });
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ThrowStatement
   $.RULE("throwStatement", () => {
     $.CONSUME(t.Throw);
-    $.OPTION(() => {
-      $.SUBRULE($.expression);
-    });
+    $.SUBRULE($.expression);
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SynchronizedStatement
