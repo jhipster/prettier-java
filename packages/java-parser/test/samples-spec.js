@@ -10,7 +10,7 @@ const javaParser = require("../src/index");
 describe("The Java Parser", () => {
   createSampleSpecs("java-design-patterns");
   createSampleSpecs("spring-boot");
-  createFailingSampleSpec("guava", 10, 0);
+  createFailingSampleSpec("guava", 8, 0);
 });
 
 function createSampleSpecs(sampleName) {
