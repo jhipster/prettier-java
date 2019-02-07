@@ -50,23 +50,32 @@ class ClassesPrettierVisitor {
   }
 
   typeParameters(ctx) {
-    return "TBD";
+    const typeParameterList = this.visit(ctx.typeParameterList);
+
+    return rejectAndJoin("", ["<", typeParameterList, ">"]);
   }
 
   typeParameterList(ctx) {
-    return "typeParameterList";
+    const typeParameter = this.mapVisit(ctx.typeParameter);
+    const typeParameterSep = typeParameter.length > 0 ? ", " : "";
+
+    return join(typeParameterSep, typeParameter);
   }
 
   superclass(ctx) {
-    return "TBD";
+    return join(" ", ["extends", this.visit(ctx.classType)]);
   }
 
   superinterfaces(ctx) {
-    return "TBD";
+    const interfaceTypeList = this.visit(ctx.interfaceTypeList);
+    return join(" ", ["implements", interfaceTypeList]);
   }
 
   interfaceTypeList(ctx) {
-    return "interfaceTypeList";
+    const interfaceType = this.mapVisit(ctx.interfaceType);
+    const interfaceTypeSep = interfaceType.length > 0 ? ", " : "";
+
+    return join(interfaceTypeSep, interfaceType);
   }
 
   classBody(ctx) {
@@ -88,15 +97,30 @@ class ClassesPrettierVisitor {
   }
 
   fieldDeclaration(ctx) {
-    return "fieldDeclaration";
+    const fieldModifiers = this.mapVisit(ctx.fieldModifier);
+    const unannType = this.visit(ctx.unannType);
+    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
+
+    return rejectAndJoin("", [
+      fieldModifiers,
+      unannType,
+      variableDeclaratorList
+    ]);
   }
 
   fieldModifier(ctx) {
-    return "fieldModifier";
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    // public | protected | private | ...
+    return this.getSingle(ctx).image;
   }
 
   variableDeclaratorList(ctx) {
-    return "variableDeclaratorList";
+    const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
+    const variableDeclaratorsSep = variableDeclarators.length > 0 ? ", " : "";
+
+    return join(variableDeclaratorsSep, variableDeclarators);
   }
 
   variableDeclarator(ctx) {
@@ -108,15 +132,23 @@ class ClassesPrettierVisitor {
   }
 
   variableInitializer(ctx) {
-    return "variableInitializer";
+    const variableInit = ctx.expression ? ctx.expression : ctx.arrayInitializer;
+
+    return this.visit(variableInit);
   }
 
   unannType(ctx) {
-    return "unannType";
+    const type = ctx.unannPrimitiveType
+      ? ctx.unannPrimitiveType
+      : ctx.unannReferenceType;
+
+    return this.visit(type);
   }
 
   unannPrimitiveType(ctx) {
-    return "unannPrimitiveType";
+    const type = ctx.numericType ? ctx.numericType : ctx.boolean;
+
+    return this.visit(type);
   }
 
   unannReferenceType(ctx) {

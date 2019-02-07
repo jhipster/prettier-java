@@ -1,9 +1,28 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const {
+  concat,
+  join,
+  line,
+  ifBreak,
+  group,
+  indent,
+  dedent
+} = require("prettier").doc.builders;
+const { rejectAndJoin } = require("./printer-utils");
+
 class TypesValuesAndVariablesPrettierVisitor {
   primitiveType(ctx) {
-    return "primitiveType";
+    const annotations = this.mapVisit(ctx.annotation);
+    let type = null;
+    if (ctx.numericType) {
+      type = this.visit(ctx.numericType);
+    } else {
+      type = this.getSingle(ctx).image;
+    }
+
+    return rejectAndJoin(" ", [annotations, type]);
   }
 
   numericType(ctx) {
