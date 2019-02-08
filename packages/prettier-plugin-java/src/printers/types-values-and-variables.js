@@ -26,15 +26,18 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   numericType(ctx) {
-    return "numericType";
+    if (ctx.integralType) {
+      return this.visit(ctx.integralType);
+    }
+    return this.visit(ctx.floatingPointType);
   }
 
   integralType(ctx) {
-    return "integralType";
+    return this.getSingle(ctx).image;
   }
 
   floatingPointType(ctx) {
-    return "floatingPointType";
+    return this.getSingle(ctx).image;
   }
 
   referenceType(ctx) {
