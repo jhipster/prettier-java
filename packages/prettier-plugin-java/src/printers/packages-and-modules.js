@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
-const { buildFqn } = require("./printer-utils");
+const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
@@ -20,6 +20,7 @@ class PackagesAndModulesPrettierVisitor {
     return concat([
       packageDecl,
       line,
+      line,
       join(line, importsDecl),
       join(line, typesDecl),
       line
@@ -27,7 +28,12 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   modularCompilationUnit(ctx) {
-    return "modularCompilationUnit";
+    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
+    // TODO2: should the imports be grouped in some manner?
+    const importsDecl = this.mapVisit(ctx.importDeclaration);
+    const moduleDeclaration = this.visit(ctx.moduleDeclaration);
+
+    return join(concat(line, line), [importsDecl, moduleDeclaration]);
   }
 
   packageDeclaration(ctx) {
@@ -42,7 +48,16 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   importDeclaration(ctx) {
-    return "import a";
+    const optionalStatic = ctx.Static ? "static" : "";
+    const packageOrTypeName = this.visit(ctx.packageOrTypeName);
+
+    const optionalDotStar = ctx.Dot ? ".*" : "";
+
+    return rejectAndJoin(" ", [
+      "import",
+      optionalStatic,
+      rejectAndConcat([packageOrTypeName, optionalDotStar])
+    ]);
   }
 
   typeDeclaration(ctx) {
@@ -50,35 +65,80 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   moduleDeclaration(ctx) {
-    return "moduleDeclaration";
+    const annotations = this.mapVisit(ctx.annotation);
+    const optionalOpen = ctx.Open ? "open" : "";
+    const name = buildFqn(ctx.Identifier);
+    const moduleDirectives = this.mapVisit(ctx.moduleDirective);
+    return rejectAndJoin(" ", [
+      join(" ", annotations),
+      optionalOpen,
+      "module",
+      name,
+      // TODO: fix indentation
+      rejectAndJoin(line, ["{", join(line, moduleDirectives), "}"])
+    ]);
   }
 
   moduleDirective(ctx) {
-    return "moduleDirective";
+    return this.visitSingle(ctx);
   }
 
   requiresModuleDirective(ctx) {
-    return "requiresModuleDirective";
+    const modifiers = this.mapVisit(ctx.methodModifier);
+    const moduleName = this.visit(ctx.moduleName);
+
+    return rejectAndJoin(" ", [
+      "requires",
+      join(" ", modifiers),
+      concat([moduleName, ";"])
+    ]);
   }
 
   exportsModuleDirective(ctx) {
-    return "exportsModuleDirective";
+    const packageName = this.visit(ctx.packageName);
+    const to = ctx.To ? "to" : "";
+    const moduleNames = this.mapVisit(ctx.moduleName);
+
+    return rejectAndConcat([
+      rejectAndJoin(" ", ["exports", packageName, to, join(", ", moduleNames)]),
+      ";"
+    ]);
   }
 
   opensModuleDirective(ctx) {
-    return "opensModuleDirective";
+    const packageName = this.visit(ctx.packageName);
+    const to = ctx.To ? "to" : "";
+    const moduleNames = this.mapVisit(ctx.moduleName);
+
+    return rejectAndConcat([
+      rejectAndJoin(" ", ["opens", packageName, to, join(", ", moduleNames)]),
+      ";"
+    ]);
   }
 
   usesModuleDirective(ctx) {
-    return "usesModuleDirective";
+    const typeName = this.visit(ctx.typeName);
+
+    return rejectAndConcat(["uses ", typeName, ";"]);
   }
 
   providesModuleDirective(ctx) {
-    return "providesModuleDirective";
+    const firstTypeName = this.visit(ctx.typeName[0]);
+    const otherTypeNames = this.mapVisit(ctx.typeName.slice(1));
+
+    return rejectAndConcat([
+      rejectAndJoin(" ", [
+        "provides",
+        firstTypeName,
+        "with",
+        join(", ", otherTypeNames)
+      ]),
+      ";"
+    ]);
   }
 
   requiresModifier(ctx) {
-    return "requiresModifier";
+    return this.getSingle(ctx).image;
   }
 
   isModuleCompilationUnit(ctx) {
