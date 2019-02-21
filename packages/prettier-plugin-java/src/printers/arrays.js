@@ -1,12 +1,26 @@
 "use strict";
 /* eslint-disable no-unused-vars */
+
+const { join } = require("prettier").doc.builders;
+const { rejectAndConcat } = require("./printer-utils");
+
 class ArraysPrettierVisitor {
   arrayInitializer(ctx) {
-    return "arrayInitializer";
+    const optionalVariableInitializerList = this.visit(
+      ctx.variableInitializerList
+    );
+    const optionalComma = ctx.Comma ? ", " : "";
+    return rejectAndConcat([
+      "{",
+      optionalVariableInitializerList,
+      optionalComma,
+      "}"
+    ]);
   }
 
   variableInitializerList(ctx) {
-    return "variableInitializerList";
+    const variableInitializers = this.mapVisit(ctx.variableInitializer);
+    return join(", ", variableInitializers);
   }
 }
 
