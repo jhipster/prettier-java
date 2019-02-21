@@ -9,11 +9,11 @@ class NamesPrettierVisitor {
   }
 
   moduleName(ctx) {
-    return "moduleName";
+    return buildFqn(ctx.Identifier);
   }
 
   packageName(ctx) {
-    return "packageName";
+    return buildFqn(ctx.Identifier);
   }
 
   typeName(ctx) {
@@ -21,19 +21,19 @@ class NamesPrettierVisitor {
   }
 
   expressionName(ctx) {
-    return "expressionName";
+    return buildFqn(ctx.Identifier);
   }
 
   methodName(ctx) {
-    return "methodName";
+    return ctx.Identifier[0].image;
   }
 
   packageOrTypeName(ctx) {
-    return "packageOrTypeName";
+    return buildFqn(ctx.Identifier);
   }
 
   ambiguousName(ctx) {
-    return "ambiguousName";
+    return buildFqn(ctx.Identifier);
   }
 }
 

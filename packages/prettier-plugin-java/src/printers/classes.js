@@ -50,23 +50,32 @@ class ClassesPrettierVisitor {
   }
 
   typeParameters(ctx) {
-    return "TBD";
+    const typeParameterList = this.visit(ctx.typeParameterList);
+
+    return rejectAndJoin("", ["<", typeParameterList, ">"]);
   }
 
   typeParameterList(ctx) {
-    return "typeParameterList";
+    const typeParameter = this.mapVisit(ctx.typeParameter);
+    const typeParameterSep = typeParameter.length > 0 ? ", " : "";
+
+    return join(typeParameterSep, typeParameter);
   }
 
   superclass(ctx) {
-    return "TBD";
+    return join(" ", ["extends", this.visit(ctx.classType)]);
   }
 
   superinterfaces(ctx) {
-    return "TBD";
+    const interfaceTypeList = this.visit(ctx.interfaceTypeList);
+    return join(" ", ["implements", interfaceTypeList]);
   }
 
   interfaceTypeList(ctx) {
-    return "interfaceTypeList";
+    const interfaceType = this.mapVisit(ctx.interfaceType);
+    const interfaceTypeSep = interfaceType.length > 0 ? ", " : "";
+
+    return join(interfaceTypeSep, interfaceType);
   }
 
   classBody(ctx) {
@@ -88,43 +97,78 @@ class ClassesPrettierVisitor {
   }
 
   fieldDeclaration(ctx) {
-    return "fieldDeclaration";
+    const fieldModifiers = this.mapVisit(ctx.fieldModifier);
+    const unannType = this.visit(ctx.unannType);
+    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
+
+    return join("", [
+      join(" ", fieldModifiers),
+      " ",
+      unannType,
+      " ",
+      variableDeclaratorList,
+      ";"
+    ]);
   }
 
   fieldModifier(ctx) {
-    return "fieldModifier";
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    // public | protected | private | ...
+    return this.getSingle(ctx).image;
   }
 
   variableDeclaratorList(ctx) {
-    return "variableDeclaratorList";
+    const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
+    const variableDeclaratorsSep = variableDeclarators.length > 0 ? ", " : "";
+
+    return join(variableDeclaratorsSep, variableDeclarators);
   }
 
   variableDeclarator(ctx) {
-    return "variableDeclarator";
+    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+    if (ctx.Equals) {
+      const variableInitializer = this.visit(ctx.variableInitializer);
+      return join(" ", [variableDeclaratorId, "=", variableInitializer]);
+    }
+    return variableDeclaratorId;
   }
 
   variableDeclaratorId(ctx) {
-    return "variableDeclaratorId";
+    const identifier = ctx.Identifier[0].image;
+    const dims = this.visit(ctx.dims);
+
+    return rejectAndJoin("", [identifier, dims]);
   }
 
   variableInitializer(ctx) {
-    return "variableInitializer";
+    return this.visitSingle(ctx);
   }
 
   unannType(ctx) {
-    return "unannType";
+    return this.visitSingle(ctx);
   }
 
   unannPrimitiveType(ctx) {
-    return "unannPrimitiveType";
+    if (ctx.numericType) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   unannReferenceType(ctx) {
-    return "unannReferenceType";
+    const type = ctx.unannPrimitiveType
+      ? this.visit(ctx.unannPrimitiveType)
+      : this.visit(ctx.unannClassOrInterfaceType);
+
+    const dims = this.visit(ctx.dims);
+
+    return rejectAndJoin("", [type, dims]);
   }
 
   unannClassOrInterfaceType(ctx) {
-    return "unannClassOrInterfaceType";
+    return this.visit(ctx.unannClassType);
   }
 
   unannClassType(ctx) {
@@ -132,11 +176,11 @@ class ClassesPrettierVisitor {
   }
 
   unannInterfaceType(ctx) {
-    return "unannInterfaceType";
+    return this.visit(ctx.unannClassType);
   }
 
   unannTypeVariable(ctx) {
-    return "unannTypeVariable";
+    return this.getSingle(ctx).image;
   }
 
   methodDeclaration(ctx) {
@@ -144,7 +188,7 @@ class ClassesPrettierVisitor {
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
-    return concat([rejectAndJoin(" ", modifiers), " ", header, " ", body]);
+    return concat([rejectAndJoin(" ", modifiers), header, " ", body]);
   }
 
   methodModifier(ctx) {
@@ -174,51 +218,109 @@ class ClassesPrettierVisitor {
   }
 
   result(ctx) {
-    return "result";
+    if (ctx.unannType) {
+      return this.visit(ctx.unannType);
+    }
+    // void
+    return this.getSingle(ctx).image;
   }
 
   methodDeclarator(ctx) {
-    return "methodDeclarator";
+    const identifier = ctx.Identifier[0].image;
+    const receiverParameter = this.visit(ctx.receiverParameter);
+    const separator = receiverParameter ? ", " : "";
+    const formalParameterList = this.visit(ctx.formalParameterList);
+    const dims = this.visit(ctx.dims);
+
+    return rejectAndJoin("", [
+      identifier,
+      "(",
+      receiverParameter,
+      separator,
+      formalParameterList,
+      ")",
+      dims
+    ]);
   }
 
   receiverParameter(ctx) {
-    return "receiverParameter";
+    const annotations = this.mapVisit(ctx.annotation);
+    const unannType = this.visit(ctx.unannType);
+    const identifier = ctx.Identifier
+      ? concat([ctx.Identifier[0].image, "."])
+      : "";
+
+    return rejectAndJoin("", [
+      join(" ", annotations),
+      unannType,
+      identifier,
+      "this"
+    ]);
   }
 
   formalParameterList(ctx) {
-    return "formalParameterList";
+    const formalParameter = this.mapVisit(ctx.formalParameter);
+    return join(", ", formalParameter);
   }
 
   formalParameter(ctx) {
-    return "formalParameter";
+    return this.visitSingle(ctx);
   }
 
   variableParaRegularParameter(ctx) {
-    return "variableParaRegularParameter";
+    const variableModifier = this.mapVisit(ctx.variableModifier);
+    const unannType = this.visit(ctx.unannType);
+    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+
+    return rejectAndJoin(" ", [
+      join(" ", variableModifier),
+      unannType,
+      variableDeclaratorId
+    ]);
   }
 
   variableArityParameter(ctx) {
-    return "variableArityParameter";
+    const variableModifier = this.mapVisit(ctx.variableModifier);
+    const unannType = this.visit(ctx.unannType);
+    const annotation = this.mapVisit(ctx.annotation);
+    const identifier = ctx.Identifier[0].image;
+
+    return rejectAndJoin("", [
+      join(" ", variableModifier),
+      unannType,
+      join(" ", annotation),
+      "...",
+      identifier
+    ]);
   }
 
   variableModifier(ctx) {
-    return "variableModifier";
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    return this.getSingle(ctx).image;
   }
 
   throws(ctx) {
-    return "throws";
+    const exceptionTypeList = this.visit(ctx.exceptionTypeList);
+    return join(" ", ["throws", exceptionTypeList]);
   }
 
   exceptionTypeList(ctx) {
-    return "exceptionTypeList";
+    const exceptionTypes = this.mapVisit(ctx.exceptionType);
+    return join(", ", exceptionTypes);
   }
 
   exceptionType(ctx) {
-    return "exceptionType";
+    return this.visitSingle(ctx);
   }
 
   methodBody(ctx) {
-    return "methodBody";
+    if (ctx.block) {
+      return this.visit(ctx.block);
+    }
+
+    return this.getSingle(ctx).image;
   }
 
   instanceInitializer(ctx) {

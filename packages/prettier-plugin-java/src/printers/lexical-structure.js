@@ -3,19 +3,22 @@
 
 class LexicalStructurePrettierVisitor {
   literal(ctx) {
-    return "literal";
+    if (ctx.CharLiteral || ctx.StringLiteral || ctx.Null) {
+      return this.getSingle(ctx).image;
+    }
+    return this.visitSingle(ctx);
   }
 
   integerLiteral(ctx) {
-    return "integerLiteral";
+    return this.getSingle(ctx).image;
   }
 
   floatingPointLiteral(ctx) {
-    return "floatingPointLiteral";
+    return this.getSingle(ctx).image;
   }
 
   booleanLiteral(ctx) {
-    return "booleanLiteral";
+    return this.getSingle(ctx).image;
   }
 }
 
