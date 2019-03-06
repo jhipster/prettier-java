@@ -203,7 +203,7 @@ class BlocksAndStatementPrettierVisitor {
   statementExpressionList(ctx) {
     const statementExpressions = this.mapVisit(ctx.statementExpression);
 
-    return rejectAndJoin(", ", [statementExpressions]);
+    return rejectAndJoin(", ", statementExpressions);
   }
 
   enhancedForStatement(ctx) {
