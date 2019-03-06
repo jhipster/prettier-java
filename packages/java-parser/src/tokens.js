@@ -140,7 +140,7 @@ createToken({
 });
 createToken({
   name: "DecimalLiteral",
-  pattern: MAKE_PATTERN("(0|[1-9](({{Digits}})?|_+{{Digits}}))[lL]?")
+  pattern: MAKE_PATTERN("(0|[1-9](_+{{Digits}}|({{Digits}})?))[lL]?")
 });
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({
