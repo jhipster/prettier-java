@@ -11,3 +11,4 @@ public @interface ConfigurationProperties {}
 `;
 
 javaParserChev.parse(input, "typeDeclaration");
+console.log();
