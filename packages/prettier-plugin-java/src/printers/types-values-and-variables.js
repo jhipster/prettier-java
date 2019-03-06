@@ -10,17 +10,14 @@ const {
   indent,
   dedent
 } = require("prettier").doc.builders;
-const { rejectAndJoin } = require("./printer-utils");
+const { rejectAndJoin, rejectAndConcat } = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
   primitiveType(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    let type = null;
-    if (ctx.numericType) {
-      type = this.visit(ctx.numericType);
-    } else {
-      type = this.getSingle(ctx).image;
-    }
+    const type = ctx.numericType
+      ? this.visit(ctx.numericType)
+      : this.getSingle(ctx).image;
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
@@ -46,7 +43,7 @@ class TypesValuesAndVariablesPrettierVisitor {
 
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [join(" ", annotations), " ", type, dims]);
+    return rejectAndJoin(" ", [join(" ", annotations), concat([type, dims])]);
   }
 
   classOrInterfaceType(ctx) {
@@ -54,6 +51,7 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   classType(ctx) {
+    // TODO : refactor by sorting tokens
     const dots = ctx.Dots;
 
     if (dots) {
@@ -115,26 +113,42 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const identifier = this.getSingle(ctx).image;
 
-    return join(" ", [join(" ", annotations), identifier]);
+    return rejectAndJoin(" ", [join(" ", annotations), identifier]);
   }
 
   dims(ctx) {
-    // TODO
-    return "dims";
+    // TODO: refactor here by sorting annotations
+    const squares = ctx.LSquare;
+    const annotations = this.mapVisit(ctx.annotation);
+
+    const segments = [];
+    for (const square in squares) {
+      const squareOffSet = square.startOffset;
+
+      const currentSegment = [];
+      while (annotations.length > 0) {
+        const annotation = annotation[0];
+        if (annotation.startOffset < squareOffSet) {
+          currentSegment.push(annotations.pop());
+        }
+      }
+
+      segments.push(
+        rejectAndJoin(" ", [rejectAndJoin(" ", currentSegment), "[]"])
+      );
+    }
+
+    return rejectAndConcat(segments);
   }
 
   typeParameter(ctx) {
     const typeParameterModifiers = this.mapVisit(ctx.typeParameterModifier);
-    const typeParameterModifiersOutput =
-      typeParameterModifiers.length > 0
-        ? join(" ", typeParameterModifiers)
-        : "";
 
     const typeIdentifier = this.visit(ctx.typeIdentifier);
     const typeBound = this.visit(ctx.typeBound);
 
     return rejectAndJoin(" ", [
-      typeParameterModifiersOutput,
+      join(" ", typeParameterModifiers),
       typeIdentifier,
       typeBound
     ]);
@@ -169,9 +183,8 @@ class TypesValuesAndVariablesPrettierVisitor {
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
-    const typeArgumentSep = typeArguments.length > 0 ? ", " : "";
 
-    return join(typeArgumentSep, typeArguments);
+    return join(", ", typeArguments);
   }
 
   typeArgument(ctx) {
