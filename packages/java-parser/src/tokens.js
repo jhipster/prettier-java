@@ -41,7 +41,6 @@ const Identifier = createTokenOrg({
 const allTokens = [];
 const tokenDictionary = {};
 function createToken(options) {
-  // TODO: create a test to check all the tokens have a label defined
   if (!options.label) {
     // simple token (e.g operator)
     if (typeof options.pattern === "string") {

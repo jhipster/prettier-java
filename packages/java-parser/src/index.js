@@ -28,6 +28,20 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
+  lexResult.tokens.map(value => {
+    if (!value.tokenType.LABEL) {
+      throw Error(
+        "Sad sad bear, label not found for token: " +
+          value.tokenType.name +
+          "at line " +
+          value.startLine +
+          ", column " +
+          value.startColumn +
+          "\n"
+      );
+    }
+  });
+
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
   if (parser.errors.length > 0) {
