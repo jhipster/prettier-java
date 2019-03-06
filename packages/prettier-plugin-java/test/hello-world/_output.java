@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class HelloWorld <AR, AKDa> extends APZnd implements Leoq, LA {
     public int t = 0;
-    public void test(int maz, final Alpha go) throws testException {
+    public void test(int maz, final Alpha.laz.ZAe go) throws testException {
         int a = 1;
         Object o = new @Not B();
         int i = (int) 2.1;

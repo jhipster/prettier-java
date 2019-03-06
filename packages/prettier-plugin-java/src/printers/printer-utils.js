@@ -61,11 +61,34 @@ function matchCategory(token, categoryName) {
   return labels.indexOf(categoryName) !== -1;
 }
 
+function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
+  let tokens = [...identifiers];
+
+  if (annotations && annotations.length > 0) {
+    tokens = [...tokens, ...annotations];
+  }
+
+  if (typeArguments && typeArguments.length > 0) {
+    tokens = [...tokens, ...typeArguments];
+  }
+
+  if (dots && dots.length > 0) {
+    tokens = [...tokens, ...dots];
+  }
+
+  return tokens.sort((a, b) => {
+    const startOffset1 = a.name ? a.children.At[0].startOffset : a.startOffset;
+    const startOffset2 = b.name ? b.children.At[0].startOffset : b.startOffset;
+    return startOffset1 - startOffset2;
+  });
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
+  sortClassTypeChildren,
   sortTokens,
   matchCategory
 };

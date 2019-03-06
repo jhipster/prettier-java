@@ -9,7 +9,11 @@ const {
   indent,
   dedent
 } = require("prettier").doc.builders;
-const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+const {
+  rejectAndConcat,
+  rejectAndJoin,
+  sortClassTypeChildren
+} = require("./printer-utils");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
@@ -169,38 +173,37 @@ class ClassesPrettierVisitor {
   }
 
   unannClassType(ctx) {
-    // TODO: fix here by sorting
-    const dots = ctx.Dots;
+    const tokens = sortClassTypeChildren(
+      ctx.annotation,
+      ctx.typeArguments,
+      ctx.Identifier
+    );
 
-    if (dots) {
-      const typeArguments = ctx.typeArguments;
-      const identifiers = ctx.Identifier;
+    const segments = [];
+    let currentSegment = [];
 
-      const segments = [];
-      for (const dot in dots) {
-        const offset = dot.startOffset;
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
 
-        const currentSegmentIdentifier = identifiers.pop().image;
-
-        let currentSegmentTypeArgument = undefined;
-        const typeArgument = typeArguments[0];
-        if (typeArgument && typeArgument.startOffset < offset) {
-          currentSegmentTypeArgument = this.visit(typeArgument);
-          typeArguments.pop();
+      if (token.name === "typeArguments") {
+        currentSegment.push(this.visit([token]));
+        segments.push(rejectAndConcat(currentSegment));
+        currentSegment = [];
+      } else if (token.name === "annotation") {
+        currentSegment.push(this.visit([token]));
+      } else {
+        currentSegment.push(token.image);
+        if (
+          (i + 1 < tokens.length && tokens[i].name !== "typeArguments") ||
+          i + 1 === tokens.length
+        ) {
+          segments.push(rejectAndConcat(currentSegment));
+          currentSegment = [];
         }
-
-        segments.push(
-          concat(currentSegmentIdentifier, currentSegmentTypeArgument)
-        );
       }
-
-      return join(".", segments);
     }
 
-    const identifier = ctx.Identifier[0].image;
-    const typeArguments = this.mapVisit(ctx.typeArguments);
-
-    return rejectAndJoin("", [identifier, typeArguments]);
+    return rejectAndJoin(".", segments);
   }
 
   unannInterfaceType(ctx) {

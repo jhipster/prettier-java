@@ -10,7 +10,11 @@ const {
   indent,
   dedent
 } = require("prettier").doc.builders;
-const { rejectAndJoin, rejectAndConcat } = require("./printer-utils");
+const {
+  rejectAndJoin,
+  rejectAndConcat,
+  sortClassTypeChildren
+} = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
   primitiveType(ctx) {
@@ -51,58 +55,37 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   classType(ctx) {
-    // TODO : refactor by sorting tokens
-    const dots = ctx.Dots;
+    const tokens = sortClassTypeChildren(
+      ctx.annotation,
+      ctx.typeArguments,
+      ctx.Identifier
+    );
 
-    if (dots) {
-      const annotations = ctx.annotation;
-      const typeArguments = ctx.typeArguments;
-      const identifiers = ctx.Identifier;
+    const segments = [];
+    let currentSegment = [];
 
-      const segments = [];
-      for (const dot in dots) {
-        const offset = dot.startOffset;
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
 
-        const currentSegmentAnnotations = [];
-        while (annotations.length > 0) {
-          const annotation = annotations[0];
-          if (annotation && annotation.startOffset < offset) {
-            currentSegmentAnnotations.push(this.visit(annotation));
-            annotations.pop();
-          } else {
-            break;
-          }
+      if (token.name === "typeArguments") {
+        currentSegment.push(this.visit([token]));
+        segments.push(rejectAndConcat(currentSegment));
+        currentSegment = [];
+      } else if (token.name === "annotation") {
+        currentSegment.push(this.visit([token]));
+      } else {
+        currentSegment.push(token.image);
+        if (
+          (i + 1 < tokens.length && tokens[i].name !== "typeArguments") ||
+          i + 1 === tokens.length
+        ) {
+          segments.push(rejectAndConcat(currentSegment));
+          currentSegment = [];
         }
-        const currentSegmentIdentifier = identifiers.pop().image;
-
-        let currentSegmentTypeArgument = undefined;
-        const typeArgument = typeArguments[0];
-        if (typeArgument && typeArgument.startOffset < offset) {
-          currentSegmentTypeArgument = this.visit(typeArgument);
-          typeArguments.pop();
-        }
-
-        segments.push(
-          concat(
-            join(" ", currentSegmentAnnotations),
-            currentSegmentIdentifier,
-            currentSegmentTypeArgument
-          )
-        );
       }
-
-      return join(".", segments);
     }
 
-    const annotations = this.mapVisit(ctx.annotation);
-    const identifier = ctx.Identifier[0].image;
-    const typeArguments = this.mapVisit(ctx.typeArguments);
-
-    return rejectAndJoin("", [
-      join(" ", annotations),
-      identifier,
-      typeArguments
-    ]);
+    return rejectAndJoin(".", segments);
   }
 
   interfaceType(ctx) {
@@ -117,25 +100,36 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   dims(ctx) {
-    // TODO: refactor here by sorting annotations
-    const squares = ctx.LSquare;
-    const annotations = this.mapVisit(ctx.annotation);
+    let tokens = [...ctx.LSquare];
+
+    if (ctx.annotation) {
+      tokens = [...tokens, ...ctx.annotation];
+    }
+
+    tokens = tokens.sort((a, b) => {
+      const startOffset1 = a.name
+        ? a.children.At[0].startOffset
+        : a.startOffset;
+      const startOffset2 = b.name
+        ? b.children.At[0].startOffset
+        : b.startOffset;
+      return startOffset1 - startOffset2;
+    });
 
     const segments = [];
-    for (const square in squares) {
-      const squareOffSet = square.startOffset;
+    let currentSegment = [];
 
-      const currentSegment = [];
-      while (annotations.length > 0) {
-        const annotation = annotation[0];
-        if (annotation.startOffset < squareOffSet) {
-          currentSegment.push(annotations.pop());
-        }
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token.name === "annotation") {
+        currentSegment.push(this.visit([token]));
+      } else {
+        segments.push(
+          rejectAndConcat([rejectAndJoin(" ", currentSegment), "[]"])
+        );
+        currentSegment = [];
       }
-
-      segments.push(
-        rejectAndJoin(" ", [rejectAndJoin(" ", currentSegment), "[]"])
-      );
     }
 
     return rejectAndConcat(segments);
