@@ -28,17 +28,28 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
+  //Checking if all tokens have a LABEL
   lexResult.tokens.map(value => {
     if (!value.tokenType.LABEL) {
-      throw Error(
-        "Sad sad bear, label not found for token: " +
-          value.tokenType.name +
-          "at line " +
-          value.startLine +
-          ", column " +
-          value.startColumn +
-          "\n"
-      );
+      //If a LABEL is missing, we try to add one. This is so that Identifier gets labelled without changing the lexer
+      if (typeof value.tokenType.PATTERN === "string") {
+        value.tokenType.label = `'${value.tokenType.PATTERN}'`;
+      }
+      // Complex token (e.g literal)
+      else if (value.tokenType.PATTERN instanceof RegExp) {
+        value.tokenType.label = `'${value.tokenType.name}'`;
+      } else {
+        //If the token doesn't have any pattern, we can't give it a Label.
+        throw Error(
+          "Sad sad bear, label not found for token: " +
+            value.tokenType.name +
+            " at line " +
+            value.startLine +
+            ", column " +
+            value.startColumn +
+            "\n"
+        );
+      }
     }
   });
 
