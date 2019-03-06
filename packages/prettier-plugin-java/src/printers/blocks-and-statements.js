@@ -34,11 +34,8 @@ class BlocksAndStatementPrettierVisitor {
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
 
-    const variableModifiersOutput =
-      variableModifiers.length > 0 ? rejectAndJoin(" ", variableModifiers) : "";
-
     return rejectAndJoin(" ", [
-      variableModifiersOutput,
+      rejectAndJoin(" ", variableModifiers),
       localVariableType,
       variableDeclaratorList
     ]);
