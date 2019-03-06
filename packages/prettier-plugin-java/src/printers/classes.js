@@ -9,7 +9,7 @@ const {
   indent,
   dedent
 } = require("prettier").doc.builders;
-const { rejectAndJoin } = require("./printer-utils");
+const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
@@ -20,23 +20,22 @@ class ClassesPrettierVisitor {
       : ctx.enumDeclaration;
     const classDoc = this.visit(classCST);
 
-    const modifierSpace = modifiers.length > 0 ? " " : "";
-    return concat([join(" ", modifiers), modifierSpace, classDoc]);
+    return rejectAndJoin(" ", [join(" ", modifiers), classDoc]);
   }
 
   normalClassDeclaration(ctx) {
     const name = this.visit(ctx.typeIdentifier);
-    const typeParams = this.visit(ctx.typeParameters);
-    const superClasses = this.visit(ctx.superclass);
-    const superInterfaces = this.visit(ctx.superinterfaces);
+    const optionalTypeParams = this.visit(ctx.typeParameters);
+    const optionalSuperClasses = this.visit(ctx.superclass);
+    const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
     const body = this.visit(ctx.classBody);
 
     return rejectAndJoin(" ", [
       "class",
       name,
-      typeParams,
-      superClasses,
-      superInterfaces,
+      optionalTypeParams,
+      optionalSuperClasses,
+      optionalSuperInterfaces,
       body
     ]);
   }
@@ -52,14 +51,13 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndJoin("", ["<", typeParameterList, ">"]);
+    return rejectAndConcat(["<", typeParameterList, ">"]);
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
-    const typeParameterSep = typeParameter.length > 0 ? ", " : "";
 
-    return join(typeParameterSep, typeParameter);
+    return rejectAndJoin(", ", typeParameter);
   }
 
   superclass(ctx) {
@@ -73,16 +71,15 @@ class ClassesPrettierVisitor {
 
   interfaceTypeList(ctx) {
     const interfaceType = this.mapVisit(ctx.interfaceType);
-    const interfaceTypeSep = interfaceType.length > 0 ? ", " : "";
 
-    return join(interfaceTypeSep, interfaceType);
+    return rejectAndJoin(", ", interfaceType);
   }
 
   classBody(ctx) {
     const classBodyDecls = this.mapVisit(ctx.classBodyDeclaration);
-    return concat([
+    return rejectAndConcat([
       "{",
-      indent(concat([line, join(line, classBodyDecls)])),
+      indent(rejectAndConcat([line, rejectAndJoin(line, classBodyDecls)])),
       line,
       "}"
     ]);
@@ -101,13 +98,10 @@ class ClassesPrettierVisitor {
     const unannType = this.visit(ctx.unannType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
 
-    return join("", [
-      join(" ", fieldModifiers),
-      " ",
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", fieldModifiers),
       unannType,
-      " ",
-      variableDeclaratorList,
-      ";"
+      concat([variableDeclaratorList, ";"])
     ]);
   }
 
@@ -121,16 +115,19 @@ class ClassesPrettierVisitor {
 
   variableDeclaratorList(ctx) {
     const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
-    const variableDeclaratorsSep = variableDeclarators.length > 0 ? ", " : "";
 
-    return join(variableDeclaratorsSep, variableDeclarators);
+    return rejectAndJoin(", ", variableDeclarators);
   }
 
   variableDeclarator(ctx) {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
-      return join(" ", [variableDeclaratorId, "=", variableInitializer]);
+      return rejectAndJoin(" ", [
+        variableDeclaratorId,
+        "=",
+        variableInitializer
+      ]);
     }
     return variableDeclaratorId;
   }
@@ -139,7 +136,7 @@ class ClassesPrettierVisitor {
     const identifier = ctx.Identifier[0].image;
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [identifier, dims]);
+    return rejectAndConcat([identifier, dims]);
   }
 
   variableInitializer(ctx) {
@@ -164,7 +161,7 @@ class ClassesPrettierVisitor {
 
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [type, dims]);
+    return rejectAndConcat([type, dims]);
   }
 
   unannClassOrInterfaceType(ctx) {
@@ -172,7 +169,38 @@ class ClassesPrettierVisitor {
   }
 
   unannClassType(ctx) {
-    return "unannClassType";
+    // TODO: fix here by sorting
+    const dots = ctx.Dots;
+
+    if (dots) {
+      const typeArguments = ctx.typeArguments;
+      const identifiers = ctx.Identifier;
+
+      const segments = [];
+      for (const dot in dots) {
+        const offset = dot.startOffset;
+
+        const currentSegmentIdentifier = identifiers.pop().image;
+
+        let currentSegmentTypeArgument = undefined;
+        const typeArgument = typeArguments[0];
+        if (typeArgument && typeArgument.startOffset < offset) {
+          currentSegmentTypeArgument = this.visit(typeArgument);
+          typeArguments.pop();
+        }
+
+        segments.push(
+          concat(currentSegmentIdentifier, currentSegmentTypeArgument)
+        );
+      }
+
+      return join(".", segments);
+    }
+
+    const identifier = ctx.Identifier[0].image;
+    const typeArguments = this.mapVisit(ctx.typeArguments);
+
+    return rejectAndJoin("", [identifier, typeArguments]);
   }
 
   unannInterfaceType(ctx) {
@@ -188,7 +216,7 @@ class ClassesPrettierVisitor {
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
-    return concat([rejectAndJoin(" ", modifiers), header, " ", body]);
+    return rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body]);
   }
 
   methodModifier(ctx) {
@@ -209,7 +237,7 @@ class ClassesPrettierVisitor {
     return concat([
       rejectAndJoin(" ", [
         typeParameters,
-        join(line, annotations),
+        rejectAndJoin(line, annotations),
         result,
         declarator,
         throws
@@ -227,20 +255,10 @@ class ClassesPrettierVisitor {
 
   methodDeclarator(ctx) {
     const identifier = ctx.Identifier[0].image;
-    const receiverParameter = this.visit(ctx.receiverParameter);
-    const separator = receiverParameter ? ", " : "";
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [
-      identifier,
-      "(",
-      receiverParameter,
-      separator,
-      formalParameterList,
-      ")",
-      dims
-    ]);
+    return rejectAndConcat([identifier, "(", formalParameterList, ")", dims]);
   }
 
   receiverParameter(ctx) {
@@ -251,7 +269,7 @@ class ClassesPrettierVisitor {
       : "";
 
     return rejectAndJoin("", [
-      join(" ", annotations),
+      rejectAndJoin(" ", annotations),
       unannType,
       identifier,
       "this"
@@ -260,7 +278,7 @@ class ClassesPrettierVisitor {
 
   formalParameterList(ctx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
-    return join(", ", formalParameter);
+    return rejectAndJoin(", ", formalParameter);
   }
 
   formalParameter(ctx) {
@@ -273,7 +291,7 @@ class ClassesPrettierVisitor {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
 
     return rejectAndJoin(" ", [
-      join(" ", variableModifier),
+      rejectAndJoin(" ", variableModifier),
       unannType,
       variableDeclaratorId
     ]);
@@ -285,7 +303,7 @@ class ClassesPrettierVisitor {
     const annotation = this.mapVisit(ctx.annotation);
     const identifier = ctx.Identifier[0].image;
 
-    return rejectAndJoin("", [
+    return rejectAndConcat([
       join(" ", variableModifier),
       unannType,
       join(" ", annotation),
@@ -324,67 +342,160 @@ class ClassesPrettierVisitor {
   }
 
   instanceInitializer(ctx) {
-    return "instanceInitializer";
+    return this.visitSingle(ctx);
   }
 
   staticInitializer(ctx) {
-    return "staticInitializer";
+    const block = this.visit(ctx.block);
+
+    return join(" ", ["static", block]);
   }
 
   constructorDeclaration(ctx) {
-    return "constructorDeclaration";
+    const constructorModifier = this.mapVisit(ctx.constructorModifier);
+    const constructorDeclarator = this.visit(ctx.constructorDeclarator);
+    const throws = this.visit(ctx.throws);
+    const constructorBody = this.visit(ctx.constructorBody);
+
+    return rejectAndJoin(" ", [
+      join(" ", constructorModifier),
+      constructorDeclarator,
+      throws,
+      constructorBody
+    ]);
   }
 
   constructorModifier(ctx) {
-    return "constructorModifier";
+    if (ctx.annotation) {
+      return this.visit(ctx.annotation);
+    }
+    // public | protected | private | Synchronized | ...
+    return this.getSingle(ctx).image;
   }
 
   constructorDeclarator(ctx) {
-    return "constructorDeclarator";
+    const typeParameters = this.visit(ctx.typeParameters);
+    const simpleTypeName = this.visit(ctx.simpleTypeName);
+    const receiverParameter = this.visit(ctx.receiverParameter);
+    const formalParameterList = this.visit(ctx.formalParameterList);
+
+    return rejectAndConcat([
+      typeParameters,
+      simpleTypeName,
+      "(",
+      rejectAndJoin(", ", [receiverParameter, formalParameterList]),
+      ")"
+    ]);
   }
 
   simpleTypeName(ctx) {
-    return "simpleTypeName";
+    return this.getSingle(ctx).image;
   }
 
   constructorBody(ctx) {
-    return "constructorBody";
+    const explicitConstructorInvocation = this.visit(
+      ctx.explicitConstructorInvocation
+    );
+
+    const blockStatements = this.visit(ctx.blockStatements);
+
+    return rejectAndJoin(line, [
+      "{",
+      explicitConstructorInvocation,
+      blockStatements,
+      "}"
+    ]);
   }
 
   explicitConstructorInvocation(ctx) {
-    return "explicitConstructorInvocation";
+    return this.visitSingle(ctx);
   }
 
   unqualifiedExplicitConstructorInvocation(ctx) {
-    return "unqualifiedExplicitConstructorInvocation";
+    const typeArguments = this.visit(ctx.typeArguments);
+    const keyWord = ctx.This ? "this" : "super";
+    const argumentList = this.visit(ctx.argumentList);
+
+    return rejectAndConcat([
+      typeArguments,
+      " ",
+      keyWord,
+      "(",
+      argumentList,
+      ");"
+    ]);
   }
 
   qualifiedExplicitConstructorInvocation(ctx) {
-    return "qualifiedExplicitConstructorInvocation";
+    const expressionName = this.visit(ctx.expressionName);
+    const typeArguments = this.visit(ctx.typeArguments);
+    const argumentList = this.visit(ctx.argumentList);
+
+    return rejectAndConcat([
+      expressionName,
+      ".",
+      typeArguments,
+      "super",
+      "(",
+      argumentList,
+      ");"
+    ]);
   }
 
   enumDeclaration(ctx) {
-    return "enumDeclaration";
+    const classModifier = this.mapVisit(ctx.classModifier);
+    const typeIdentifier = this.visit(ctx.typeIdentifier);
+    const superinterfaces = this.visit(ctx.superinterfaces);
+    const enumBody = this.visit(ctx.enumBody);
+
+    return rejectAndJoin(" ", [
+      join(" ", classModifier),
+      "enum",
+      typeIdentifier,
+      superinterfaces,
+      enumBody
+    ]);
   }
 
   enumBody(ctx) {
-    return "enumBody";
+    const enumConstantList = this.visit(ctx.enumConstantList);
+
+    const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
+    return rejectAndConcat([
+      "{",
+      join(", ", [enumConstantList, enumBodyDeclarations]),
+      "}"
+    ]);
   }
 
   enumConstantList(ctx) {
-    return "enumConstantList";
+    const enumConstants = this.mapVisit(ctx.enumConstant);
+
+    return join(", ", enumConstants);
   }
 
   enumConstant(ctx) {
-    return "enumConstant";
+    const enumConstantModifiers = this.mapVisit(ctx.enumConstantModifier);
+    const identifier = ctx.Identifier[0].image;
+    const argumentList = this.visit(ctx.argumentList);
+    const classBody = this.visit(ctx.classBody);
+
+    return rejectAndJoin(" ", [
+      join(" ", enumConstantModifiers),
+      identifier,
+      concat(["(", argumentList, ")"]),
+      classBody
+    ]);
   }
 
   enumConstantModifier(ctx) {
-    return "enumConstantModifier";
+    return this.visitSingle(ctx);
   }
 
   enumBodyDeclarations(ctx) {
-    return "enumBodyDeclarations";
+    const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
+
+    return rejectAndJoin(" ", [";", join(line, classBodyDeclaration)]);
   }
 
   isClassDeclaration(ctx) {
