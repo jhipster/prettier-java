@@ -22,6 +22,8 @@ class PackagesAndModulesPrettierVisitor {
       line,
       line,
       join(line, importsDecl),
+      line,
+      line,
       join(line, typesDecl),
       line
     ]);
@@ -56,7 +58,7 @@ class PackagesAndModulesPrettierVisitor {
     return rejectAndJoin(" ", [
       "import",
       optionalStatic,
-      rejectAndConcat([packageOrTypeName, optionalDotStar])
+      rejectAndConcat([packageOrTypeName, optionalDotStar, ";"])
     ]);
   }
 
