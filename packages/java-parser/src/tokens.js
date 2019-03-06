@@ -30,6 +30,7 @@ FRAGMENT("ExponentPart", "[eE][+-]?{{Digits}}");
 FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
+FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
 
 const Identifier = createTokenOrg({
   name: "Identifier",
@@ -40,6 +41,7 @@ const Identifier = createTokenOrg({
 
 const allTokens = [];
 const tokenDictionary = {};
+
 function createToken(options) {
   // TODO: create a test to check all the tokens have a label defined
   if (!options.label) {
@@ -105,8 +107,11 @@ const UnarySuffixOperator = createToken({
   pattern: Lexer.NA
 });
 
-// TODO: align with Java Spec
-createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
+createToken({
+  name: "WhiteSpace",
+  pattern: MAKE_PATTERN("[\\x09\\x20\\x0C]|{{LineTerminator}}"),
+  group: Lexer.SKIPPED
+});
 createToken({
   name: "LineComment",
   pattern: /\/\/[^\n\r]*/,
@@ -429,7 +434,6 @@ function sortDescLength(arr) {
     return b.length - a.length;
   });
 }
-
 module.exports = {
   allTokens,
   tokens: tokenDictionary
