@@ -305,7 +305,13 @@ function defineRules($, t) {
     $.SUBRULE($.elementValue);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE2($.elementValue);
+      /*
+      To be compliant with the JAVA specification we should remove the Option.
+      However, JAVA accept that ElementValueList ends with a comma (,)
+      */
+      $.OPTION(() => {
+        $.SUBRULE2($.elementValue);
+      });
     });
   });
 

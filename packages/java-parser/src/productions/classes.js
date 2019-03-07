@@ -792,8 +792,19 @@ function defineRules($, t) {
 
       return classBodyTypes.unknown;
     } catch (e) {
-      // TODO: add info from the original error
-      throw Error("Cannot Identify the type of a <classBodyDeclaration>");
+      // Displaying more information whenever there is a parsing error.
+      // Still considering whether and how to send the error to the index.js
+      throw Error(
+        "Cannot Identify the type of a <classBodyDeclaration>\n" +
+          "Sad sad panda, parsing errors detected in line: " +
+          e.token.startLine +
+          ", column: " +
+          e.token.startColumn +
+          "!\n" +
+          e.message +
+          "!\n\t->" +
+          e.context.ruleStack.join("\n\t->")
+      );
     }
   });
 }

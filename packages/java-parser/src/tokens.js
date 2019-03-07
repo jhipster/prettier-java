@@ -30,6 +30,7 @@ FRAGMENT("ExponentPart", "[eE][+-]?{{Digits}}");
 FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
+FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
 
 const Identifier = createTokenOrg({
   name: "Identifier",
@@ -40,8 +41,8 @@ const Identifier = createTokenOrg({
 
 const allTokens = [];
 const tokenDictionary = {};
+
 function createToken(options) {
-  // TODO: create a test to check all the tokens have a label defined
   if (!options.label) {
     // simple token (e.g operator)
     if (typeof options.pattern === "string") {
@@ -105,8 +106,11 @@ const UnarySuffixOperator = createToken({
   pattern: Lexer.NA
 });
 
-// TODO: align with Java Spec
-createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
+createToken({
+  name: "WhiteSpace",
+  pattern: MAKE_PATTERN("[\\x09\\x20\\x0C]|{{LineTerminator}}"),
+  group: Lexer.SKIPPED
+});
 createToken({
   name: "LineComment",
   pattern: /\/\/[^\n\r]*/,
@@ -118,7 +122,10 @@ createToken({
   group: "comments"
 });
 createToken({ name: "BinaryLiteral", pattern: /0[bB][01]([01_]*[01])?[lL]?/ });
-createToken({ name: "OctalLiteral", pattern: /0_*[0-7]([0-7_]*[0-7])?[lL]?/ });
+createToken({
+  name: "OctalLiteral",
+  pattern: /0(_)?[0-7]([0-7_]*[0-7])?[lL]?/
+});
 createToken({
   name: "FloatLiteral",
   pattern: MAKE_PATTERN(
@@ -140,7 +147,7 @@ createToken({
 });
 createToken({
   name: "DecimalLiteral",
-  pattern: MAKE_PATTERN("(0|[1-9](({{Digits}})?|_+{{Digits}}))[lL]?")
+  pattern: MAKE_PATTERN("(0|[1-9](_+{{Digits}}|({{Digits}})?))[lL]?")
 });
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({
@@ -429,7 +436,6 @@ function sortDescLength(arr) {
     return b.length - a.length;
   });
 }
-
 module.exports = {
   allTokens,
   tokens: tokenDictionary
