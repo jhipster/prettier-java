@@ -10,6 +10,24 @@ const javaParser = require("../src/index");
 describe("The Java Parser", () => {
   createSampleSpecs("java-design-patterns");
   createSampleSpecs("spring-boot");
+  createSampleSpecs("spring-framework");
+  createSampleSpecs("jhipster");
+  createSampleSpecs("jhipster-online");
+  createSampleSpecs("jhipster-sample-app");
+  createSampleSpecs("jhipster-sample-app-cassandra");
+  createSampleSpecs("jhipster-sample-app-couchbase");
+  createSampleSpecs("jhipster-sample-app-dto");
+  createSampleSpecs("jhipster-sample-app-elasticsearch");
+  createSampleSpecs("jhipster-sample-app-gateway");
+  createSampleSpecs("jhipster-sample-app-gradle");
+  createSampleSpecs("jhipster-sample-app-hazelcast");
+  createSampleSpecs("jhipster-sample-app-microservice");
+  createSampleSpecs("jhipster-sample-app-mongodb");
+  createSampleSpecs("jhipster-sample-app-nocache");
+  createSampleSpecs("jhipster-sample-app-noi18n");
+  createSampleSpecs("jhipster-sample-app-oauth2");
+  createSampleSpecs("jhipster-sample-app-react");
+  createSampleSpecs("jhipster-sample-app-websocket");
   createFailingSampleSpec("guava", 8, 0);
 });
 
