@@ -303,9 +303,12 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValueList
   $.RULE("elementValueList", () => {
     $.SUBRULE($.elementValue);
-    $.MANY(() => {
-      $.CONSUME(t.Comma);
-      $.SUBRULE2($.elementValue);
+    $.MANY({
+      GATE: () => $.LA(2).tokenType !== t.RCurly,
+      DEF: () => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.elementValue);
+      }
     });
   });
 
