@@ -1,4 +1,5 @@
 "use strict";
+const { tokenMatcher } = require("chevrotain");
 function defineRules($, t) {
   $.RULE("constantExpression", () => {
     $.SUBRULE($.expression);
@@ -617,8 +618,8 @@ function defineRules($, t) {
     const firstTokTypeAfterRBrace = this.LA(1).tokenType;
 
     return (
-      firstForUnaryExpressionNotPlusMinus.find(
-        tokType => tokType === firstTokTypeAfterRBrace
+      firstForUnaryExpressionNotPlusMinus.find(tokType =>
+        tokenMatcher(firstTokTypeAfterRBrace, tokType)
       ) !== undefined
     );
   });
