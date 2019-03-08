@@ -1,4 +1,5 @@
 "use strict";
+const { tokenMatcher } = require("chevrotain");
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-ModuleName
   $.RULE("moduleName", () => {
@@ -40,7 +41,7 @@ function defineRules($, t) {
       // expressionName could be called by "qualifiedExplicitConstructorInvocation"
       // in that case it may be followed by ".super" so we need to look two tokens
       // ahead.
-      GATE: () => this.LA(2).tokenType === t.Identifier,
+      GATE: () => tokenMatcher(this.LA(2).tokenType, t.Identifier),
       DEF: () => {
         $.CONSUME(t.Dot);
         $.CONSUME2(t.Identifier);
@@ -62,7 +63,7 @@ function defineRules($, t) {
       // only look a single token ahead (Dot) to determine if another iteration
       // exists which will cause a parsing error for inputs such as:
       // "import a.b.c.*"
-      GATE: () => this.LA(2).tokenType !== t.Star,
+      GATE: () => tokenMatcher(this.LA(2).tokenType, t.Star) === false,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.CONSUME2(t.Identifier);

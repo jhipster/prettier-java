@@ -1,4 +1,7 @@
 "use strict";
+
+const { tokenMatcher } = require("chevrotain");
+
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-10.html#jls-ArrayInitializer
   $.RULE("arrayInitializer", () => {
@@ -17,7 +20,7 @@ function defineRules($, t) {
     $.SUBRULE($.variableInitializer);
     $.MANY({
       // The optional last "Comma" of an "arrayInitializer"
-      GATE: () => this.LA(2).tokenType !== t.RCurly,
+      GATE: () => tokenMatcher(this.LA(2).tokenType, t.RCurly) === false,
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.variableInitializer);

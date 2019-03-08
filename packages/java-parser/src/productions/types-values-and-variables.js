@@ -1,5 +1,7 @@
 "use strict";
 
+const { tokenMatcher } = require("chevrotain");
+
 function defineRules($, t) {
   // ---------------------
   // Productions from §4 (Types, Values, and Variables)
@@ -103,7 +105,7 @@ function defineRules($, t) {
         // To avoid confusion with "TypeArgumentsOrDiamond" rule
         // as we use the "classType" rule in the "identifyNewExpressionType"
         // optimized lookahead rule.
-        GATE: () => $.LA(2).tokenType !== t.Greater,
+        GATE: () => tokenMatcher($.LA(2).tokenType, t.Greater) === false,
         DEF: () => {
           $.SUBRULE2($.typeArguments);
         }
