@@ -1,4 +1,5 @@
 "use strict";
+const { tokenMatcher } = require("chevrotain");
 function defineRules($, t) {
   $.RULE("constantExpression", () => {
     $.SUBRULE($.expression);
@@ -43,8 +44,9 @@ function defineRules($, t) {
           const nextTokType = this.LA(1).tokenType;
           const nextNextTokType = this.LA(2).tokenType;
           return (
-            nextTokType === t.Identifier &&
-            (nextNextTokType === t.RBrace || nextNextTokType === t.Comma)
+            tokenMatcher(nextTokType, t.Identifier) &&
+            (tokenMatcher(nextNextTokType, t.RBrace) ||
+              tokenMatcher(nextNextTokType, t.Comma))
           );
         },
         ALT: () => $.SUBRULE($.inferredLambdaParameterList)
@@ -137,7 +139,8 @@ function defineRules($, t) {
           // TODO: this is a bug in Chevrotain lookahead calculation. the "BinaryOperator" token can match "Less" or "Greater"
           //   as well, but because it is a **token Category** Chevrotain does not understand it need to looks two tokens ahead.
           GATE: () =>
-            $.LA(2).tokenType === t.Less || $.LA(2).tokenType === t.Greater,
+            tokenMatcher($.LA(2).tokenType, t.Less) ||
+            tokenMatcher($.LA(2).tokenType, t.Greater),
           ALT: () => {
             $.OR2([
               {
@@ -198,7 +201,7 @@ function defineRules($, t) {
 
   $.RULE("primaryPrefix", () => {
     let isCastExpression = false;
-    if ($.LA(1).tokenType === t.LBrace) {
+    if (tokenMatcher($.LA(1).tokenType, t.LBrace)) {
       isCastExpression = this.BACKTRACK_LOOKAHEAD($.isCastExpression);
     }
 
@@ -254,9 +257,9 @@ function defineRules($, t) {
       // ".class" is a classLiteralSuffix
       GATE: () =>
         // avoids ambiguity with ".this" and ".new" which are parsed as a primary suffix.
-        this.LA(2).tokenType !== t.Class &&
-        this.LA(2).tokenType !== t.This &&
-        this.LA(2).tokenType !== t.New,
+        tokenMatcher(this.LA(2).tokenType, t.Class) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.This) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.New) === false,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.SUBRULE2($.fqnOrRefTypePart);
@@ -267,7 +270,9 @@ function defineRules($, t) {
     $.OPTION({
       // it is not enough to check only the opening "[", we must avoid conflict with
       // arrayAccessSuffix
-      GATE: () => $.LA(1).tokenType === t.At || $.LA(2).tokenType === t.RSquare,
+      GATE: () =>
+        tokenMatcher($.LA(1).tokenType, t.At) ||
+        tokenMatcher($.LA(2).tokenType, t.RSquare),
       DEF: () => {
         $.SUBRULE($.dims);
       }
@@ -302,7 +307,7 @@ function defineRules($, t) {
     // TODO: performance optimization evaluation: avoid doing this backtracking for every "<" encountered.
     //       we could do it once (using global state) per "fqnOrRefType"
     // We could do it only once for
-    if ($.LA(1).tokenType === t.Less) {
+    if (tokenMatcher($.LA(1).tokenType, t.Less)) {
       isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD($.isRefTypeInMethodRef);
     }
 
@@ -483,7 +488,7 @@ function defineRules($, t) {
       // the only difference between these two is the presence of an expression in the DimExpr
       // Example: If the GATE is not present double[3][] won't be parsed as the parser will try to parse "[]"
       // as a dimExpr instead of a dims
-      GATE: () => $.LA(2).tokenType !== t.RSquare,
+      GATE: () => tokenMatcher($.LA(2).tokenType, t.RSquare) === false,
       DEF: () => $.SUBRULE2($.dimExpr)
     });
   });
@@ -534,7 +539,7 @@ function defineRules($, t) {
     const firstTokenAfterNew = this.LA(1).tokenType;
 
     // not an array initialization due to the prefix "TypeArguments"
-    if (firstTokenAfterNew === t.Less) {
+    if (tokenMatcher(firstTokenAfterNew, t.Less)) {
       return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
     }
 
@@ -547,7 +552,7 @@ function defineRules($, t) {
     }
 
     const firstTokenAfterClassType = this.LA(1).tokenType;
-    if (firstTokenAfterClassType === t.LBrace) {
+    if (tokenMatcher(firstTokenAfterClassType, t.LBrace)) {
       return newExpressionTypes.unqualifiedClassInstanceCreationExpression;
     }
 
@@ -566,13 +571,16 @@ function defineRules($, t) {
     const firstTokenType = this.LA(1).tokenType;
     const secondTokenType = this.LA(2).tokenType;
     // no parent lambda "x -> x * 2"
-    if (firstTokenType === t.Identifier && secondTokenType === t.Arrow) {
+    if (
+      tokenMatcher(firstTokenType, t.Identifier) &&
+      tokenMatcher(secondTokenType, t.Arrow)
+    ) {
       return true;
     }
     // Performance optimizations, fail fast if it is not a LBrace.
-    else if (firstTokenType === t.LBrace) {
+    else if (tokenMatcher(firstTokenType, t.LBrace)) {
       $.SUBRULE($.lambdaParametersWithBraces);
-      const followedByArrow = this.LA(1).tokenType === t.Arrow;
+      const followedByArrow = tokenMatcher(this.LA(1).tokenType, t.Arrow);
       return followedByArrow;
     }
     return false;
@@ -617,8 +625,8 @@ function defineRules($, t) {
     const firstTokTypeAfterRBrace = this.LA(1).tokenType;
 
     return (
-      firstForUnaryExpressionNotPlusMinus.find(
-        tokType => tokType === firstTokTypeAfterRBrace
+      firstForUnaryExpressionNotPlusMinus.find(tokType =>
+        tokenMatcher(firstTokTypeAfterRBrace, tokType)
       ) !== undefined
     );
   });
@@ -632,7 +640,7 @@ function defineRules($, t) {
     });
 
     const firstTokTypeAfterTypeArgs = this.LA(1).tokenType;
-    if (firstTokTypeAfterTypeArgs === t.ColonColon) {
+    if (tokenMatcher(firstTokTypeAfterTypeArgs, t.ColonColon)) {
       return true;
     }
     // we must be at the end of a "referenceType" if "dims" were encountered
@@ -648,7 +656,7 @@ function defineRules($, t) {
     });
 
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
-    return firstTokTypeAfterRefType === t.ColonColon;
+    return tokenMatcher(firstTokTypeAfterRefType, t.ColonColon);
   });
 }
 

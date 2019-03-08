@@ -304,7 +304,7 @@ function defineRules($, t) {
   $.RULE("elementValueList", () => {
     $.SUBRULE($.elementValue);
     $.MANY({
-      GATE: () => $.LA(2).tokenType !== t.RCurly,
+      GATE: () => tokenMatcher($.LA(2).tokenType, t.RCurly) === false,
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.elementValue);
@@ -317,7 +317,7 @@ function defineRules($, t) {
   // ------------------------------------
   $.RULE("identifyInterfaceBodyDeclarationType", () => {
     let nextTokenType = this.LA(1).tokenType;
-    if (nextTokenType === t.Semicolon) {
+    if (tokenMatcher(nextTokenType, t.Semicolon)) {
       return InterfaceBodyTypes.semiColon;
     }
 
@@ -325,8 +325,8 @@ function defineRules($, t) {
     $.MANY({
       // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
       GATE: () =>
-        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-        false,
+        (tokenMatcher($.LA(1).tokenType, t.At) &&
+          tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
       DEF: () => {
         // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
         // Certain combinations are syntactically invalid, this is **not** checked here,
@@ -348,13 +348,22 @@ function defineRules($, t) {
     });
 
     nextTokenType = this.LA(1).tokenType;
-    if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+    if (
+      tokenMatcher(nextTokenType, t.Class) ||
+      tokenMatcher(nextTokenType, t.Enum)
+    ) {
       return InterfaceBodyTypes.classDeclaration;
     }
-    if (nextTokenType === t.Interface || nextTokenType === t.At) {
+    if (
+      tokenMatcher(nextTokenType, t.Interface) ||
+      tokenMatcher(nextTokenType, t.At)
+    ) {
       return InterfaceBodyTypes.interfaceDeclaration;
     }
-    if (nextTokenType === t.Void || nextTokenType === t.Less) {
+    if (
+      tokenMatcher(nextTokenType, t.Void) ||
+      tokenMatcher(nextTokenType, t.Less)
+    ) {
       // method with result type "void"
       return InterfaceBodyTypes.interfaceMethodDeclaration;
     }
@@ -369,7 +378,7 @@ function defineRules($, t) {
     // "foo(..." --> look like method start
     if (
       tokenMatcher(nextToken, t.Identifier) &&
-      nextNextTokenType === t.LBrace
+      tokenMatcher(nextNextTokenType, t.LBrace)
     ) {
       return InterfaceBodyTypes.interfaceMethodDeclaration;
     }
@@ -382,7 +391,7 @@ function defineRules($, t) {
 
   $.RULE("identifyAnnotationBodyDeclarationType", () => {
     let nextTokenType = this.LA(1).tokenType;
-    if (nextTokenType === t.Semicolon) {
+    if (tokenMatcher(nextTokenType, t.Semicolon)) {
       return AnnotationBodyTypes.semiColon;
     }
 
@@ -390,8 +399,8 @@ function defineRules($, t) {
     $.MANY({
       // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
       GATE: () =>
-        ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-        false,
+        (tokenMatcher($.LA(1).tokenType, t.At) &&
+          tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
       DEF: () => {
         // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
         // Certain combinations are syntactically invalid, this is **not** checked here,
@@ -412,10 +421,16 @@ function defineRules($, t) {
     });
 
     nextTokenType = this.LA(1).tokenType;
-    if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+    if (
+      tokenMatcher(nextTokenType, t.Class) ||
+      tokenMatcher(nextTokenType, t.Enum)
+    ) {
       return AnnotationBodyTypes.classDeclaration;
     }
-    if (nextTokenType === t.Interface || nextTokenType === t.At) {
+    if (
+      tokenMatcher(nextTokenType, t.Interface) ||
+      tokenMatcher(nextTokenType, t.At)
+    ) {
       return AnnotationBodyTypes.interfaceDeclaration;
     }
 
@@ -427,11 +442,14 @@ function defineRules($, t) {
     nextTokenType = this.LA(1).tokenType;
     const nextNextTokenType = this.LA(2).tokenType;
     // "foo(..." --> look like annotationTypeElement start
-    if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+    if (
+      tokenMatcher(nextTokenType, t.Identifier) &&
+      tokenMatcher(nextNextTokenType, t.LBrace)
+    ) {
       return AnnotationBodyTypes.annotationTypeElementDeclaration;
     }
     // a valid constant
-    if (nextTokenType === t.Identifier) {
+    if (tokenMatcher(nextTokenType, t.Identifier)) {
       return AnnotationBodyTypes.constantDeclaration;
     }
     return AnnotationBodyTypes.unknown;

@@ -123,7 +123,8 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.instanceInitializer) },
       { ALT: () => $.SUBRULE($.staticInitializer) },
       {
-        GATE: () => nextRuleType === classBodyTypes.constructorDeclaration,
+        GATE: () =>
+          tokenMatcher(nextRuleType, classBodyTypes.constructorDeclaration),
         ALT: () => $.SUBRULE($.constructorDeclaration)
       }
     ]);
@@ -667,8 +668,8 @@ function defineRules($, t) {
       // between the alternatives.
       $.MANY({
         GATE: () =>
-          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-          false,
+          (tokenMatcher($.LA(1).tokenType, t.At) &&
+            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
         DEF: () => {
           $.SUBRULE($.classModifier);
         }
@@ -683,7 +684,10 @@ function defineRules($, t) {
     }
 
     const nextTokenType = this.LA(1).tokenType;
-    return nextTokenType === t.Class || nextTokenType === t.Enum;
+    return (
+      tokenMatcher(nextTokenType, t.Class) ||
+      tokenMatcher(nextTokenType, t.Enum)
+    );
   });
 
   $.RULE("identifyClassBodyDeclarationType", () => {
@@ -706,8 +710,8 @@ function defineRules($, t) {
       // We have to look beyond the modifiers to distinguish between the declaration types.
       $.MANY({
         GATE: () =>
-          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-          false,
+          (tokenMatcher($.LA(1).tokenType, t.At) &&
+            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
         DEF: () => {
           // This alternation includes all possible modifiers for all types of "ClassBodyDeclaration"
           // Certain combinations are syntactically invalid, this is **not** checked here,
@@ -717,8 +721,8 @@ function defineRules($, t) {
           $.OR([
             {
               GATE: () =>
-                ($.LA(1).tokenType === t.At &&
-                  $.LA(2).tokenType === t.Interface) === false,
+                (tokenMatcher($.LA(1).tokenType, t.At) &&
+                  tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
               ALT: () => $.SUBRULE($.annotation)
             },
             { ALT: () => $.CONSUME(t.Public) },
@@ -738,30 +742,42 @@ function defineRules($, t) {
 
       nextTokenType = this.LA(1).tokenType;
       nextNextTokenType = this.LA(2).tokenType;
-      if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+      if (
+        tokenMatcher(nextTokenType, t.Identifier) &&
+        tokenMatcher(nextNextTokenType, t.LBrace)
+      ) {
         return classBodyTypes.constructorDeclaration;
       }
 
-      if (nextTokenType === t.Class || nextTokenType === t.Enum) {
+      if (
+        tokenMatcher(nextTokenType, t.Class) ||
+        tokenMatcher(nextTokenType, t.Enum)
+      ) {
         return classBodyTypes.classDeclaration;
       }
 
-      if (nextTokenType === t.Interface || nextTokenType === t.At) {
+      if (
+        tokenMatcher(nextTokenType, t.Interface) ||
+        tokenMatcher(nextTokenType, t.At)
+      ) {
         return classBodyTypes.interfaceDeclaration;
       }
 
-      if (nextTokenType === t.Void) {
+      if (tokenMatcher(nextTokenType, t.Void)) {
         // method with result type "void"
         return classBodyTypes.methodDeclaration;
       }
 
       // Type Arguments common prefix
-      if (nextTokenType === t.Less) {
+      if (tokenMatcher(nextTokenType, t.Less)) {
         this.SUBRULE($.typeParameters);
         const nextTokenType = this.LA(1).tokenType;
         const nextNextTokenType = this.LA(2).tokenType;
         // "<T> foo(" -> constructor
-        if (nextTokenType === t.Identifier && nextNextTokenType === t.LBrace) {
+        if (
+          tokenMatcher(nextTokenType, t.Identifier) &&
+          tokenMatcher(nextNextTokenType, t.LBrace)
+        ) {
           return classBodyTypes.constructorDeclaration;
         }
         // typeParameters can only appear in method or constructor
@@ -779,7 +795,7 @@ function defineRules($, t) {
       // "foo(..." --> look like method start
       if (
         tokenMatcher(nextToken, t.Identifier) &&
-        nextNextTokenType === t.LBrace
+        tokenMatcher(nextNextTokenType, t.LBrace)
       ) {
         return classBodyTypes.methodDeclaration;
       }

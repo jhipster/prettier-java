@@ -1,5 +1,5 @@
 "use strict";
-const { isRecognitionException } = require("chevrotain");
+const { isRecognitionException, tokenMatcher } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
@@ -208,8 +208,8 @@ function defineRules($, t) {
       $.MANY2({
         // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
         GATE: () =>
-          ($.LA(1).tokenType === t.At && $.LA(2).tokenType === t.Interface) ===
-          false,
+          (tokenMatcher($.LA(1).tokenType, t.At) &&
+            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
         DEF: () => {
           $.SUBRULE($.annotation);
         }
@@ -225,7 +225,10 @@ function defineRules($, t) {
       }
     }
     const nextTokenType = this.LA(1).tokenType;
-    return nextTokenType === t.Open || nextTokenType === t.Module;
+    return (
+      tokenMatcher(nextTokenType, t.Open) ||
+      tokenMatcher(nextTokenType, t.Module)
+    );
   });
 }
 
