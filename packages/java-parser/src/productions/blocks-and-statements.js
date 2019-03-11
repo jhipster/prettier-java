@@ -1,5 +1,7 @@
 "use strict";
 
+const { tokenMatcher } = require("chevrotain");
+
 // Spec Deviation: The "*NoShortIf" variations were removed as the ambiguity of
 //                 the dangling else is resolved by attaching an "else" block
 //                 to the nearest "if"
@@ -422,9 +424,12 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ResourceList
   $.RULE("resourceList", () => {
     $.SUBRULE($.resource);
-    $.MANY(() => {
-      $.CONSUME(t.Semicolon);
-      $.SUBRULE2($.resource);
+    $.MANY({
+      GATE: () => tokenMatcher($.LA(2).tokenType, t.RBrace) === false,
+      DEF: () => {
+        $.CONSUME(t.Semicolon);
+        $.SUBRULE2($.resource);
+      }
     });
   });
 
