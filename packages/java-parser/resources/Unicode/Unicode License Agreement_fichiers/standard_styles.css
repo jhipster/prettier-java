@@ -1,0 +1,218 @@
+BODY {
+	margin: 0; COLOR: #000000; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #fffffe
+}
+div.body { margin: 1em}
+P {
+	COLOR: #000000; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #fffffe
+}
+TD {
+	COLOR: #000000; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #fffffe
+}
+LI {
+	COLOR: #000000; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #fffffe;
+	margin-top: 0.25em; margin-bottom: 0.25em
+}
+A:link {
+	COLOR: #CC0000; text-decoration:none;
+}
+A:visited {
+	COLOR: #880000; text-decoration:none;
+}
+A:active {
+	COLOR: green
+}
+A:hover {
+	text-decoration:underline;
+}
+H1 {
+	FONT-WEIGHT: bold
+}
+H2 {
+	FONT-WEIGHT: bold
+}
+H3 {
+	FONT-WEIGHT: bold
+}
+H4 {
+	FONT-WEIGHT: bold
+}
+H1 {
+	MARGIN-TOP: 12px; FONT-SIZE: 180%; FONT-FAMILY: Arial, Geneva, sans-serif; TEXT-ALIGN: center
+}
+H2 {
+	MARGIN-TOP: 2em; FONT-SIZE: 120%; LINE-HEIGHT: 100%; FONT-FAMILY: Arial, Geneva, sans-serif
+}
+H3 {
+	MARGIN-TOP: 2em; FONT-SIZE: 105%; FONT-FAMILY: Arial, Geneva, sans-serif
+}
+H4 {
+	MARGIN-TOP: 2em; FONT-SIZE: 95%; FONT-FAMILY: Arial, Geneva, sans-serif
+}
+TD.bar {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; FONT-WEIGHT: bold; FONT-SIZE: 100%; PADDING-BOTTOM: 4px; COLOR: #fffffe; PADDING-TOP: 4px; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #990000; TEXT-ALIGN: right
+}
+P.bar {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; FONT-WEIGHT: bold; FONT-SIZE: 100%; PADDING-BOTTOM: 4px; COLOR: #fffffe; PADDING-TOP: 4px; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #990000; TEXT-ALIGN: right
+}
+TD.icon {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; FONT-WEIGHT: bold; FONT-SIZE: 100%; PADDING-BOTTOM: 2px; COLOR: #fffffe; PADDING-TOP: 2px; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #990000; TEXT-ALIGN: left
+}
+TD.gray {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-SIZE: 50%; PADDING-BOTTOM: 0px; COLOR: #fffffe; PADDING-TOP: 0px; BACKGROUND-COLOR: #999999
+}
+A.bar {
+	FONT-SIZE: 100%
+}
+A.bar:link {
+	FONT-SIZE: 90%; COLOR: #fffffe
+}
+A.bar:visited {
+	FONT-SIZE: 90%; COLOR: #fffffe
+}
+A.bar:active {
+	FONT-SIZE: 90%; COLOR: #ff3333
+}
+A.bar:hover {
+	FONT-SIZE: 90%; COLOR: #ff3333
+}
+TD.navCol {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; PADDING-BOTTOM: 4px; COLOR: #330000; PADDING-TOP: 4px; BACKGROUND-COLOR: #f0e0c0
+}
+TABLE.navColTable {
+	COLOR: #330000; BACKGROUND-COLOR: #f0e0c0
+}
+TD.navColTitle {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; FONT-WEIGHT: bold; FONT-SIZE: 95%; PADDING-BOTTOM: 4px; COLOR: #fffffe; PADDING-TOP: 4px; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #990000; TEXT-ALIGN: center
+}
+TD.navColCell {
+	FONT-SIZE: 90%; BACKGROUND-COLOR: #f0e0c0
+}
+TD.currentPage {
+	FONT-WEIGHT: bold; FONT-SIZE: 90%; FONT-STYLE: italic; BACKGROUND-COLOR: #f0e0c0
+}
+TD.contents {
+	
+}
+TABLE.sidebar {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FLOAT: right; PADDING-BOTTOM: 0px; MARGIN: 4px; MARGIN-LEFT: 1em; WIDTH: 40%; COLOR: #000000; PADDING-TOP: 0px; BACKGROUND-COLOR: #990000
+}
+TD.sidebarTitle {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-WEIGHT: bold; FONT-SIZE: 95%; PADDING-BOTTOM: 0px; COLOR: #fffffe; PADDING-TOP: 0px; FONT-FAMILY: Arial, Geneva, sans-serif; BACKGROUND-COLOR: #990000
+}
+TD.sidebar {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; FONT-SIZE: 90%; PADDING-BOTTOM: 2px; COLOR: #000000; PADDING-TOP: 2px; BACKGROUND-COLOR: #f0e0c0
+}
+P.q {
+	FONT-WEIGHT: bold; FONT-STYLE: italic; FONT-FAMILY: 'Century Schoolbook', serif
+}
+P.a {
+	MARGIN-LEFT: 16px; MARGIN-RIGHT: 16px; FONT-FAMILY: 'Century Schoolbook', serif
+}
+P.source {
+	FONT-SIZE: 90%; MARGIN-RIGHT: 16px; FONT-FAMILY: 'Century Schoolbook', serif; TEXT-ALIGN: right
+}
+UNKNOWN {
+	COLOR: #ffffee
+}
+TABLE.light {
+	COLOR: #330000; BACKGROUND-COLOR: #ffffee
+}
+TD.dark {
+	FONT-SIZE: 200%; COLOR: #ffffee; FONT-FAMILY: 'Century Schoolbook', serif; BACKGROUND-COLOR: #aa0000
+}
+H1 {
+	FONT-SIZE: 150%; MARGIN: 2px 0px; LINE-HEIGHT: 100%; FONT-FAMILY: Arial, Geneva, sans-serif; TEXT-ALIGN: center
+}
+H4 {
+	COLOR: #000000; FONT-FAMILY: Arial, Geneva, sans-serif; FONT-WEIGHT: bold; FONT-SIZE: 95%; BACKGROUND-COLOR: #fffffe;
+	margin-bottom:-15px
+}
+TD.head {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-SIZE: 100%; FONT-WEIGHT: bold; PADDING-BOTTOM: 0px; COLOR: #fffffe; PADDING-TOP: 0px; BACKGROUND-COLOR: #999999
+}
+UL.one {
+	FONT-SIZE: 90%; MARGIN-LEFT:20px; TEXT-DECORATION: none; LIST-STYLE-TYPE: none
+}
+UL.two {
+	FONT-SIZE: 85%; TEXT-DECORATION: none; TEXT-ALIGN: left; LIST-STYLE-TYPE: none; MARGIN-LEFT:20px
+}
+
+span.changedspan	 	{ background-color: #FFFF00; border-style: dotted; border-width: 1px }
+span.removedspan	 	{ text-decoration: line-through; background-color: #FFFF00; border-style: dotted; border-width: 1px }
+
+table.simple { border-width:1px; border-style:solid; border-color:#A0A0A0;
+                border-collapse:collapse; padding:0.2em; font-size:1em} 
+		table.simple th { border-width:1px; border-style:solid; border-color:#A0A0A0;
+                font-weight:bold; padding:5px; text-align: left; } 
+		table.simple td {border-width:1px; border-style:solid; border-color:#A0A0A0;
+                padding:5px; text-align: left;  }
+
+
+table.subtle { border-width:1px; border-style:solid; border-color:#A0A0A0;
+                border-collapse:collapse; padding:0.2em; font-size:1em} 
+		table.subtle th { border-width:1px; border-style:solid; border-color:#A0A0A0;
+                font-weight:bold; padding:5px; text-align: left; } 
+		table.subtle td {border-width:1px; border-style:solid; border-color:#A0A0A0;
+                padding:5px; text-align: left;  }
+
+
+table.subtle-nb { border-style:none; border-width:0; border-collapse:collapse; } 
+		table.subtle-nb th { border:solid 1px #F2F2F2;  font-weight:bold; padding:5px; text-align:left; } 
+		table.subtle-nb td { border-style:none;  font-weight:normal; padding:5px; text-align:left; }
+
+table.subtle-nb table.subtle th { border-width:1px; border-style:solid; border-color:#A0A0A0;  } 
+table.subtle-nb table.subtle td { border-width:1px; border-style:solid; border-color:#A0A0A0;  } 
+table.subtle-nb table.simple th { color: #000000; background-color:#FFFFFF; border-width:1px; border-style:solid; 
+	border-color:#A0A0A0; }
+table.subtle-nb table.simple td { border-width:1px; border-style:solid; border-color:#A0A0A0; }
+table.subtle table.simple th { color: #000000; background-color:#FFFFFF; }
+		
+table.subtle th         { color: #606060; background-color:#FAFAFA;} 
+table.subtle-nb th      { color: #808080; background-color:#F8F8F8;} 
+		
+table.subtle th p       { color: #808080; background-color:#F8F8F8; } 
+table.subtle-nb tr th p { color: #808080; background-color:#F8F8F8; } 
+
+table.simple th p       { margin:0; } 
+table.subtle th p       { margin:0; } 
+table.subtle-nb th p    { margin:0; } 
+
+
+/* first-child selector only works in IE if DOCTYPE has a URL (standards mode) */
+/* the following remove space above first and below last paragraph (or list) inside a table cell, but preserve interparagraph spacing */
+
+table.simple td>p:first-child { margin: 0; }
+table.simple td>p             { margin-top: 1.5em; }
+
+table.subtle td>p:first-child  { margin:0; }
+table.subtle td>p              { margin-top:1.5em; } 
+
+table.subtle-nb td>p:first-child { margin:0;  }
+table.subtle-nb td>p             { margin-top:1.5em; } 
+
+table.simple td>ul:first-child { margin-top:0; margin-bottom:0; }
+table.simple td>ol:first-child { margin-top:0; margin-bottom:0; }
+table.simple td>ul             { margin-top:1.5em; margin-bottom:0.5em; }
+table.simple td>ol             { margin-top:1.5em; margin-bottom:0.5em; }
+
+table.subtle td>ul:first-child { margin-top:0; margin-bottom:0; }
+table.subtle td>ol:first-child { margin-top:0; margin-bottom:0; }
+table.subtle td>ul             { margin-top:1.5em; margin-bottom:0.5em; }
+table.subtle td>ol             { margin-top:1.5em; margin-bottom:0.5em; }
+
+table.subtle-nb td>ul:first-child { margin-top:0; margin-bottom:0; }
+table.subtle-nb td>ol:first-child { margin-top:0; margin-bottom:0; }
+table.subtle-nb td>ul             { margin-top:1.5em; margin-bottom:0.5em; }
+table.subtle-nb td>ol             { margin-top:1.5em; margin-bottom:0.5em; }
+
+
+/* hanging indent, so wide navcolcell items don't look like they are two entries on wrapping */
+/* the value of .6 is chosen to work with navColCells that start with a manually added bullet character */
+
+td.navColCell:first-child { padding-left:0.6em; text-indent: -.6em; } 
+
+/* hoisted from reports.css */
+
+.changed	 	{ background-color: #FFFF00; border-style: dotted; border-width: 1px; }
+.removed	 	{ text-decoration: line-through; background-color: #FFFF00; border-style: dotted; border-width: 1px; }
+.reviewnote 	{ background-color: #FFFF80; color: #CC0000; border-style: dashed; border-width: 1px; }
