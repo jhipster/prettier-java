@@ -27,19 +27,19 @@ It could even be used inside a browser.
 
 ## Road map to Alpha
 
-- Parser Package:
+- Parser Package
 
   - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
-  - [x] Milestone 1 - Success parsing "Java Design Patterns" repo.
-  - [x] Milestone 2 - Success parsing "spring-boot" repo.
+  - [x] Milestone 1 - Success parsing ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
+  - [x] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
   - [x] Investigate performance optimizations.
   - [x] Release Alpha version to npm. - https://www.npmjs.com/package/java-parser
 
 - prettier-java package
 
   - [ ] POC: Prettier "Re-writer" based on a Chevrotain CST instead of an AST.
-  - [ ] Milestone 1 - Success cyclic rewriting "Java Design Patterns" repo.
-  - [ ] Milestone 2 - Success parsing "spring-boot" repo.
+  - [ ] Milestone 1 - Success cyclic rewriting ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
+  - [ ] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
 
 ## Contributing
 
