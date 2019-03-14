@@ -23,3 +23,12 @@ describe("The Java Parser fixed bugs", () => {
     expect(() => javaParser.parse(input)).to.not.throw();
   });
 });
+
+describe("The Java Parser fixed bugs", () => {
+  it("issue #158 - semicolons inside imports", () => {
+    const input = "import Foo;;import Bar;";
+    expect(() =>
+      javaParser.parse(input, "ordinaryCompilationUnit")
+    ).to.not.throw();
+  });
+});
