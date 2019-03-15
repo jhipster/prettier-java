@@ -64,16 +64,29 @@ function defineRules($, t) {
     //                 distinguishing between the alternatives due to unbound common prefix.
     // TODO: A post parsing step is required to align with the official specs.
     //       The Identifier "var" is not allowed in all positions and variations of the importDeclaration
-    $.CONSUME(t.Import);
-    $.OPTION(() => {
-      $.CONSUME(t.Static);
-    });
-    $.SUBRULE($.packageOrTypeName);
-    $.OPTION2(() => {
-      $.CONSUME(t.Dot);
-      $.CONSUME(t.Star);
-    });
-    $.CONSUME(t.Semicolon);
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(t.Import);
+          $.OPTION(() => {
+            $.CONSUME(t.Static);
+          });
+          $.SUBRULE($.packageOrTypeName);
+          $.OPTION2(() => {
+            $.CONSUME(t.Dot);
+            $.CONSUME(t.Star);
+          });
+          $.CONSUME(t.Semicolon);
+        }
+      },
+      // Spec Deviation: The spec do not allow empty statement in between imports.
+      //                 However Java compiler consider empty statements valid, we chose
+      //                 to support that case, thus deviate from the spec.
+      //                 See here: https://github.com/jhipster/prettier-java/pull/158
+      {
+        ALT: () => $.SUBRULE($.emptyStatement)
+      }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
