@@ -16,14 +16,14 @@ and then print out that data structure in a "pretty" style.
 
 Prettier-Java uses a [Java-Parser](./packages/java-parser) implemented in JavaScript using the
 [Chevrotain Parser Building Toolkit for JavaScript](https://github.com/SAP/chevrotain).
-What this means is that unlike many other prettier plugins,
-prettier-java has **no additional runtime pre-requisites** (e.g: Python executable).
+What this means is that unlike many other Prettier plugins,
+`prettier-java` has **no additional runtime pre-requisites** (e.g: Python executable).
 It could even be used inside a browser.
 
 ## Status
 
 - Parser package alpha version done.
-- Now Investigating the re-printer (actually prettier-java package)
+- Now Investigating the re-printer (actually `prettier-java` package)
 
 ## Road map to Alpha
 
@@ -35,7 +35,7 @@ It could even be used inside a browser.
   - [x] Investigate performance optimizations.
   - [x] Release Alpha version to npm. - https://www.npmjs.com/package/java-parser
 
-- prettier-java package
+- `prettier-java` package
 
   - [ ] POC: Prettier "Re-writer" based on a Chevrotain CST instead of an AST.
   - [ ] Milestone 1 - Success cyclic rewriting ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
@@ -49,5 +49,5 @@ And the [Help Wanted](https://github.com/jhipster/prettier-java/labels/help%20wa
 
 ## Credits
 
-Special thanks to @thorbenvh8 for creating the original prettier-java
+Special thanks to [@thorbenvh8](https://github.com/thorbenvh8) for creating the original `prettier-java`
 plugin and the associated Java Parser implemented in JavaScript.
