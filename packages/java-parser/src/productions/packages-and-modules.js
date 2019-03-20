@@ -187,11 +187,12 @@ function defineRules($, t) {
   $.RULE("providesModuleDirective", () => {
     // Spec Deviation: extracted from "moduleDirective"
     $.CONSUME(t.Provides);
-    $.CONSUME(t.With);
     $.SUBRULE($.typeName);
+    $.CONSUME(t.With);
+    $.SUBRULE2($.typeName);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE2($.typeName);
+      $.SUBRULE3($.typeName);
     });
     $.CONSUME(t.Semicolon);
   });
