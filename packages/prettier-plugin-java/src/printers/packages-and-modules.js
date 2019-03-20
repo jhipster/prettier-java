@@ -1,7 +1,7 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+const { concat, indent, join, line } = require("prettier").doc.builders;
 const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -76,8 +76,9 @@ class PackagesAndModulesPrettierVisitor {
       optionalOpen,
       "module",
       name,
-      // TODO: fix indentation
-      rejectAndJoin(line, ["{", join(line, moduleDirectives), "}"])
+      indent(rejectAndJoin(line, ["{", join(line, moduleDirectives)])),
+      line,
+      "}"
     ]);
   }
 
