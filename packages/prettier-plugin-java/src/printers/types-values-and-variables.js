@@ -1,6 +1,8 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const _ = require("lodash");
+
 const {
   concat,
   join,
@@ -64,9 +66,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-
+    _.forEach(tokens, (token, i) => {
       if (token.name === "typeArguments") {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));
@@ -83,7 +83,7 @@ class TypesValuesAndVariablesPrettierVisitor {
           currentSegment = [];
         }
       }
-    }
+    });
 
     return rejectAndJoin(".", segments);
   }
@@ -119,9 +119,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-
+    _.forEach(tokens, token => {
       if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
       } else {
@@ -130,7 +128,7 @@ class TypesValuesAndVariablesPrettierVisitor {
         );
         currentSegment = [];
       }
-    }
+    });
 
     return rejectAndConcat(segments);
   }

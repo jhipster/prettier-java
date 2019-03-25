@@ -1,4 +1,5 @@
 "use strict";
+const _ = require("lodash");
 const { join, concat } = require("prettier").doc.builders;
 
 function buildFqn(tokens) {
@@ -42,11 +43,12 @@ function sortAnnotationIdentifier(annotations, identifiers) {
 
 function sortTokens() {
   let tokens = [];
-  for (let i = 0; i < arguments.length; i++) {
-    if (arguments[i]) {
-      tokens = tokens.concat(arguments[i]);
+
+  _.forEach(arguments, argument => {
+    if (argument) {
+      tokens = tokens.concat(argument);
     }
-  }
+  });
 
   return tokens.sort((a, b) => {
     return a.startOffset - b.startOffset;

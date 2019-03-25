@@ -1,6 +1,7 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const _ = require("lodash");
 const { concat, join } = require("prettier").doc.builders;
 const {
   matchCategory,
@@ -310,9 +311,7 @@ class ExpressionsPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-
+    _.forEach(tokens, token => {
       if (token.name) {
         currentSegment.push(this.visit([token]));
       } else {
@@ -320,7 +319,7 @@ class ExpressionsPrettierVisitor {
         segments.push(rejectAndJoin(" ", currentSegment));
         currentSegment = [];
       }
-    }
+    });
 
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
 

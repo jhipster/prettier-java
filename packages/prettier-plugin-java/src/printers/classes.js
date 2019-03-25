@@ -1,5 +1,6 @@
 "use strict";
 /* eslint-disable no-unused-vars */
+const _ = require("lodash");
 const {
   concat,
   join,
@@ -182,9 +183,7 @@ class ClassesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-
+    _.forEach(tokens, (token, i) => {
       if (token.name === "typeArguments") {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));
@@ -201,7 +200,7 @@ class ClassesPrettierVisitor {
           currentSegment = [];
         }
       }
-    }
+    });
 
     return rejectAndJoin(".", segments);
   }
