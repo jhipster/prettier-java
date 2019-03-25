@@ -1,6 +1,8 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const _ = require("lodash");
+
 const {
   concat,
   join,
@@ -10,17 +12,18 @@ const {
   indent,
   dedent
 } = require("prettier").doc.builders;
-const { rejectAndJoin } = require("./printer-utils");
+const {
+  rejectAndJoin,
+  rejectAndConcat,
+  sortClassTypeChildren
+} = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
   primitiveType(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    let type = null;
-    if (ctx.numericType) {
-      type = this.visit(ctx.numericType);
-    } else {
-      type = this.getSingle(ctx).image;
-    }
+    const type = ctx.numericType
+      ? this.visit(ctx.numericType)
+      : this.getSingle(ctx).image;
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
@@ -46,7 +49,7 @@ class TypesValuesAndVariablesPrettierVisitor {
 
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [join(" ", annotations), " ", type, dims]);
+    return rejectAndJoin(" ", [join(" ", annotations), concat([type, dims])]);
   }
 
   classOrInterfaceType(ctx) {
@@ -54,57 +57,35 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   classType(ctx) {
-    const dots = ctx.Dots;
+    const tokens = sortClassTypeChildren(
+      ctx.annotation,
+      ctx.typeArguments,
+      ctx.Identifier
+    );
 
-    if (dots) {
-      const annotations = ctx.annotation;
-      const typeArguments = ctx.typeArguments;
-      const identifiers = ctx.Identifier;
+    const segments = [];
+    let currentSegment = [];
 
-      const segments = [];
-      for (const dot in dots) {
-        const offset = dot.startOffset;
-
-        const currentSegmentAnnotations = [];
-        while (annotations.length > 0) {
-          const annotation = annotations[0];
-          if (annotation && annotation.startOffset < offset) {
-            currentSegmentAnnotations.push(this.visit(annotation));
-            annotations.pop();
-          } else {
-            break;
-          }
+    _.forEach(tokens, (token, i) => {
+      if (token.name === "typeArguments") {
+        currentSegment.push(this.visit([token]));
+        segments.push(rejectAndConcat(currentSegment));
+        currentSegment = [];
+      } else if (token.name === "annotation") {
+        currentSegment.push(this.visit([token]));
+      } else {
+        currentSegment.push(token.image);
+        if (
+          (i + 1 < tokens.length && tokens[i].name !== "typeArguments") ||
+          i + 1 === tokens.length
+        ) {
+          segments.push(rejectAndConcat(currentSegment));
+          currentSegment = [];
         }
-        const currentSegmentIdentifier = identifiers.pop().image;
-
-        let currentSegmentTypeArgument = undefined;
-        const typeArgument = typeArguments[0];
-        if (typeArgument && typeArgument.startOffset < offset) {
-          currentSegmentTypeArgument = this.visit(typeArgument);
-          typeArguments.pop();
-        }
-
-        segments.push(
-          concat(
-            join(" ", currentSegmentAnnotations),
-            currentSegmentIdentifier,
-            currentSegmentTypeArgument
-          )
-        );
       }
+    });
 
-      return join(".", segments);
-    }
-
-    const annotations = this.mapVisit(ctx.annotation);
-    const identifier = ctx.Identifier[0].image;
-    const typeArguments = this.mapVisit(ctx.typeArguments);
-
-    return rejectAndJoin("", [
-      join(" ", annotations),
-      identifier,
-      typeArguments
-    ]);
+    return rejectAndJoin(".", segments);
   }
 
   interfaceType(ctx) {
@@ -115,26 +96,51 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const identifier = this.getSingle(ctx).image;
 
-    return join(" ", [join(" ", annotations), identifier]);
+    return rejectAndJoin(" ", [join(" ", annotations), identifier]);
   }
 
   dims(ctx) {
-    // TODO
-    return "dims";
+    let tokens = [...ctx.LSquare];
+
+    if (ctx.annotation) {
+      tokens = [...tokens, ...ctx.annotation];
+    }
+
+    tokens = tokens.sort((a, b) => {
+      const startOffset1 = a.name
+        ? a.children.At[0].startOffset
+        : a.startOffset;
+      const startOffset2 = b.name
+        ? b.children.At[0].startOffset
+        : b.startOffset;
+      return startOffset1 - startOffset2;
+    });
+
+    const segments = [];
+    let currentSegment = [];
+
+    _.forEach(tokens, token => {
+      if (token.name === "annotation") {
+        currentSegment.push(this.visit([token]));
+      } else {
+        segments.push(
+          rejectAndConcat([rejectAndJoin(" ", currentSegment), "[]"])
+        );
+        currentSegment = [];
+      }
+    });
+
+    return rejectAndConcat(segments);
   }
 
   typeParameter(ctx) {
     const typeParameterModifiers = this.mapVisit(ctx.typeParameterModifier);
-    const typeParameterModifiersOutput =
-      typeParameterModifiers.length > 0
-        ? join(" ", typeParameterModifiers)
-        : "";
 
     const typeIdentifier = this.visit(ctx.typeIdentifier);
     const typeBound = this.visit(ctx.typeBound);
 
     return rejectAndJoin(" ", [
-      typeParameterModifiersOutput,
+      join(" ", typeParameterModifiers),
       typeIdentifier,
       typeBound
     ]);
@@ -169,9 +175,8 @@ class TypesValuesAndVariablesPrettierVisitor {
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
-    const typeArgumentSep = typeArguments.length > 0 ? ", " : "";
 
-    return join(typeArgumentSep, typeArguments);
+    return join(", ", typeArguments);
   }
 
   typeArgument(ctx) {

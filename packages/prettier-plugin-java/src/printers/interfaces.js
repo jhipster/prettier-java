@@ -2,70 +2,163 @@
 /* eslint-disable no-unused-vars */
 
 const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
   interfaceDeclaration(ctx) {
-    return "interfaceDeclaration";
+    const interfaceModifiers = this.mapVisit(ctx.interfaceModifier);
+
+    const declaration = ctx.normalInterfaceDeclaration
+      ? this.visit(ctx.normalInterfaceDeclaration)
+      : this.visit(ctx.annotationTypeDeclaration);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", [interfaceModifiers]),
+      declaration
+    ]);
   }
 
   normalInterfaceDeclaration(ctx) {
-    return "normalInterfaceDeclaration";
+    const typeIdentifier = this.visit(ctx.typeIdentifier);
+    const typeParameters = this.visit(ctx.typeParameters);
+    const extendsInterfaces = this.visit(ctx.extendsInterfaces);
+    const interfaceBody = this.visit(ctx.interfaceBody);
+
+    return rejectAndJoin(" ", [
+      "interface",
+      typeIdentifier,
+      typeParameters,
+      extendsInterfaces,
+      interfaceBody
+    ]);
   }
 
   interfaceModifier(ctx) {
-    return "interfaceModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   extendsInterfaces(ctx) {
-    return "extendsInterfaces";
+    const interfaceTypeList = this.visit(ctx.interfaceTypeList);
+
+    return rejectAndJoin(" ", ["extends", interfaceTypeList]);
   }
 
   interfaceBody(ctx) {
-    return "interfaceBody";
+    const interfaceMemberDeclaration = this.visit(
+      ctx.interfaceMemberDeclaration
+    );
+
+    return rejectAndJoin(line, [
+      rejectAndJoin(line, ["{", interfaceMemberDeclaration]),
+      "}"
+    ]);
   }
 
   interfaceMemberDeclaration(ctx) {
-    return "interfaceMemberDeclaration";
+    if (ctx.Semicolon) {
+      return this.getSingle(ctx).image;
+    }
+    return this.visitSingle(ctx);
   }
 
   constantDeclaration(ctx) {
-    return "constantDeclaration";
+    const constantModifiers = this.mapVisit(ctx.constantModifier);
+    const unannType = this.visit(ctx.unannType);
+    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", constantModifiers),
+      unannType,
+      rejectAndConcat([variableDeclaratorList, ";"])
+    ]);
   }
 
   constantModifier(ctx) {
-    return "constantModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   interfaceMethodDeclaration(ctx) {
-    return "interfaceMethodDeclaration";
+    const interfaceMethodModifiers = this.mapVisit(ctx.interfaceMethodModifier);
+    const methodHeader = this.visit(ctx.methodHeader);
+    const methodBody = this.visit(ctx.methodBody);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", interfaceMethodModifiers),
+      methodHeader,
+      methodBody
+    ]);
   }
 
   interfaceMethodModifier(ctx) {
-    return "interfaceMethodModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   annotationTypeDeclaration(ctx) {
-    return "annotationTypeDeclaration";
+    const typeIdentifier = this.visit(ctx.typeIdentifier);
+    const annotationTypeBody = this.visit(ctx.annotationTypeBody);
+
+    return rejectAndJoin(" ", [
+      "@interface",
+      typeIdentifier,
+      annotationTypeBody
+    ]);
   }
 
   annotationTypeBody(ctx) {
-    return "annotationTypeBody";
+    const annotationTypeMemberDeclaration = this.visit(
+      ctx.annotationTypeMemberDeclaration
+    );
+
+    return rejectAndJoin(line, [
+      rejectAndJoin(line, ["{", annotationTypeMemberDeclaration]),
+      "}"
+    ]);
   }
 
   annotationTypeMemberDeclaration(ctx) {
-    return "annotationTypeMemberDeclaration";
+    if (ctx.Semicolon) {
+      return this.getSingle(ctx).image;
+    }
+    return this.visitSingle(ctx);
   }
 
   annotationTypeElementDeclaration(ctx) {
-    return "annotationTypeElementDeclaration";
+    const annotationTypeElementModifiers = this.mapVisit(
+      ctx.annotationTypeElementModifier
+    );
+    const unannType = this.visit(ctx.unannType);
+    const identifier = ctx.Identifier[0].image;
+    const dims = this.visit(ctx.dims);
+    const defaultValue = this.visit(ctx.defaultValue);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", annotationTypeElementModifiers),
+      unannType,
+      rejectAndConcat([identifier, dims]),
+      defaultValue
+    ]);
   }
 
   annotationTypeElementModifier(ctx) {
-    return "annotationTypeElementModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   defaultValue(ctx) {
-    return "defaultValue";
+    const elementValue = this.visit(ctx.elementValue);
+
+    return rejectAndJoin(" ", ["default", elementValue]);
   }
 
   annotation(ctx) {
@@ -82,27 +175,41 @@ class InterfacesPrettierVisitor {
       annoArgs.push(")");
     }
 
-    return concat(["@", fqn, concat(annoArgs), line]);
+    return concat(["@", fqn, concat(annoArgs)]);
   }
 
   elementValuePairList(ctx) {
-    return "elementValuePairList";
+    const elementValuePairs = this.mapVisit(ctx.elementValuePair);
+
+    return rejectAndJoin(", ", elementValuePairs);
   }
 
   elementValuePair(ctx) {
-    return "TBD";
+    const identifier = ctx.Identifier[0].image;
+    const elementValue = this.visit(ctx.elementValue);
+
+    return rejectAndJoin(" ", [identifier, "=", elementValue]);
   }
 
   elementValue(ctx) {
-    return "TBD";
+    return this.visitSingle(ctx);
   }
 
   elementValueArrayInitializer(ctx) {
-    return "elementValueArrayInitializer";
+    const elementValueList = this.visit(ctx.elementValueList);
+    const comma = ctx.Comma ? "," : "";
+
+    return rejectAndJoin(" ", [
+      "{",
+      rejectAndConcat([elementValueList, comma]),
+      "}"
+    ]);
   }
 
   elementValueList(ctx) {
-    return "elementValueList";
+    const elementValues = this.mapVisit(ctx.elementValue);
+
+    return rejectAndJoin(", ", elementValues);
   }
 
   identifyInterfaceBodyDeclarationType(ctx) {

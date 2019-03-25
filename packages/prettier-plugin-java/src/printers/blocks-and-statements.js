@@ -1,181 +1,373 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const { line, indent } = require("prettier").doc.builders;
+const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+
 class BlocksAndStatementPrettierVisitor {
   block(ctx) {
-    return "block";
+    const blockStatements = this.visit(ctx.blockStatements);
+
+    return rejectAndJoin(line, [
+      indent(rejectAndJoin(line, ["{", blockStatements])),
+      "}"
+    ]);
   }
 
   blockStatements(ctx) {
-    return "blockStatements";
+    const blockStatement = this.mapVisit(ctx.blockStatement);
+
+    return rejectAndJoin(line, blockStatement);
   }
 
   blockStatement(ctx) {
-    return "blockStatement";
+    return this.visitSingle(ctx);
   }
 
   localVariableDeclarationStatement(ctx) {
-    return "localVariableDeclarationStatement";
+    const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
+    return rejectAndConcat([localVariableDeclaration, ";"]);
   }
 
   localVariableDeclaration(ctx) {
-    return "localVariableDeclaration";
+    const variableModifiers = this.mapVisit(ctx.variableModifier);
+    const localVariableType = this.visit(ctx.localVariableType);
+    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", variableModifiers),
+      localVariableType,
+      variableDeclaratorList
+    ]);
   }
 
   localVariableType(ctx) {
-    return "localVariableType";
+    if (ctx.unannType) {
+      return this.visitSingle(ctx);
+    }
+
+    return this.getSingle(ctx).image;
   }
 
   statement(ctx) {
-    return "statement";
+    return this.visitSingle(ctx);
   }
 
   statementWithoutTrailingSubstatement(ctx) {
-    return "statementWithoutTrailingSubstatement";
+    return this.visitSingle(ctx);
   }
 
   emptyStatement(ctx) {
-    return "emptyStatement";
+    return ";";
   }
 
   labeledStatement(ctx) {
-    return "labeledStatement";
+    const identifier = ctx.Identifier[0].image;
+    const statement = this.visit(ctx.statement);
+
+    return rejectAndJoin(":", [identifier, statement]);
   }
 
   expressionStatement(ctx) {
-    return "expressionStatement";
+    const statementExpression = this.visit(ctx.statementExpression);
+    return rejectAndConcat([statementExpression, ";"]);
   }
 
   statementExpression(ctx) {
-    return "statementExpression";
+    return this.visitSingle(ctx);
   }
 
   ifStatement(ctx) {
-    return "ifStatement";
+    const expression = this.visit(ctx.expression);
+    const ifStatement = this.visit(ctx.statement[0]);
+
+    const elseStatement = ctx.Else
+      ? rejectAndJoin(" ", [" else", this.visit(ctx.statement[1])])
+      : "";
+
+    return rejectAndConcat([
+      "if (",
+      expression,
+      ") ",
+      ifStatement,
+      elseStatement
+    ]);
   }
 
   assertStatement(ctx) {
-    return "assertStatement";
+    const expressions = this.mapVisit(ctx.expression);
+
+    return rejectAndJoin(" ", [
+      "assert",
+      rejectAndJoin(" : ", expressions),
+      ";"
+    ]);
   }
 
   switchStatement(ctx) {
-    return "switchStatement";
+    const expression = this.visit(ctx.expression);
+    const switchBlock = this.visit(ctx.switchBlock);
+
+    return rejectAndJoin(" ", [
+      "switch",
+      rejectAndConcat(["(", expression, ")"]),
+      switchBlock
+    ]);
   }
 
   switchBlock(ctx) {
-    return "switchBlock";
+    const switchCases = this.mapVisit(ctx.switchCase);
+
+    return rejectAndJoin(line, [
+      indent(rejectAndJoin(line, ["{", rejectAndJoin(line, switchCases)])),
+      "}"
+    ]);
   }
 
   switchCase(ctx) {
-    return "switchCase";
+    const switchLabel = this.visit(ctx.switchLabel);
+    const blockStatements = this.visit(ctx.blockStatements);
+
+    return indent(rejectAndJoin(line, [switchLabel, blockStatements]));
   }
 
   switchLabel(ctx) {
-    return "switchLabel";
+    if (ctx.Case) {
+      const constantExpression = this.visit(ctx.constantExpression);
+      return rejectAndConcat(["case ", constantExpression, ":"]);
+    }
+
+    return "default:";
   }
 
   enumConstantName(ctx) {
-    return "enumConstantName";
+    return this.visitSingle(ctx);
   }
 
   whileStatement(ctx) {
-    return "whileStatement";
+    const expression = this.visit(ctx.expression);
+    const statement = this.visit(ctx.statement);
+
+    return rejectAndJoin(" ", [
+      "while",
+      rejectAndConcat(["(", expression, ")"]),
+      statement
+    ]);
   }
 
   doStatement(ctx) {
-    return "doStatement";
+    const statement = this.visit(ctx.statement);
+    const expression = this.visit(ctx.expression);
+
+    return rejectAndJoin(" ", [
+      "do",
+      statement,
+      "while",
+      rejectAndConcat(["(", expression, ");"])
+    ]);
   }
 
   forStatement(ctx) {
-    return "forStatement";
+    return this.visitSingle(ctx);
   }
 
   basicForStatement(ctx) {
-    return "basicForStatement";
+    const forInit = this.visit(ctx.forInit);
+    const expression = this.visit(ctx.expression);
+    const forUpdate = this.visit(ctx.forUpdate);
+    const statement = this.visit(ctx.statement);
+
+    return rejectAndConcat([
+      "for (",
+      forInit,
+      "; ",
+      expression,
+      "; ",
+      forUpdate,
+      ") ",
+      statement
+    ]);
   }
 
   forInit(ctx) {
-    return "forInit";
+    return this.visitSingle(ctx);
   }
 
   forUpdate(ctx) {
-    return "forUpdate";
+    return this.visitSingle(ctx);
   }
 
   statementExpressionList(ctx) {
-    return "statementExpressionList";
+    const statementExpressions = this.mapVisit(ctx.statementExpression);
+
+    return rejectAndJoin(", ", statementExpressions);
   }
 
   enhancedForStatement(ctx) {
-    return "enhancedForStatement";
+    const variableModifiers = this.mapVisit(ctx.variableModifier);
+    const localVariableType = this.visit(ctx.localVariableType);
+    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+    const expression = this.visit(ctx.expression);
+    const statement = this.visit(ctx.statement);
+
+    return rejectAndConcat([
+      "for (",
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", variableModifiers),
+        localVariableType,
+        variableDeclaratorId
+      ]),
+      ": ",
+      expression,
+      ") ",
+      statement
+    ]);
   }
 
   breakStatement(ctx) {
-    return "breakStatement";
+    if (ctx.Identifier) {
+      const identifier = ctx.Identifier[0].image;
+
+      return rejectAndConcat(["break ", identifier, ";"]);
+    }
+
+    return "break;";
   }
 
   continueStatement(ctx) {
-    return "continueStatement";
+    if (ctx.Identifier) {
+      const identifier = ctx.Identifier[0].image;
+
+      return rejectAndConcat(["continue ", identifier, ";"]);
+    }
+
+    return "continue;";
   }
 
   returnStatement(ctx) {
-    return "returnStatement";
+    if (ctx.expression) {
+      const expression = this.visit(ctx.expression);
+
+      return rejectAndConcat(["return ", expression, ";"]);
+    }
+
+    return "return;";
   }
 
   throwStatement(ctx) {
-    return "throwStatement";
+    const expression = this.visit(ctx.expression);
+
+    return rejectAndConcat(["throw ", expression, ";"]);
   }
 
   synchronizedStatement(ctx) {
-    return "synchronizedStatement";
+    const expression = this.visit(ctx.expression);
+    const block = this.visit(ctx.block);
+
+    return rejectAndConcat(["synchronized (", expression, ") ", block]);
   }
 
   tryStatement(ctx) {
-    return "tryStatement";
+    if (ctx.tryWithResourcesStatement) {
+      return this.visit(ctx.tryWithResourcesStatement);
+    }
+
+    const block = this.visit(ctx.block);
+    const catches = this.visit(ctx.catches);
+    const finallyBlock = this.visit(ctx.finally);
+
+    return rejectAndJoin(" ", ["try ", block, catches, finallyBlock]);
   }
 
   catches(ctx) {
-    return "catches";
+    const catchClauses = this.mapVisit(ctx.catchClause);
+    return rejectAndJoin(" ", catchClauses);
   }
 
   catchClause(ctx) {
-    return "catchClause";
+    const catchFormalParameter = this.visit(ctx.catchFormalParameter);
+    const block = this.visit(ctx.block);
+
+    return rejectAndConcat(["catch (", catchFormalParameter, ") ", block]);
   }
 
   catchFormalParameter(ctx) {
-    return "catchFormalParameter";
+    const variableModifiers = this.mapVisit(ctx.variableModifier);
+    const catchType = this.visit(ctx.catchType);
+    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", variableModifiers),
+      catchType,
+      variableDeclaratorId
+    ]);
   }
 
   catchType(ctx) {
-    return "catchType";
+    const unannClassType = this.visit(ctx.unannClassType);
+    const classTypes = this.mapVisit(ctx.classType);
+
+    return rejectAndJoin(" | ", [
+      unannClassType,
+      rejectAndJoin(" | ", classTypes)
+    ]);
   }
 
   finally(ctx) {
-    return "finally";
+    const block = this.visit(ctx.block);
+
+    return rejectAndJoin(" ", ["finally", block]);
   }
 
   tryWithResourcesStatement(ctx) {
-    return "tryWithResourcesStatement";
+    const resourceSpecification = this.visit(ctx.resourceSpecification);
+    const block = this.visit(ctx.block);
+    const catches = this.visit(ctx.catches);
+    const finallyBlock = this.visit(ctx.finally);
+
+    return rejectAndJoin(" ", [
+      "try",
+      resourceSpecification,
+      block,
+      catches,
+      finallyBlock
+    ]);
   }
 
   resourceSpecification(ctx) {
-    return "resourceSpecification";
+    const resourceList = this.visit(ctx.resourceList);
+    const optionalSemicolon = ctx.Semicolon ? ";" : "";
+
+    return rejectAndConcat(["(", resourceList, optionalSemicolon, ")"]);
   }
 
   resourceList(ctx) {
-    return "resourceList";
+    const resources = this.mapVisit(ctx.resource);
+
+    return rejectAndJoin("; ", resources);
   }
 
   resource(ctx) {
-    return "resource";
+    return this.visitSingle(ctx);
   }
 
   resourceInit(ctx) {
-    return "resourceInit";
+    const variableModifiers = this.mapVisit(ctx.variableModifier);
+    const localVariableType = this.visit(ctx.localVariableType);
+    const identifier = ctx.Identifier[0].image;
+    const expression = this.visit(ctx.expression);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", variableModifiers),
+      localVariableType,
+      identifier,
+      "=",
+      expression
+    ]);
   }
 
   variableAccess(ctx) {
-    return "variableAccess";
+    return this.visitSingle(ctx);
   }
 
   isBasicForStatement(ctx) {

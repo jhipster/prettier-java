@@ -21,7 +21,8 @@ javaSampleFiles.forEach(fileDesc => {
     console.log(`Reading <${fileDesc.path}>`);
     const newExpectedText = prettier.format(javaFileText, {
       parser: "java",
-      plugins: [path.resolve(__dirname, "../")]
+      plugins: [path.resolve(__dirname, "../")],
+      tabWidth: 4
     });
     const outputFilePath = fileDesc.path.replace(/input.java$/, "output.java");
     console.log(`writing <${outputFilePath}>`);

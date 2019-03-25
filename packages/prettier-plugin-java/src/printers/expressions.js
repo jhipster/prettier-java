@@ -1,173 +1,406 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const _ = require("lodash");
+const { concat, join } = require("prettier").doc.builders;
+const {
+  matchCategory,
+  rejectAndJoin,
+  rejectAndConcat,
+  sortAnnotationIdentifier,
+  sortTokens
+} = require("./printer-utils");
+
 class ExpressionsPrettierVisitor {
   constantExpression(ctx) {
-    return "constantExpression";
+    return this.visitSingle(ctx);
   }
 
   expression(ctx) {
-    return "expression";
+    return this.visitSingle(ctx);
   }
 
   lambdaExpression(ctx) {
-    return "lambdaExpression";
+    const lambdaParameters = this.visit(ctx.lambdaParameters);
+    const lambdaBody = this.visit(ctx.lambdaBody);
+
+    return rejectAndJoin(" => ", [lambdaParameters, lambdaBody]);
   }
 
   lambdaParameters(ctx) {
-    return "lambdaParameters";
+    if (ctx.lambdaParametersWithBraces) {
+      return this.visitSingle(ctx);
+    }
+
+    return this.getSingle(ctx).image;
   }
 
   lambdaParametersWithBraces(ctx) {
-    return "lambdaParametersWithBraces";
+    const lambdaParameterList = this.visit(ctx.lambdaParameterList);
+    return rejectAndConcat(["(", lambdaParameterList, ")"]);
   }
 
   lambdaParameterList(ctx) {
-    return "lambdaParameterList";
+    return this.visitSingle(ctx);
   }
 
   inferredLambdaParameterList(ctx) {
-    return "inferredLambdaParameterList";
+    const identifiers = ctx.Identifier.map(identifier => identifier.image);
+
+    return rejectAndJoin(", ", identifiers);
   }
 
   explicitLambdaParameterList(ctx) {
-    return "explicitLambdaParameterList";
+    const lambdaParameter = this.mapVisit(ctx.lambdaParameter);
+
+    return rejectAndJoin(", ", lambdaParameter);
   }
 
   lambdaParameter(ctx) {
-    return "lambdaParameter";
+    return this.visitSingle(ctx);
   }
 
   regularLambdaParameter(ctx) {
-    return "regularLambdaParameter";
+    const variableModifier = this.mapVisit(ctx.variableModifier);
+    const lambdaParameterType = this.visit(ctx.lambdaParameterType);
+    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", variableModifier),
+      lambdaParameterType,
+      variableDeclaratorId
+    ]);
   }
 
   lambdaParameterType(ctx) {
-    return "lambdaParameterType";
+    if (ctx.unannType) {
+      return this.visitSingle(ctx);
+    }
+    return this.getSingle(ctx).image;
   }
 
   lambdaBody(ctx) {
-    return "lambdaBody";
+    return this.visitSingle(ctx);
   }
 
   ternaryExpression(ctx) {
-    return "ternaryExpression";
+    const binaryExpression = this.visit(ctx.binaryExpression);
+    if (ctx.QuestionMark) {
+      const expression1 = this.visit(ctx.expression[0]);
+      const expression2 = this.visit(ctx.expression[1]);
+
+      return rejectAndJoin(" ", [
+        binaryExpression,
+        "?",
+        expression1,
+        ":",
+        expression2
+      ]);
+    }
+    return binaryExpression;
   }
 
   binaryExpression(ctx) {
-    return "binaryExpression";
+    const sortedTokens = sortTokens(
+      ctx.Instanceof,
+      ctx.AssignmentOperator,
+      ctx.Less,
+      ctx.Greater,
+      ctx.BinaryOperator
+    );
+    const referenceType = this.mapVisit(ctx.referenceType);
+    const expression = this.mapVisit(ctx.expression);
+    const unaryExpression = this.mapVisit(ctx.unaryExpression);
+    const segment = [unaryExpression.shift()];
+    for (let i = 0; i < sortedTokens.length; i++) {
+      const token = sortedTokens[i];
+      if (token.tokenType.tokenName === "Instanceof") {
+        segment.push(rejectAndJoin(" ", ["instanceof", referenceType.shift()]));
+      } else if (matchCategory(token, "'AssignmentOperator'")) {
+        segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
+      } else if (
+        i + 1 < sortedTokens.length &&
+        (sortedTokens[i + 1].image === ">" || sortedTokens[i + 1].image === "<")
+      ) {
+        // TODO: fix here by implementing print for s << 2, s >> 2 and s >>> 2
+        // currently work only for s << 2 and s >> 2
+        segment.push(
+          rejectAndJoin(" ", [
+            rejectAndConcat([token.image, sortedTokens[i + 1].image]),
+            unaryExpression.shift()
+          ])
+        );
+        i += 1;
+      } else if (matchCategory(token, "'BinaryOperator'")) {
+        segment.push(
+          rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+        );
+      }
+    }
+    return rejectAndJoin(" ", segment);
   }
 
   unaryExpression(ctx) {
-    return "unaryExpression";
+    const unaryPrefixOperator = ctx.UnaryPrefixOperator
+      ? ctx.UnaryPrefixOperator.map(token => token.image)
+      : [];
+    const primary = this.visit(ctx.primary);
+    const unarySuffixOperator = ctx.UnarySuffixOperator
+      ? ctx.UnarySuffixOperator.map(token => token.image)
+      : [];
+
+    return rejectAndConcat([
+      rejectAndConcat(unaryPrefixOperator),
+      primary,
+      rejectAndConcat(unarySuffixOperator)
+    ]);
   }
 
   unaryExpressionNotPlusMinus(ctx) {
-    return "unaryExpressionNotPlusMinus";
+    const unaryPrefixOperatorNotPlusMinus = ctx.unaryPrefixOperatorNotPlusMinus
+      ? rejectAndJoin(
+          " ",
+          ctx.unaryPrefixOperatorNotPlusMinus.map(token => token.image)
+        )
+      : "";
+
+    const primary = this.visit(ctx.primary);
+    const unarySuffixOperator = ctx.unarySuffixOperator
+      ? rejectAndJoin(" ", ctx.unarySuffixOperator.map(token => token.image))
+      : "";
+
+    return rejectAndJoin(" ", [
+      unaryPrefixOperatorNotPlusMinus,
+      primary,
+      unarySuffixOperator
+    ]);
   }
 
   primary(ctx) {
-    return "primary";
+    const primaryPrefix = this.visit(ctx.primaryPrefix);
+    const primarySuffix = this.mapVisit(ctx.primarySuffix);
+
+    // use concat and not rejectAndConcat to print "0"
+    return concat([primaryPrefix, rejectAndConcat(primarySuffix)]);
   }
 
   primaryPrefix(ctx) {
-    return "primaryPrefix";
+    if (ctx.This || ctx.Void) {
+      return this.getSingle(ctx).image;
+    }
+
+    return this.visitSingle(ctx);
   }
 
   primarySuffix(ctx) {
-    return "primarySuffix";
+    if (ctx.Dot) {
+      if (ctx.This) {
+        return concat([".", "this"]);
+      } else if (ctx.Identifier) {
+        const typeArguments = this.visit(ctx.typeArguments);
+        return join(" ", [typeArguments, ctx.Identifier[0].image]);
+      }
+
+      return this.visit(ctx.unqualifiedClassInstanceCreationExpression);
+    }
+    return this.visitSingle(ctx);
   }
 
   fqnOrRefType(ctx) {
-    return "fqnOrRefType";
+    const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
+    const dims = this.visit(ctx.dims);
+
+    return rejectAndJoin("", [join(".", fqnOrRefTypePart), dims]);
   }
 
   fqnOrRefTypePart(ctx) {
-    return "fqnOrRefTypePart";
+    const annotation = this.mapVisit(ctx.annotation);
+
+    const fqnOrRefTypePart$methodTypeArguments = this.visit(
+      ctx.fqnOrRefTypePart$methodTypeArguments
+    );
+
+    let keyWord = null;
+    if (ctx.Identifier) {
+      keyWord = ctx.Identifier[0].image;
+    } else {
+      keyWord = "super";
+    }
+
+    const fqnOrRefTypePart$classTypeArguments = this.visit(
+      ctx.fqnOrRefTypePart$classTypeArguments
+    );
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", annotation),
+      fqnOrRefTypePart$methodTypeArguments,
+      keyWord,
+      fqnOrRefTypePart$classTypeArguments
+    ]);
   }
 
   fqnOrRefTypePart$methodTypeArguments(ctx) {
-    return "methodTypeArguments";
+    return this.visitSingle(ctx);
   }
 
   fqnOrRefTypePart$classTypeArguments(ctx) {
-    return "classTypeArguments";
+    return this.visitSingle(ctx);
   }
 
   parenthesisExpression(ctx) {
-    return "parenthesisExpression";
+    const expression = this.visit(ctx.expression);
+    return rejectAndConcat(["(", expression, ")"]);
   }
 
   castExpression(ctx) {
-    return "castExpression";
+    return this.visitSingle(ctx);
   }
 
   primitiveCastExpression(ctx) {
-    return "primitiveCastExpression";
+    const primitiveType = this.visit(ctx.primitiveType);
+    const unaryExpression = this.visit(ctx.unaryExpression);
+    return rejectAndJoin(" ", [
+      rejectAndConcat(["(", primitiveType, ")"]),
+      unaryExpression
+    ]);
   }
 
   referenceTypeCastExpression(ctx) {
-    return "referenceTypeCastExpression";
+    const referenceType = this.visit(ctx.referenceType);
+    const additionalBound = this.mapVisit(ctx.additionalBound);
+
+    const expression = ctx.lambdaExpression
+      ? this.visit(ctx.lambdaExpression)
+      : this.visit(ctx.unaryExpressionNotPlusMinus);
+
+    return rejectAndJoin(" ", [
+      rejectAndConcat(["(", referenceType, ")"]),
+      additionalBound,
+      expression
+    ]);
   }
 
   newExpression(ctx) {
-    return "newExpression";
+    return this.visitSingle(ctx);
   }
 
   unqualifiedClassInstanceCreationExpression(ctx) {
-    return "unqualifiedClassInstanceCreationExpression";
+    const typeArguments = this.visit(ctx.typeArguments);
+    const classOrInterfaceTypeToInstantiate = this.visit(
+      ctx.classOrInterfaceTypeToInstantiate
+    );
+    const argumentList = this.visit(ctx.argumentList);
+    const classBody = this.visit(ctx.classBody);
+
+    return rejectAndJoin(" ", [
+      "new",
+      typeArguments,
+      rejectAndConcat([
+        classOrInterfaceTypeToInstantiate,
+        "(",
+        argumentList,
+        ")"
+      ]),
+      classBody
+    ]);
   }
 
   classOrInterfaceTypeToInstantiate(ctx) {
-    return "classOrInterfaceTypeToInstantiate";
+    const tokens = sortAnnotationIdentifier(ctx.annotation, ctx.Identifier);
+
+    const segments = [];
+    let currentSegment = [];
+
+    _.forEach(tokens, token => {
+      if (token.name) {
+        currentSegment.push(this.visit([token]));
+      } else {
+        currentSegment.push(token.image);
+        segments.push(rejectAndJoin(" ", currentSegment));
+        currentSegment = [];
+      }
+    });
+
+    const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(".", segments),
+      typeArgumentsOrDiamond
+    ]);
   }
 
   typeArgumentsOrDiamond(ctx) {
-    return "typeArgumentsOrDiamond";
+    return this.visitSingle(ctx);
   }
 
   diamond(ctx) {
-    return "diamond";
+    return "<>";
   }
 
   methodInvocationSuffix(ctx) {
-    return "methodInvocationSuffix";
+    const argumentList = this.visit(ctx.argumentList);
+    return rejectAndConcat(["(", argumentList, ")"]);
   }
 
   argumentList(ctx) {
-    return "argumentList";
+    const expressions = this.mapVisit(ctx.expression);
+    return rejectAndJoin(", ", expressions);
   }
 
   arrayCreationExpression(ctx) {
-    return "arrayCreationExpression";
+    const type = ctx.primitiveType
+      ? this.visit(ctx.primitiveType)
+      : this.visit(ctx.classOrInterfaceType);
+    const suffix = ctx.arrayCreationDefaultInitSuffix
+      ? this.visit(ctx.arrayCreationDefaultInitSuffix)
+      : this.visit(ctx.arrayCreationExplicitInitSuffix);
+
+    return rejectAndJoin(" ", ["new", type, suffix]);
   }
 
   arrayCreationDefaultInitSuffix(ctx) {
-    return "arrayCreationDefaultInitSuffix";
+    const dimExprs = this.visit(ctx.dimExprs);
+    const dims = this.visit(ctx.dims);
+    return rejectAndConcat([dimExprs, dims]);
   }
 
   arrayCreationExplicitInitSuffix(ctx) {
-    return "arrayCreationExplicitInitSuffix";
+    const dims = this.visit(ctx.dims);
+    const arrayInitializer = this.visit(ctx.arrayInitializer);
+
+    return rejectAndConcat([dims, arrayInitializer]);
   }
 
   dimExprs(ctx) {
-    return "dimExprs";
+    const dimExpr = this.mapVisit(ctx.dimExpr);
+    return rejectAndConcat(dimExpr);
   }
 
   dimExpr(ctx) {
-    return "dimExpr";
+    const annotations = this.mapVisit(ctx.annotation);
+    const expression = this.visit(ctx.expression);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", annotations),
+      rejectAndConcat(["[", expression, "]"])
+    ]);
   }
 
   classLiteralSuffix(ctx) {
-    return "classLiteralSuffix";
+    const squares = ctx.LSquare ? "[]".repeat(ctx.LSquare.length) : "";
+
+    return rejectAndConcat([squares, ".class"]);
   }
 
   arrayAccessSuffix(ctx) {
-    return "arrayAccessSuffix";
+    const expression = this.visit(ctx.expression);
+    return rejectAndConcat(["[", expression, "]"]);
   }
 
   methodReferenceSuffix(ctx) {
-    return "methodReferenceSuffix";
+    const typeArguments = this.visit(ctx.typeArguments);
+    const identifierOrNew = ctx.New ? "new" : ctx.Identifier[0].image;
+    return rejectAndConcat(["::", typeArguments, identifierOrNew]);
   }
 
   identifyNewExpressionType(ctx) {
