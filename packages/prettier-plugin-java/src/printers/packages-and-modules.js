@@ -17,14 +17,12 @@ class PackagesAndModulesPrettierVisitor {
     const typesDecl = this.mapVisit(ctx.typeDeclaration);
 
     // TODO: utility to add item+line (or multiple lines) but only if an item exists
-    return concat([
-      packageDecl,
-      line,
-      line,
-      join(line, importsDecl),
-      line,
-      line,
-      join(line, typesDecl),
+    return rejectAndConcat([
+      rejectAndJoin(concat([line, line]), [
+        packageDecl,
+        rejectAndJoin(line, importsDecl),
+        rejectAndJoin(line, typesDecl)
+      ]),
       line
     ]);
   }

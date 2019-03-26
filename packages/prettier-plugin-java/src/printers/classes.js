@@ -18,14 +18,26 @@ const {
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
-    const modifiers = this.mapVisit(ctx.classModifier);
+    const annotations = [];
+    const modifiers = [];
+
+    _.forEach(ctx.classModifier, item => {
+      if (item.children.annotation) {
+        annotations.push(this.visit(item));
+      } else {
+        modifiers.push(this.getSingle(item.children).image);
+      }
+    });
 
     const classCST = ctx.normalClassDeclaration
       ? ctx.normalClassDeclaration
       : ctx.enumDeclaration;
     const classDoc = this.visit(classCST);
 
-    return rejectAndJoin(" ", [join(" ", modifiers), classDoc]);
+    return rejectAndJoin(line, [
+      rejectAndJoin(line, annotations),
+      rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), classDoc])
+    ]);
   }
 
   normalClassDeclaration(ctx) {
@@ -214,11 +226,27 @@ class ClassesPrettierVisitor {
   }
 
   methodDeclaration(ctx) {
-    const modifiers = this.mapVisit(ctx.methodModifier);
+    const annotations = [];
+    const modifiers = [];
+
+    _.forEach(ctx.methodModifier, item => {
+      if (item.children.annotation) {
+        annotations.push(this.visit(item));
+      } else {
+        modifiers.push(this.getSingle(item.children).image);
+      }
+    });
+
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
-    return rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body]);
+    return rejectAndConcat([
+      line,
+      rejectAndJoin(line, [
+        rejectAndJoin(line, annotations),
+        rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body])
+      ])
+    ]);
   }
 
   methodModifier(ctx) {
