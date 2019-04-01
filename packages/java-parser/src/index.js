@@ -43,7 +43,7 @@ function parse(inputText, entryPoint = "compilationUnit") {
         error.context.ruleStack.join("\n\t->")
     );
   }
-
+  parser.addNodeOffsets(cst);
   return cst;
 }
 
