@@ -1,19 +1,25 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+const {
+  concat,
+  join,
+  line,
+  ifBreak,
+  group,
+  indent
+} = require("prettier").doc.builders;
 const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
   interfaceDeclaration(ctx) {
     const interfaceModifiers = this.mapVisit(ctx.interfaceModifier);
-
     const declaration = ctx.normalInterfaceDeclaration
       ? this.visit(ctx.normalInterfaceDeclaration)
       : this.visit(ctx.annotationTypeDeclaration);
 
     return rejectAndJoin(" ", [
-      rejectAndJoin(" ", [interfaceModifiers]),
+      rejectAndJoin(" ", interfaceModifiers),
       declaration
     ]);
   }
@@ -47,12 +53,16 @@ class InterfacesPrettierVisitor {
   }
 
   interfaceBody(ctx) {
-    const interfaceMemberDeclaration = this.visit(
+    const interfaceMemberDeclaration = this.mapVisit(
       ctx.interfaceMemberDeclaration
     );
 
-    return rejectAndJoin(line, [
-      rejectAndJoin(line, ["{", interfaceMemberDeclaration]),
+    return rejectAndConcat([
+      "{",
+      indent(
+        rejectAndConcat([line, rejectAndJoin(line, interfaceMemberDeclaration)])
+      ),
+      line,
       "}"
     ]);
   }
