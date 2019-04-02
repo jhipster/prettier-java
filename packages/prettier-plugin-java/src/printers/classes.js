@@ -193,7 +193,7 @@ class ClassesPrettierVisitor {
       } else {
         currentSegment.push(token.image);
         if (
-          (i + 1 < tokens.length && tokens[i].name !== "typeArguments") ||
+          (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
           i + 1 === tokens.length
         ) {
           segments.push(rejectAndConcat(currentSegment));
