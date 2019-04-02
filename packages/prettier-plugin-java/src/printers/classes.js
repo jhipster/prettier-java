@@ -218,7 +218,10 @@ class ClassesPrettierVisitor {
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
-    return rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body]);
+    return rejectAndConcat([
+      line,
+      rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body])
+    ]);
   }
 
   methodModifier(ctx) {
