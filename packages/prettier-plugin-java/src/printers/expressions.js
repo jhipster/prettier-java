@@ -198,10 +198,13 @@ class ExpressionsPrettierVisitor {
         return rejectAndConcat([".", "this"]);
       } else if (ctx.Identifier) {
         const typeArguments = this.visit(ctx.typeArguments);
-        return rejectAndJoin(".", [typeArguments, ctx.Identifier[0].image]);
+        return rejectAndConcat([".", typeArguments, ctx.Identifier[0].image]);
       }
 
-      return this.visit(ctx.unqualifiedClassInstanceCreationExpression);
+      const unqualifiedClassInstanceCreationExpression = this.visit(
+        ctx.unqualifiedClassInstanceCreationExpression
+      );
+      return rejectAndConcat([".", unqualifiedClassInstanceCreationExpression]);
     }
     return this.visitSingle(ctx);
   }
