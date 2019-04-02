@@ -24,7 +24,7 @@ class ExpressionsPrettierVisitor {
     const lambdaParameters = this.visit(ctx.lambdaParameters);
     const lambdaBody = this.visit(ctx.lambdaBody);
 
-    return rejectAndJoin(" => ", [lambdaParameters, lambdaBody]);
+    return rejectAndJoin(" -> ", [lambdaParameters, lambdaBody]);
   }
 
   lambdaParameters(ctx) {
