@@ -359,11 +359,14 @@ class ClassesPrettierVisitor {
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
 
-    return rejectAndJoin(" ", [
-      join(" ", constructorModifier),
-      constructorDeclarator,
-      throws,
-      constructorBody
+    return rejectAndConcat([
+      line,
+      rejectAndJoin(" ", [
+        join(" ", constructorModifier),
+        constructorDeclarator,
+        throws,
+        constructorBody
+      ])
     ]);
   }
 
@@ -402,9 +405,13 @@ class ClassesPrettierVisitor {
     const blockStatements = this.visit(ctx.blockStatements);
 
     return rejectAndJoin(line, [
-      "{",
-      explicitConstructorInvocation,
-      blockStatements,
+      indent(
+        rejectAndJoin(line, [
+          "{",
+          explicitConstructorInvocation,
+          blockStatements
+        ])
+      ),
       "}"
     ]);
   }
