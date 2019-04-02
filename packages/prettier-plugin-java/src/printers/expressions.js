@@ -326,7 +326,7 @@ class ExpressionsPrettierVisitor {
 
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
 
-    return rejectAndJoin(" ", [
+    return rejectAndConcat([
       rejectAndJoin(".", segments),
       typeArgumentsOrDiamond
     ]);
