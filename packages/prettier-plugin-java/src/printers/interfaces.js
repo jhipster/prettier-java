@@ -167,8 +167,8 @@ class InterfacesPrettierVisitor {
     const annoArgs = [];
     if (ctx.LBrace) {
       annoArgs.push("(");
-      if (ctx.elementValuePair) {
-        annoArgs.push(this.visit(ctx.elementValuePair));
+      if (ctx.elementValuePairList) {
+        annoArgs.push(this.visit(ctx.elementValuePairList));
       } else if (ctx.elementValue) {
         annoArgs.push(this.visit(ctx.elementValue));
       }
