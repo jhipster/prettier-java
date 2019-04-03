@@ -278,7 +278,7 @@ class BlocksAndStatementPrettierVisitor {
     const catches = this.visit(ctx.catches);
     const finallyBlock = this.visit(ctx.finally);
 
-    return rejectAndJoin(" ", ["try ", block, catches, finallyBlock]);
+    return rejectAndJoin(" ", ["try", block, catches, finallyBlock]);
   }
 
   catches(ctx) {
