@@ -37,8 +37,7 @@ class ClassesPrettierVisitor {
 
     return rejectAndJoin(" ", [
       "class",
-      name,
-      optionalTypeParams,
+      rejectAndConcat([name, optionalTypeParams]),
       optionalSuperClasses,
       optionalSuperInterfaces,
       body
