@@ -215,7 +215,7 @@ class BlocksAndStatementPrettierVisitor {
         localVariableType,
         variableDeclaratorId
       ]),
-      ": ",
+      " : ",
       expression,
       ") ",
       statement

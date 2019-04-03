@@ -13,7 +13,7 @@ public class For {
   }
 
   public void forEach(List<String> list) {
-    for (String str: list) {
+    for (String str : list) {
       System.out.println(str);
     }
   }
