@@ -101,11 +101,7 @@ class BlocksAndStatementPrettierVisitor {
   assertStatement(ctx) {
     const expressions = this.mapVisit(ctx.expression);
 
-    return rejectAndJoin(" ", [
-      "assert",
-      rejectAndJoin(" : ", expressions),
-      ";"
-    ]);
+    return rejectAndConcat(["assert ", rejectAndJoin(" : ", expressions), ";"]);
   }
 
   switchStatement(ctx) {

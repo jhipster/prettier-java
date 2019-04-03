@@ -1,10 +1,10 @@
 public class Assert {
 
   public void assertBooleanExpression(String myVar) {
-    assert (myVar != null) ;
+    assert (myVar != null);
   }
 
   public void assertValueExpression(String myVar) {
-    assert (myVar != null) : "text" ;
+    assert (myVar != null) : "text";
   }
 }
