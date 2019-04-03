@@ -1,9 +1,17 @@
 /* eslint-disable no-unused-vars */
 "use strict";
 const { createToken: createTokenOrg, Lexer } = require("chevrotain");
-
+const fs = require("fs");
+let chars;
 // A little mini DSL for easier lexer definition.
 const fragments = {};
+try {
+  chars = require("./unicodesets");
+} catch (e) {
+  throw Error(
+    "unicodesets.js file could not be found. Did you try to run the command: yarn run build ?"
+  );
+}
 
 function inlineFragments(def) {
   let inlinedDef = def;
@@ -32,17 +40,56 @@ FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
 FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
 
+function matchJavaIdentifier(text, startOffset) {
+  let endOffset = startOffset;
+  let charCode = text.codePointAt(endOffset);
+
+  // We verifiy if the first character is from one of these categories
+  // Corresponds to the isJavaIdentifierStart function from Java
+  if (chars.firstIdentChar.has(charCode)) {
+    endOffset++;
+    // If we encounter a surrogate pair (something that is beyond 65535/FFFF)
+    // We skip another offset because a surrogate pair is of length 2.
+    if (charCode > 65535) {
+      endOffset++;
+    }
+    charCode = text.codePointAt(endOffset);
+  }
+
+  // We verify if the remaining characters is from one of these categories
+  // Corresponds to the isJavaIdentifierPart function from Java
+  while (chars.restIdentChar.has(charCode)) {
+    endOffset++;
+    // See above.
+    if (charCode > 65535) {
+      endOffset++;
+    }
+    charCode = text.codePointAt(endOffset);
+  }
+
+  // No match, must return null to conform with the RegExp.prototype.exec signature
+  if (endOffset === startOffset) {
+    return null;
+  }
+  const matchedString = text.substring(startOffset, endOffset);
+  // according to the RegExp.prototype.exec API the first item in the returned array must be the whole matched string.
+  return [matchedString];
+}
+
 const Identifier = createTokenOrg({
   name: "Identifier",
-  // TODO: Align with the spec, Consider generating the regExp for Identifier
-  //       as done in Esprima / Acorn
-  pattern: /[a-zA-Z_\\$][a-zA-Z_\\$0-9]*/
+  pattern: { exec: matchJavaIdentifier },
+  line_breaks: false,
+  start_chars_hint: Array.from(chars.firstIdentChar, x =>
+    String.fromCharCode(x)
+  )
 });
 
 const allTokens = [];
 const tokenDictionary = {};
+
 function createToken(options) {
-  // TODO: create a test to check all the tokens have a label defined
+  // TODO create a test to check all the tokenbs have a label defined
   if (!options.label) {
     // simple token (e.g operator)
     if (typeof options.pattern === "string") {
@@ -114,7 +161,6 @@ createToken({
   pattern: MAKE_PATTERN("[\\x09\\x20\\x0C]|{{LineTerminator}}"),
   group: Lexer.SKIPPED
 });
-
 createToken({
   name: "LineComment",
   pattern: /\/\/[^\n\r]*/,
@@ -437,7 +483,6 @@ function sortDescLength(arr) {
     return b.length - a.length;
   });
 }
-
 module.exports = {
   allTokens,
   tokens: tokenDictionary
