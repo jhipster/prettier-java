@@ -82,12 +82,17 @@ class ClassesPrettierVisitor {
 
   classBody(ctx) {
     const classBodyDecls = this.mapVisit(ctx.classBodyDeclaration);
-    return rejectAndConcat([
-      "{",
-      indent(rejectAndConcat([line, rejectAndJoin(line, classBodyDecls)])),
-      line,
-      "}"
-    ]);
+
+    if (classBodyDecls.length !== 0) {
+      return rejectAndConcat([
+        "{",
+        indent(rejectAndConcat([line, rejectAndJoin(line, classBodyDecls)])),
+        line,
+        "}"
+      ]);
+    }
+
+    return "{}";
   }
 
   classBodyDeclaration(ctx) {

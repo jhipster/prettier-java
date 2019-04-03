@@ -5,6 +5,4 @@ import java.utils.*;
 import abc.def.Something;
 import abc.def.Another;
 
-public class PackageAndImports {
-
-}
+public class PackageAndImports {}
