@@ -8,5 +8,8 @@
   "dependencies": {
     "java-parser": "0.2.0",
     "prettier": "1.15.3"
+  },
+  "scripts": {
+    "test": "mocha \"test/**/*-spec.js\""
   }
 }
