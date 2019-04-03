@@ -184,10 +184,8 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndConcat([
       "for (",
       forInit,
-      "; ",
-      expression,
-      "; ",
-      forUpdate,
+      rejectAndJoin(" ", [";", expression]),
+      rejectAndJoin(" ", [";", forUpdate]),
       ") ",
       statement
     ]);
