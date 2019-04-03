@@ -317,7 +317,7 @@ class ClassesPrettierVisitor {
       join(" ", variableModifier),
       unannType,
       join(" ", annotation),
-      "...",
+      "... ",
       identifier
     ]);
   }
