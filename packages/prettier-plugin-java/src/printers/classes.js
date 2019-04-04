@@ -475,19 +475,36 @@ class ClassesPrettierVisitor {
 
   enumBody(ctx) {
     const enumConstantList = this.visit(ctx.enumConstantList);
+    const enumBodyDeclarations = ctx.enumBodyDeclarations
+      ? this.visit(ctx.enumBodyDeclarations)
+      : ";";
 
-    const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
-    return rejectAndConcat([
-      "{",
-      join(", ", [enumConstantList, enumBodyDeclarations]),
-      "}"
-    ]);
+    const optionnalComma = ctx.Comma ? ", " : "";
+
+    if (enumConstantList) {
+      return rejectAndConcat([
+        "{",
+        indent(
+          rejectAndConcat([
+            line,
+            rejectAndJoin(optionnalComma, [
+              enumConstantList,
+              enumBodyDeclarations
+            ])
+          ])
+        ),
+        line,
+        "}"
+      ]);
+    }
+
+    return "{}";
   }
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
 
-    return join(", ", enumConstants);
+    return rejectAndJoin(concat([",", line]), enumConstants);
   }
 
   enumConstant(ctx) {
@@ -496,10 +513,13 @@ class ClassesPrettierVisitor {
     const argumentList = this.visit(ctx.argumentList);
     const classBody = this.visit(ctx.classBody);
 
+    const optionnalBracesAndArgumentList = ctx.LBrace
+      ? rejectAndConcat(["(", argumentList, ")"])
+      : "";
+
     return rejectAndJoin(" ", [
-      join(" ", enumConstantModifiers),
-      identifier,
-      concat(["(", argumentList, ")"]),
+      rejectAndJoin(" ", enumConstantModifiers),
+      rejectAndConcat([identifier, optionnalBracesAndArgumentList]),
       classBody
     ]);
   }
@@ -511,7 +531,7 @@ class ClassesPrettierVisitor {
   enumBodyDeclarations(ctx) {
     const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
-    return rejectAndJoin(" ", [";", join(line, classBodyDeclaration)]);
+    return rejectAndJoin(line, [";", join(line, classBodyDeclaration)]);
   }
 
   isClassDeclaration(ctx) {
