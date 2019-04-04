@@ -120,7 +120,8 @@ class ExpressionsPrettierVisitor {
         segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
       } else if (
         i + 1 < sortedTokens.length &&
-        (sortedTokens[i + 1].image === ">" || sortedTokens[i + 1].image === "<")
+        ((sortedTokens[i].image === ">" && sortedTokens[i + 1].image === ">") ||
+          (sortedTokens[i].image === "<" && sortedTokens[i + 1].image === "<"))
       ) {
         // TODO: fix here by implementing print for s << 2, s >> 2 and s >>> 2
         // currently work only for s << 2 and s >> 2
