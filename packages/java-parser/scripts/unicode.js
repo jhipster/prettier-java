@@ -65,12 +65,7 @@ function constructCategories() {
   });
 
   // Constructing the whole JavaIdentifierPart category.
-  restIdentCharCategories = new Set(
-    (function*() {
-      yield* firstIdentCharCategories;
-      yield* restIdentUnicodeCategories;
-    })()
-  );
+  restIdentCharCategories = new Set(restIdentUnicodeCategories);
 
   // Merging all the accepted characters.
   categories = new Set(
@@ -111,7 +106,9 @@ function readUnicodeData() {
 
 // Generating a unicodesets.js file so that we don't have to reparse the file each time the parser is called.
 function generateFile() {
-  let data = `"use strict"
+  let data = `
+  /*File generated with unicode.js*/
+  "use strict"
   const firstIdentChar = new Set([`;
   firstIdentCharCategories.forEach(el => {
     unicode[el].forEach(value => {
@@ -121,7 +118,7 @@ function generateFile() {
   data += `]);
   `;
 
-  data += `const restIdentChar = new Set([`;
+  data += `const restIdentCharDiff = new Set([`;
   restIdentCharCategories.forEach(el => {
     unicode[el].forEach(value => {
       data += `${value},`;
@@ -131,6 +128,9 @@ function generateFile() {
 
   data += `]);
   `;
+
+  data += `const restIdentChar = new Set(function*() { yield* firstIdentChar; yield* restIdentCharDiff; }());`;
+
   data += `module.exports = {
     firstIdentChar,
     restIdentChar
