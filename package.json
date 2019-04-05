@@ -2,7 +2,8 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "benchmark/*"
   ],
   "scripts": {
     "lerna:version": "lerna version",
