@@ -6,7 +6,11 @@ const args = process.argv.slice(2)[0];
 
 let categories; // Variable that stores every category we are going to parse
 let restIdentCharCategories; // Variable that stores categories used for javaIdentfierPart
-const manuallyAddedCharacters = new Set([]); // Variable that stores authorized characters for javaIdentifierPart but that is not in a general category
+// Variable that stores authorized characters for javaIdentifierPart but that is not in a general category
+const manuallyAddedCharacters = {
+  unicode: [],
+  ranges: []
+};
 
 // The Categories we only want to parse from the file.
 // We don't need to store characters from the UnicodeData file that we are not going to use
@@ -28,11 +32,18 @@ const firstIdentCharCategories = new Set([
 const restIdentUnicodeCategories = new Set(["Mn", "Cf"]);
 
 // Function that pushes in an object an attribute to store the characters
-function pushInUnicode(a, b) {
-  if (unicode.hasOwnProperty(a) === false) {
-    unicode[a] = [parseInt(b)];
+function pushInUnicode(cat, elt) {
+  if (!unicode.hasOwnProperty(cat)) {
+    unicode[cat] = {
+      unicode: [],
+      ranges: []
+    };
+  }
+
+  if (Array.isArray(elt)) {
+    unicode[cat].ranges.push(elt);
   } else {
-    unicode[a].push(parseInt(b));
+    unicode[cat].unicode.push(elt);
   }
 }
 
@@ -55,13 +66,10 @@ function constructCategories() {
   ];
 
   ranges.forEach(range => {
-    for (
-      let i = parseInt(range.start, range.base);
-      i <= parseInt(range.end);
-      i++
-    ) {
-      manuallyAddedCharacters.add(i);
-    }
+    manuallyAddedCharacters.ranges.push([
+      parseInt(range.start, range.base),
+      parseInt(range.end, range.base)
+    ]);
   });
 
   // Constructing the whole JavaIdentifierPart category.
@@ -90,13 +98,10 @@ function readUnicodeData() {
       return;
     }
     if (theLine[1].match(/Last>$/)) {
-      for (
-        let i = parseInt(oldValue, 16) + 1;
-        i <= parseInt(theLine[0], 16);
-        i++
-      ) {
-        pushInUnicode(theLine[2], i);
-      }
+      pushInUnicode(theLine[2], [
+        parseInt(oldValue, 16) + 1,
+        parseInt(theLine[0], 16)
+      ]);
     } else {
       pushInUnicode(theLine[2], parseInt(theLine[0], 16));
     }
@@ -109,31 +114,50 @@ function generateFile() {
   let data = `
   /*File generated with unicode.js*/
   "use strict"
-  const firstIdentChar = new Set([`;
+  const f = (o, s, e) => {
+  [...Array(e - s + 1).keys()].map(i => o.add(i + s));
+  };
+  const fic = new Set([`;
   firstIdentCharCategories.forEach(el => {
-    unicode[el].forEach(value => {
+    unicode[el].unicode.forEach(value => {
       data += `${value},`;
     });
   });
   data += `]);
   `;
 
-  data += `const restIdentCharDiff = new Set([`;
+  firstIdentCharCategories.forEach(el => {
+    unicode[el].ranges.forEach(array => {
+      data += `f(fic,${array[0]},${array[1]});\n`;
+    });
+  });
+
+  data += `const ricd = new Set([`;
   restIdentCharCategories.forEach(el => {
-    unicode[el].forEach(value => {
+    unicode[el].unicode.forEach(value => {
       data += `${value},`;
     });
   });
-  manuallyAddedCharacters.forEach(v => (data += `${v},`));
+  manuallyAddedCharacters.unicode.forEach(v => (data += `${v},`));
 
   data += `]);
   `;
 
-  data += `const restIdentChar = new Set(function*() { yield* firstIdentChar; yield* restIdentCharDiff; }());`;
+  restIdentCharCategories.forEach(el => {
+    unicode[el].ranges.forEach(array => {
+      data += `f(ricd,${array[0]},${array[1]});\n`;
+    });
+  });
+
+  manuallyAddedCharacters.ranges.forEach(array => {
+    data += `f(ricd,${array[0]},${array[1]});\n`;
+  });
+
+  data += `const ric = new Set(function*() { yield* fic; yield* ricd; }());`;
 
   data += `module.exports = {
-    firstIdentChar,
-    restIdentChar
+    firstIdentChar: fic,
+    restIdentChar: ric
   }`;
   fs.writeFileSync(
     path.resolve(__dirname, "../src/unicodesets.js"),
