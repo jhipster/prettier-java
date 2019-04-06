@@ -107,6 +107,44 @@ function readUnicodeData() {
     }
     oldValue = theLine[0];
   });
+
+  //reducing sub increasing array into ranges
+  for (const key in unicode) {
+    const cat = unicode[key];
+    const res = cat.unicode.reduce((accu, currentValue) => {
+      if (accu.length == 0) {
+        accu.push(currentValue);
+        return accu;
+      }
+      if (Array.isArray(accu[accu.length - 1])) {
+        if (accu[accu.length - 1][1] + 1 == currentValue) {
+          accu[accu.length - 1][1] = currentValue;
+        } else {
+          accu.push(currentValue);
+        }
+      } else {
+        if (accu[accu.length - 1] + 1 == currentValue) {
+          accu.splice(accu.length - 1, 1, [
+            accu[accu.length - 1],
+            currentValue
+          ]);
+        } else {
+          accu.push(currentValue);
+        }
+      }
+      return accu;
+    }, []);
+
+    //redistributing ranges to the ranges array and unicodes
+    const unicodes = res.filter(value => {
+      if (Array.isArray(value)) {
+        cat.ranges.push(value);
+        return false;
+      }
+      return true;
+    });
+    cat.unicode = unicodes;
+  }
 }
 
 // Generating a unicodesets.js file so that we don't have to reparse the file each time the parser is called.
