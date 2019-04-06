@@ -1,10 +1,19 @@
-/*File generated with unicode.js*/
+/*File generated with ../scripts/unicode.js using ../resources/Unicode/UnicodeData.txt.
+  * As Java Identifiers may contains unicodes letters, this file defines two sets of unicode
+  * characters, firstIdentChar used to help to determine if a character can be the first letter
+  * of a JavaIdentifier and the other one (restIdentChar) to determine if it can be part of a
+  * JavaIdentifier other than the first character.
+  * Java uses the same file UnicodeData.txt as the unicode.js script to define the unicodes.
+  * For more:
+  *   https://github.com/jhipster/prettier-java/issues/116
+  *   https://github.com/jhipster/prettier-java/pull/155
+  */
 "use strict";
-const f = (o, a) => {
-  a.forEach(e => {
-    [...Array(e[1] - e[0] + 1).keys()].map(i => o.add(i + e[0]));
+function addRanges(o, arrays) {
+  arrays.forEach(range => {
+    [...Array(range[1] - range[0] + 1).keys()].map(i => o.add(i + range[0]));
   });
-};
+}
 const fic = new Set([
   181,
   257,
@@ -1881,7 +1890,7 @@ const fic_a = [
   [65075, 65076],
   [65101, 65103]
 ];
-f(fic, fic_a);
+addRanges(fic, fic_a);
 const ricd = new Set([
   1471,
   1479,
@@ -2224,7 +2233,7 @@ const ricd_a = [
   [119155, 119162],
   [917536, 917631]
 ];
-f(ricd, ricd_a);
+addRanges(ricd, ricd_a);
 const mac_a = [
   [0, 8],
   [14, 27],
@@ -2236,7 +2245,7 @@ const mac_a = [
   [65056, 65071],
   [48, 57]
 ];
-f(ricd, mac_a);
+addRanges(ricd, mac_a);
 const ric = new Set(
   (function*() {
     yield* fic;
