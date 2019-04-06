@@ -152,8 +152,10 @@ function generateFile() {
   let data = `
   /*File generated with unicode.js*/
   "use strict"
-  const f = (o, s, e) => {
-  [...Array(e - s + 1).keys()].map(i => o.add(i + s));
+  const f = (o, a) => {
+    a.forEach(e => {
+      [...Array(e[1] - e[0] + 1).keys()].map(i => o.add(i + e[0]));
+    });
   };
   const fic = new Set([`;
   firstIdentCharCategories.forEach(el => {
@@ -164,11 +166,15 @@ function generateFile() {
   data += `]);
   `;
 
+  data += `const fic_a = [`;
   firstIdentCharCategories.forEach(el => {
     unicode[el].ranges.forEach(array => {
-      data += `f(fic,${array[0]},${array[1]});\n`;
+      data += `[${array}],`;
     });
   });
+  data += `];
+  f(fic, fic_a);
+  `;
 
   data += `const ricd = new Set([`;
   restIdentCharCategories.forEach(el => {
@@ -181,15 +187,23 @@ function generateFile() {
   data += `]);
   `;
 
+  data += `const ricd_a = [`;
   restIdentCharCategories.forEach(el => {
     unicode[el].ranges.forEach(array => {
-      data += `f(ricd,${array[0]},${array[1]});\n`;
+      data += `[${array}],`;
     });
   });
+  data += `];
+  f(ricd, ricd_a);
+  `;
 
+  data += `const mac_a = [`;
   manuallyAddedCharacters.ranges.forEach(array => {
-    data += `f(ricd,${array[0]},${array[1]});\n`;
+    data += `[${array}],`;
   });
+  data += `];
+  f(ricd, mac_a);
+  `;
 
   data += `const ric = new Set(function*() { yield* fic; yield* ricd; }());`;
 
