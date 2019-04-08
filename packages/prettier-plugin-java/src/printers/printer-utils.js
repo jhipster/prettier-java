@@ -83,17 +83,17 @@ function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
   }
 
   return tokens.sort((a, b) => {
-    const startOffset1 = a.name
+    const startOffsetA = a.name
       ? a.children.At
         ? a.children.At[0].startOffset
         : a.children.Less[0].startOffset
       : a.startOffset;
-    const startOffset2 = b.name
+    const startOffsetB = b.name
       ? b.children.At
         ? b.children.At[0].startOffset
         : b.children.Less[0].startOffset
       : b.startOffset;
-    return startOffset1 - startOffset2;
+    return startOffsetA - startOffsetB;
   });
 }
 
