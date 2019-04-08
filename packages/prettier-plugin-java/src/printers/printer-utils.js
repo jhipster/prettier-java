@@ -30,7 +30,11 @@ function rejectAndConcat(elems) {
 }
 
 function sortAnnotationIdentifier(annotations, identifiers) {
-  const tokens = [...annotations, ...identifiers];
+  let tokens = [...identifiers];
+
+  if (annotations && annotations.length > 0) {
+    tokens = [...tokens, ...annotations];
+  }
 
   return tokens.sort((a, b) => {
     const startOffset1 =
@@ -79,9 +83,17 @@ function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
   }
 
   return tokens.sort((a, b) => {
-    const startOffset1 = a.name ? a.children.At[0].startOffset : a.startOffset;
-    const startOffset2 = b.name ? b.children.At[0].startOffset : b.startOffset;
-    return startOffset1 - startOffset2;
+    const startOffsetA = a.name
+      ? a.children.At
+        ? a.children.At[0].startOffset
+        : a.children.Less[0].startOffset
+      : a.startOffset;
+    const startOffsetB = b.name
+      ? b.children.At
+        ? b.children.At[0].startOffset
+        : b.children.Less[0].startOffset
+      : b.startOffset;
+    return startOffsetA - startOffsetB;
   });
 }
 

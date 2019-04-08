@@ -24,7 +24,7 @@ class ExpressionsPrettierVisitor {
     const lambdaParameters = this.visit(ctx.lambdaParameters);
     const lambdaBody = this.visit(ctx.lambdaBody);
 
-    return rejectAndJoin(" => ", [lambdaParameters, lambdaBody]);
+    return rejectAndJoin(" -> ", [lambdaParameters, lambdaBody]);
   }
 
   lambdaParameters(ctx) {
@@ -195,13 +195,16 @@ class ExpressionsPrettierVisitor {
   primarySuffix(ctx) {
     if (ctx.Dot) {
       if (ctx.This) {
-        return concat([".", "this"]);
+        return rejectAndConcat([".", "this"]);
       } else if (ctx.Identifier) {
         const typeArguments = this.visit(ctx.typeArguments);
-        return join(" ", [typeArguments, ctx.Identifier[0].image]);
+        return rejectAndConcat([".", typeArguments, ctx.Identifier[0].image]);
       }
 
-      return this.visit(ctx.unqualifiedClassInstanceCreationExpression);
+      const unqualifiedClassInstanceCreationExpression = this.visit(
+        ctx.unqualifiedClassInstanceCreationExpression
+      );
+      return rejectAndConcat([".", unqualifiedClassInstanceCreationExpression]);
     }
     return this.visitSingle(ctx);
   }
@@ -210,7 +213,7 @@ class ExpressionsPrettierVisitor {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
 
-    return rejectAndJoin("", [join(".", fqnOrRefTypePart), dims]);
+    return rejectAndConcat([join(".", fqnOrRefTypePart), dims]);
   }
 
   fqnOrRefTypePart(ctx) {
@@ -323,7 +326,7 @@ class ExpressionsPrettierVisitor {
 
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
 
-    return rejectAndJoin(" ", [
+    return rejectAndConcat([
       rejectAndJoin(".", segments),
       typeArgumentsOrDiamond
     ]);
