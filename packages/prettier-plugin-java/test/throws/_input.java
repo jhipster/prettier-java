@@ -36,4 +36,13 @@ public abstract class Throws {
 
   abstract void absThrowException6(String string1, String string2, String string3) throws RuntimeException, RuntimeException, RuntimeException;
 
+  public Throws(String string1)
+      throws RuntimeException {
+    System.out.println("Constructor with throws that should not wrap");
+  }
+
+  public Throws(String string1, String string2, String string3)
+      throws RuntimeException {
+    System.out.println("Constructor with throws that should wrap");
+  }
 }

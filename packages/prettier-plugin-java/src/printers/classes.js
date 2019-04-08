@@ -257,15 +257,22 @@ class ClassesPrettierVisitor {
     const declarator = this.visit(ctx.methodDeclarator);
     const throws = this.visit(ctx.throws);
 
-    return concat([
-      rejectAndJoin(" ", [
-        typeParameters,
-        rejectAndJoin(line, annotations),
-        result,
-        declarator,
-        throws
+    let throwsPart = "";
+    if (throws) {
+      throwsPart = indent(rejectAndConcat([softline, throws]));
+    }
+
+    return group(
+      concat([
+        rejectAndJoin(" ", [
+          typeParameters,
+          rejectAndJoin(line, annotations),
+          result,
+          declarator,
+          throwsPart
+        ])
       ])
-    ]);
+    );
   }
 
   result(ctx) {
@@ -391,12 +398,21 @@ class ClassesPrettierVisitor {
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
 
+    let throwsPart = "";
+    if (throws) {
+      throwsPart = indent(rejectAndConcat([softline, throws]));
+    }
+
     return rejectAndConcat([
       line,
       rejectAndJoin(" ", [
-        join(" ", constructorModifier),
-        constructorDeclarator,
-        throws,
+        group(
+          rejectAndJoin(" ", [
+            join(" ", constructorModifier),
+            constructorDeclarator,
+            throwsPart
+          ])
+        ),
         constructorBody
       ])
     ]);
