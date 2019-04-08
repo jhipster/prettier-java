@@ -6,9 +6,11 @@ const {
   join,
   line,
   ifBreak,
+  fill,
   group,
   indent,
-  dedent
+  dedent,
+  softline
 } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
@@ -55,13 +57,21 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndConcat(["<", typeParameterList, ">"]);
+    return rejectAndConcat([
+      "<",
+      group(rejectAndConcat([indent(typeParameterList), softline, ">"]))
+    ]);
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
 
-    return rejectAndJoin(", ", typeParameter);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), typeParameter)
+      ])
+    );
   }
 
   superclass(ctx) {
@@ -222,9 +232,13 @@ class ClassesPrettierVisitor {
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
+    const headerBodySeparator = body === ";" ? "" : " ";
     return rejectAndConcat([
       line,
-      rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body])
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", modifiers),
+        rejectAndJoin(headerBodySeparator, [header, body])
+      ])
     ]);
   }
 
@@ -267,7 +281,12 @@ class ClassesPrettierVisitor {
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
-    return rejectAndConcat([identifier, "(", formalParameterList, ")", dims]);
+    return rejectAndConcat([
+      identifier,
+      "(",
+      group(rejectAndConcat([indent(formalParameterList), softline, ")"])),
+      dims
+    ]);
   }
 
   receiverParameter(ctx) {
@@ -287,7 +306,13 @@ class ClassesPrettierVisitor {
 
   formalParameterList(ctx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
-    return rejectAndJoin(", ", formalParameter);
+
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), formalParameter)
+      ])
+    );
   }
 
   formalParameter(ctx) {
@@ -395,8 +420,13 @@ class ClassesPrettierVisitor {
       typeParameters,
       simpleTypeName,
       "(",
-      rejectAndJoin(", ", [receiverParameter, formalParameterList]),
-      ")"
+      group(
+        rejectAndConcat([
+          indent(rejectAndJoin(", ", [receiverParameter, formalParameterList])),
+          softline,
+          ")"
+        ])
+      )
     ]);
   }
 
@@ -437,8 +467,7 @@ class ClassesPrettierVisitor {
       " ",
       keyWord,
       "(",
-      argumentList,
-      ");"
+      group(rejectAndConcat([indent(argumentList), softline, ");"]))
     ]);
   }
 
@@ -453,8 +482,7 @@ class ClassesPrettierVisitor {
       typeArguments,
       "super",
       "(",
-      argumentList,
-      ");"
+      group(rejectAndConcat([indent(argumentList), softline, ");"]))
     ]);
   }
 

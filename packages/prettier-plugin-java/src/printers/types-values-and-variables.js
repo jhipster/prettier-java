@@ -10,7 +10,8 @@ const {
   ifBreak,
   group,
   indent,
-  dedent
+  dedent,
+  softline
 } = require("prettier").doc.builders;
 const {
   rejectAndJoin,
@@ -170,13 +171,21 @@ class TypesValuesAndVariablesPrettierVisitor {
   typeArguments(ctx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
-    return concat(["<", typeArgumentList, ">"]);
+    return rejectAndConcat([
+      "<",
+      group(rejectAndConcat([indent(typeArgumentList), softline, ">"]))
+    ]);
   }
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
 
-    return join(", ", typeArguments);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), typeArguments)
+      ])
+    );
   }
 
   typeArgument(ctx) {

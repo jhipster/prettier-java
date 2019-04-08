@@ -2,7 +2,14 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { concat, join } = require("prettier").doc.builders;
+const {
+  concat,
+  group,
+  indent,
+  join,
+  line,
+  softline
+} = require("prettier").doc.builders;
 const {
   matchCategory,
   rejectAndJoin,
@@ -179,10 +186,27 @@ class ExpressionsPrettierVisitor {
 
   primary(ctx) {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
-    const primarySuffix = this.mapVisit(ctx.primarySuffix);
 
-    // use concat and not rejectAndConcat to print "0"
-    return concat([primaryPrefix, rejectAndConcat(primarySuffix)]);
+    const segments = [];
+    let currentSegment = [];
+    const primarySuffixes = this.mapVisit(ctx.primarySuffix);
+
+    for (let i = 0; i < primarySuffixes.length; i++) {
+      currentSegment.push(primarySuffixes[i]);
+      if (
+        i + 1 < ctx.primarySuffix.length &&
+        ctx.primarySuffix[i + 1].children.methodInvocationSuffix
+      ) {
+        currentSegment.push(primarySuffixes[i + 1]);
+        i += 1;
+      }
+      segments.push(rejectAndConcat(currentSegment));
+      currentSegment = [];
+    }
+
+    return group(
+      concat([primaryPrefix, indent(rejectAndJoin(softline, segments))])
+    );
   }
 
   primaryPrefix(ctx) {
@@ -316,8 +340,7 @@ class ExpressionsPrettierVisitor {
       rejectAndConcat([
         classOrInterfaceTypeToInstantiate,
         "(",
-        argumentList,
-        ")"
+        group(rejectAndConcat([indent(argumentList), softline, ")"]))
       ]),
       classBody
     ]);
@@ -362,7 +385,13 @@ class ExpressionsPrettierVisitor {
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
-    return rejectAndJoin(", ", expressions);
+
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), expressions)
+      ])
+    );
   }
 
   arrayCreationExpression(ctx) {
