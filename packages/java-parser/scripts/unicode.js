@@ -161,10 +161,15 @@ function generateFile() {
   *   https://github.com/jhipster/prettier-java/pull/155
   */
   "use strict"
-  function addRanges(o, arrays) {
-    arrays.forEach(range => {
-      [...Array(range[1] - range[0] + 1).keys()].map(i => o.add(i + range[0]));
-    });
+  const addRanges = (set, rangesArr) => {
+    for (let i = 0; i < rangesArr.length; i++) {
+      const range = rangesArr[i];
+      const start =  range[0];
+      const end = range[1];
+      for (let codePoint = start; codePoint <= end; codePoint++) {
+        set.add(codePoint)
+      }
+    }
   };
   const fic = new Set([`;
   firstIdentCharCategories.forEach(el => {
