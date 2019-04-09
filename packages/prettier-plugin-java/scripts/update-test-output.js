@@ -5,7 +5,10 @@ const path = require("path");
 const fs = require("fs");
 const prettier = require("prettier");
 
-const samplesDir = path.resolve(__dirname, "../test");
+const samplesDir =
+  process.argv.indexOf("-single") > -1
+    ? path.resolve(__dirname, "./single-printer-run")
+    : path.resolve(__dirname, "../test");
 
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
