@@ -19,11 +19,14 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-OrdinaryCompilationUnit
   $.RULE("ordinaryCompilationUnit", () => {
-    $.OPTION(() => {
-      $.SUBRULE($.packageDeclaration);
+    $.OPTION({
+      GATE: $.BACKTRACK($.packageDeclaration),
+      DEF: () => {
+        $.SUBRULE($.packageDeclaration);
+      }
     });
     $.MANY(() => {
-      $.SUBRULE($.importDeclaration);
+      $.SUBRULE3($.importDeclaration);
     });
     $.MANY2(() => {
       $.SUBRULE($.typeDeclaration);
