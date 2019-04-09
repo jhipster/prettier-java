@@ -18,7 +18,8 @@ public class ComplexGenericClass<
   BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>,
   BEANTYPE,
   CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
-> extends AbstractBeanConfig<BEAN, CONFIG> {
+>
+  extends AbstractBeanConfig<BEAN, CONFIG> {
 
   public <BEAN> List<? super BEAN> getBean(final Class<BEAN> beanClass) {
     return new ArrayList<>();

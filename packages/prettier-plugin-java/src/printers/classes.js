@@ -10,7 +10,8 @@ const {
   group,
   indent,
   dedent,
-  softline
+  softline,
+  breakParent
 } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
@@ -37,11 +38,29 @@ class ClassesPrettierVisitor {
     const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
     const body = this.visit(ctx.classBody);
 
+    let superClassesPart = "";
+    if (optionalSuperClasses) {
+      superClassesPart = indent(
+        rejectAndConcat([softline, optionalSuperClasses])
+      );
+    }
+
+    let superInterfacesPart = "";
+    if (optionalSuperInterfaces) {
+      superInterfacesPart = indent(
+        rejectAndConcat([softline, optionalSuperInterfaces])
+      );
+    }
+
     return rejectAndJoin(" ", [
-      "class",
-      rejectAndConcat([name, optionalTypeParams]),
-      optionalSuperClasses,
-      optionalSuperInterfaces,
+      group(
+        rejectAndJoin(" ", [
+          "class",
+          rejectAndConcat([name, optionalTypeParams]),
+          superClassesPart,
+          superInterfacesPart
+        ])
+      ),
       body
     ]);
   }
@@ -80,13 +99,20 @@ class ClassesPrettierVisitor {
 
   superinterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
-    return join(" ", ["implements", interfaceTypeList]);
+
+    return indent(rejectAndJoin(" ", ["implements", interfaceTypeList]));
   }
 
   interfaceTypeList(ctx) {
     const interfaceType = this.mapVisit(ctx.interfaceType);
 
-    return rejectAndJoin(", ", interfaceType);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), interfaceType),
+        breakParent
+      ])
+    );
   }
 
   classBody(ctx) {
