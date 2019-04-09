@@ -5,7 +5,10 @@ const path = require("path");
 const fs = require("fs");
 const prettier = require("prettier");
 
-const samplesDir = path.resolve(__dirname, "../test");
+const samplesDir =
+  process.argv.indexOf("-single") > -1
+    ? path.resolve(__dirname, "./single-printer-run")
+    : path.resolve(__dirname, "../test");
 
 const sampleFiles = klawSync(samplesDir, { nodir: true });
 const javaSampleFiles = sampleFiles.filter(fileDesc =>
@@ -22,7 +25,7 @@ javaSampleFiles.forEach(fileDesc => {
     const newExpectedText = prettier.format(javaFileText, {
       parser: "java",
       plugins: [path.resolve(__dirname, "../")],
-      tabWidth: 4
+      tabWidth: 2
     });
     const outputFilePath = fileDesc.path.replace(/input.java$/, "output.java");
     console.log(`writing <${outputFilePath}>`);

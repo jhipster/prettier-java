@@ -101,11 +101,7 @@ class BlocksAndStatementPrettierVisitor {
   assertStatement(ctx) {
     const expressions = this.mapVisit(ctx.expression);
 
-    return rejectAndJoin(" ", [
-      "assert",
-      rejectAndJoin(" : ", expressions),
-      ";"
-    ]);
+    return rejectAndConcat(["assert ", rejectAndJoin(" : ", expressions), ";"]);
   }
 
   switchStatement(ctx) {
@@ -184,10 +180,8 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndConcat([
       "for (",
       forInit,
-      "; ",
-      expression,
-      "; ",
-      forUpdate,
+      rejectAndJoin(" ", [";", expression]),
+      rejectAndJoin(" ", [";", forUpdate]),
       ") ",
       statement
     ]);
@@ -221,7 +215,7 @@ class BlocksAndStatementPrettierVisitor {
         localVariableType,
         variableDeclaratorId
       ]),
-      ": ",
+      " : ",
       expression,
       ") ",
       statement
@@ -280,7 +274,7 @@ class BlocksAndStatementPrettierVisitor {
     const catches = this.visit(ctx.catches);
     const finallyBlock = this.visit(ctx.finally);
 
-    return rejectAndJoin(" ", ["try ", block, catches, finallyBlock]);
+    return rejectAndJoin(" ", ["try", block, catches, finallyBlock]);
   }
 
   catches(ctx) {

@@ -97,11 +97,11 @@ class InterfacesPrettierVisitor {
     const interfaceMethodModifiers = this.mapVisit(ctx.interfaceMethodModifier);
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
+    const separator = methodBody === ";" ? "" : " ";
 
     return rejectAndJoin(" ", [
       rejectAndJoin(" ", interfaceMethodModifiers),
-      methodHeader,
-      methodBody
+      rejectAndJoin(separator, [methodHeader, methodBody])
     ]);
   }
 
