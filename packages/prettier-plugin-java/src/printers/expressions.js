@@ -2,7 +2,15 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { concat, join } = require("prettier").doc.builders;
+const {
+  concat,
+  dedent,
+  group,
+  indent,
+  join,
+  line,
+  softline
+} = require("prettier").doc.builders;
 const {
   matchCategory,
   rejectAndJoin,
@@ -89,13 +97,16 @@ class ExpressionsPrettierVisitor {
       const expression1 = this.visit(ctx.expression[0]);
       const expression2 = this.visit(ctx.expression[1]);
 
-      return rejectAndJoin(" ", [
-        binaryExpression,
-        "?",
-        expression1,
-        ":",
-        expression2
-      ]);
+      return group(
+        rejectAndConcat([
+          group(
+            rejectAndConcat([binaryExpression, indent(line), "? ", expression1])
+          ),
+          indent(line),
+          ": ",
+          expression2
+        ])
+      );
     }
     return binaryExpression;
   }
@@ -134,11 +145,16 @@ class ExpressionsPrettierVisitor {
         i += 1;
       } else if (matchCategory(token, "'BinaryOperator'")) {
         segment.push(
-          rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+          indent(
+            rejectAndConcat([
+              softline,
+              rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+            ])
+          )
         );
       }
     }
-    return rejectAndJoin(" ", segment);
+    return group(rejectAndJoin(" ", segment));
   }
 
   unaryExpression(ctx) {
@@ -179,10 +195,27 @@ class ExpressionsPrettierVisitor {
 
   primary(ctx) {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
-    const primarySuffix = this.mapVisit(ctx.primarySuffix);
 
-    // use concat and not rejectAndConcat to print "0"
-    return concat([primaryPrefix, rejectAndConcat(primarySuffix)]);
+    const segments = [];
+    let currentSegment = [];
+    const primarySuffixes = this.mapVisit(ctx.primarySuffix);
+
+    for (let i = 0; i < primarySuffixes.length; i++) {
+      currentSegment.push(primarySuffixes[i]);
+      if (
+        i + 1 < ctx.primarySuffix.length &&
+        ctx.primarySuffix[i + 1].children.methodInvocationSuffix
+      ) {
+        currentSegment.push(primarySuffixes[i + 1]);
+        i += 1;
+      }
+      segments.push(rejectAndConcat(currentSegment));
+      currentSegment = [];
+    }
+
+    return group(
+      concat([primaryPrefix, indent(rejectAndJoin(softline, segments))])
+    );
   }
 
   primaryPrefix(ctx) {
@@ -312,12 +345,11 @@ class ExpressionsPrettierVisitor {
 
     return rejectAndJoin(" ", [
       "new",
-      typeArguments,
       rejectAndConcat([
+        typeArguments,
         classOrInterfaceTypeToInstantiate,
         "(",
-        argumentList,
-        ")"
+        group(rejectAndConcat([indent(argumentList), softline, ")"]))
       ]),
       classBody
     ]);
@@ -357,12 +389,24 @@ class ExpressionsPrettierVisitor {
 
   methodInvocationSuffix(ctx) {
     const argumentList = this.visit(ctx.argumentList);
-    return rejectAndConcat(["(", argumentList, ")"]);
+    return group(
+      rejectAndConcat([
+        rejectAndConcat(["(", argumentList]),
+        dedent(softline),
+        ")"
+      ])
+    );
   }
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
-    return rejectAndJoin(", ", expressions);
+
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), expressions)
+      ])
+    );
   }
 
   arrayCreationExpression(ctx) {
@@ -373,7 +417,7 @@ class ExpressionsPrettierVisitor {
       ? this.visit(ctx.arrayCreationDefaultInitSuffix)
       : this.visit(ctx.arrayCreationExplicitInitSuffix);
 
-    return rejectAndJoin(" ", ["new", type, suffix]);
+    return rejectAndConcat(["new ", type, suffix]);
   }
 
   arrayCreationDefaultInitSuffix(ctx) {
@@ -386,7 +430,7 @@ class ExpressionsPrettierVisitor {
     const dims = this.visit(ctx.dims);
     const arrayInitializer = this.visit(ctx.arrayInitializer);
 
-    return rejectAndConcat([dims, arrayInitializer]);
+    return rejectAndJoin(" ", [dims, arrayInitializer]);
   }
 
   dimExprs(ctx) {

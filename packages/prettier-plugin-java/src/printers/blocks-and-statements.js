@@ -1,7 +1,14 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { line, indent } = require("prettier").doc.builders;
+const {
+  line,
+  group,
+  indent,
+  softline,
+  concat,
+  hardline
+} = require("prettier").doc.builders;
 const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -9,8 +16,8 @@ class BlocksAndStatementPrettierVisitor {
     const blockStatements = this.visit(ctx.blockStatements);
 
     if (blockStatements) {
-      return rejectAndJoin(line, [
-        indent(rejectAndJoin(line, ["{", blockStatements])),
+      return rejectAndJoin(hardline, [
+        indent(rejectAndJoin(hardline, ["{", blockStatements])),
         "}"
       ]);
     }
@@ -20,8 +27,7 @@ class BlocksAndStatementPrettierVisitor {
 
   blockStatements(ctx) {
     const blockStatement = this.mapVisit(ctx.blockStatement);
-
-    return rejectAndJoin(line, blockStatement);
+    return rejectAndJoin(hardline, blockStatement);
   }
 
   blockStatement(ctx) {
@@ -286,7 +292,17 @@ class BlocksAndStatementPrettierVisitor {
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
 
-    return rejectAndConcat(["catch (", catchFormalParameter, ") ", block]);
+    return rejectAndConcat([
+      group(
+        rejectAndConcat([
+          "catch (",
+          indent(rejectAndConcat([softline, catchFormalParameter])),
+          softline,
+          ") "
+        ])
+      ),
+      block
+    ]);
   }
 
   catchFormalParameter(ctx) {
@@ -305,10 +321,12 @@ class BlocksAndStatementPrettierVisitor {
     const unannClassType = this.visit(ctx.unannClassType);
     const classTypes = this.mapVisit(ctx.classType);
 
-    return rejectAndJoin(" | ", [
-      unannClassType,
-      rejectAndJoin(" | ", classTypes)
-    ]);
+    return group(
+      rejectAndJoin(concat([line, "| "]), [
+        unannClassType,
+        rejectAndJoin(concat([line, "| "]), classTypes)
+      ])
+    );
   }
 
   finally(ctx) {

@@ -5,6 +5,7 @@ const {
   concat,
   join,
   line,
+  softline,
   ifBreak,
   group,
   indent
@@ -30,11 +31,22 @@ class InterfacesPrettierVisitor {
     const extendsInterfaces = this.visit(ctx.extendsInterfaces);
     const interfaceBody = this.visit(ctx.interfaceBody);
 
+    let extendsInterfacesPart = "";
+    if (extendsInterfaces) {
+      extendsInterfacesPart = indent(
+        rejectAndConcat([softline, extendsInterfaces])
+      );
+    }
+
     return rejectAndJoin(" ", [
-      "interface",
-      typeIdentifier,
-      typeParameters,
-      extendsInterfaces,
+      group(
+        rejectAndJoin(" ", [
+          "interface",
+          typeIdentifier,
+          typeParameters,
+          extendsInterfacesPart
+        ])
+      ),
       interfaceBody
     ]);
   }
@@ -49,7 +61,7 @@ class InterfacesPrettierVisitor {
   extendsInterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
-    return rejectAndJoin(" ", ["extends", interfaceTypeList]);
+    return indent(rejectAndJoin(" ", ["extends", interfaceTypeList]));
   }
 
   interfaceBody(ctx) {
@@ -209,17 +221,25 @@ class InterfacesPrettierVisitor {
     const elementValueList = this.visit(ctx.elementValueList);
     const comma = ctx.Comma ? "," : "";
 
-    return rejectAndJoin(" ", [
-      "{",
-      rejectAndConcat([elementValueList, comma]),
-      "}"
-    ]);
+    return group(
+      rejectAndConcat([
+        "{",
+        indent(rejectAndConcat([line, elementValueList, comma])),
+        line,
+        "}"
+      ])
+    );
   }
 
   elementValueList(ctx) {
     const elementValues = this.mapVisit(ctx.elementValue);
 
-    return rejectAndJoin(", ", elementValues);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), elementValues)
+      ])
+    );
   }
 
   identifyInterfaceBodyDeclarationType(ctx) {

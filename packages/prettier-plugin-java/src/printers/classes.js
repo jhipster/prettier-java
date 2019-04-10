@@ -6,9 +6,12 @@ const {
   join,
   line,
   ifBreak,
+  fill,
   group,
   indent,
-  dedent
+  dedent,
+  softline,
+  breakParent
 } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
@@ -35,11 +38,29 @@ class ClassesPrettierVisitor {
     const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
     const body = this.visit(ctx.classBody);
 
+    let superClassesPart = "";
+    if (optionalSuperClasses) {
+      superClassesPart = indent(
+        rejectAndConcat([softline, optionalSuperClasses])
+      );
+    }
+
+    let superInterfacesPart = "";
+    if (optionalSuperInterfaces) {
+      superInterfacesPart = indent(
+        rejectAndConcat([softline, optionalSuperInterfaces])
+      );
+    }
+
     return rejectAndJoin(" ", [
-      "class",
-      rejectAndConcat([name, optionalTypeParams]),
-      optionalSuperClasses,
-      optionalSuperInterfaces,
+      group(
+        rejectAndJoin(" ", [
+          "class",
+          rejectAndConcat([name, optionalTypeParams]),
+          superClassesPart,
+          superInterfacesPart
+        ])
+      ),
       body
     ]);
   }
@@ -55,13 +76,21 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndConcat(["<", typeParameterList, ">"]);
+    return rejectAndConcat([
+      "<",
+      group(rejectAndConcat([indent(typeParameterList), softline, ">"]))
+    ]);
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
 
-    return rejectAndJoin(", ", typeParameter);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), typeParameter)
+      ])
+    );
   }
 
   superclass(ctx) {
@@ -70,13 +99,20 @@ class ClassesPrettierVisitor {
 
   superinterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
-    return join(" ", ["implements", interfaceTypeList]);
+
+    return indent(rejectAndJoin(" ", ["implements", interfaceTypeList]));
   }
 
   interfaceTypeList(ctx) {
     const interfaceType = this.mapVisit(ctx.interfaceType);
 
-    return rejectAndJoin(", ", interfaceType);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), interfaceType),
+        breakParent
+      ])
+    );
   }
 
   classBody(ctx) {
@@ -222,9 +258,13 @@ class ClassesPrettierVisitor {
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
+    const headerBodySeparator = body === ";" ? "" : " ";
     return rejectAndConcat([
       line,
-      rejectAndJoin(" ", [rejectAndJoin(" ", modifiers), header, body])
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", modifiers),
+        rejectAndJoin(headerBodySeparator, [header, body])
+      ])
     ]);
   }
 
@@ -243,15 +283,22 @@ class ClassesPrettierVisitor {
     const declarator = this.visit(ctx.methodDeclarator);
     const throws = this.visit(ctx.throws);
 
-    return concat([
-      rejectAndJoin(" ", [
-        typeParameters,
-        rejectAndJoin(line, annotations),
-        result,
-        declarator,
-        throws
+    let throwsPart = "";
+    if (throws) {
+      throwsPart = indent(rejectAndConcat([softline, throws]));
+    }
+
+    return group(
+      concat([
+        rejectAndJoin(" ", [
+          typeParameters,
+          rejectAndJoin(line, annotations),
+          result,
+          declarator,
+          throwsPart
+        ])
       ])
-    ]);
+    );
   }
 
   result(ctx) {
@@ -267,7 +314,12 @@ class ClassesPrettierVisitor {
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
-    return rejectAndConcat([identifier, "(", formalParameterList, ")", dims]);
+    return rejectAndConcat([
+      identifier,
+      "(",
+      group(rejectAndConcat([indent(formalParameterList), softline, ")"])),
+      dims
+    ]);
   }
 
   receiverParameter(ctx) {
@@ -287,7 +339,13 @@ class ClassesPrettierVisitor {
 
   formalParameterList(ctx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
-    return rejectAndJoin(", ", formalParameter);
+
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), formalParameter)
+      ])
+    );
   }
 
   formalParameter(ctx) {
@@ -366,12 +424,21 @@ class ClassesPrettierVisitor {
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
 
+    let throwsPart = "";
+    if (throws) {
+      throwsPart = indent(rejectAndConcat([softline, throws]));
+    }
+
     return rejectAndConcat([
       line,
       rejectAndJoin(" ", [
-        join(" ", constructorModifier),
-        constructorDeclarator,
-        throws,
+        group(
+          rejectAndJoin(" ", [
+            join(" ", constructorModifier),
+            constructorDeclarator,
+            throwsPart
+          ])
+        ),
         constructorBody
       ])
     ]);
@@ -395,8 +462,13 @@ class ClassesPrettierVisitor {
       typeParameters,
       simpleTypeName,
       "(",
-      rejectAndJoin(", ", [receiverParameter, formalParameterList]),
-      ")"
+      group(
+        rejectAndConcat([
+          indent(rejectAndJoin(", ", [receiverParameter, formalParameterList])),
+          softline,
+          ")"
+        ])
+      )
     ]);
   }
 
@@ -437,8 +509,7 @@ class ClassesPrettierVisitor {
       " ",
       keyWord,
       "(",
-      argumentList,
-      ");"
+      group(rejectAndConcat([indent(argumentList), softline, ");"]))
     ]);
   }
 
@@ -453,8 +524,7 @@ class ClassesPrettierVisitor {
       typeArguments,
       "super",
       "(",
-      argumentList,
-      ");"
+      group(rejectAndConcat([indent(argumentList), softline, ");"]))
     ]);
   }
 
