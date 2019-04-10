@@ -45,6 +45,10 @@ class ExpressionsPrettierVisitor {
 
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
+
+    if (lambdaParameterList && lambdaParameterList.parts.indexOf(", ") === -1) {
+      return lambdaParameterList;
+    }
     return rejectAndConcat(["(", lambdaParameterList, ")"]);
   }
 

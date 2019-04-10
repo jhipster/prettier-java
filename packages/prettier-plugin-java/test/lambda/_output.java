@@ -1,5 +1,14 @@
 public class Lambda {
 
+  public void singleArgumentWithParens() {
+    call(
+      x -> {
+        System.out.println(x);
+        System.out.println(x);
+      }
+    );
+  }
+
   public void singleArgumentWithoutParens() {
     call(
       x -> {
