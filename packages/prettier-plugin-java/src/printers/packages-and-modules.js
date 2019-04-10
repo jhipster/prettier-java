@@ -1,7 +1,13 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { concat, indent, join, line } = require("prettier").doc.builders;
+const {
+  concat,
+  indent,
+  join,
+  line,
+  hardline
+} = require("prettier").doc.builders;
 const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -40,7 +46,10 @@ class PackagesAndModulesPrettierVisitor {
     const modifiers = this.mapVisit(ctx.packageModifier);
     const name = buildFqn(ctx.Identifier);
 
-    return concat([join(" ", modifiers), "package", " ", name, ";"]);
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, modifiers),
+      concat(["package", " ", name, ";"])
+    ]);
   }
 
   packageModifier(ctx) {
@@ -85,7 +94,7 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   requiresModuleDirective(ctx) {
-    const modifiers = this.mapVisit(ctx.methodModifier);
+    const modifiers = this.mapVisit(ctx.requiresModifier);
     const moduleName = this.visit(ctx.moduleName);
 
     return rejectAndJoin(" ", [

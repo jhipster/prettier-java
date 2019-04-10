@@ -11,24 +11,31 @@ const {
   indent,
   dedent,
   softline,
-  breakParent
+  breakParent,
+  hardline
 } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
   rejectAndJoin,
-  sortClassTypeChildren
+  sortClassTypeChildren,
+  sortModifiers
 } = require("./printer-utils");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
-    const modifiers = this.mapVisit(ctx.classModifier);
+    const modifiers = sortModifiers(ctx.classModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
 
     const classCST = ctx.normalClassDeclaration
       ? ctx.normalClassDeclaration
       : ctx.enumDeclaration;
     const classDoc = this.visit(classCST);
 
-    return rejectAndJoin(" ", [join(" ", modifiers), classDoc]);
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [join(" ", otherModifiers), classDoc])
+    ]);
   }
 
   normalClassDeclaration(ctx) {
@@ -139,14 +146,20 @@ class ClassesPrettierVisitor {
   }
 
   fieldDeclaration(ctx) {
-    const fieldModifiers = this.mapVisit(ctx.fieldModifier);
+    const modifiers = sortModifiers(ctx.fieldModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const unannType = this.visit(ctx.unannType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", fieldModifiers),
-      unannType,
-      concat([variableDeclaratorList, ";"])
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        unannType,
+        concat([variableDeclaratorList, ";"])
+      ])
     ]);
   }
 
@@ -254,16 +267,22 @@ class ClassesPrettierVisitor {
   }
 
   methodDeclaration(ctx) {
-    const modifiers = this.mapVisit(ctx.methodModifier);
+    const modifiers = sortModifiers(ctx.methodModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
 
     const headerBodySeparator = body === ";" ? "" : " ";
     return rejectAndConcat([
       line,
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", modifiers),
-        rejectAndJoin(headerBodySeparator, [header, body])
+      rejectAndJoin(hardline, [
+        rejectAndJoin(hardline, firstAnnotations),
+        rejectAndJoin(" ", [
+          rejectAndJoin(" ", otherModifiers),
+          rejectAndJoin(headerBodySeparator, [header, body])
+        ])
       ])
     ]);
   }
@@ -419,7 +438,10 @@ class ClassesPrettierVisitor {
   }
 
   constructorDeclaration(ctx) {
-    const constructorModifier = this.mapVisit(ctx.constructorModifier);
+    const modifiers = sortModifiers(ctx.constructorModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const constructorDeclarator = this.visit(ctx.constructorDeclarator);
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
@@ -433,10 +455,13 @@ class ClassesPrettierVisitor {
       line,
       rejectAndJoin(" ", [
         group(
-          rejectAndJoin(" ", [
-            join(" ", constructorModifier),
-            constructorDeclarator,
-            throwsPart
+          rejectAndJoin(hardline, [
+            rejectAndJoin(hardline, firstAnnotations),
+            rejectAndJoin(" ", [
+              join(" ", otherModifiers),
+              constructorDeclarator,
+              throwsPart
+            ])
           ])
         ),
         constructorBody
@@ -578,7 +603,10 @@ class ClassesPrettierVisitor {
   }
 
   enumConstant(ctx) {
-    const enumConstantModifiers = this.mapVisit(ctx.enumConstantModifier);
+    const modifiers = sortModifiers(ctx.enumConstantModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const identifier = ctx.Identifier[0].image;
     const argumentList = this.visit(ctx.argumentList);
     const classBody = this.visit(ctx.classBody);
@@ -587,10 +615,13 @@ class ClassesPrettierVisitor {
       ? rejectAndConcat(["(", argumentList, ")"])
       : "";
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", enumConstantModifiers),
-      rejectAndConcat([identifier, optionnalBracesAndArgumentList]),
-      classBody
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        rejectAndConcat([identifier, optionnalBracesAndArgumentList]),
+        classBody
+      ])
     ]);
   }
 
