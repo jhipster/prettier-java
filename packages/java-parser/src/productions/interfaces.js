@@ -210,6 +210,7 @@ function defineRules($, t) {
     $.OPTION2(() => {
       $.SUBRULE($.defaultValue);
     });
+    $.CONSUME(t.Semicolon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeElementModifier
