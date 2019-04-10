@@ -6,7 +6,8 @@ const {
   group,
   indent,
   softline,
-  concat
+  concat,
+  hardline
 } = require("prettier").doc.builders;
 const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
 
@@ -15,8 +16,8 @@ class BlocksAndStatementPrettierVisitor {
     const blockStatements = this.visit(ctx.blockStatements);
 
     if (blockStatements) {
-      return rejectAndJoin(line, [
-        indent(rejectAndJoin(line, ["{", blockStatements])),
+      return rejectAndJoin(hardline, [
+        indent(rejectAndJoin(hardline, ["{", blockStatements])),
         "}"
       ]);
     }
@@ -26,8 +27,7 @@ class BlocksAndStatementPrettierVisitor {
 
   blockStatements(ctx) {
     const blockStatement = this.mapVisit(ctx.blockStatement);
-
-    return rejectAndJoin(line, blockStatement);
+    return rejectAndJoin(hardline, blockStatement);
   }
 
   blockStatement(ctx) {

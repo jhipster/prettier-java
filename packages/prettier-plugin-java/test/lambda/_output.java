@@ -1,11 +1,21 @@
 public class Lambda {
 
   public void singleArgumentWithoutParens() {
-    call(x -> { System.out.println(x); System.out.println(x); });
+    call(
+      x -> {
+        System.out.println(x);
+        System.out.println(x);
+      }
+    );
   }
 
   public void multiArguments() {
-    call((x, y) -> { System.out.println(x); System.out.println(y); });
+    call(
+      (x, y) -> {
+        System.out.println(x);
+        System.out.println(y);
+      }
+    );
   }
 
   public void multiParameters() {
@@ -13,15 +23,25 @@ public class Lambda {
       (Object x, final String y) -> {
         System.out.println(x);
         System.out.println(y);
-      });
+      }
+    );
   }
 
   public void emptyArguments() {
-    call(() -> { System.out.println(); System.out.println(); });
+    call(
+      () -> {
+        System.out.println();
+        System.out.println();
+      }
+    );
   }
 
   public void onlyOneMethodInBodyWithCurlyBraces() {
-    call(x -> { System.out.println(x); });
+    call(
+      x -> {
+        System.out.println(x);
+      }
+    );
   }
 
   public void onlyOneMethodInBody() {

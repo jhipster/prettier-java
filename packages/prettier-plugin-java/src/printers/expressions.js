@@ -4,6 +4,7 @@
 const _ = require("lodash");
 const {
   concat,
+  dedent,
   group,
   indent,
   join,
@@ -380,7 +381,13 @@ class ExpressionsPrettierVisitor {
 
   methodInvocationSuffix(ctx) {
     const argumentList = this.visit(ctx.argumentList);
-    return rejectAndConcat(["(", argumentList, ")"]);
+    return group(
+      rejectAndConcat([
+        rejectAndConcat(["(", argumentList]),
+        dedent(softline),
+        ")"
+      ])
+    );
   }
 
   argumentList(ctx) {
