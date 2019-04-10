@@ -209,8 +209,12 @@ class InterfacesPrettierVisitor {
   elementValuePair(ctx) {
     const identifier = ctx.Identifier[0].image;
     const elementValue = this.visit(ctx.elementValue);
-
-    return rejectAndJoin(" ", [identifier, "=", elementValue]);
+    return group(
+      rejectAndConcat([
+        identifier,
+        indent(rejectAndConcat([line, "= ", elementValue]))
+      ])
+    );
   }
 
   elementValue(ctx) {

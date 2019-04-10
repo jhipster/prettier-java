@@ -97,13 +97,16 @@ class ExpressionsPrettierVisitor {
       const expression1 = this.visit(ctx.expression[0]);
       const expression2 = this.visit(ctx.expression[1]);
 
-      return rejectAndJoin(" ", [
-        binaryExpression,
-        "?",
-        expression1,
-        ":",
-        expression2
-      ]);
+      return group(
+        rejectAndConcat([
+          group(
+            rejectAndConcat([binaryExpression, indent(line), "? ", expression1])
+          ),
+          indent(line),
+          ": ",
+          expression2
+        ])
+      );
     }
     return binaryExpression;
   }
@@ -125,7 +128,14 @@ class ExpressionsPrettierVisitor {
       if (token.tokenType.tokenName === "Instanceof") {
         segment.push(rejectAndJoin(" ", ["instanceof", referenceType.shift()]));
       } else if (matchCategory(token, "'AssignmentOperator'")) {
-        segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
+        segment.push(
+          indent(
+            rejectAndConcat([
+              softline,
+              rejectAndJoin(" ", [token.image, expression.shift()])
+            ])
+          )
+        );
       } else if (
         i + 1 < sortedTokens.length &&
         ((sortedTokens[i].image === ">" && sortedTokens[i + 1].image === ">") ||
@@ -142,11 +152,16 @@ class ExpressionsPrettierVisitor {
         i += 1;
       } else if (matchCategory(token, "'BinaryOperator'")) {
         segment.push(
-          rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+          indent(
+            rejectAndConcat([
+              softline,
+              rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+            ])
+          )
         );
       }
     }
-    return rejectAndJoin(" ", segment);
+    return group(rejectAndJoin(" ", segment));
   }
 
   unaryExpression(ctx) {
