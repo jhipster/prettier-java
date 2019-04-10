@@ -8,20 +8,29 @@ const {
   softline,
   ifBreak,
   group,
-  indent
+  indent,
+  hardline,
+  dedent
 } = require("prettier").doc.builders;
-const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+const {
+  rejectAndConcat,
+  rejectAndJoin,
+  sortModifiers
+} = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
   interfaceDeclaration(ctx) {
-    const interfaceModifiers = this.mapVisit(ctx.interfaceModifier);
+    const modifiers = sortModifiers(ctx.interfaceModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const declaration = ctx.normalInterfaceDeclaration
       ? this.visit(ctx.normalInterfaceDeclaration)
       : this.visit(ctx.annotationTypeDeclaration);
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", interfaceModifiers),
-      declaration
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [rejectAndJoin(" ", otherModifiers), declaration])
     ]);
   }
 
@@ -87,14 +96,20 @@ class InterfacesPrettierVisitor {
   }
 
   constantDeclaration(ctx) {
-    const constantModifiers = this.mapVisit(ctx.constantModifier);
+    const modifiers = sortModifiers(ctx.constantModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const unannType = this.visit(ctx.unannType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", constantModifiers),
-      unannType,
-      rejectAndConcat([variableDeclaratorList, ";"])
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        unannType,
+        rejectAndConcat([variableDeclaratorList, ";"])
+      ])
     ]);
   }
 
@@ -106,14 +121,20 @@ class InterfacesPrettierVisitor {
   }
 
   interfaceMethodDeclaration(ctx) {
-    const interfaceMethodModifiers = this.mapVisit(ctx.interfaceMethodModifier);
+    const modifiers = sortModifiers(ctx.interfaceMethodModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
     const separator = methodBody === ";" ? "" : " ";
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", interfaceMethodModifiers),
-      rejectAndJoin(separator, [methodHeader, methodBody])
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        rejectAndJoin(separator, [methodHeader, methodBody])
+      ])
     ]);
   }
 
@@ -141,7 +162,7 @@ class InterfacesPrettierVisitor {
     );
 
     return rejectAndJoin(line, [
-      rejectAndJoin(line, ["{", annotationTypeMemberDeclaration]),
+      indent(rejectAndJoin(line, ["{", annotationTypeMemberDeclaration])),
       "}"
     ]);
   }
@@ -154,19 +175,24 @@ class InterfacesPrettierVisitor {
   }
 
   annotationTypeElementDeclaration(ctx) {
-    const annotationTypeElementModifiers = this.mapVisit(
-      ctx.annotationTypeElementModifier
-    );
+    const modifiers = sortModifiers(ctx.annotationTypeElementModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
     const unannType = this.visit(ctx.unannType);
     const identifier = ctx.Identifier[0].image;
     const dims = this.visit(ctx.dims);
-    const defaultValue = this.visit(ctx.defaultValue);
+    const defaultValue = ctx.defaultValue
+      ? concat([" ", this.visit(ctx.defaultValue)])
+      : "";
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", annotationTypeElementModifiers),
-      unannType,
-      rejectAndConcat([identifier, dims]),
-      defaultValue
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        unannType,
+        rejectAndConcat([identifier, "()", dims, defaultValue, ";"])
+      ])
     ]);
   }
 
@@ -194,16 +220,23 @@ class InterfacesPrettierVisitor {
       } else if (ctx.elementValue) {
         annoArgs.push(this.visit(ctx.elementValue));
       }
-      annoArgs.push(")");
+      annoArgs.push(dedent(concat([softline, ")"])));
     }
 
-    return concat(["@", fqn, concat(annoArgs)]);
+    return group(
+      rejectAndConcat(["@", fqn, indent(rejectAndConcat(annoArgs))])
+    );
   }
 
   elementValuePairList(ctx) {
     const elementValuePairs = this.mapVisit(ctx.elementValuePair);
 
-    return rejectAndJoin(", ", elementValuePairs);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), elementValuePairs)
+      ])
+    );
   }
 
   elementValuePair(ctx) {
@@ -236,7 +269,6 @@ class InterfacesPrettierVisitor {
 
     return group(
       rejectAndConcat([
-        softline,
         rejectAndJoin(rejectAndConcat([",", line]), elementValues)
       ])
     );

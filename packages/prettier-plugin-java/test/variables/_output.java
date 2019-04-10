@@ -44,7 +44,8 @@ public class Variables {
   private int octLiteral = 001;
   private Interface anonymousClassVariable = new Interface() {
 
-    @Override void doSomething() {
+    @Override
+    void doSomething() {
       System.out.println("do something");
     }
   };

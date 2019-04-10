@@ -97,6 +97,25 @@ function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
   });
 }
 
+function sortModifiers(modifiers) {
+  const firstAnnotations = [];
+  const otherModifiers = [];
+  let hasOtherModifier = false;
+
+  _.forEach(modifiers, modifier => {
+    if (hasOtherModifier) {
+      otherModifiers.push(modifier);
+    } else if (modifier.children.annotation) {
+      firstAnnotations.push(modifier);
+    } else {
+      otherModifiers.push(modifier);
+      hasOtherModifier = true;
+    }
+  });
+
+  return [firstAnnotations, otherModifiers];
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -104,5 +123,6 @@ module.exports = {
   sortAnnotationIdentifier,
   sortClassTypeChildren,
   sortTokens,
-  matchCategory
+  matchCategory,
+  sortModifiers
 };
