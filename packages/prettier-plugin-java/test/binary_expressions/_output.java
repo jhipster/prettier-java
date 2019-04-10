@@ -11,36 +11,10 @@ public class BinaryOperations {
     System.out.println("This operation should" + "not break");
   }
 
-  public void assigmentOperationThatShouldBreak() {
-    thisIsAVeryVeryLongInteger
-      = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-        + thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-    thisIsAVeryVeryLongInteger
-      = a + thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-  }
-
-  public void assigmentOperationThatShouldNotBreak() {
-    shortInteger = thisIsAShortInteger;
-  }
-
-  public void variableDeclaratorThatShouldBreak() {
-    int thisIsAVeryVeryLongInteger
-      = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-        + thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-        + thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-    int thisIsAVeryVeryLongInteger
-      = a + thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-  }
-
-  public void variableDeclaratorThatShouldNotBreak() {
-    int shortInteger = thisIsAShortInteger;
-  }
-
   public void ternaryOperationThatShouldBreak() {
-    int shortInteger
-      = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-        ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-        : thisIsAShortInteger;
+    int shortInteger = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
+      ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
+      : thisIsAShortInteger;
   }
 
   public void ternaryOperationThatShouldNotBreak() {

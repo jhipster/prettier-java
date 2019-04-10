@@ -128,14 +128,7 @@ class ExpressionsPrettierVisitor {
       if (token.tokenType.tokenName === "Instanceof") {
         segment.push(rejectAndJoin(" ", ["instanceof", referenceType.shift()]));
       } else if (matchCategory(token, "'AssignmentOperator'")) {
-        segment.push(
-          indent(
-            rejectAndConcat([
-              softline,
-              rejectAndJoin(" ", [token.image, expression.shift()])
-            ])
-          )
-        );
+        segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
       } else if (
         i + 1 < sortedTokens.length &&
         ((sortedTokens[i].image === ">" && sortedTokens[i + 1].image === ">") ||
