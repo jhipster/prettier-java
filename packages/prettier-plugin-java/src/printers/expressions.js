@@ -345,8 +345,8 @@ class ExpressionsPrettierVisitor {
 
     return rejectAndJoin(" ", [
       "new",
-      typeArguments,
       rejectAndConcat([
+        typeArguments,
         classOrInterfaceTypeToInstantiate,
         "(",
         group(rejectAndConcat([indent(argumentList), softline, ")"]))
@@ -417,7 +417,7 @@ class ExpressionsPrettierVisitor {
       ? this.visit(ctx.arrayCreationDefaultInitSuffix)
       : this.visit(ctx.arrayCreationExplicitInitSuffix);
 
-    return rejectAndJoin(" ", ["new", type, suffix]);
+    return rejectAndConcat(["new ", type, suffix]);
   }
 
   arrayCreationDefaultInitSuffix(ctx) {
@@ -430,7 +430,7 @@ class ExpressionsPrettierVisitor {
     const dims = this.visit(ctx.dims);
     const arrayInitializer = this.visit(ctx.arrayInitializer);
 
-    return rejectAndConcat([dims, arrayInitializer]);
+    return rejectAndJoin(" ", [dims, arrayInitializer]);
   }
 
   dimExprs(ctx) {

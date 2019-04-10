@@ -221,17 +221,25 @@ class InterfacesPrettierVisitor {
     const elementValueList = this.visit(ctx.elementValueList);
     const comma = ctx.Comma ? "," : "";
 
-    return rejectAndJoin(" ", [
-      "{",
-      rejectAndConcat([elementValueList, comma]),
-      "}"
-    ]);
+    return group(
+      rejectAndConcat([
+        "{",
+        indent(rejectAndConcat([line, elementValueList, comma])),
+        line,
+        "}"
+      ])
+    );
   }
 
   elementValueList(ctx) {
     const elementValues = this.mapVisit(ctx.elementValue);
 
-    return rejectAndJoin(", ", elementValues);
+    return group(
+      rejectAndConcat([
+        softline,
+        rejectAndJoin(rejectAndConcat([",", line]), elementValues)
+      ])
+    );
   }
 
   identifyInterfaceBodyDeclarationType(ctx) {
