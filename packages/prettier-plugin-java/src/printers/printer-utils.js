@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat } = require("prettier").doc.builders;
+const { join, concat, line } = require("prettier").doc.builders;
 
 function buildFqn(tokens) {
   const images = tokens.map(tok => tok.image);
@@ -116,6 +116,26 @@ function sortModifiers(modifiers) {
   return [firstAnnotations, otherModifiers];
 }
 
+function getImageWithComments(token) {
+  const arr = [];
+  if (token.hasOwnProperty("leadingComments")) {
+    token.leadingComments.forEach(element => {
+      element.image.split("\n").forEach(line => {
+        arr.push(line.trim());
+      });
+    });
+  }
+  arr.push(token.image);
+  if (token.hasOwnProperty("trailingComments")) {
+    token.trailingComments.forEach(element => {
+      element.image.split("\n").forEach(line => {
+        arr.push(line.trim());
+      });
+    });
+  }
+  return rejectAndJoin(line, arr);
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -124,5 +144,6 @@ module.exports = {
   sortClassTypeChildren,
   sortTokens,
   matchCategory,
-  sortModifiers
+  sortModifiers,
+  getImageWithComments
 };
