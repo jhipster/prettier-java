@@ -8,7 +8,12 @@ const {
   line,
   hardline
 } = require("prettier").doc.builders;
-const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
+const {
+  buildFqn,
+  rejectAndJoin,
+  rejectAndConcat,
+  getImageWithComments
+} = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
@@ -148,7 +153,7 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   requiresModifier(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   isModuleCompilationUnit(ctx) {

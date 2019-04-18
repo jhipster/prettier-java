@@ -15,7 +15,8 @@ const {
 const {
   rejectAndConcat,
   rejectAndJoin,
-  sortModifiers
+  sortModifiers,
+  getImageWithComments
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -64,7 +65,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   extendsInterfaces(ctx) {
@@ -90,7 +91,7 @@ class InterfacesPrettierVisitor {
 
   interfaceMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return this.getSingle(ctx).image;
+      return getImageWithComments(this.getSingle(ctx));
     }
     return this.visitSingle(ctx);
   }
@@ -117,7 +118,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   interfaceMethodDeclaration(ctx) {
@@ -142,7 +143,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   annotationTypeDeclaration(ctx) {
@@ -169,7 +170,7 @@ class InterfacesPrettierVisitor {
 
   annotationTypeMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return this.getSingle(ctx).image;
+      return getImageWithComments(this.getSingle(ctx));
     }
     return this.visitSingle(ctx);
   }
@@ -180,7 +181,7 @@ class InterfacesPrettierVisitor {
     const otherModifiers = this.mapVisit(modifiers[1]);
 
     const unannType = this.visit(ctx.unannType);
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const dims = this.visit(ctx.dims);
     const defaultValue = ctx.defaultValue
       ? concat([" ", this.visit(ctx.defaultValue)])
@@ -200,7 +201,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   defaultValue(ctx) {
@@ -240,7 +241,7 @@ class InterfacesPrettierVisitor {
   }
 
   elementValuePair(ctx) {
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const elementValue = this.visit(ctx.elementValue);
 
     return rejectAndJoin(" ", [identifier, "=", elementValue]);

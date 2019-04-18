@@ -9,7 +9,11 @@ const {
   concat,
   hardline
 } = require("prettier").doc.builders;
-const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+const {
+  rejectAndConcat,
+  rejectAndJoin,
+  getImageWithComments
+} = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
   block(ctx) {
@@ -56,7 +60,7 @@ class BlocksAndStatementPrettierVisitor {
       return this.visitSingle(ctx);
     }
 
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   statement(ctx) {
@@ -72,7 +76,7 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   labeledStatement(ctx) {
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const statement = this.visit(ctx.statement);
 
     return rejectAndJoin(":", [identifier, statement]);
@@ -230,7 +234,7 @@ class BlocksAndStatementPrettierVisitor {
 
   breakStatement(ctx) {
     if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0].image;
+      const identifier = getImageWithComments(ctx.Identifier[0]);
 
       return rejectAndConcat(["break ", identifier, ";"]);
     }
@@ -240,7 +244,7 @@ class BlocksAndStatementPrettierVisitor {
 
   continueStatement(ctx) {
     if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0].image;
+      const identifier = getImageWithComments(ctx.Identifier[0]);
 
       return rejectAndConcat(["continue ", identifier, ";"]);
     }
@@ -370,7 +374,7 @@ class BlocksAndStatementPrettierVisitor {
   resourceInit(ctx) {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const expression = this.visit(ctx.expression);
 
     return rejectAndJoin(" ", [

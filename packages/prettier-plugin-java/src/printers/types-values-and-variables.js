@@ -16,7 +16,8 @@ const {
 const {
   rejectAndJoin,
   rejectAndConcat,
-  sortClassTypeChildren
+  sortClassTypeChildren,
+  getImageWithComments
 } = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
@@ -24,7 +25,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const type = ctx.numericType
       ? this.visit(ctx.numericType)
-      : this.getSingle(ctx).image;
+      : getImageWithComments(this.getSingle(ctx));
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
@@ -34,11 +35,11 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   integralType(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   floatingPointType(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   referenceType(ctx) {
@@ -75,7 +76,7 @@ class TypesValuesAndVariablesPrettierVisitor {
       } else if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
       } else {
-        currentSegment.push(token.image);
+        currentSegment.push(getImageWithComments(token));
         if (
           (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
           i + 1 === tokens.length
@@ -95,7 +96,7 @@ class TypesValuesAndVariablesPrettierVisitor {
 
   typeVariable(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const identifier = this.getSingle(ctx).image;
+    const identifier = getImageWithComments(this.getSingle(ctx));
 
     return rejectAndJoin(" ", [join(" ", annotations), identifier]);
   }

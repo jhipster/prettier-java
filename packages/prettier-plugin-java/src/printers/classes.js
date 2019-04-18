@@ -18,7 +18,8 @@ const {
   rejectAndConcat,
   rejectAndJoin,
   sortClassTypeChildren,
-  sortModifiers
+  sortModifiers,
+  getImageWithComments
 } = require("./printer-utils");
 
 class ClassesPrettierVisitor {
@@ -77,7 +78,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   typeParameters(ctx) {
@@ -168,7 +169,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   variableDeclaratorList(ctx) {
@@ -191,7 +192,7 @@ class ClassesPrettierVisitor {
   }
 
   variableDeclaratorId(ctx) {
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([identifier, dims]);
@@ -209,7 +210,7 @@ class ClassesPrettierVisitor {
     if (ctx.numericType) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   unannReferenceType(ctx) {
@@ -244,7 +245,7 @@ class ClassesPrettierVisitor {
       } else if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
       } else {
-        currentSegment.push(token.image);
+        currentSegment.push(getImageWithComments(token));
         if (
           (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
           i + 1 === tokens.length
@@ -263,7 +264,7 @@ class ClassesPrettierVisitor {
   }
 
   unannTypeVariable(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   methodDeclaration(ctx) {
@@ -292,7 +293,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   methodHeader(ctx) {
@@ -325,11 +326,11 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.unannType);
     }
     // void
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   methodDeclarator(ctx) {
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
@@ -345,7 +346,7 @@ class ClassesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const unannType = this.visit(ctx.unannType);
     const identifier = ctx.Identifier
-      ? concat([ctx.Identifier[0].image, "."])
+      ? concat([getImageWithComments(ctx.Identifier[0]), "."])
       : "";
 
     return rejectAndJoin("", [
@@ -387,7 +388,7 @@ class ClassesPrettierVisitor {
     const variableModifier = this.mapVisit(ctx.variableModifier);
     const unannType = this.visit(ctx.unannType);
     const annotation = this.mapVisit(ctx.annotation);
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
 
     return rejectAndConcat([
       join(" ", variableModifier),
@@ -402,7 +403,7 @@ class ClassesPrettierVisitor {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   throws(ctx) {
@@ -424,7 +425,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.block);
     }
 
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   instanceInitializer(ctx) {
@@ -474,7 +475,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   constructorDeclarator(ctx) {
@@ -498,7 +499,7 @@ class ClassesPrettierVisitor {
   }
 
   simpleTypeName(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   constructorBody(ctx) {
@@ -607,7 +608,7 @@ class ClassesPrettierVisitor {
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
 
-    const identifier = ctx.Identifier[0].image;
+    const identifier = getImageWithComments(ctx.Identifier[0]);
     const argumentList = this.visit(ctx.argumentList);
     const classBody = this.visit(ctx.classBody);
 

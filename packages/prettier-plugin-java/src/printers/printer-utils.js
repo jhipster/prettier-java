@@ -3,7 +3,7 @@ const _ = require("lodash");
 const { join, concat, line } = require("prettier").doc.builders;
 
 function buildFqn(tokens) {
-  const images = tokens.map(tok => tok.image);
+  const images = tokens.map(tok => getImageWithComments(tok));
   return join(".", images);
 }
 
@@ -117,6 +117,12 @@ function sortModifiers(modifiers) {
 }
 
 function getImageWithComments(token) {
+  if (
+    !token.hasOwnProperty("leadingComments") &&
+    !token.hasOwnProperty("trailingComments")
+  ) {
+    return token.image;
+  }
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
     token.leadingComments.forEach(element => {
