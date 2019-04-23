@@ -21,12 +21,19 @@ class BlocksAndStatementPrettierVisitor {
 
     if (blockStatements) {
       return rejectAndJoin(hardline, [
-        indent(rejectAndJoin(hardline, ["{", blockStatements])),
-        "}"
+        indent(
+          rejectAndJoin(hardline, [
+            getImageWithComments(ctx.LCurly[0]),
+            blockStatements
+          ])
+        ),
+        getImageWithComments(ctx.RCurly[0])
       ]);
     }
 
-    return "{}";
+    return (
+      getImageWithComments(ctx.LCurly[0]) + getImageWithComments(ctx.RCurly[0])
+    );
   }
 
   blockStatements(ctx) {
@@ -129,8 +136,13 @@ class BlocksAndStatementPrettierVisitor {
     const switchCases = this.mapVisit(ctx.switchCase);
 
     return rejectAndJoin(line, [
-      indent(rejectAndJoin(line, ["{", rejectAndJoin(line, switchCases)])),
-      "}"
+      indent(
+        rejectAndJoin(line, [
+          getImageWithComments(ctx.LCurly[0]),
+          rejectAndJoin(line, switchCases)
+        ])
+      ),
+      getImageWithComments(ctx.RCurly[0])
     ]);
   }
 

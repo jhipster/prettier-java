@@ -88,9 +88,14 @@ class PackagesAndModulesPrettierVisitor {
       optionalOpen,
       "module",
       name,
-      indent(rejectAndJoin(line, ["{", join(line, moduleDirectives)])),
+      indent(
+        rejectAndJoin(line, [
+          getImageWithComments(ctx.LCurly[0]),
+          join(line, moduleDirectives)
+        ])
+      ),
       line,
-      "}"
+      getImageWithComments(ctx.RCurly[0])
     ]);
   }
 

@@ -128,14 +128,16 @@ class ClassesPrettierVisitor {
 
     if (classBodyDecls.length !== 0) {
       return rejectAndConcat([
-        "{",
+        getImageWithComments(ctx.LCurly[0]),
         indent(rejectAndConcat([line, rejectAndJoin(line, classBodyDecls)])),
         line,
-        "}"
+        getImageWithComments(ctx.RCurly[0])
       ]);
     }
 
-    return "{}";
+    return (
+      getImageWithComments(ctx.LCurly[0]) + getImageWithComments(ctx.RCurly[0])
+    );
   }
 
   classBodyDeclaration(ctx) {
@@ -512,12 +514,12 @@ class ClassesPrettierVisitor {
     return rejectAndJoin(line, [
       indent(
         rejectAndJoin(line, [
-          "{",
+          getImageWithComments(ctx.LCurly[0]),
           explicitConstructorInvocation,
           blockStatements
         ])
       ),
-      "}"
+      getImageWithComments(ctx.RCurly[0])
     ]);
   }
 
@@ -579,7 +581,7 @@ class ClassesPrettierVisitor {
 
     if (enumConstantList) {
       return rejectAndConcat([
-        "{",
+        getImageWithComments(ctx.LCurly[0]),
         indent(
           rejectAndConcat([
             line,
@@ -590,7 +592,7 @@ class ClassesPrettierVisitor {
           ])
         ),
         line,
-        "}"
+        getImageWithComments(ctx.RCurly[0])
       ]);
     }
 

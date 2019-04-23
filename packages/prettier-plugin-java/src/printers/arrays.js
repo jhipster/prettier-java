@@ -8,7 +8,11 @@ const {
   line,
   softline
 } = require("prettier").doc.builders;
-const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+const {
+  rejectAndConcat,
+  rejectAndJoin,
+  getImageWithComments
+} = require("./printer-utils");
 
 class ArraysPrettierVisitor {
   arrayInitializer(ctx) {
@@ -21,12 +25,12 @@ class ArraysPrettierVisitor {
 
     return group(
       rejectAndConcat([
-        "{",
+        getImageWithComments(ctx.LCurly[0]),
         indent(
           rejectAndConcat([optionalVariableInitializerList, optionalComma])
         ),
         separator,
-        "}"
+        getImageWithComments(ctx.RCurly[0])
       ])
     );
   }

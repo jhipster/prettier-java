@@ -80,12 +80,12 @@ class InterfacesPrettierVisitor {
     );
 
     return rejectAndConcat([
-      "{",
+      getImageWithComments(ctx.LCurly[0]),
       indent(
         rejectAndConcat([line, rejectAndJoin(line, interfaceMemberDeclaration)])
       ),
       line,
-      "}"
+      getImageWithComments(ctx.RCurly[0])
     ]);
   }
 
@@ -163,8 +163,13 @@ class InterfacesPrettierVisitor {
     );
 
     return rejectAndJoin(line, [
-      indent(rejectAndJoin(line, ["{", annotationTypeMemberDeclaration])),
-      "}"
+      indent(
+        rejectAndJoin(line, [
+          getImageWithComments(ctx.LCurly[0]),
+          annotationTypeMemberDeclaration
+        ])
+      ),
+      getImageWithComments(ctx.RCurly[0])
     ]);
   }
 
@@ -257,10 +262,10 @@ class InterfacesPrettierVisitor {
 
     return group(
       rejectAndConcat([
-        "{",
+        getImageWithComments(ctx.LCurly[0]),
         indent(rejectAndConcat([line, elementValueList, comma])),
         line,
-        "}"
+        getImageWithComments(ctx.RCurly[0])
       ])
     );
   }
