@@ -17,6 +17,19 @@ function reject(elems) {
   });
 }
 
+function rejectAndJoinSepToken(sepTokens, elems, sep) {
+  const actualElements = reject(elems);
+  const res = [];
+  for (let i = 0; i < sepTokens.length; i++) {
+    res.push(actualElements[i], getImageWithComments(sepTokens[i]));
+    if (sep) {
+      res.push(sep);
+    }
+  }
+  res.push(...actualElements.slice(sepTokens.length));
+  return concat(res);
+}
+
 function rejectAndJoin(sep, elems) {
   const actualElements = reject(elems);
 
@@ -151,5 +164,6 @@ module.exports = {
   sortTokens,
   matchCategory,
   sortModifiers,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 };

@@ -11,7 +11,8 @@ const {
 const {
   rejectAndConcat,
   rejectAndJoin,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class ArraysPrettierVisitor {
@@ -19,7 +20,7 @@ class ArraysPrettierVisitor {
     const optionalVariableInitializerList = this.visit(
       ctx.variableInitializerList
     );
-    const optionalComma = ctx.Comma ? "," : "";
+    const optionalComma = ctx.Comma ? getImageWithComments(ctx.Comma[0]) : "";
 
     const separator = ctx.variableInitializerList || ctx.Comma ? line : "";
 
@@ -40,7 +41,7 @@ class ArraysPrettierVisitor {
 
     return rejectAndConcat([
       line,
-      rejectAndJoin(rejectAndConcat([",", line]), variableInitializers)
+      rejectAndJoinSepToken(ctx.Comma, variableInitializers, line)
     ]);
   }
 }
