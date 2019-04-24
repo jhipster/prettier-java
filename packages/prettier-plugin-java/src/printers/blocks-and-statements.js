@@ -31,9 +31,10 @@ class BlocksAndStatementPrettierVisitor {
       ]);
     }
 
-    return (
-      getImageWithComments(ctx.LCurly[0]) + getImageWithComments(ctx.RCurly[0])
-    );
+    return concat([
+      getImageWithComments(ctx.LCurly[0]),
+      getImageWithComments(ctx.RCurly[0])
+    ]);
   }
 
   blockStatements(ctx) {

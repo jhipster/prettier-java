@@ -19,7 +19,8 @@ const {
   rejectAndJoin,
   sortClassTypeChildren,
   sortModifiers,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class ClassesPrettierVisitor {
@@ -63,7 +64,7 @@ class ClassesPrettierVisitor {
     return rejectAndJoin(" ", [
       group(
         rejectAndJoin(" ", [
-          "class",
+          getImageWithComments(ctx.Class[0]),
           rejectAndConcat([name, optionalTypeParams]),
           superClassesPart,
           superInterfacesPart
@@ -85,8 +86,14 @@ class ClassesPrettierVisitor {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
     return rejectAndConcat([
-      "<",
-      group(rejectAndConcat([indent(typeParameterList), softline, ">"]))
+      getImageWithComments(ctx.Less[0]),
+      group(
+        rejectAndConcat([
+          indent(typeParameterList),
+          softline,
+          getImageWithComments(ctx.Greater[0])
+        ])
+      )
     ]);
   }
 
@@ -96,19 +103,27 @@ class ClassesPrettierVisitor {
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), typeParameter)
+        rejectAndJoinSepToken(ctx.Comma, typeParameter, line)
       ])
     );
   }
 
   superclass(ctx) {
-    return join(" ", ["extends", this.visit(ctx.classType)]);
+    return join(" ", [
+      getImageWithComments(ctx.Extends[0]),
+      this.visit(ctx.classType)
+    ]);
   }
 
   superinterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
-    return indent(rejectAndJoin(" ", ["implements", interfaceTypeList]));
+    return indent(
+      rejectAndJoin(" ", [
+        getImageWithComments(ctx.Implements[0]),
+        interfaceTypeList
+      ])
+    );
   }
 
   interfaceTypeList(ctx) {
@@ -117,7 +132,7 @@ class ClassesPrettierVisitor {
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), interfaceType),
+        rejectAndJoinSepToken(ctx.Comma, interfaceType, line),
         breakParent
       ])
     );
@@ -161,7 +176,7 @@ class ClassesPrettierVisitor {
       rejectAndJoin(" ", [
         rejectAndJoin(" ", otherModifiers),
         unannType,
-        concat([variableDeclaratorList, ";"])
+        concat([variableDeclaratorList, getImageWithComments(ctx.Semicolon[0])])
       ])
     ]);
   }
@@ -176,8 +191,11 @@ class ClassesPrettierVisitor {
 
   variableDeclaratorList(ctx) {
     const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
-
-    return rejectAndJoin(", ", variableDeclarators);
+    return rejectAndJoinSepToken(
+      ctx.Comma ? ctx.Comma : [],
+      variableDeclarators,
+      " "
+    );
   }
 
   variableDeclarator(ctx) {
@@ -186,7 +204,7 @@ class ClassesPrettierVisitor {
       const variableInitializer = this.visit(ctx.variableInitializer);
       return rejectAndJoin(" ", [
         variableDeclaratorId,
-        "=",
+        getImageWithComments(ctx.Equals[0]),
         variableInitializer
       ]);
     }
@@ -258,7 +276,7 @@ class ClassesPrettierVisitor {
       }
     });
 
-    return rejectAndJoin(".", segments);
+    return rejectAndJoinSepToken(ctx.Dot, segments);
   }
 
   unannInterfaceType(ctx) {
@@ -338,8 +356,14 @@ class ClassesPrettierVisitor {
 
     return rejectAndConcat([
       identifier,
-      "(",
-      group(rejectAndConcat([indent(formalParameterList), softline, ")"])),
+      getImageWithComments(ctx.LBrace[0]),
+      group(
+        rejectAndConcat([
+          indent(formalParameterList),
+          softline,
+          getImageWithComments(ctx.RBrace[0])
+        ])
+      ),
       dims
     ]);
   }
@@ -348,14 +372,17 @@ class ClassesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const unannType = this.visit(ctx.unannType);
     const identifier = ctx.Identifier
-      ? concat([getImageWithComments(ctx.Identifier[0]), "."])
+      ? concat([
+          getImageWithComments(ctx.Identifier[0]),
+          getImageWithComments(ctx.Dot[0])
+        ])
       : "";
 
     return rejectAndJoin("", [
       rejectAndJoin(" ", annotations),
       unannType,
       identifier,
-      "this"
+      getImageWithComments(ctx.This[0])
     ]);
   }
 
@@ -365,7 +392,7 @@ class ClassesPrettierVisitor {
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), formalParameter)
+        rejectAndJoinSepToken(ctx.Comma, formalParameter, line)
       ])
     );
   }
@@ -396,7 +423,7 @@ class ClassesPrettierVisitor {
       join(" ", variableModifier),
       unannType,
       join(" ", annotation),
-      "... ",
+      getImageWithComments(ctx.DotDotDot[0]),
       identifier
     ]);
   }
@@ -410,7 +437,7 @@ class ClassesPrettierVisitor {
 
   throws(ctx) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
-    return join(" ", ["throws", exceptionTypeList]);
+    return join(" ", [getImageWithComments(ctx.Throws[0]), exceptionTypeList]);
   }
 
   exceptionTypeList(ctx) {
@@ -437,7 +464,7 @@ class ClassesPrettierVisitor {
   staticInitializer(ctx) {
     const block = this.visit(ctx.block);
 
-    return join(" ", ["static", block]);
+    return join(" ", [getImageWithComments(ctx.Static[0]), block]);
   }
 
   constructorDeclaration(ctx) {
@@ -489,12 +516,18 @@ class ClassesPrettierVisitor {
     return rejectAndConcat([
       typeParameters,
       simpleTypeName,
-      "(",
+      getImageWithComments(ctx.LBrace[0]),
       group(
         rejectAndConcat([
-          indent(rejectAndJoin(", ", [receiverParameter, formalParameterList])),
+          indent(
+            rejectAndJoinSepToken(
+              ctx.Comma,
+              [receiverParameter, formalParameterList],
+              " "
+            )
+          ),
           softline,
-          ")"
+          getImageWithComments(ctx.RBrace[0])
         ])
       )
     ]);
@@ -529,15 +562,26 @@ class ClassesPrettierVisitor {
 
   unqualifiedExplicitConstructorInvocation(ctx) {
     const typeArguments = this.visit(ctx.typeArguments);
-    const keyWord = ctx.This ? "this" : "super";
+    const keyWord = ctx.This
+      ? getImageWithComments(ctx.This[0])
+      : getImageWithComments(ctx.Super[0]);
     const argumentList = this.visit(ctx.argumentList);
 
     return rejectAndConcat([
       typeArguments,
       " ",
       keyWord,
-      "(",
-      group(rejectAndConcat([indent(argumentList), softline, ");"]))
+      getImageWithComments(ctx.LBrace[0]),
+      group(
+        rejectAndConcat([
+          indent(argumentList),
+          softline,
+          concat([
+            getImageWithComments(ctx.LBrace[0]),
+            getImageWithComments(ctx.Semicolon[0])
+          ])
+        ])
+      )
     ]);
   }
 
@@ -548,11 +592,20 @@ class ClassesPrettierVisitor {
 
     return rejectAndConcat([
       expressionName,
-      ".",
+      getImageWithComments(ctx.Dot[0]),
       typeArguments,
-      "super",
-      "(",
-      group(rejectAndConcat([indent(argumentList), softline, ");"]))
+      getImageWithComments(ctx.Super[0]),
+      getImageWithComments(ctx.LBrace[0]),
+      group(
+        rejectAndConcat([
+          indent(argumentList),
+          softline,
+          concat([
+            getImageWithComments(ctx.LBrace[0]),
+            getImageWithComments(ctx.Semicolon[0])
+          ])
+        ])
+      )
     ]);
   }
 
@@ -564,7 +617,7 @@ class ClassesPrettierVisitor {
 
     return rejectAndJoin(" ", [
       join(" ", classModifier),
-      "enum",
+      getImageWithComments(ctx.Enum[0]),
       typeIdentifier,
       superinterfaces,
       enumBody
@@ -575,9 +628,9 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = ctx.enumBodyDeclarations
       ? this.visit(ctx.enumBodyDeclarations)
-      : ";";
+      : getImageWithComments(ctx.Semicolon[0]);
 
-    const optionnalComma = ctx.Comma ? ", " : "";
+    const optionnalComma = ctx.Comma ? getImageWithComments(ctx.Comma[0]) : "";
 
     if (enumConstantList) {
       return rejectAndConcat([
@@ -596,13 +649,15 @@ class ClassesPrettierVisitor {
       ]);
     }
 
-    return "{}";
+    return (
+      getImageWithComments(ctx.LCurly[0]) + getImageWithComments(ctx.RCurly[0])
+    );
   }
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
 
-    return rejectAndJoin(concat([",", line]), enumConstants);
+    return rejectAndJoinSepToken(ctx.Comma, enumConstants, line);
   }
 
   enumConstant(ctx) {
@@ -615,7 +670,11 @@ class ClassesPrettierVisitor {
     const classBody = this.visit(ctx.classBody);
 
     const optionnalBracesAndArgumentList = ctx.LBrace
-      ? rejectAndConcat(["(", argumentList, ")"])
+      ? rejectAndConcat([
+          getImageWithComments(ctx.LBrace[0]),
+          argumentList,
+          getImageWithComments(ctx.RBrace[0])
+        ])
       : "";
 
     return rejectAndJoin(hardline, [
@@ -635,7 +694,10 @@ class ClassesPrettierVisitor {
   enumBodyDeclarations(ctx) {
     const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
-    return rejectAndJoin(line, [";", join(line, classBodyDeclaration)]);
+    return rejectAndJoin(line, [
+      getImageWithComments(ctx.Semicolon[0]),
+      join(line, classBodyDeclaration)
+    ]);
   }
 
   isClassDeclaration(ctx) {
