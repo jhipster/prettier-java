@@ -423,7 +423,7 @@ class ClassesPrettierVisitor {
       join(" ", variableModifier),
       unannType,
       join(" ", annotation),
-      getImageWithComments(ctx.DotDotDot[0]),
+      getImageWithComments(ctx.DotDotDot[0], " "),
       identifier
     ]);
   }
@@ -577,7 +577,7 @@ class ClassesPrettierVisitor {
           indent(argumentList),
           softline,
           concat([
-            getImageWithComments(ctx.LBrace[0]),
+            getImageWithComments(ctx.RBrace[0]),
             getImageWithComments(ctx.Semicolon[0])
           ])
         ])
@@ -601,7 +601,7 @@ class ClassesPrettierVisitor {
           indent(argumentList),
           softline,
           concat([
-            getImageWithComments(ctx.LBrace[0]),
+            getImageWithComments(ctx.RBrace[0]),
             getImageWithComments(ctx.Semicolon[0])
           ])
         ])
@@ -628,7 +628,7 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = ctx.enumBodyDeclarations
       ? this.visit(ctx.enumBodyDeclarations)
-      : getImageWithComments(ctx.Semicolon[0]);
+      : ";";
 
     const optionnalComma = ctx.Comma ? getImageWithComments(ctx.Comma[0]) : "";
 

@@ -18,8 +18,12 @@ function reject(elems) {
 }
 
 function rejectAndJoinSepToken(sepTokens, elems, sep) {
+  if (!Array.isArray(sepTokens)) {
+    return rejectAndJoin(sepTokens, elems);
+  }
   const actualElements = reject(elems);
   const res = [];
+
   for (let i = 0; i < sepTokens.length; i++) {
     res.push(actualElements[i], getImageWithComments(sepTokens[i]));
     if (sep) {
@@ -129,12 +133,12 @@ function sortModifiers(modifiers) {
   return [firstAnnotations, otherModifiers];
 }
 
-function getImageWithComments(token) {
+function getImageWithComments(token, toadd = "") {
   if (
     !token.hasOwnProperty("leadingComments") &&
     !token.hasOwnProperty("trailingComments")
   ) {
-    return token.image;
+    return token.image + toadd;
   }
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
