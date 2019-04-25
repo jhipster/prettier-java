@@ -12,7 +12,8 @@ const {
   buildFqn,
   rejectAndJoin,
   rejectAndConcat,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -43,7 +44,6 @@ class PackagesAndModulesPrettierVisitor {
     // TODO2: should the imports be grouped in some manner?
     const importsDecl = this.mapVisit(ctx.importDeclaration);
     const moduleDeclaration = this.visit(ctx.moduleDeclaration);
-
     return join(concat(line, line), [importsDecl, moduleDeclaration]);
   }
 
@@ -53,7 +53,7 @@ class PackagesAndModulesPrettierVisitor {
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, modifiers),
-      concat(["package", " ", name, ";"])
+      concat([getImageWithComments(ctx.Package[0]), " ", name, ";"])
     ]);
   }
 
@@ -62,15 +62,25 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   importDeclaration(ctx) {
-    const optionalStatic = ctx.Static ? "static" : "";
+    const optionalStatic = ctx.Static
+      ? getImageWithComments(ctx.Static[0])
+      : "";
     const packageOrTypeName = this.visit(ctx.packageOrTypeName);
 
-    const optionalDotStar = ctx.Dot ? ".*" : "";
-
+    const optionalDotStar = ctx.Dot
+      ? concat([
+          getImageWithComments(ctx.Dot[0]),
+          getImageWithComments(ctx.Star[0])
+        ])
+      : "";
     return rejectAndJoin(" ", [
-      "import",
+      getImageWithComments(ctx.Import[0]),
       optionalStatic,
-      rejectAndConcat([packageOrTypeName, optionalDotStar, ";"])
+      rejectAndConcat([
+        packageOrTypeName,
+        optionalDotStar,
+        getImageWithComments(ctx.Semicolon[0])
+      ])
     ]);
   }
 
@@ -80,13 +90,13 @@ class PackagesAndModulesPrettierVisitor {
 
   moduleDeclaration(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const optionalOpen = ctx.Open ? "open" : "";
+    const optionalOpen = ctx.Open ? getImageWithComments(ctx.Open[0]) : "";
     const name = buildFqn(ctx.Identifier);
     const moduleDirectives = this.mapVisit(ctx.moduleDirective);
     return rejectAndJoin(" ", [
       join(" ", annotations),
       optionalOpen,
-      "module",
+      getImageWithComments(ctx.Module[0]),
       name,
       indent(
         rejectAndJoin(line, [
@@ -108,38 +118,52 @@ class PackagesAndModulesPrettierVisitor {
     const moduleName = this.visit(ctx.moduleName);
 
     return rejectAndJoin(" ", [
-      "requires",
+      getImageWithComments(ctx.Requires[0]),
       join(" ", modifiers),
-      concat([moduleName, ";"])
+      concat([moduleName, getImageWithComments(ctx.Semicolon[0])])
     ]);
   }
 
   exportsModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? getImageWithComments(ctx.To[0]) : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
 
     return rejectAndConcat([
-      rejectAndJoin(" ", ["exports", packageName, to, join(", ", moduleNames)]),
-      ";"
+      rejectAndJoin(" ", [
+        getImageWithComments(ctx.Exports[0]),
+        packageName,
+        to,
+        rejectAndJoinSepToken(ctx.Comma, moduleNames)
+      ]),
+      getImageWithComments(ctx.Semicolon[0])
     ]);
   }
 
   opensModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? getImageWithComments(ctx.To[0]) : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
 
     return rejectAndConcat([
-      rejectAndJoin(" ", ["opens", packageName, to, join(", ", moduleNames)]),
-      ";"
+      rejectAndJoin(" ", [
+        getImageWithComments(ctx.Opens[0]),
+        packageName,
+        to,
+        rejectAndJoinSepToken(ctx.Comma, moduleNames)
+      ]),
+      getImageWithComments(ctx.Semicolon[0])
     ]);
   }
 
   usesModuleDirective(ctx) {
     const typeName = this.visit(ctx.typeName);
 
-    return rejectAndConcat(["uses ", typeName, ";"]);
+    return rejectAndConcat([
+      getImageWithComments(ctx.Uses[0]),
+      typeName,
+      getImageWithComments(ctx.Semicolon[0])
+    ]);
   }
 
   providesModuleDirective(ctx) {
@@ -148,12 +172,12 @@ class PackagesAndModulesPrettierVisitor {
 
     return rejectAndConcat([
       rejectAndJoin(" ", [
-        "provides",
+        getImageWithComments(ctx.Provides[0]),
         firstTypeName,
-        "with",
-        join(", ", otherTypeNames)
+        getImageWithComments(ctx.With[0]),
+        rejectAndJoinSepToken(ctx.Comma, otherTypeNames)
       ]),
-      ";"
+      getImageWithComments(ctx.Semicolon[0])
     ]);
   }
 
