@@ -48,10 +48,7 @@ class BlocksAndStatementPrettierVisitor {
 
   localVariableDeclarationStatement(ctx) {
     const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
-    return rejectAndConcat([
-      localVariableDeclaration,
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+    return rejectAndConcat([localVariableDeclaration, ";"]);
   }
 
   localVariableDeclaration(ctx) {
@@ -83,25 +80,19 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   emptyStatement(ctx) {
-    return getImageWithComments(ctx.Semicolon[0]);
+    return ";";
   }
 
   labeledStatement(ctx) {
     const identifier = getImageWithComments(ctx.Identifier[0]);
     const statement = this.visit(ctx.statement);
 
-    return rejectAndJoin(getImageWithComments(ctx.Colon[0]), [
-      identifier,
-      statement
-    ]);
+    return rejectAndJoin(":", [identifier, statement]);
   }
 
   expressionStatement(ctx) {
     const statementExpression = this.visit(ctx.statementExpression);
-    return rejectAndConcat([
-      statementExpression,
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+    return rejectAndConcat([statementExpression, ";"]);
   }
 
   statementExpression(ctx) {
@@ -111,48 +102,33 @@ class BlocksAndStatementPrettierVisitor {
   ifStatement(ctx) {
     const expression = this.visit(ctx.expression);
     const ifStatement = this.visit(ctx.statement[0]);
+
     const elseStatement = ctx.Else
-      ? rejectAndJoin(" ", [
-          getImageWithComments(ctx.Else[0]),
-          this.visit(ctx.statement[1])
-        ])
+      ? rejectAndJoin(" ", [" else", this.visit(ctx.statement[1])])
       : "";
+
     return rejectAndConcat([
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.If[0]),
-        getImageWithComments(ctx.LBrace[0])
-      ]),
+      "if (",
       expression,
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.RBrace[0]),
-        ifStatement,
-        elseStatement
-      ])
+      ") ",
+      ifStatement,
+      elseStatement
     ]);
   }
 
   assertStatement(ctx) {
     const expressions = this.mapVisit(ctx.expression);
-    const colon = ctx.Colon ? getImageWithComments(ctx.Colon[0]) : ":";
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.Assert[0]),
-        rejectAndJoin(" ".concat(colon).concat(" "), expressions)
-      ]),
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+
+    return rejectAndConcat(["assert ", rejectAndJoin(" : ", expressions), ";"]);
   }
 
   switchStatement(ctx) {
     const expression = this.visit(ctx.expression);
     const switchBlock = this.visit(ctx.switchBlock);
+
     return rejectAndJoin(" ", [
-      getImageWithComments(ctx.Switch[0]),
-      rejectAndConcat([
-        getImageWithComments(ctx.LBrace[0]),
-        expression,
-        getImageWithComments(ctx.RBrace[0])
-      ]),
+      "switch",
+      rejectAndConcat(["(", expression, ")"]),
       switchBlock
     ]);
   }
@@ -181,18 +157,10 @@ class BlocksAndStatementPrettierVisitor {
   switchLabel(ctx) {
     if (ctx.Case) {
       const constantExpression = this.visit(ctx.constantExpression);
-      return rejectAndJoin(" ", [
-        getImageWithComments(ctx.Case[0]),
-        rejectAndConcat([
-          constantExpression,
-          getImageWithComments(ctx.Colon[0])
-        ])
-      ]);
+      return rejectAndConcat(["case ", constantExpression, ":"]);
     }
-    return rejectAndConcat([
-      getImageWithComments(ctx.Default[0]),
-      getImageWithComments(ctx.Colon[0])
-    ]);
+
+    return "default:";
   }
 
   enumConstantName(ctx) {
@@ -202,13 +170,10 @@ class BlocksAndStatementPrettierVisitor {
   whileStatement(ctx) {
     const expression = this.visit(ctx.expression);
     const statement = this.visit(ctx.statement);
+
     return rejectAndJoin(" ", [
-      getImageWithComments(ctx.While[0]),
-      rejectAndConcat([
-        getImageWithComments(ctx.LBrace[0]),
-        expression,
-        getImageWithComments(ctx.RBrace[0])
-      ]),
+      "while",
+      rejectAndConcat(["(", expression, ")"]),
       statement
     ]);
   }
@@ -216,16 +181,12 @@ class BlocksAndStatementPrettierVisitor {
   doStatement(ctx) {
     const statement = this.visit(ctx.statement);
     const expression = this.visit(ctx.expression);
+
     return rejectAndJoin(" ", [
-      getImageWithComments(ctx.Do[0]),
+      "do",
       statement,
-      getImageWithComments(ctx.While[0]),
-      rejectAndConcat([
-        getImageWithComments(ctx.LBrace[0]),
-        expression,
-        getImageWithComments(ctx.RBrace[0]),
-        getImageWithComments(ctx.Semicolon[0])
-      ])
+      "while",
+      rejectAndConcat(["(", expression, ");"])
     ]);
   }
 
@@ -238,15 +199,14 @@ class BlocksAndStatementPrettierVisitor {
     const expression = this.visit(ctx.expression);
     const forUpdate = this.visit(ctx.forUpdate);
     const statement = this.visit(ctx.statement);
+
     return rejectAndConcat([
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.For[0]),
-        getImageWithComments(ctx.LBrace[0])
-      ]),
+      "for (",
       forInit,
-      rejectAndJoin(" ", [getImageWithComments(ctx.Semicolon[0]), expression]),
-      rejectAndJoin(" ", [getImageWithComments(ctx.Semicolon[0]), forUpdate]),
-      rejectAndJoin(" ", [getImageWithComments(ctx.RBrace[0]), statement])
+      rejectAndJoin(" ", [";", expression]),
+      rejectAndJoin(" ", [";", forUpdate]),
+      ") ",
+      statement
     ]);
   }
 
@@ -260,6 +220,7 @@ class BlocksAndStatementPrettierVisitor {
 
   statementExpressionList(ctx) {
     const statementExpressions = this.mapVisit(ctx.statementExpression);
+
     return rejectAndJoin(", ", statementExpressions);
   }
 
@@ -269,21 +230,18 @@ class BlocksAndStatementPrettierVisitor {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     const expression = this.visit(ctx.expression);
     const statement = this.visit(ctx.statement);
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.For[0]),
-        getImageWithComments(ctx.LBrace[0])
-      ]),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", [
-          rejectAndJoin(" ", variableModifiers),
-          localVariableType,
-          variableDeclaratorId
-        ]),
-        rejectAndJoin(" ", [getImageWithComments(ctx.Colon[0]), expression])
-      ]),
 
-      rejectAndJoin(" ", [getImageWithComments(ctx.RBrace[0]), statement])
+    return rejectAndConcat([
+      "for (",
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", variableModifiers),
+        localVariableType,
+        variableDeclaratorId
+      ]),
+      " : ",
+      expression,
+      ") ",
+      statement
     ]);
   }
 
@@ -291,67 +249,43 @@ class BlocksAndStatementPrettierVisitor {
     if (ctx.Identifier) {
       const identifier = getImageWithComments(ctx.Identifier[0]);
 
-      return rejectAndJoin(" ", [
-        getImageWithComments(ctx.Break[0]),
-        rejectAndConcat([identifier, getImageWithComments(ctx.Semicolon[0])])
-      ]);
+      return rejectAndConcat(["break ", identifier, ";"]);
     }
 
-    return rejectAndConcat([
-      getImageWithComments(ctx.Break[0]),
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+    return "break;";
   }
 
   continueStatement(ctx) {
     if (ctx.Identifier) {
       const identifier = getImageWithComments(ctx.Identifier[0]);
-      return rejectAndJoin(" ", [
-        getImageWithComments(ctx.Continue[0]),
-        rejectAndConcat([identifier, getImageWithComments(ctx.Semicolon[0])])
-      ]);
+
+      return rejectAndConcat(["continue ", identifier, ";"]);
     }
 
-    return rejectAndConcat([
-      getImageWithComments(ctx.Continue[0]),
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+    return "continue;";
   }
 
   returnStatement(ctx) {
     if (ctx.expression) {
       const expression = this.visit(ctx.expression);
-      return rejectAndJoin(" ", [
-        getImageWithComments(ctx.Return[0]),
-        rejectAndConcat([expression, getImageWithComments(ctx.Semicolon[0])])
-      ]);
+
+      return rejectAndConcat(["return ", expression, ";"]);
     }
-    return rejectAndConcat([
-      getImageWithComments(ctx.Return[0]),
-      getImageWithComments(ctx.Semicolon[0])
-    ]);
+
+    return "return;";
   }
 
   throwStatement(ctx) {
     const expression = this.visit(ctx.expression);
-    return rejectAndJoin(" ", [
-      getImageWithComments(ctx.Throw[0]),
-      rejectAndConcat([expression, getImageWithComments(ctx.Semicolon[0])])
-    ]);
+
+    return rejectAndConcat(["throw ", expression, ";"]);
   }
 
   synchronizedStatement(ctx) {
     const expression = this.visit(ctx.expression);
     const block = this.visit(ctx.block);
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        getImageWithComments(ctx.Synchronized[0]),
-        getImageWithComments(ctx.LBrace[0])
-      ]),
-      expression,
-      getImageWithComments(ctx.RBrace[0]).concat(" "),
-      block
-    ]);
+
+    return rejectAndConcat(["synchronized (", expression, ") ", block]);
   }
 
   tryStatement(ctx) {
@@ -362,12 +296,8 @@ class BlocksAndStatementPrettierVisitor {
     const block = this.visit(ctx.block);
     const catches = this.visit(ctx.catches);
     const finallyBlock = this.visit(ctx.finally);
-    return rejectAndJoin(" ", [
-      getImageWithComments(ctx.Try[0]),
-      block,
-      catches,
-      finallyBlock
-    ]);
+
+    return rejectAndJoin(" ", ["try", block, catches, finallyBlock]);
   }
 
   catches(ctx) {
@@ -378,21 +308,17 @@ class BlocksAndStatementPrettierVisitor {
   catchClause(ctx) {
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
+
     return rejectAndConcat([
-      rejectAndJoin(" ", [
-        group(
-          rejectAndConcat([
-            rejectAndJoin(" ", [
-              getImageWithComments(ctx.Catch[0]),
-              getImageWithComments(ctx.LBrace[0])
-            ]),
-            indent(rejectAndConcat([softline, catchFormalParameter])),
-            softline,
-            getImageWithComments(ctx.RBrace[0])
-          ])
-        ),
-        block
-      ])
+      group(
+        rejectAndConcat([
+          "catch (",
+          indent(rejectAndConcat([softline, catchFormalParameter])),
+          softline,
+          ") "
+        ])
+      ),
+      block
     ]);
   }
 
@@ -411,11 +337,11 @@ class BlocksAndStatementPrettierVisitor {
   catchType(ctx) {
     const unannClassType = this.visit(ctx.unannClassType);
     const classTypes = this.mapVisit(ctx.classType);
-    const pipe = ctx.Or ? getImageWithComments(ctx.Or[0]).concat(" ") : "| ";
+
     return group(
-      rejectAndJoin(concat([line, pipe]), [
+      rejectAndJoin(concat([line, "| "]), [
         unannClassType,
-        rejectAndJoin(concat([line, pipe]), classTypes)
+        rejectAndJoin(concat([line, "| "]), classTypes)
       ])
     );
   }
@@ -423,7 +349,7 @@ class BlocksAndStatementPrettierVisitor {
   finally(ctx) {
     const block = this.visit(ctx.block);
 
-    return rejectAndJoin(" ", [getImageWithComments(ctx.Finally[0]), block]);
+    return rejectAndJoin(" ", ["finally", block]);
   }
 
   tryWithResourcesStatement(ctx) {
@@ -433,7 +359,7 @@ class BlocksAndStatementPrettierVisitor {
     const finallyBlock = this.visit(ctx.finally);
 
     return rejectAndJoin(" ", [
-      getImageWithComments(ctx.Try[0]),
+      "try",
       resourceSpecification,
       block,
       catches,
@@ -443,24 +369,15 @@ class BlocksAndStatementPrettierVisitor {
 
   resourceSpecification(ctx) {
     const resourceList = this.visit(ctx.resourceList);
-    const optionalSemicolon = ctx.Semicolon
-      ? getImageWithComments(ctx.Semicolon[0])
-      : "";
+    const optionalSemicolon = ctx.Semicolon ? ";" : "";
 
-    return rejectAndConcat([
-      getImageWithComments(ctx.LBrace[0]),
-      resourceList,
-      optionalSemicolon,
-      getImageWithComments(ctx.RBrace[0])
-    ]);
+    return rejectAndConcat(["(", resourceList, optionalSemicolon, ")"]);
   }
 
   resourceList(ctx) {
     const resources = this.mapVisit(ctx.resource);
-    const semiColon = ctx.Semicolon
-      ? getImageWithComments(ctx.Semicolon[0]).concat(" ")
-      : "; ";
-    return rejectAndJoin(semiColon, resources);
+
+    return rejectAndJoin("; ", resources);
   }
 
   resource(ctx) {
@@ -472,6 +389,7 @@ class BlocksAndStatementPrettierVisitor {
     const localVariableType = this.visit(ctx.localVariableType);
     const identifier = getImageWithComments(ctx.Identifier[0]);
     const expression = this.visit(ctx.expression);
+
     return rejectAndJoin(" ", [
       rejectAndJoin(" ", variableModifiers),
       localVariableType,
