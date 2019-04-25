@@ -16,7 +16,8 @@ const {
   rejectAndConcat,
   rejectAndJoin,
   sortModifiers,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -51,7 +52,7 @@ class InterfacesPrettierVisitor {
     return rejectAndJoin(" ", [
       group(
         rejectAndJoin(" ", [
-          "interface",
+          getImageWithComments(ctx.Interface[0]),
           typeIdentifier,
           typeParameters,
           extendsInterfacesPart
@@ -71,7 +72,12 @@ class InterfacesPrettierVisitor {
   extendsInterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
-    return indent(rejectAndJoin(" ", ["extends", interfaceTypeList]));
+    return indent(
+      rejectAndJoin(" ", [
+        getImageWithComments(ctx.Extends[0]),
+        interfaceTypeList
+      ])
+    );
   }
 
   interfaceBody(ctx) {
@@ -109,7 +115,10 @@ class InterfacesPrettierVisitor {
       rejectAndJoin(" ", [
         rejectAndJoin(" ", otherModifiers),
         unannType,
-        rejectAndConcat([variableDeclaratorList, ";"])
+        rejectAndConcat([
+          variableDeclaratorList,
+          getImageWithComments(ctx.Semicolon[0])
+        ])
       ])
     ]);
   }
@@ -128,7 +137,10 @@ class InterfacesPrettierVisitor {
 
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
-    const separator = methodBody === ";" ? "" : " ";
+    const separator =
+      (methodBody === ";") | ((methodBody.parts && methodBody.parts[0]) === ";")
+        ? ""
+        : " ";
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, firstAnnotations),
@@ -151,7 +163,10 @@ class InterfacesPrettierVisitor {
     const annotationTypeBody = this.visit(ctx.annotationTypeBody);
 
     return rejectAndJoin(" ", [
-      "@interface",
+      concat([
+        getImageWithComments(ctx.At[0]),
+        getImageWithComments(ctx.Interface[0])
+      ]),
       typeIdentifier,
       annotationTypeBody
     ]);
@@ -197,7 +212,16 @@ class InterfacesPrettierVisitor {
       rejectAndJoin(" ", [
         rejectAndJoin(" ", otherModifiers),
         unannType,
-        rejectAndConcat([identifier, "()", dims, defaultValue, ";"])
+        rejectAndConcat([
+          identifier,
+          concat([
+            getImageWithComments(ctx.LBrace[0]),
+            getImageWithComments(ctx.RBrace[0])
+          ]),
+          dims,
+          defaultValue,
+          getImageWithComments(ctx.Semicolon[0])
+        ])
       ])
     ]);
   }
@@ -212,7 +236,10 @@ class InterfacesPrettierVisitor {
   defaultValue(ctx) {
     const elementValue = this.visit(ctx.elementValue);
 
-    return rejectAndJoin(" ", ["default", elementValue]);
+    return rejectAndJoin(" ", [
+      getImageWithComments(ctx.Default[0]),
+      elementValue
+    ]);
   }
 
   annotation(ctx) {
@@ -220,17 +247,23 @@ class InterfacesPrettierVisitor {
 
     const annoArgs = [];
     if (ctx.LBrace) {
-      annoArgs.push("(");
+      annoArgs.push(getImageWithComments(ctx.LBrace[0]));
       if (ctx.elementValuePairList) {
         annoArgs.push(this.visit(ctx.elementValuePairList));
       } else if (ctx.elementValue) {
         annoArgs.push(this.visit(ctx.elementValue));
       }
-      annoArgs.push(dedent(concat([softline, ")"])));
+      annoArgs.push(
+        dedent(concat([softline, getImageWithComments(ctx.RBrace[0])]))
+      );
     }
 
     return group(
-      rejectAndConcat(["@", fqn, indent(rejectAndConcat(annoArgs))])
+      rejectAndConcat([
+        getImageWithComments(ctx.At[0]),
+        fqn,
+        indent(rejectAndConcat(annoArgs))
+      ])
     );
   }
 
@@ -240,7 +273,7 @@ class InterfacesPrettierVisitor {
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), elementValuePairs)
+        rejectAndJoinSepToken(ctx.Comma, elementValuePairs, line)
       ])
     );
   }
@@ -249,7 +282,11 @@ class InterfacesPrettierVisitor {
     const identifier = getImageWithComments(ctx.Identifier[0]);
     const elementValue = this.visit(ctx.elementValue);
 
-    return rejectAndJoin(" ", [identifier, "=", elementValue]);
+    return rejectAndJoin(" ", [
+      identifier,
+      getImageWithComments(ctx.Equals[0]),
+      elementValue
+    ]);
   }
 
   elementValue(ctx) {
@@ -258,7 +295,7 @@ class InterfacesPrettierVisitor {
 
   elementValueArrayInitializer(ctx) {
     const elementValueList = this.visit(ctx.elementValueList);
-    const comma = ctx.Comma ? "," : "";
+    const comma = ctx.Comma ? getImageWithComments(ctx.Comma[0]) : "";
 
     return group(
       rejectAndConcat([
@@ -274,9 +311,7 @@ class InterfacesPrettierVisitor {
     const elementValues = this.mapVisit(ctx.elementValue);
 
     return group(
-      rejectAndConcat([
-        rejectAndJoin(rejectAndConcat([",", line]), elementValues)
-      ])
+      rejectAndConcat([rejectAndJoinSepToken(ctx.Comma, elementValues, line)])
     );
   }
 

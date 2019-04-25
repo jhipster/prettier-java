@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat, line } = require("prettier").doc.builders;
+const { join, concat, line, group } = require("prettier").doc.builders;
 
 function buildFqn(tokens) {
   const images = tokens.map(tok => getImageWithComments(tok));
@@ -156,7 +156,7 @@ function getImageWithComments(token, toadd = "") {
       });
     });
   }
-  return rejectAndJoin(line, arr);
+  return group(rejectAndJoin(line, arr));
 }
 
 module.exports = {
