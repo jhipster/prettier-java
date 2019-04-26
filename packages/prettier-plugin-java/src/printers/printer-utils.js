@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat, line, group } = require("prettier").doc.builders;
+const { join, concat, group, hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens) {
   const images = tokens.map(tok => getImageWithComments(tok));
@@ -143,20 +143,37 @@ function getImageWithComments(token, toadd = "") {
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
     token.leadingComments.forEach(element => {
-      element.image.split("\n").forEach(line => {
-        arr.push(line.trim());
-      });
+      arr.push(concat(formatComment(element)));
+      if (element.startLine !== token.startLine) {
+        arr.push(hardline);
+      }
     });
   }
   arr.push(token.image);
   if (token.hasOwnProperty("trailingComments")) {
+    if (token.trailingComments[0].startLine !== token.startLine) {
+      arr.push(hardline);
+    }
     token.trailingComments.forEach(element => {
-      element.image.split("\n").forEach(line => {
-        arr.push(line.trim());
-      });
+      arr.push(concat(formatComment(element)));
+      if (element.startLine !== token.startLine) {
+        arr.push(hardline);
+      }
     });
   }
-  return group(rejectAndJoin(line, arr));
+  return group(concat(arr));
+}
+
+function formatComment(comment) {
+  const res = [];
+  comment.image.split("\n").forEach(l => {
+    res.push(l.trim());
+    res.push(hardline);
+  });
+  if (res[res.length - 1] === hardline) {
+    res.pop();
+  }
+  return res;
 }
 
 module.exports = {
