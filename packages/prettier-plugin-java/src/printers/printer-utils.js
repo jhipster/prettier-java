@@ -160,6 +160,12 @@ function getImageWithComments(token, toadd = "") {
         arr.push(hardline);
       }
     });
+    if (
+      token.trailingComments[token.trailingComments.length - 1] !==
+      token.startLine
+    ) {
+      arr.pop();
+    }
   }
   return group(concat(arr));
 }
