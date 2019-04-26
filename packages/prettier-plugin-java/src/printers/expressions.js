@@ -17,7 +17,8 @@ const {
   rejectAndConcat,
   sortAnnotationIdentifier,
   sortTokens,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -32,8 +33,11 @@ class ExpressionsPrettierVisitor {
   lambdaExpression(ctx) {
     const lambdaParameters = this.visit(ctx.lambdaParameters);
     const lambdaBody = this.visit(ctx.lambdaBody);
-
-    return rejectAndJoin(" -> ", [lambdaParameters, lambdaBody]);
+    return rejectAndJoin(" ", [
+      lambdaParameters,
+      getImageWithComments(ctx.Arrow[0]),
+      lambdaBody
+    ]);
   }
 
   lambdaParameters(ctx) {
@@ -47,10 +51,14 @@ class ExpressionsPrettierVisitor {
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
 
-    if (lambdaParameterList && lambdaParameterList.parts.indexOf(", ") === -1) {
+    if (lambdaParameterList && lambdaParameterList.parts.indexOf(",") === -1) {
       return lambdaParameterList;
     }
-    return rejectAndConcat(["(", lambdaParameterList, ")"]);
+    return rejectAndConcat([
+      getImageWithComments(ctx.LBrace[0]),
+      lambdaParameterList,
+      getImageWithComments(ctx.RBrace[0])
+    ]);
   }
 
   lambdaParameterList(ctx) {
@@ -62,13 +70,13 @@ class ExpressionsPrettierVisitor {
       getImageWithComments(identifier)
     );
 
-    return rejectAndJoin(", ", identifiers);
+    return rejectAndJoinSepToken(ctx.Comma, identifiers, " ");
   }
 
   explicitLambdaParameterList(ctx) {
     const lambdaParameter = this.mapVisit(ctx.lambdaParameter);
 
-    return rejectAndJoin(", ", lambdaParameter);
+    return rejectAndJoinSepToken(ctx.Comma, lambdaParameter, " ");
   }
 
   lambdaParameter(ctx) {
@@ -107,11 +115,17 @@ class ExpressionsPrettierVisitor {
       return group(
         rejectAndConcat([
           group(
-            rejectAndConcat([binaryExpression, indent(line), "? ", expression1])
+            rejectAndConcat([
+              binaryExpression,
+              indent(line),
+              rejectAndJoin(" ", [
+                getImageWithComments(ctx.QuestionMark[0]),
+                expression1
+              ])
+            ])
           ),
           indent(line),
-          ": ",
-          expression2
+          rejectAndJoin(" ", [getImageWithComments(ctx.Colon[0]), expression2])
         ])
       );
     }
@@ -133,7 +147,12 @@ class ExpressionsPrettierVisitor {
     for (let i = 0; i < sortedTokens.length; i++) {
       const token = sortedTokens[i];
       if (token.tokenType.tokenName === "Instanceof") {
-        segment.push(rejectAndJoin(" ", ["instanceof", referenceType.shift()]));
+        segment.push(
+          rejectAndJoin(" ", [
+            getImageWithComments(ctx.Instanceof[0]),
+            referenceType.shift()
+          ])
+        );
       } else if (matchCategory(token, "'AssignmentOperator'")) {
         segment.push(
           rejectAndJoin(" ", [getImageWithComments(token), expression.shift()])
@@ -249,11 +268,14 @@ class ExpressionsPrettierVisitor {
   primarySuffix(ctx) {
     if (ctx.Dot) {
       if (ctx.This) {
-        return rejectAndConcat([".", "this"]);
+        return rejectAndConcat([
+          getImageWithComments(ctx.Dot[0]),
+          getImageWithComments(ctx.This[0])
+        ]);
       } else if (ctx.Identifier) {
         const typeArguments = this.visit(ctx.typeArguments);
         return rejectAndConcat([
-          ".",
+          getImageWithComments(ctx.Dot[0]),
           typeArguments,
           getImageWithComments(ctx.Identifier[0])
         ]);
@@ -262,7 +284,10 @@ class ExpressionsPrettierVisitor {
       const unqualifiedClassInstanceCreationExpression = this.visit(
         ctx.unqualifiedClassInstanceCreationExpression
       );
-      return rejectAndConcat([".", unqualifiedClassInstanceCreationExpression]);
+      return rejectAndConcat([
+        getImageWithComments(ctx.Dot[0]),
+        unqualifiedClassInstanceCreationExpression
+      ]);
     }
     return this.visitSingle(ctx);
   }
@@ -270,13 +295,12 @@ class ExpressionsPrettierVisitor {
   fqnOrRefType(ctx) {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
-
-    return rejectAndConcat([join(".", fqnOrRefTypePart), dims]);
+    const dot = ctx.Dot ? getImageWithComments(ctx.Dot[0]) : ".";
+    return rejectAndConcat([join(dot, fqnOrRefTypePart), dims]);
   }
 
   fqnOrRefTypePart(ctx) {
     const annotation = this.mapVisit(ctx.annotation);
-
     let fqnOrRefTypePart$methodTypeArguments = "";
     if (
       ctx.$methodTypeArguments &&
@@ -324,7 +348,11 @@ class ExpressionsPrettierVisitor {
 
   parenthesisExpression(ctx) {
     const expression = this.visit(ctx.expression);
-    return rejectAndConcat(["(", expression, ")"]);
+    return rejectAndConcat([
+      getImageWithComments(ctx.LBrace[0]),
+      expression,
+      getImageWithComments(ctx.RBrace[0])
+    ]);
   }
 
   castExpression(ctx) {
@@ -335,7 +363,11 @@ class ExpressionsPrettierVisitor {
     const primitiveType = this.visit(ctx.primitiveType);
     const unaryExpression = this.visit(ctx.unaryExpression);
     return rejectAndJoin(" ", [
-      rejectAndConcat(["(", primitiveType, ")"]),
+      rejectAndConcat([
+        getImageWithComments(ctx.LBrace[0]),
+        primitiveType,
+        getImageWithComments(ctx.RBrace[0])
+      ]),
       unaryExpression
     ]);
   }
@@ -349,7 +381,11 @@ class ExpressionsPrettierVisitor {
       : this.visit(ctx.unaryExpressionNotPlusMinus);
 
     return rejectAndJoin(" ", [
-      rejectAndConcat(["(", referenceType, ")"]),
+      rejectAndConcat([
+        getImageWithComments(ctx.LBrace[0]),
+        referenceType,
+        getImageWithComments(ctx.RBrace[0])
+      ]),
       additionalBound,
       expression
     ]);
@@ -366,14 +402,19 @@ class ExpressionsPrettierVisitor {
     );
     const argumentList = this.visit(ctx.argumentList);
     const classBody = this.visit(ctx.classBody);
-
     return rejectAndJoin(" ", [
-      "new",
+      getImageWithComments(ctx.New[0]),
       rejectAndConcat([
         typeArguments,
         classOrInterfaceTypeToInstantiate,
-        "(",
-        group(rejectAndConcat([indent(argumentList), softline, ")"]))
+        getImageWithComments(ctx.LBrace[0]),
+        group(
+          rejectAndConcat([
+            indent(argumentList),
+            softline,
+            getImageWithComments(ctx.RBrace[0])
+          ])
+        )
       ]),
       classBody
     ]);
@@ -381,7 +422,6 @@ class ExpressionsPrettierVisitor {
 
   classOrInterfaceTypeToInstantiate(ctx) {
     const tokens = sortAnnotationIdentifier(ctx.annotation, ctx.Identifier);
-
     const segments = [];
     let currentSegment = [];
 
@@ -394,11 +434,10 @@ class ExpressionsPrettierVisitor {
         currentSegment = [];
       }
     });
-
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
-
+    const dot = ctx.Dot ? ctx.Dot : "";
     return rejectAndConcat([
-      rejectAndJoin(".", segments),
+      rejectAndJoinSepToken(dot, segments),
       typeArgumentsOrDiamond
     ]);
   }
@@ -408,27 +447,31 @@ class ExpressionsPrettierVisitor {
   }
 
   diamond(ctx) {
-    return "<>";
+    return rejectAndConcat([
+      getImageWithComments(ctx.Less[0]),
+      getImageWithComments(ctx.Greater[0])
+    ]);
   }
 
   methodInvocationSuffix(ctx) {
     const argumentList = this.visit(ctx.argumentList);
     return group(
       rejectAndConcat([
-        rejectAndConcat(["(", argumentList]),
+        rejectAndConcat([getImageWithComments(ctx.LBrace[0]), argumentList]),
         dedent(softline),
-        ")"
+        getImageWithComments(ctx.RBrace[0])
       ])
     );
   }
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
-
+    const comma = ctx.Comma ? ctx.Comma : "";
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), expressions)
+        rejectAndJoinSepToken(ctx.Comma, expressions, line)
+        //rejectAndJoin(rejectAndConcat([comma, line]), expressions)
       ])
     );
   }
@@ -441,7 +484,10 @@ class ExpressionsPrettierVisitor {
       ? this.visit(ctx.arrayCreationDefaultInitSuffix)
       : this.visit(ctx.arrayCreationExplicitInitSuffix);
 
-    return rejectAndConcat(["new ", type, suffix]);
+    return rejectAndConcat([
+      rejectAndJoin(" ", [getImageWithComments(ctx.New[0]), type]),
+      suffix
+    ]);
   }
 
   arrayCreationDefaultInitSuffix(ctx) {
@@ -465,30 +511,47 @@ class ExpressionsPrettierVisitor {
   dimExpr(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
     const expression = this.visit(ctx.expression);
-
     return rejectAndJoin(" ", [
       rejectAndJoin(" ", annotations),
-      rejectAndConcat(["[", expression, "]"])
+      rejectAndConcat([
+        getImageWithComments(ctx.LSquare[0]),
+        expression,
+        getImageWithComments(ctx.RSquare[0])
+      ])
     ]);
   }
 
   classLiteralSuffix(ctx) {
     const squares = ctx.LSquare ? "[]".repeat(ctx.LSquare.length) : "";
 
-    return rejectAndConcat([squares, ".class"]);
+    return rejectAndConcat([
+      squares,
+      rejectAndConcat([
+        getImageWithComments(ctx.Dot[0]),
+        getImageWithComments(ctx.Class[0])
+      ])
+    ]);
   }
 
   arrayAccessSuffix(ctx) {
     const expression = this.visit(ctx.expression);
-    return rejectAndConcat(["[", expression, "]"]);
+    return rejectAndConcat([
+      getImageWithComments(ctx.LSquare[0]),
+      expression,
+      getImageWithComments(ctx.RSquare[0])
+    ]);
   }
 
   methodReferenceSuffix(ctx) {
     const typeArguments = this.visit(ctx.typeArguments);
     const identifierOrNew = ctx.New
-      ? "new"
+      ? getImageWithComments(ctx.New[0])
       : getImageWithComments(ctx.Identifier[0]);
-    return rejectAndConcat(["::", typeArguments, identifierOrNew]);
+    return rejectAndConcat([
+      getImageWithComments(ctx.ColonColon[0]),
+      typeArguments,
+      identifierOrNew
+    ]);
   }
 
   identifyNewExpressionType(ctx) {
