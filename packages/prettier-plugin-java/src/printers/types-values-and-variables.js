@@ -17,7 +17,8 @@ const {
   rejectAndJoin,
   rejectAndConcat,
   sortClassTypeChildren,
-  getImageWithComments
+  getImageWithComments,
+  rejectAndJoinSepToken
 } = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
@@ -87,7 +88,7 @@ class TypesValuesAndVariablesPrettierVisitor {
       }
     });
 
-    return rejectAndJoin(".", segments);
+    return rejectAndJoinSepToken(ctx.Dot, segments);
   }
 
   interfaceType(ctx) {
@@ -126,7 +127,13 @@ class TypesValuesAndVariablesPrettierVisitor {
         currentSegment.push(this.visit([token]));
       } else {
         segments.push(
-          rejectAndConcat([rejectAndJoin(" ", currentSegment), "[]"])
+          rejectAndConcat([
+            rejectAndJoin(" ", currentSegment),
+            concat([
+              getImageWithComments(ctx.LSquare[0]),
+              getImageWithComments(ctx.RSquare[0])
+            ])
+          ])
         );
         currentSegment = [];
       }
@@ -157,7 +164,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const additionalBound = this.mapVisit(ctx.additionalBound);
 
     return rejectAndJoin(" ", [
-      "extends",
+      getImageWithComments(ctx.Extends[0]),
       classOrInterfaceType,
       join(" ", additionalBound)
     ]);
@@ -166,15 +173,21 @@ class TypesValuesAndVariablesPrettierVisitor {
   additionalBound(ctx) {
     const interfaceType = this.visit(ctx.interfaceType);
 
-    return join(" ", ["&", interfaceType]);
+    return join(" ", [getImageWithComments(ctx.And[0]), interfaceType]);
   }
 
   typeArguments(ctx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
     return rejectAndConcat([
-      "<",
-      group(rejectAndConcat([indent(typeArgumentList), softline, ">"]))
+      getImageWithComments(ctx.Less[0]),
+      group(
+        rejectAndConcat([
+          indent(typeArgumentList),
+          softline,
+          getImageWithComments(ctx.Greater[0])
+        ])
+      )
     ]);
   }
 
@@ -184,7 +197,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     return group(
       rejectAndConcat([
         softline,
-        rejectAndJoin(rejectAndConcat([",", line]), typeArguments)
+        rejectAndJoinSepToken(ctx.Comma, typeArguments, line)
       ])
     );
   }
@@ -197,11 +210,17 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const wildcardBounds = this.visit(ctx.wildcardBounds);
 
-    return rejectAndJoin(" ", [join(" ", annotations), "?", wildcardBounds]);
+    return rejectAndJoin(" ", [
+      join(" ", annotations),
+      getImageWithComments(ctx.QuestionMark[0]),
+      wildcardBounds
+    ]);
   }
 
   wildcardBounds(ctx) {
-    const keyWord = ctx.Extends ? "extends" : "super";
+    const keyWord = ctx.Extends
+      ? getImageWithComments(ctx.Extends[0])
+      : getImageWithComments(ctx.Super[0]);
     const referenceType = this.visit(ctx.referenceType);
     return join(" ", [keyWord, referenceType]);
   }
