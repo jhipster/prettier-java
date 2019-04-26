@@ -51,7 +51,7 @@ class ExpressionsPrettierVisitor {
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
 
-    if (lambdaParameterList && lambdaParameterList.parts.indexOf(", ") === -1) {
+    if (lambdaParameterList && lambdaParameterList.parts.indexOf(",") === -1) {
       return lambdaParameterList;
     }
     return rejectAndConcat([
@@ -70,13 +70,13 @@ class ExpressionsPrettierVisitor {
       getImageWithComments(identifier)
     );
 
-    return rejectAndJoinSepToken(ctx.Comma, identifiers);
+    return rejectAndJoinSepToken(ctx.Comma, identifiers, " ");
   }
 
   explicitLambdaParameterList(ctx) {
     const lambdaParameter = this.mapVisit(ctx.lambdaParameter);
 
-    return rejectAndJoinSepToken(ctx.Comma, lambdaParameter);
+    return rejectAndJoinSepToken(ctx.Comma, lambdaParameter, " ");
   }
 
   lambdaParameter(ctx) {
