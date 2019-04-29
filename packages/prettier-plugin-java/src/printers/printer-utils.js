@@ -1,10 +1,35 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat } = require("prettier").doc.builders;
+const {
+  isToken,
+  getImageWithComments,
+  join,
+  concat
+} = require("./prettier-builder");
 
 function buildFqn(tokens) {
   const images = tokens.map(tok => tok.image);
   return join(".", images);
+}
+
+function rejectAndJoinSeps(sepTokens, elems, sep) {
+  if (!Array.isArray(sepTokens)) {
+    return rejectAndJoin(sepTokens, elems);
+  }
+  const actualElements = reject(elems);
+  const res = [];
+
+  for (let i = 0; i < sepTokens.length; i++) {
+    res.push(
+      actualElements[i],
+      isToken(sepTokens) ? getImageWithComments(sepTokens[i]) : sepTokens[i]
+    );
+    if (sep) {
+      res.push(sep);
+    }
+  }
+  res.push(...actualElements.slice(sepTokens.length));
+  return concat(res);
 }
 
 function reject(elems) {
@@ -124,5 +149,6 @@ module.exports = {
   sortClassTypeChildren,
   sortTokens,
   matchCategory,
-  sortModifiers
+  sortModifiers,
+  rejectAndJoinSeps
 };
