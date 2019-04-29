@@ -2,21 +2,22 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
+const { line, softline } = require("prettier").doc.builders;
 const {
   concat,
   dedent,
   group,
   indent,
   join,
-  line,
-  softline
-} = require("prettier").doc.builders;
+  getImageWithComments
+} = require("./prettier-builder");
 const {
   matchCategory,
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
-  sortTokens
+  sortTokens,
+  rejectAndJoinSeps
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -32,7 +33,7 @@ class ExpressionsPrettierVisitor {
     const lambdaParameters = this.visit(ctx.lambdaParameters);
     const lambdaBody = this.visit(ctx.lambdaBody);
 
-    return rejectAndJoin(" -> ", [lambdaParameters, lambdaBody]);
+    return rejectAndJoin(" ", [lambdaParameters, ctx.Arrow[0], lambdaBody]);
   }
 
   lambdaParameters(ctx) {
@@ -58,14 +59,24 @@ class ExpressionsPrettierVisitor {
 
   inferredLambdaParameterList(ctx) {
     const identifiers = ctx.Identifier.map(identifier => identifier.image);
+    const commas = ctx.Comma
+      ? ctx.Comma.map(elt => {
+          return concat([elt, " "]);
+        })
+      : [];
 
-    return rejectAndJoin(", ", identifiers);
+    //return rejectAndJoin(", ", identifiers);
+    return rejectAndJoinSeps(commas, identifiers);
   }
 
   explicitLambdaParameterList(ctx) {
     const lambdaParameter = this.mapVisit(ctx.lambdaParameter);
-
-    return rejectAndJoin(", ", lambdaParameter);
+    const commas = ctx.Comma
+      ? ctx.Comma.map(elt => {
+          return concat([elt, " "]);
+        })
+      : [];
+    return rejectAndJoinSeps(commas, lambdaParameter);
   }
 
   lambdaParameter(ctx) {
@@ -104,10 +115,15 @@ class ExpressionsPrettierVisitor {
       return group(
         rejectAndConcat([
           group(
-            rejectAndConcat([binaryExpression, indent(line), "? ", expression1])
+            rejectAndConcat([
+              binaryExpression,
+              indent(line),
+              concat([ctx.QuestionMark[0], " "]),
+              expression1
+            ])
           ),
           indent(line),
-          ": ",
+          concat([ctx.Colon[0], " "]),
           expression2
         ])
       );
