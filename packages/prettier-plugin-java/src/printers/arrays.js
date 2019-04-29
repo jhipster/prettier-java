@@ -3,7 +3,7 @@
 
 const { line } = require("prettier").doc.builders;
 const { group, indent } = require("./prettier-builder");
-const { rejectAndConcat, rejectAndJoin } = require("./printer-utils");
+const { rejectAndConcat, rejectAndJoinSeps } = require("./printer-utils");
 
 class ArraysPrettierVisitor {
   arrayInitializer(ctx) {
@@ -32,7 +32,10 @@ class ArraysPrettierVisitor {
       return rejectAndConcat([comma, line]);
     });
 
-    return rejectAndConcat([line, rejectAndJoin(commas, variableInitializers)]);
+    return rejectAndConcat([
+      line,
+      rejectAndJoinSeps(commas, variableInitializers)
+    ]);
   }
 }
 
