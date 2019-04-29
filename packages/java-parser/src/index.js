@@ -95,7 +95,7 @@ function attachComments(tokens, comments) {
 
     // attach comment to the closest token
     if (
-      element.startOffset - tokens[currentToken].endOffset <=
+      element.startOffset - tokens[currentToken].endOffset <
       tokens[currentToken + 1].startOffset - element.endOffset
     ) {
       if (!tokens[currentToken].hasOwnProperty("trailingComments")) {
