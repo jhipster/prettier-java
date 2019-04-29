@@ -85,11 +85,16 @@ function indent(doc) {
   return prettier.indent(processComments(doc));
 }
 
+function dedent(doc) {
+  return prettier.dedent(processComments(doc));
+}
+
 module.exports = {
   concat,
   join,
   group,
   indent,
+  dedent,
   getImageWithComments,
   isToken
 };
