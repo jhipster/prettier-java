@@ -46,11 +46,31 @@ class ExpressionsPrettierVisitor {
 
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
-
-    if (lambdaParameterList && lambdaParameterList.parts.indexOf(", ") === -1) {
-      return lambdaParameterList;
+    for (
+      let i = 0;
+      lambdaParameterList && i < lambdaParameterList.parts.length;
+      i++
+    ) {
+      if (
+        lambdaParameterList.parts[i].parts &&
+        lambdaParameterList.parts[i].parts.indexOf(",") !== -1
+      ) {
+        return rejectAndConcat([
+          ctx.LBrace[0],
+          lambdaParameterList,
+          ctx.RBrace[0]
+        ]);
+      }
     }
-    return rejectAndConcat(["(", lambdaParameterList, ")"]);
+    if (ctx.LBrace && ctx.RBrace && !lambdaParameterList) {
+      return rejectAndConcat([
+        ctx.LBrace[0],
+        lambdaParameterList,
+        ctx.RBrace[0]
+      ]);
+    }
+    //TODO When removing braces, don't remove comments that are attached to braces.
+    return lambdaParameterList;
   }
 
   lambdaParameterList(ctx) {
@@ -65,7 +85,6 @@ class ExpressionsPrettierVisitor {
         })
       : [];
 
-    //return rejectAndJoin(", ", identifiers);
     return rejectAndJoinSeps(commas, identifiers);
   }
 
@@ -146,7 +165,9 @@ class ExpressionsPrettierVisitor {
     for (let i = 0; i < sortedTokens.length; i++) {
       const token = sortedTokens[i];
       if (token.tokenType.tokenName === "Instanceof") {
-        segment.push(rejectAndJoin(" ", ["instanceof", referenceType.shift()]));
+        segment.push(
+          rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
+        );
       } else if (matchCategory(token, "'AssignmentOperator'")) {
         segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
       } else if (
@@ -249,16 +270,23 @@ class ExpressionsPrettierVisitor {
   primarySuffix(ctx) {
     if (ctx.Dot) {
       if (ctx.This) {
-        return rejectAndConcat([".", "this"]);
+        return rejectAndConcat([ctx.Dot[0], ctx.This[0]]);
       } else if (ctx.Identifier) {
         const typeArguments = this.visit(ctx.typeArguments);
-        return rejectAndConcat([".", typeArguments, ctx.Identifier[0].image]);
+        return rejectAndConcat([
+          ctx.Dot[0],
+          typeArguments,
+          ctx.Identifier[0].image
+        ]);
       }
 
       const unqualifiedClassInstanceCreationExpression = this.visit(
         ctx.unqualifiedClassInstanceCreationExpression
       );
-      return rejectAndConcat([".", unqualifiedClassInstanceCreationExpression]);
+      return rejectAndConcat([
+        ctx.Dot[0],
+        unqualifiedClassInstanceCreationExpression
+      ]);
     }
     return this.visitSingle(ctx);
   }
@@ -267,6 +295,7 @@ class ExpressionsPrettierVisitor {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
 
+    //TODO
     return rejectAndConcat([join(".", fqnOrRefTypePart), dims]);
   }
 
@@ -320,7 +349,7 @@ class ExpressionsPrettierVisitor {
 
   parenthesisExpression(ctx) {
     const expression = this.visit(ctx.expression);
-    return rejectAndConcat(["(", expression, ")"]);
+    return rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]);
   }
 
   castExpression(ctx) {
@@ -331,7 +360,7 @@ class ExpressionsPrettierVisitor {
     const primitiveType = this.visit(ctx.primitiveType);
     const unaryExpression = this.visit(ctx.unaryExpression);
     return rejectAndJoin(" ", [
-      rejectAndConcat(["(", primitiveType, ")"]),
+      rejectAndConcat([ctx.LBrace[0], primitiveType, ctx.RBrace[0]]),
       unaryExpression
     ]);
   }
@@ -345,7 +374,7 @@ class ExpressionsPrettierVisitor {
       : this.visit(ctx.unaryExpressionNotPlusMinus);
 
     return rejectAndJoin(" ", [
-      rejectAndConcat(["(", referenceType, ")"]),
+      rejectAndConcat([ctx.LBrace[0], referenceType, ctx.RBrace[0]]),
       additionalBound,
       expression
     ]);
@@ -364,12 +393,12 @@ class ExpressionsPrettierVisitor {
     const classBody = this.visit(ctx.classBody);
 
     return rejectAndJoin(" ", [
-      "new",
+      ctx.New[0],
       rejectAndConcat([
         typeArguments,
         classOrInterfaceTypeToInstantiate,
-        "(",
-        group(rejectAndConcat([indent(argumentList), softline, ")"]))
+        ctx.LBrace[0],
+        group(rejectAndConcat([indent(argumentList), softline, ctx.RBrace[0]]))
       ]),
       classBody
     ]);
@@ -392,7 +421,7 @@ class ExpressionsPrettierVisitor {
     });
 
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
-
+    //TODO
     return rejectAndConcat([
       rejectAndJoin(".", segments),
       typeArgumentsOrDiamond
