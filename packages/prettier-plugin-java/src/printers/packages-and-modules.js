@@ -49,7 +49,7 @@ class PackagesAndModulesPrettierVisitor {
 
   packageDeclaration(ctx) {
     const modifiers = this.mapVisit(ctx.packageModifier);
-    const name = buildFqn(ctx.Identifier);
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, modifiers),
@@ -81,7 +81,7 @@ class PackagesAndModulesPrettierVisitor {
   moduleDeclaration(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
     const optionalOpen = ctx.Open ? ctx.Open[0] : "";
-    const name = buildFqn(ctx.Identifier);
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
     const moduleDirectives = this.mapVisit(ctx.moduleDirective);
     return rejectAndJoin(" ", [
       join(" ", annotations),

@@ -8,7 +8,6 @@ const {
   dedent,
   group,
   indent,
-  join,
   getImageWithComments
 } = require("./prettier-builder");
 const {

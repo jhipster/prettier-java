@@ -7,9 +7,9 @@ const {
   concat
 } = require("./prettier-builder");
 
-function buildFqn(tokens) {
-  const images = tokens.map(tok => tok.image);
-  return join(".", images);
+function buildFqn(tokens, dots) {
+  const images = tokens.map(tok => getImageWithComments(tok));
+  return rejectAndJoinSeps(dots ? dots : [], images);
 }
 
 function rejectAndJoinSeps(sepTokens, elems, sep) {
