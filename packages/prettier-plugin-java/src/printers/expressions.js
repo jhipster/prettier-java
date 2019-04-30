@@ -62,14 +62,21 @@ class ExpressionsPrettierVisitor {
         ]);
       }
     }
-    if (ctx.LBrace && ctx.RBrace && !lambdaParameterList) {
+
+    // removing braces when only no comments attached
+    if (
+      (ctx.LBrace && ctx.RBrace && !lambdaParameterList) ||
+      (ctx.LBrace[0].leadingComments ||
+        (ctx.LBrace[0].trailingComments && ctx.RBrace[0].leadingComments) ||
+        ctx.RBrace[0].trailingComments)
+    ) {
       return rejectAndConcat([
         ctx.LBrace[0],
         lambdaParameterList,
         ctx.RBrace[0]
       ]);
     }
-    //TODO When removing braces, don't remove comments that are attached to braces.
+
     return lambdaParameterList;
   }
 
@@ -297,9 +304,8 @@ class ExpressionsPrettierVisitor {
   fqnOrRefType(ctx) {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
-
-    //TODO
-    return rejectAndConcat([join(".", fqnOrRefTypePart), dims]);
+    const dots = ctx.Dot ? ctx.Dot : [];
+    return rejectAndConcat([rejectAndJoinSeps(dots, fqnOrRefTypePart), dims]);
   }
 
   fqnOrRefTypePart(ctx) {
@@ -318,9 +324,9 @@ class ExpressionsPrettierVisitor {
 
     let keyWord = null;
     if (ctx.Identifier) {
-      keyWord = getImageWithComments(ctx.Identifier[0]);
+      keyWord = ctx.Identifier[0];
     } else {
-      keyWord = "super";
+      keyWord = ctx.Super[0];
     }
 
     let fqnOrRefTypePart$classTypeArguments = "";
@@ -424,9 +430,9 @@ class ExpressionsPrettierVisitor {
     });
 
     const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
-    //TODO
+    const dots = ctx.Dot ? ctx.Dot : [];
     return rejectAndConcat([
-      rejectAndJoin(".", segments),
+      rejectAndJoinSeps(dots, segments),
       typeArgumentsOrDiamond
     ]);
   }
@@ -436,28 +442,25 @@ class ExpressionsPrettierVisitor {
   }
 
   diamond(ctx) {
-    return "<>";
+    return concat([ctx.Less[0], ctx.Greater[0]]);
   }
 
   methodInvocationSuffix(ctx) {
     const argumentList = this.visit(ctx.argumentList);
     return group(
       rejectAndConcat([
-        rejectAndConcat(["(", argumentList]),
+        rejectAndConcat([ctx.LBrace[0], argumentList]),
         dedent(softline),
-        ")"
+        ctx.RBrace[0]
       ])
     );
   }
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
-
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
     return group(
-      rejectAndConcat([
-        softline,
-        rejectAndJoin(rejectAndConcat([",", line]), expressions)
-      ])
+      rejectAndConcat([softline, rejectAndJoinSeps(commas, expressions)])
     );
   }
 
@@ -469,7 +472,7 @@ class ExpressionsPrettierVisitor {
       ? this.visit(ctx.arrayCreationDefaultInitSuffix)
       : this.visit(ctx.arrayCreationExplicitInitSuffix);
 
-    return rejectAndConcat(["new ", type, suffix]);
+    return rejectAndConcat([concat([ctx.New[0], " "]), type, suffix]);
   }
 
   arrayCreationDefaultInitSuffix(ctx) {
@@ -496,25 +499,31 @@ class ExpressionsPrettierVisitor {
 
     return rejectAndJoin(" ", [
       rejectAndJoin(" ", annotations),
-      rejectAndConcat(["[", expression, "]"])
+      rejectAndConcat([ctx.LSquare[0], expression, ctx.RSquare[0]])
     ]);
   }
 
   classLiteralSuffix(ctx) {
-    const squares = ctx.LSquare ? "[]".repeat(ctx.LSquare.length) : "";
+    let squares = "";
+    if (ctx.LSquare) {
+      squares = [""];
+      for (let i = 0; i < ctx.LSquare.length; i++) {
+        squares = concat([squares, concat([ctx.LSquare[i], ctx.RSquare[i]])]);
+      }
+    }
 
-    return rejectAndConcat([squares, ".class"]);
+    return rejectAndConcat([squares, concat([ctx.Dot[0], ctx.Class[0]])]);
   }
 
   arrayAccessSuffix(ctx) {
     const expression = this.visit(ctx.expression);
-    return rejectAndConcat(["[", expression, "]"]);
+    return rejectAndConcat([ctx.LSquare[0], expression, ctx.RSquare[0]]);
   }
 
   methodReferenceSuffix(ctx) {
     const typeArguments = this.visit(ctx.typeArguments);
-    const identifierOrNew = ctx.New ? "new" : ctx.Identifier[0];
-    return rejectAndConcat(["::", typeArguments, identifierOrNew]);
+    const identifierOrNew = ctx.New ? ctx.New[0] : ctx.Identifier[0];
+    return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
   }
 
   identifyNewExpressionType(ctx) {
