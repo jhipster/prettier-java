@@ -41,7 +41,7 @@ class ExpressionsPrettierVisitor {
       return this.visitSingle(ctx);
     }
 
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   lambdaParametersWithBraces(ctx) {
@@ -78,7 +78,9 @@ class ExpressionsPrettierVisitor {
   }
 
   inferredLambdaParameterList(ctx) {
-    const identifiers = ctx.Identifier.map(identifier => identifier.image);
+    const identifiers = ctx.Identifier.map(identifier =>
+      getImageWithComments(identifier)
+    );
     const commas = ctx.Comma
       ? ctx.Comma.map(elt => {
           return concat([elt, " "]);
@@ -118,7 +120,7 @@ class ExpressionsPrettierVisitor {
     if (ctx.unannType) {
       return this.visitSingle(ctx);
     }
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   lambdaBody(ctx) {
@@ -169,7 +171,7 @@ class ExpressionsPrettierVisitor {
           rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
         );
       } else if (matchCategory(token, "'AssignmentOperator'")) {
-        segment.push(rejectAndJoin(" ", [token.image, expression.shift()]));
+        segment.push(rejectAndJoin(" ", [token, expression.shift()]));
       } else if (
         i + 1 < sortedTokens.length &&
         ((sortedTokens[i].image === ">" && sortedTokens[i + 1].image === ">") ||
@@ -179,7 +181,7 @@ class ExpressionsPrettierVisitor {
         // currently work only for s << 2 and s >> 2
         segment.push(
           rejectAndJoin(" ", [
-            rejectAndConcat([token.image, sortedTokens[i + 1].image]),
+            rejectAndConcat([token, sortedTokens[i + 1]]),
             unaryExpression.shift()
           ])
         );
@@ -189,7 +191,7 @@ class ExpressionsPrettierVisitor {
           indent(
             rejectAndConcat([
               softline,
-              rejectAndJoin(" ", [token.image, unaryExpression.shift()])
+              rejectAndJoin(" ", [token, unaryExpression.shift()])
             ])
           )
         );
@@ -200,11 +202,11 @@ class ExpressionsPrettierVisitor {
 
   unaryExpression(ctx) {
     const unaryPrefixOperator = ctx.UnaryPrefixOperator
-      ? ctx.UnaryPrefixOperator.map(token => token.image)
+      ? ctx.UnaryPrefixOperator.map(token => getImageWithComments(token))
       : [];
     const primary = this.visit(ctx.primary);
     const unarySuffixOperator = ctx.UnarySuffixOperator
-      ? ctx.UnarySuffixOperator.map(token => token.image)
+      ? ctx.UnarySuffixOperator.map(token => getImageWithComments(token))
       : [];
 
     return rejectAndConcat([
@@ -218,13 +220,18 @@ class ExpressionsPrettierVisitor {
     const unaryPrefixOperatorNotPlusMinus = ctx.unaryPrefixOperatorNotPlusMinus
       ? rejectAndJoin(
           " ",
-          ctx.unaryPrefixOperatorNotPlusMinus.map(token => token.image)
+          ctx.unaryPrefixOperatorNotPlusMinus.map(token =>
+            getImageWithComments(token)
+          )
         )
       : "";
 
     const primary = this.visit(ctx.primary);
     const unarySuffixOperator = ctx.unarySuffixOperator
-      ? rejectAndJoin(" ", ctx.unarySuffixOperator.map(token => token.image))
+      ? rejectAndJoin(
+          " ",
+          ctx.unarySuffixOperator.map(token => getImageWithComments(token))
+        )
       : "";
 
     return rejectAndJoin(" ", [
@@ -261,7 +268,7 @@ class ExpressionsPrettierVisitor {
 
   primaryPrefix(ctx) {
     if (ctx.This || ctx.Void) {
-      return this.getSingle(ctx).image;
+      return getImageWithComments(this.getSingle(ctx));
     }
 
     return this.visitSingle(ctx);
@@ -273,11 +280,7 @@ class ExpressionsPrettierVisitor {
         return rejectAndConcat([ctx.Dot[0], ctx.This[0]]);
       } else if (ctx.Identifier) {
         const typeArguments = this.visit(ctx.typeArguments);
-        return rejectAndConcat([
-          ctx.Dot[0],
-          typeArguments,
-          ctx.Identifier[0].image
-        ]);
+        return rejectAndConcat([ctx.Dot[0], typeArguments, ctx.Identifier[0]]);
       }
 
       const unqualifiedClassInstanceCreationExpression = this.visit(
@@ -315,7 +318,7 @@ class ExpressionsPrettierVisitor {
 
     let keyWord = null;
     if (ctx.Identifier) {
-      keyWord = ctx.Identifier[0].image;
+      keyWord = getImageWithComments(ctx.Identifier[0]);
     } else {
       keyWord = "super";
     }
@@ -414,7 +417,7 @@ class ExpressionsPrettierVisitor {
       if (token.name) {
         currentSegment.push(this.visit([token]));
       } else {
-        currentSegment.push(token.image);
+        currentSegment.push(token);
         segments.push(rejectAndJoin(" ", currentSegment));
         currentSegment = [];
       }
@@ -510,7 +513,7 @@ class ExpressionsPrettierVisitor {
 
   methodReferenceSuffix(ctx) {
     const typeArguments = this.visit(ctx.typeArguments);
-    const identifierOrNew = ctx.New ? "new" : ctx.Identifier[0].image;
+    const identifierOrNew = ctx.New ? "new" : ctx.Identifier[0];
     return rejectAndConcat(["::", typeArguments, identifierOrNew]);
   }
 
