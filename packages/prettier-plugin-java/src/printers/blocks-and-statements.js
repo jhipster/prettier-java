@@ -255,8 +255,7 @@ class BlocksAndStatementPrettierVisitor {
 
   breakStatement(ctx) {
     if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0].image;
-
+      const identifier = ctx.Identifier[0];
       return rejectAndConcat([
         concat([ctx.Break[0], " "]),
         identifier,
@@ -264,12 +263,12 @@ class BlocksAndStatementPrettierVisitor {
       ]);
     }
 
-    return "break;";
+    return concat([ctx.Break[0], ctx.Semicolon[0]]);
   }
 
   continueStatement(ctx) {
     if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0].image;
+      const identifier = ctx.Identifier[0];
 
       return rejectAndConcat([
         concat([ctx.Continue[0], " "]),
@@ -366,13 +365,9 @@ class BlocksAndStatementPrettierVisitor {
   catchType(ctx) {
     const unannClassType = this.visit(ctx.unannClassType);
     const classTypes = this.mapVisit(ctx.classType);
+    const ors = ctx.Or ? ctx.Or.map(elt => concat([line, elt, " "])) : [];
 
-    return group(
-      rejectAndJoin(concat([line, "| "]), [
-        unannClassType,
-        rejectAndJoin(concat([line, "| "]), classTypes)
-      ])
-    );
+    return group(rejectAndJoinSeps(ors, [unannClassType, ...classTypes]));
   }
 
   finally(ctx) {
@@ -425,7 +420,7 @@ class BlocksAndStatementPrettierVisitor {
   resourceInit(ctx) {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
-    const identifier = ctx.Identifier[0].image;
+    const identifier = ctx.Identifier[0];
     const expression = this.visit(ctx.expression);
 
     return rejectAndJoin(" ", [
