@@ -352,9 +352,11 @@ public final class ArrayTable<R, C, V>
   * @param valueClass class of values stored in the returned array
   */
   @GwtIncompatible// reflection
+
   public V[][] toArray(Class<V> valueClass) {
     @SuppressWarnings("unchecked"
-    )// TODO: safe? V[][] copy = (V[][]) Array.newInstance(
+    )// TODO: safe?
+     V[][] copy = (V[][]) Array.newInstance(
       valueClass,
       rowList.size(),
       columnList.size()

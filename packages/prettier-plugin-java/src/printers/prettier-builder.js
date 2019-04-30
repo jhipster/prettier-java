@@ -24,7 +24,10 @@ function getImageWithComments(token, toadd = "") {
     }
     token.trailingComments.forEach(element => {
       arr.push(concat(formatComment(element)));
-      if (element.startLine !== token.startLine) {
+      if (
+        element.startLine !== token.startLine ||
+        element.tokenType.tokenName === "LineComment"
+      ) {
         arr.push(prettier.hardline);
       }
     });
