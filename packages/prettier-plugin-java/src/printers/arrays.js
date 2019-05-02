@@ -28,9 +28,11 @@ class ArraysPrettierVisitor {
 
   variableInitializerList(ctx) {
     const variableInitializers = this.mapVisit(ctx.variableInitializer);
-    const commas = ctx.Comma.map(comma => {
-      return rejectAndConcat([comma, line]);
-    });
+    const commas = ctx.Comma
+      ? ctx.Comma.map(comma => {
+          return rejectAndConcat([comma, line]);
+        })
+      : [];
 
     return rejectAndConcat([
       line,
