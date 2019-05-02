@@ -77,7 +77,12 @@ function testRepositorySample(testFolder, command, args, options) {
     it(`verify semantic validity ${testFolder}`, function(done) {
       this.timeout(0);
       const code = spawnSync(command, args, options);
-      expect(0).to.equal(code.status);
+      if (code.status !== "0") {
+        console.error(code.stdout);
+        expect.fail(
+          `Cannot build ${testFolder}, please check the output above.`
+        );
+      }
       done();
     });
   });
