@@ -35,8 +35,9 @@ const expressions = require("./productions/expressions");
  *
  */
 class JavaParser extends Parser {
-  constructor() {
+  constructor(serializedGrammar) {
     super(allTokens, {
+      serializedGrammar: serializedGrammar,
       // TODO: performance: maxLookahead = 1 may be faster, but could we refactor the grammar to it?
       //       and more importantly, do we want to?
       maxLookahead: 2,

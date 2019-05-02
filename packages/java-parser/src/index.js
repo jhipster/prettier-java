@@ -1,11 +1,33 @@
 "use strict";
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
-
 // const startTime = new Date().getTime();
-const parser = new JavaParser();
+let serializedGrammar;
+if (process.env.NODE_ENV === "production") {
+  try {
+    serializedGrammar = require("./gen/grammar.json");
+  } catch (err) {
+    /* */
+  }
+}
+const parser = new JavaParser(serializedGrammar);
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
+/*
+const grammar = parser.getSerializedGastProductions();
+const fs = require("fs");
+const path = require("path");
+
+try {
+  fs.mkdirSync(path.join(__dirname, "./gen"));
+} catch (err) {
+  //
+}
+fs.writeFileSync(
+  path.join(__dirname, "./gen/grammar.json"),
+  JSON.stringify(grammar, null, 2)
+);
+*/
 
 // const endTime = new Date().getTime();
 // const totalTime = endTime - startTime;
@@ -28,6 +50,7 @@ function parse(inputText, entryPoint = "compilationUnit") {
   }
 
   parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
+  //console.log(JSON.stringify(parser.input[5], (key, value) => { if(key!=="START_CHARS_HINT") return value}));
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
