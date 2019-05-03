@@ -134,14 +134,16 @@ function sortModifiers(modifiers) {
 
 function findDeepElementInPartsArray(item, elt) {
   if (Array.isArray(item)) {
-    if (item.includes(elt)) return true;
+    if (item.includes(elt)) {
+      return true;
+    }
     for (let i = 0; i < item.length; i++) {
       if (findDeepElementInPartsArray(item[i], elt)) {
         return true;
       }
     }
   } else {
-    for (var key in item) {
+    for (const key in item) {
       if (
         typeof item[key] === "object" &&
         findDeepElementInPartsArray(item[key], elt)
