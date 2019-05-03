@@ -221,20 +221,12 @@ class ExpressionsPrettierVisitor {
 
   unaryExpressionNotPlusMinus(ctx) {
     const unaryPrefixOperatorNotPlusMinus = ctx.unaryPrefixOperatorNotPlusMinus
-      ? rejectAndJoin(
-          " ",
-          ctx.unaryPrefixOperatorNotPlusMinus.map(token =>
-            getImageWithComments(token)
-          )
-        )
+      ? rejectAndJoin(" ", ctx.unaryPrefixOperatorNotPlusMinus)
       : "";
 
     const primary = this.visit(ctx.primary);
     const unarySuffixOperator = ctx.unarySuffixOperator
-      ? rejectAndJoin(
-          " ",
-          ctx.unarySuffixOperator.map(token => getImageWithComments(token))
-        )
+      ? rejectAndJoin(" ", ctx.unarySuffixOperator)
       : "";
 
     return rejectAndJoin(" ", [
