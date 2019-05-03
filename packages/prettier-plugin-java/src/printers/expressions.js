@@ -84,16 +84,13 @@ class ExpressionsPrettierVisitor {
   }
 
   inferredLambdaParameterList(ctx) {
-    const identifiers = ctx.Identifier.map(identifier =>
-      getImageWithComments(identifier)
-    );
     const commas = ctx.Comma
       ? ctx.Comma.map(elt => {
           return concat([elt, " "]);
         })
       : [];
 
-    return rejectAndJoinSeps(commas, identifiers);
+    return rejectAndJoinSeps(commas, ctx.Identifier);
   }
 
   explicitLambdaParameterList(ctx) {
@@ -208,11 +205,11 @@ class ExpressionsPrettierVisitor {
 
   unaryExpression(ctx) {
     const unaryPrefixOperator = ctx.UnaryPrefixOperator
-      ? ctx.UnaryPrefixOperator.map(token => getImageWithComments(token))
+      ? ctx.UnaryPrefixOperator
       : [];
     const primary = this.visit(ctx.primary);
     const unarySuffixOperator = ctx.UnarySuffixOperator
-      ? ctx.UnarySuffixOperator.map(token => getImageWithComments(token))
+      ? ctx.UnarySuffixOperator
       : [];
 
     return rejectAndConcat([

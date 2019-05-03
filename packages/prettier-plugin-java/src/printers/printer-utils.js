@@ -1,15 +1,9 @@
 "use strict";
 const _ = require("lodash");
-const {
-  isToken,
-  getImageWithComments,
-  join,
-  concat
-} = require("./prettier-builder");
+const { join, concat } = require("./prettier-builder");
 
 function buildFqn(tokens, dots) {
-  const images = tokens.map(tok => getImageWithComments(tok));
-  return rejectAndJoinSeps(dots ? dots : [], images);
+  return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
 
 function rejectAndJoinSeps(sepTokens, elems, sep) {
@@ -20,10 +14,7 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
   const res = [];
 
   for (let i = 0; i < sepTokens.length; i++) {
-    res.push(
-      actualElements[i],
-      isToken(sepTokens) ? getImageWithComments(sepTokens[i]) : sepTokens[i]
-    );
+    res.push(actualElements[i], sepTokens[i]);
     if (sep) {
       res.push(sep);
     }

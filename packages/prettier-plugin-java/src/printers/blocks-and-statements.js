@@ -6,6 +6,7 @@ const {
   group,
   indent,
   concat,
+  join,
   getImageWithComments
 } = require("./prettier-builder");
 const {
@@ -309,7 +310,7 @@ class BlocksAndStatementPrettierVisitor {
     const block = this.visit(ctx.block);
 
     return rejectAndConcat([
-      concat([ctx.Synchronized[0], " ", ctx.LBrace[0]]),
+      join(" ", [ctx.Synchronized[0], ctx.LBrace[0]]),
       expression,
       concat([ctx.RBrace[0], " "]),
       block
