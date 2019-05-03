@@ -23,7 +23,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const type = ctx.numericType
       ? this.visit(ctx.numericType)
-      : getImageWithComments(this.getSingle(ctx));
+      : this.getSingle(ctx);
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
