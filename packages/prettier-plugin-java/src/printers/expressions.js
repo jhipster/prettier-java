@@ -502,9 +502,9 @@ class ExpressionsPrettierVisitor {
   classLiteralSuffix(ctx) {
     let squares = "";
     if (ctx.LSquare) {
-      squares = [""];
+      squares = [];
       for (let i = 0; i < ctx.LSquare.length; i++) {
-        squares = concat([squares, concat([ctx.LSquare[i], ctx.RSquare[i]])]);
+        squares.push(concat([ctx.LSquare[i], ctx.RSquare[i]]));
       }
     }
 
