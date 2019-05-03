@@ -132,6 +132,27 @@ function sortModifiers(modifiers) {
   return [firstAnnotations, otherModifiers];
 }
 
+function findDeepElementInPartsArray(item, elt) {
+  if (Array.isArray(item)) {
+    if (item.includes(elt)) return true;
+    for (let i = 0; i < item.length; i++) {
+      if (findDeepElementInPartsArray(item[i], elt)) {
+        return true;
+      }
+    }
+  } else {
+    for (var key in item) {
+      if (
+        typeof item[key] === "object" &&
+        findDeepElementInPartsArray(item[key], elt)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -141,5 +162,6 @@ module.exports = {
   sortTokens,
   matchCategory,
   sortModifiers,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  findDeepElementInPartsArray
 };

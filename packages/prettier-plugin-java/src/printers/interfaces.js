@@ -126,7 +126,10 @@ class InterfacesPrettierVisitor {
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
     const separator =
-      (methodBody === ";") | ((methodBody.parts && methodBody.parts[0]) === ";")
+      methodBody &&
+      methodBody.contents &&
+      methodBody.contents.parts &&
+      methodBody.contents.parts.includes(";")
         ? ""
         : " ";
 

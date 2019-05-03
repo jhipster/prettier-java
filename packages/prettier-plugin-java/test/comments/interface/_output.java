@@ -20,5 +20,5 @@ public /*a*/interface/*b*/ MyInterface
     /*a*/Param2/*b*/ /*a*/p2/*b*/,
     Param3 p3
   )
-    /*a*/throws/*b*/ Exception/*a*/,/*b*/ RuntimeException /*a*/;/*b*/
+    /*a*/throws/*b*/ Exception/*a*/,/*b*/ RuntimeException/*a*/;/*b*/
 }

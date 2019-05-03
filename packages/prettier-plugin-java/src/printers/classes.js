@@ -275,8 +275,13 @@ class ClassesPrettierVisitor {
 
     const header = this.visit(ctx.methodHeader);
     const body = this.visit(ctx.methodBody);
-
-    const headerBodySeparator = body === ";" ? "" : " ";
+    const headerBodySeparator =
+      body &&
+      body.contents &&
+      body.contents.parts &&
+      body.contents.parts.includes(";")
+        ? ""
+        : " ";
     return rejectAndConcat([
       line,
       rejectAndJoin(hardline, [

@@ -1,13 +1,7 @@
 "use strict";
 const prettier = require("prettier").doc.builders;
 
-function getImageWithComments(token, toadd = "") {
-  if (
-    !token.hasOwnProperty("leadingComments") &&
-    !token.hasOwnProperty("trailingComments")
-  ) {
-    return token.image + toadd;
-  }
+function getImageWithComments(token) {
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
     token.leadingComments.forEach(element => {

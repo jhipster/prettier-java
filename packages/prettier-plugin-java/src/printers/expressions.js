@@ -16,7 +16,8 @@ const {
   rejectAndConcat,
   sortAnnotationIdentifier,
   sortTokens,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  findDeepElementInPartsArray
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -45,21 +46,14 @@ class ExpressionsPrettierVisitor {
 
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
-    for (
-      let i = 0;
-      lambdaParameterList && i < lambdaParameterList.parts.length;
-      i++
-    ) {
-      if (
-        lambdaParameterList.parts[i].parts &&
-        lambdaParameterList.parts[i].parts.indexOf(",") !== -1
-      ) {
-        return rejectAndConcat([
-          ctx.LBrace[0],
-          lambdaParameterList,
-          ctx.RBrace[0]
-        ]);
-      }
+
+    //console.log(JSON.stringify(lambdaParameterList)+" "+findDeepElementInPartsArray(lambdaParameterList, ','))
+    if (findDeepElementInPartsArray(lambdaParameterList, ",")) {
+      return rejectAndConcat([
+        ctx.LBrace[0],
+        lambdaParameterList,
+        ctx.RBrace[0]
+      ]);
     }
 
     // removing braces when only no comments attached
