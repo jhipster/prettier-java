@@ -144,6 +144,9 @@ class ClassesPrettierVisitor {
   }
 
   classMemberDeclaration(ctx) {
+    if (ctx.Semicolon) {
+      return getImageWithComments(this.getSingle(ctx));
+    }
     return this.visitSingle(ctx);
   }
 
