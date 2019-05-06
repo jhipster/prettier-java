@@ -17,7 +17,8 @@ const {
   sortAnnotationIdentifier,
   sortTokens,
   rejectAndJoinSeps,
-  findDeepElementInPartsArray
+  findDeepElementInPartsArray,
+  isExplicitLambdaParameter
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -57,10 +58,13 @@ class ExpressionsPrettierVisitor {
 
     // removing braces when only no comments attached
     if (
-      (ctx.LBrace && ctx.RBrace && !lambdaParameterList) ||
-      (ctx.LBrace[0].leadingComments ||
-        (ctx.LBrace[0].trailingComments && ctx.RBrace[0].leadingComments) ||
-        ctx.RBrace[0].trailingComments)
+      (ctx.LBrace &&
+        ctx.RBrace &&
+        (!lambdaParameterList || isExplicitLambdaParameter(ctx))) ||
+      ctx.LBrace[0].leadingComments ||
+      ctx.LBrace[0].trailingComments ||
+      ctx.RBrace[0].leadingComments ||
+      ctx.RBrace[0].trailingComments
     ) {
       return rejectAndConcat([
         ctx.LBrace[0],
