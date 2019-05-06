@@ -3,8 +3,14 @@
 
 const prettier = require("prettier");
 const { expect } = require("chai");
-const { readFileSync, writeFileSync } = require("fs");
-const { resolve, relative } = require("path");
+const {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  removeSync,
+  copySync
+} = require("fs-extra");
+const { resolve, relative, basename } = require("path");
 const klawSync = require("klaw-sync");
 const { spawnSync } = require("child_process");
 
@@ -46,9 +52,16 @@ function testSample(testFolder, exclusive) {
   });
 }
 
-function testRepositorySample(testFolder, command, args, options) {
+function testRepositorySample(testFolder, command, args) {
   describe(`Prettify the repository <${testFolder}>`, () => {
-    const sampleFiles = klawSync(resolve(__dirname, testFolder), {
+    const sample = resolve(__dirname, "../sample");
+    const samplesDir = resolve(sample, basename(testFolder));
+    if (existsSync(samplesDir)) {
+      removeSync(samplesDir);
+    }
+    copySync(testFolder, samplesDir);
+
+    const sampleFiles = klawSync(resolve(__dirname, samplesDir), {
       nodir: true
     });
     const javaSampleFiles = sampleFiles.filter(fileDesc =>
@@ -76,7 +89,9 @@ function testRepositorySample(testFolder, command, args, options) {
 
     it(`verify semantic validity ${testFolder}`, function(done) {
       this.timeout(0);
-      const code = spawnSync(command, args, options);
+      const code = spawnSync(command, args, {
+        cwd: samplesDir
+      });
       if (code.status !== 0) {
         console.error(code.stdout);
         expect.fail(
