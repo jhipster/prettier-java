@@ -47,7 +47,6 @@ class ExpressionsPrettierVisitor {
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
 
-    //console.log(JSON.stringify(lambdaParameterList)+" "+findDeepElementInPartsArray(lambdaParameterList, ','))
     if (findDeepElementInPartsArray(lambdaParameterList, ",")) {
       return rejectAndConcat([
         ctx.LBrace[0],
@@ -176,13 +175,27 @@ class ExpressionsPrettierVisitor {
       ) {
         // TODO: fix here by implementing print for s << 2, s >> 2 and s >>> 2
         // currently work only for s << 2 and s >> 2
-        segment.push(
-          rejectAndJoin(" ", [
-            rejectAndConcat([token, sortedTokens[i + 1]]),
-            unaryExpression.shift()
-          ])
-        );
-        i += 1;
+        if (sortedTokens[i + 2] && sortedTokens[i + 2].image === ">") {
+          segment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([
+                token,
+                sortedTokens[i + 1],
+                sortedTokens[i + 2]
+              ]),
+              unaryExpression.shift()
+            ])
+          );
+          i++;
+        } else {
+          segment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([token, sortedTokens[i + 1]]),
+              unaryExpression.shift()
+            ])
+          );
+        }
+        i++;
       } else if (matchCategory(token, "'BinaryOperator'")) {
         segment.push(
           indent(
@@ -205,7 +218,6 @@ class ExpressionsPrettierVisitor {
     const unarySuffixOperator = ctx.UnarySuffixOperator
       ? ctx.UnarySuffixOperator
       : [];
-
     return rejectAndConcat([
       rejectAndConcat(unaryPrefixOperator),
       primary,
@@ -256,7 +268,7 @@ class ExpressionsPrettierVisitor {
   }
 
   primaryPrefix(ctx) {
-    if (ctx.This || ctx.Void) {
+    if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
 
