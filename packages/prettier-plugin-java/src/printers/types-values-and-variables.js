@@ -3,20 +3,19 @@
 
 const _ = require("lodash");
 
+const { line, softline } = require("prettier").doc.builders;
 const {
   concat,
   join,
-  line,
-  ifBreak,
   group,
   indent,
-  dedent,
-  softline
-} = require("prettier").doc.builders;
+  getImageWithComments
+} = require("./prettier-builder");
 const {
   rejectAndJoin,
   rejectAndConcat,
-  sortClassTypeChildren
+  sortClassTypeChildren,
+  rejectAndJoinSeps
 } = require("./printer-utils");
 
 class TypesValuesAndVariablesPrettierVisitor {
@@ -24,7 +23,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const type = ctx.numericType
       ? this.visit(ctx.numericType)
-      : this.getSingle(ctx).image;
+      : this.getSingle(ctx);
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
@@ -34,11 +33,11 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   integralType(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   floatingPointType(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   referenceType(ctx) {
@@ -75,7 +74,7 @@ class TypesValuesAndVariablesPrettierVisitor {
       } else if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
       } else {
-        currentSegment.push(token.image);
+        currentSegment.push(token);
         if (
           (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
           i + 1 === tokens.length
@@ -86,7 +85,7 @@ class TypesValuesAndVariablesPrettierVisitor {
       }
     });
 
-    return rejectAndJoin(".", segments);
+    return rejectAndJoinSeps(ctx.Dot, segments);
   }
 
   interfaceType(ctx) {
@@ -95,7 +94,7 @@ class TypesValuesAndVariablesPrettierVisitor {
 
   typeVariable(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const identifier = this.getSingle(ctx).image;
+    const identifier = this.getSingle(ctx);
 
     return rejectAndJoin(" ", [join(" ", annotations), identifier]);
   }
@@ -125,7 +124,10 @@ class TypesValuesAndVariablesPrettierVisitor {
         currentSegment.push(this.visit([token]));
       } else {
         segments.push(
-          rejectAndConcat([rejectAndJoin(" ", currentSegment), "[]"])
+          rejectAndConcat([
+            rejectAndJoin(" ", currentSegment),
+            concat([ctx.LSquare[0], ctx.RSquare[0]])
+          ])
         );
         currentSegment = [];
       }
@@ -156,7 +158,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const additionalBound = this.mapVisit(ctx.additionalBound);
 
     return rejectAndJoin(" ", [
-      "extends",
+      ctx.Extends[0],
       classOrInterfaceType,
       join(" ", additionalBound)
     ]);
@@ -165,26 +167,25 @@ class TypesValuesAndVariablesPrettierVisitor {
   additionalBound(ctx) {
     const interfaceType = this.visit(ctx.interfaceType);
 
-    return join(" ", ["&", interfaceType]);
+    return join(" ", [ctx.And[0], interfaceType]);
   }
 
   typeArguments(ctx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
     return rejectAndConcat([
-      "<",
-      group(rejectAndConcat([indent(typeArgumentList), softline, ">"]))
+      ctx.Less[0],
+      group(
+        rejectAndConcat([indent(typeArgumentList), softline, ctx.Greater[0]])
+      )
     ]);
   }
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
-
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
     return group(
-      rejectAndConcat([
-        softline,
-        rejectAndJoin(rejectAndConcat([",", line]), typeArguments)
-      ])
+      rejectAndConcat([softline, rejectAndJoinSeps(commas, typeArguments)])
     );
   }
 
@@ -196,11 +197,15 @@ class TypesValuesAndVariablesPrettierVisitor {
     const annotations = this.mapVisit(ctx.annotation);
     const wildcardBounds = this.visit(ctx.wildcardBounds);
 
-    return rejectAndJoin(" ", [join(" ", annotations), "?", wildcardBounds]);
+    return rejectAndJoin(" ", [
+      join(" ", annotations),
+      ctx.QuestionMark[0],
+      wildcardBounds
+    ]);
   }
 
   wildcardBounds(ctx) {
-    const keyWord = ctx.Extends ? "extends" : "super";
+    const keyWord = ctx.Extends ? ctx.Extends[0] : ctx.Super[0];
     const referenceType = this.visit(ctx.referenceType);
     return join(" ", [keyWord, referenceType]);
   }

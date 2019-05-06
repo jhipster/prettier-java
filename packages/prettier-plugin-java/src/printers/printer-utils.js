@@ -1,10 +1,26 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat } = require("prettier").doc.builders;
+const { join, concat } = require("./prettier-builder");
 
-function buildFqn(tokens) {
-  const images = tokens.map(tok => tok.image);
-  return join(".", images);
+function buildFqn(tokens, dots) {
+  return rejectAndJoinSeps(dots ? dots : [], tokens);
+}
+
+function rejectAndJoinSeps(sepTokens, elems, sep) {
+  if (!Array.isArray(sepTokens)) {
+    return rejectAndJoin(sepTokens, elems);
+  }
+  const actualElements = reject(elems);
+  const res = [];
+
+  for (let i = 0; i < sepTokens.length; i++) {
+    res.push(actualElements[i], sepTokens[i]);
+    if (sep) {
+      res.push(sep);
+    }
+  }
+  res.push(...actualElements.slice(sepTokens.length));
+  return concat(res);
 }
 
 function reject(elems) {
@@ -116,6 +132,29 @@ function sortModifiers(modifiers) {
   return [firstAnnotations, otherModifiers];
 }
 
+function findDeepElementInPartsArray(item, elt) {
+  if (Array.isArray(item)) {
+    if (item.includes(elt)) {
+      return true;
+    }
+    for (let i = 0; i < item.length; i++) {
+      if (findDeepElementInPartsArray(item[i], elt)) {
+        return true;
+      }
+    }
+  } else {
+    for (const key in item) {
+      if (
+        typeof item[key] === "object" &&
+        findDeepElementInPartsArray(item[key], elt)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -124,5 +163,7 @@ module.exports = {
   sortClassTypeChildren,
   sortTokens,
   matchCategory,
-  sortModifiers
+  sortModifiers,
+  rejectAndJoinSeps,
+  findDeepElementInPartsArray
 };
