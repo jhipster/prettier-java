@@ -1,9 +1,12 @@
+/*eslint no-console: ["error", { allow: ["error"] }] */
 "use strict";
 
 const prettier = require("prettier");
 const { expect } = require("chai");
-const { readFileSync } = require("fs");
+const { readFileSync, writeFileSync } = require("fs");
 const { resolve, relative } = require("path");
+const klawSync = require("klaw-sync");
+const { spawnSync } = require("child_process");
 
 const pluginPath = resolve(__dirname, "../");
 function testSample(testFolder, exclusive) {
@@ -43,6 +46,48 @@ function testSample(testFolder, exclusive) {
   });
 }
 
+function testRepositorySample(testFolder, command, args, options) {
+  describe(`Prettify the repository <${testFolder}>`, () => {
+    const sampleFiles = klawSync(resolve(__dirname, testFolder), {
+      nodir: true
+    });
+    const javaSampleFiles = sampleFiles.filter(fileDesc =>
+      fileDesc.path.endsWith(".java")
+    );
+
+    javaSampleFiles.forEach(fileDesc => {
+      it(`try to prettify ${fileDesc.path}`, () => {
+        const javaFileText = readFileSync(fileDesc.path, "utf8");
+        expect(() => {
+          try {
+            const newExpectedText = prettier.format(javaFileText, {
+              parser: "java",
+              plugins: [resolve(__dirname, "../")],
+              tabWidth: 2
+            });
+            writeFileSync(fileDesc.path, newExpectedText);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
+        }).to.not.throw();
+      });
+    });
+
+    it(`verify semantic validity ${testFolder}`, function(done) {
+      this.timeout(0);
+      const code = spawnSync(command, args, options);
+      if (code.status !== 0) {
+        console.error(code.stdout);
+        expect.fail(
+          `Cannot build ${testFolder}, please check the output above.`
+        );
+      }
+      done();
+    });
+  });
+}
 module.exports = {
-  testSample
+  testSample,
+  testRepositorySample
 };
