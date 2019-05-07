@@ -22,6 +22,12 @@ const jhipsterRepository = [
 ];
 
 describe("prettier-java", () => {
+  testRepositorySample(
+    resolve(__dirname, "../samples/spring-boot"),
+    "true",
+    []
+  );
+
   testRepositorySample(resolve(__dirname, "../samples/spring-boot"), "./mvnw", [
     "clean",
     "install",
