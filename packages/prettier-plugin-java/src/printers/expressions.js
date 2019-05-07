@@ -502,15 +502,13 @@ class ExpressionsPrettierVisitor {
   }
 
   classLiteralSuffix(ctx) {
-    let squares = "";
+    const squares = [];
     if (ctx.LSquare) {
-      squares = [];
       for (let i = 0; i < ctx.LSquare.length; i++) {
         squares.push(concat([ctx.LSquare[i], ctx.RSquare[i]]));
       }
     }
-
-    return rejectAndConcat([squares, concat([ctx.Dot[0], ctx.Class[0]])]);
+    return rejectAndConcat([...squares, ctx.Dot[0], ctx.Class[0]]);
   }
 
   arrayAccessSuffix(ctx) {
