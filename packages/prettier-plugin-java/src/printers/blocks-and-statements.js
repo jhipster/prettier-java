@@ -72,7 +72,17 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   emptyStatement(ctx) {
-    return getImageWithComments(ctx.Semicolon[0]);
+    const semiColon = ctx.Semicolon[0];
+
+    if (
+      semiColon.leadingComments === undefined &&
+      semiColon.trailingComments === undefined
+    ) {
+      return "";
+    }
+
+    semiColon.image = "";
+    return getImageWithComments(semiColon);
   }
 
   labeledStatement(ctx) {
