@@ -69,7 +69,7 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`try to prettify ${fileDesc.path}`, () => {
+      it(`prettify ${fileDesc.path}`, () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
         expect(() => {
           try {
@@ -93,7 +93,7 @@ function testRepositorySample(testFolder, command, args) {
         cwd: samplesDir
       });
       if (code.status !== 0) {
-        console.error(code.stdout);
+        console.error(code.stdout.toString());
         expect.fail(
           `Cannot build ${testFolder}, please check the output above.`
         );
