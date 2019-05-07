@@ -23,7 +23,7 @@ const jhipsterRepository = [
 
 describe("prettier-java", () => {
   testRepositorySample(
-    resolve(__dirname, "../samples/spring-boot"),
+    resolve(__dirname, "../samples/java-design-patterns"),
     "true",
     []
   );
