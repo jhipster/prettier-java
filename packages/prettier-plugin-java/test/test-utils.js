@@ -69,7 +69,7 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`prettify ${fileDesc.path}`, () => {
+      it(`prettify ${relative(samplesDir, fileDesc.path)}`, () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
         expect(() => {
           try {
