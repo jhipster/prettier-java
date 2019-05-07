@@ -54,8 +54,8 @@ function testSample(testFolder, exclusive) {
 
 function testRepositorySample(testFolder, command, args) {
   describe(`Prettify the repository <${testFolder}>`, () => {
-    const sample = resolve(__dirname, "../sample");
-    const samplesDir = resolve(sample, basename(testFolder));
+    const testsamples = resolve(__dirname, "../test-samples");
+    const samplesDir = resolve(testsamples, basename(testFolder));
     if (existsSync(samplesDir)) {
       removeSync(samplesDir);
     }
