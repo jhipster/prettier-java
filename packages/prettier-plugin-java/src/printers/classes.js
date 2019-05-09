@@ -144,6 +144,9 @@ class ClassesPrettierVisitor {
   }
 
   classMemberDeclaration(ctx) {
+    if (ctx.Semicolon) {
+      return getImageWithComments(this.getSingle(ctx));
+    }
     return this.visitSingle(ctx);
   }
 
@@ -176,7 +179,7 @@ class ClassesPrettierVisitor {
   variableDeclaratorList(ctx) {
     const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
-    return rejectAndJoin(commas, variableDeclarators);
+    return rejectAndJoinSeps(commas, variableDeclarators);
   }
 
   variableDeclarator(ctx) {

@@ -10,9 +10,9 @@ let originalSamplesDir = samplesDir;
 if (process.argv.indexOf("-single") > -1) {
   samplesDir = path.resolve(__dirname, "./single-printer-run");
 } else if (process.argv.indexOf("-repository") > -1) {
-  const sample = path.resolve(__dirname, "../sample");
+  const testSamples = path.resolve(__dirname, "../test-samples");
   originalSamplesDir = path.resolve(__dirname, process.argv[3]);
-  samplesDir = path.resolve(sample, path.basename(originalSamplesDir));
+  samplesDir = path.resolve(testSamples, path.basename(originalSamplesDir));
   if (fs.existsSync(samplesDir)) {
     fs.removeSync(samplesDir);
   }
