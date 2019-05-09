@@ -50,7 +50,6 @@ function parse(inputText, entryPoint = "compilationUnit") {
   }
 
   parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
-  //console.log(JSON.stringify(parser.input[5], (key, value) => { if(key!=="START_CHARS_HINT") return value}));
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
