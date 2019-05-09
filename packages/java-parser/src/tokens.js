@@ -78,7 +78,7 @@ function matchJavaIdentifier(text, startOffset) {
 
 const Identifier = createTokenOrg({
   name: "Identifier",
-  pattern: { exec: matchJavaIdentifier },
+  pattern: matchJavaIdentifier,
   line_breaks: false,
   start_chars_hint: Array.from(chars.firstIdentChar, x =>
     String.fromCharCode(x)

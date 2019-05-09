@@ -1,33 +1,33 @@
 "use strict";
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
-// const startTime = new Date().getTime();
 let serializedGrammar;
-if (process.env.NODE_ENV === "production") {
-  try {
-    serializedGrammar = require("./gen/grammar.json");
-  } catch (err) {
-    /* */
-  }
-}
-const parser = new JavaParser(serializedGrammar);
-const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
-const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
-/*
-const grammar = parser.getSerializedGastProductions();
-const fs = require("fs");
-const path = require("path");
-
 try {
-  fs.mkdirSync(path.join(__dirname, "./gen"));
+  serializedGrammar = require("./gen/grammar.json");
 } catch (err) {
   //
 }
-fs.writeFileSync(
-  path.join(__dirname, "./gen/grammar.json"),
-  JSON.stringify(grammar, null, 2)
-);
-*/
+const parser = new JavaParser(serializedGrammar);
+if (!serializedGrammar) {
+  const grammar = parser.getSerializedGastProductions();
+  const fs = require("fs");
+  const path = require("path");
+  try {
+    try {
+      fs.mkdirSync(path.join(__dirname, "./gen"));
+    } catch (err) {
+      // if folder already exists, do nothing
+    }
+    fs.writeFileSync(
+      path.join(__dirname, "./gen/grammar.json"),
+      JSON.stringify(grammar, null, 2)
+    );
+  } catch (error) {
+    throw Error("An error has occured : " + error);
+  }
+}
+const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
+const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
 
 // const endTime = new Date().getTime();
 // const totalTime = endTime - startTime;
