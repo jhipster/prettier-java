@@ -8,6 +8,8 @@ trigger:
 
 strategy:
   matrix:
+    node_12: 
+      node_version: '12'
     node_11: 
       node_version: '11'
     node_10:
