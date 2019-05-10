@@ -6,16 +6,29 @@
 trigger:
 - master
 
+strategy:
+  matrix:
+    node_11: 
+      node_version: '11'
+    node_10:
+      node_version: '10'
+    node_8:
+      node_version: '8'
+
+
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: $(node_version)
   displayName: 'Install Node.js'
 
 - script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+    yarn
+  displayName: 'Install dependencies'
+
+- script: |
+    yarn run ci
+  displayName: 'Run CI'
