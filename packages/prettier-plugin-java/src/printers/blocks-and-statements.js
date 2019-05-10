@@ -10,6 +10,7 @@ const {
   getImageWithComments
 } = require("./prettier-builder");
 const {
+  allowEmptyStatement,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps
@@ -73,6 +74,9 @@ class BlocksAndStatementPrettierVisitor {
 
   emptyStatement(ctx) {
     const semiColon = ctx.Semicolon[0];
+    if (ctx.allowEmptyStatement) {
+      return getImageWithComments(semiColon);
+    }
 
     if (
       semiColon.leadingComments === undefined &&
@@ -103,12 +107,15 @@ class BlocksAndStatementPrettierVisitor {
 
   ifStatement(ctx) {
     const expression = this.visit(ctx.expression);
-    const ifStatement = this.visit(ctx.statement[0]);
 
+    const ctxIfStatement = allowEmptyStatement(ctx.statement[0]);
+    const ifStatement = this.visit(ctxIfStatement);
+
+    const ctxElseStatement = allowEmptyStatement(ctx.statement[1]);
     const elseStatement = ctx.Else
       ? rejectAndJoin(" ", [
           concat([" ", ctx.Else[0]]),
-          this.visit(ctx.statement[1])
+          this.visit(ctxElseStatement)
         ])
       : "";
 
@@ -179,7 +186,7 @@ class BlocksAndStatementPrettierVisitor {
 
   whileStatement(ctx) {
     const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(allowEmptyStatement(ctx.statement[0]));
 
     return rejectAndJoin(" ", [
       ctx.While[0],
@@ -189,7 +196,7 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   doStatement(ctx) {
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(allowEmptyStatement(ctx.statement[0]));
     const expression = this.visit(ctx.expression);
 
     return rejectAndJoin(" ", [
@@ -213,7 +220,7 @@ class BlocksAndStatementPrettierVisitor {
     const forInit = this.visit(ctx.forInit);
     const expression = this.visit(ctx.expression);
     const forUpdate = this.visit(ctx.forUpdate);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(allowEmptyStatement(ctx.statement[0]));
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
@@ -248,7 +255,7 @@ class BlocksAndStatementPrettierVisitor {
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(allowEmptyStatement(ctx.statement[0]));
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),

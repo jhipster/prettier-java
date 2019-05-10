@@ -155,6 +155,24 @@ function findDeepElementInPartsArray(item, elt) {
 
   return false;
 }
+
+function allowEmptyStatement(statement) {
+  if (statement === undefined) {
+    return undefined;
+  }
+
+  if (statement.children.statementWithoutTrailingSubstatement !== undefined) {
+    if (
+      statement.children.statementWithoutTrailingSubstatement[0].children
+        .emptyStatement !== undefined
+    ) {
+      statement.children.statementWithoutTrailingSubstatement[0].children.emptyStatement[0].children.allowEmptyStatement = true;
+    }
+  }
+
+  return statement;
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -165,5 +183,6 @@ module.exports = {
   matchCategory,
   sortModifiers,
   rejectAndJoinSeps,
-  findDeepElementInPartsArray
+  findDeepElementInPartsArray,
+  allowEmptyStatement
 };
