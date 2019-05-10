@@ -11,8 +11,8 @@
   },
   "scripts": {
     "test": "npm-run-all clone-samples test:execute test:repository",
-    "test:execute": "mocha \"test/**/*-spec.js\"",
-    "test:repository": "mocha \"test/prettify-test.js\"",
+    "test:execute": "mocha \"test/unit-test/**/*-spec.js\"",
+    "test:repository": "mocha \"test/repository-test/prettify-test.js\"",
     "clone-samples": "node scripts/clone-samples.js"
   }
 }

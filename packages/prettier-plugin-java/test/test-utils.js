@@ -93,7 +93,8 @@ function testRepositorySample(testFolder, command, args) {
         cwd: samplesDir
       });
       if (code.status !== 0) {
-        console.error(code.stdout.toString());
+        console.error(`Output error for ${testFolder}`);
+        console.error(code.stderr.toString());
         expect.fail(
           `Cannot build ${testFolder}, please check the output above.`
         );
