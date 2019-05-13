@@ -56,5 +56,8 @@ jobs:
         yarn
       displayName: 'Install dependencies'
     - script: |
+        node --version
+        npm --version
+        yarn --version
         yarn run test:prettier-plugin-java-repository
       displayName: 'Run extended tests'
