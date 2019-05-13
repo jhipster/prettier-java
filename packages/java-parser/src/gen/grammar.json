@@ -8,8 +8,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -508,8 +507,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Option",
@@ -548,8 +546,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           },
           {
             "type": "Option",
@@ -598,8 +595,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -937,8 +933,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -955,8 +950,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -971,8 +965,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -989,8 +982,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -1005,8 +997,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -1023,8 +1014,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -1039,8 +1029,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -1057,8 +1046,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -1073,8 +1061,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -1087,8 +1074,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -1105,8 +1091,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -1121,8 +1106,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -1139,8 +1123,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -1839,8 +1822,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Option",
@@ -2026,8 +2008,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Option",
@@ -2066,8 +2047,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           },
           {
             "type": "Option",
@@ -2105,8 +2085,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -2363,8 +2342,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Terminal",
@@ -2433,8 +2411,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 0,
-            "pattern": {}
+            "idx": 0
           },
           {
             "type": "Terminal",
@@ -2588,8 +2565,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -2928,8 +2904,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -3310,8 +3285,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Option",
@@ -3719,8 +3693,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -3737,8 +3710,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       },
@@ -3928,8 +3900,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -3946,8 +3917,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       },
@@ -5032,8 +5002,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Terminal",
@@ -5254,8 +5223,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Terminal",
@@ -6123,8 +6091,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Terminal",
@@ -6429,8 +6396,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       }
     ]
   },
@@ -6798,8 +6764,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 0,
-            "pattern": {}
+            "idx": 0
           }
         ]
       },
@@ -6832,8 +6797,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 0,
-            "pattern": {}
+            "idx": 0
           }
         ]
       },
@@ -7330,8 +7294,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Terminal",
@@ -7521,8 +7484,7 @@
                 "type": "Terminal",
                 "name": "Identifier",
                 "label": "Identifier",
-                "idx": 0,
-                "pattern": {}
+                "idx": 0
               }
             ]
           }
@@ -7604,8 +7566,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -7622,8 +7583,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       }
@@ -8243,8 +8203,7 @@
                         "type": "Terminal",
                         "name": "Identifier",
                         "label": "Identifier",
-                        "idx": 0,
-                        "pattern": {}
+                        "idx": 0
                       }
                     ]
                   }
@@ -8375,8 +8334,7 @@
                 "type": "Terminal",
                 "name": "Identifier",
                 "label": "Identifier",
-                "idx": 0,
-                "pattern": {}
+                "idx": 0
               }
             ]
           },
@@ -8679,8 +8637,7 @@
         "type": "Terminal",
         "name": "Identifier",
         "label": "Identifier",
-        "idx": 0,
-        "pattern": {}
+        "idx": 0
       },
       {
         "type": "Repetition",
@@ -8708,8 +8665,7 @@
             "type": "Terminal",
             "name": "Identifier",
             "label": "Identifier",
-            "idx": 2,
-            "pattern": {}
+            "idx": 2
           }
         ]
       },
@@ -9109,8 +9065,7 @@
                 "type": "Terminal",
                 "name": "Identifier",
                 "label": "Identifier",
-                "idx": 0,
-                "pattern": {}
+                "idx": 0
               }
             ]
           },

@@ -19,7 +19,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && node packages/java-parser/scripts/gen-grammar.js"
+      "pre-commit": "lint-staged && node packages/java-parser/scripts/gen-grammar.js && git add packages/java-parser/src/gen/grammar.json"
     }
   },
   "lint-staged": {
