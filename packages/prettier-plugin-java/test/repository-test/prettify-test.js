@@ -1,27 +1,20 @@
 "use strict";
-const { resolve } = require("path");
-const { testRepositorySample } = require("../test-utils");
 
-const jhipsterRepository = ["jhipster", "jhipster-sample-app"];
-
-describe("prettier-java", () => {
-  testRepositorySample(
-    resolve(__dirname, "../../samples/java-design-patterns"),
-    "true",
-    []
-  );
-
-  testRepositorySample(
-    resolve(__dirname, "../../samples/spring-boot"),
-    "./mvnw",
-    ["clean", "install", "-Ddisable.checks", "-DskipTests"]
-  );
-
-  jhipsterRepository.forEach(repository => {
-    testRepositorySample(
-      resolve(__dirname, `../../samples/${repository}`),
-      "./mvnw",
-      ["compile"]
-    );
-  });
-});
+switch (process.env["TEST_REPOSITORY"]) {
+  case "JHIPSTER-1":
+    require("./jhipster-1-test");
+    break;
+  case "JHIPSTER-2":
+    require("./jhipster-2-test");
+    break;
+  case "ALL":
+    require("./core-test");
+    require("./jhipster-1-test");
+    require("./jhipster-2-test");
+    break;
+  case "CORE":
+    require("./core-test");
+    break;
+  default:
+    require("./core-test");
+}

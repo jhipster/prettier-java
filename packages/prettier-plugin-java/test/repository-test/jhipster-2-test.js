@@ -9,7 +9,6 @@ const jhipsterRepository = [
   "jhipster-sample-app-cassandra",
   "jhipster-sample-app-mongodb",
   "jhipster-sample-app-gradle",
-  "jhipster-sample-app-nocache",
   "jhipster-sample-app-react"
 ];
 
