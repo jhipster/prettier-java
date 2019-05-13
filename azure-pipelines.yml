@@ -6,23 +6,20 @@
 trigger:
 - master
 
-strategy:
-  matrix:
-    node_12: 
-      node_version: '12'
-      TEST_REPOSITORY: 'CORE'
-    node_10:
-      node_version: '10'
-      TEST_REPOSITORY: 'CORE'
-    node_8:
-      node_version: '8'
-      TEST_REPOSITORY: 'CORE'
-
-
-
 
 jobs:
 - job: Test
+  strategy:
+    matrix:
+      node_12: 
+        node_version: '12'
+        TEST_REPOSITORY: 'CORE'
+      node_10:
+        node_version: '10'
+        TEST_REPOSITORY: 'CORE'
+      node_8:
+        node_version: '8'
+        TEST_REPOSITORY: 'CORE'
   variables:
     TEST_REPOSITORY: $(test_repository)
   pool:
