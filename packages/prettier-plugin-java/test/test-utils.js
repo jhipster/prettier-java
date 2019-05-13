@@ -69,7 +69,8 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`prettify ${relative(samplesDir, fileDesc.path)}`, () => {
+      it(`prettify ${relative(samplesDir, fileDesc.path)}`, function(done) {
+        this.timeout(0);
         const javaFileText = readFileSync(fileDesc.path, "utf8");
         expect(() => {
           try {
@@ -84,6 +85,7 @@ function testRepositorySample(testFolder, command, args) {
             throw e;
           }
         }).to.not.throw();
+        done();
       });
     });
 
