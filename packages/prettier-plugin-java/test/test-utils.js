@@ -91,7 +91,8 @@ function testRepositorySample(testFolder, command, args) {
     it(`verify semantic validity ${testFolder}`, function(done) {
       this.timeout(0);
       const code = spawnSync(command, args, {
-        cwd: samplesDir
+        cwd: samplesDir,
+        maxBuffer: Infinity
       });
       if (code.status !== 0) {
         expect.fail(
