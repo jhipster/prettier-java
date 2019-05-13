@@ -50,7 +50,7 @@ jobs:
   steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: $(node_version)
+        versionSpec: '10'
       displayName: 'Install Node.js'
     - script: |
         yarn
