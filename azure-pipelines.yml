@@ -10,31 +10,31 @@ strategy:
   matrix:
     node_12: 
       node_version: '12'
-      variables:
-        TEST_REPOSITORY: 'CORE'
+      TEST_REPOSITORY: 'CORE'
     node_10:
       node_version: '10'
-      variables:
-        TEST_REPOSITORY: 'CORE'
+      TEST_REPOSITORY: 'CORE'
     node_8:
       node_version: '8'
-      variables:
-        TEST_REPOSITORY: 'CORE'
+      TEST_REPOSITORY: 'CORE'
 
 
 
 
-
-pool:
-  vmImage: 'ubuntu-latest'
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: $(node_version)
-  displayName: 'Install Node.js'
-- script: |
-    yarn
-  displayName: 'Install dependencies'
-- script: |
-    yarn run ci
-  displayName: 'Run CI'
+jobs:
+- job: Test
+  variables:
+    TEST_REPOSITORY: $(test_repository)
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(node_version)
+      displayName: 'Install Node.js'
+    - script: |
+        yarn
+      displayName: 'Install dependencies'
+    - script: |
+        yarn run ci
+      displayName: 'Run CI'
