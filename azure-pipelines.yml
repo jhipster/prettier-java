@@ -35,3 +35,26 @@ jobs:
     - script: |
         yarn run ci
       displayName: 'Run CI'
+
+- jobs: Extended tests
+  strategy:
+    matrix:
+      jhipster-1:
+        TEST_REPOSITORY: 'JHIPSTER-1'
+      jhipster-2:
+        TEST_REPOSITORY: 'JHIPSTER-2'
+  variables:
+    TEST_REPOSITORY: $(test_repository)
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(node_version)
+      displayName: 'Install Node.js'
+    - script: |
+        yarn
+      displayName: 'Install dependencies'
+    - script: |
+        yarn run test:prettier-plugin-java-repository
+      displayName: 'Run extended tests'
