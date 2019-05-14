@@ -1,2 +1,6 @@
 samples
 lerna.json
+/packages/java-parser/samples
+/packages/prettier-plugin-java/test-samples
+/packages/prettier-plugin-java/samples
+node_modules

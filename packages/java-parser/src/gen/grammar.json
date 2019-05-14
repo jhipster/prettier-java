@@ -3606,7 +3606,7 @@
   {
     "type": "Rule",
     "name": "ordinaryCompilationUnit",
-    "orgText": "() => {\n    $.OPTION(() => {\n      $.SUBRULE($.packageDeclaration);\n    });\n    $.MANY(() => {\n      $.SUBRULE($.importDeclaration);\n    });\n    $.MANY2(() => {\n      $.SUBRULE($.typeDeclaration);\n    });\n  }",
+    "orgText": "() => {\n    $.OPTION({\n      GATE: $.BACKTRACK($.packageDeclaration),\n      DEF: () => {\n        $.SUBRULE($.packageDeclaration);\n      }\n    });\n    $.MANY(() => {\n      $.SUBRULE3($.importDeclaration);\n    });\n    $.MANY2(() => {\n      $.SUBRULE($.typeDeclaration);\n    });\n  }",
     "definition": [
       {
         "type": "Option",
@@ -3626,7 +3626,7 @@
           {
             "type": "NonTerminal",
             "name": "importDeclaration",
-            "idx": 0
+            "idx": 3
           }
         ]
       },
