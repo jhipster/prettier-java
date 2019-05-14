@@ -3,7 +3,7 @@ public class PrettierTest {
 
   public void myFunction(int arg1) {
     try {
-      ; // Empty Statement
+      // Empty Statement
     } /*catch*/catch (EmptyStackException e) {
       throw new RuntimeException(e);
     } /*multi-catch*/catch (

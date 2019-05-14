@@ -1,5 +1,27 @@
 public class EmptyStament {
 
+  class EmptyStament2 {
+    ;
+  }
+
+  public void emptyStatementWithoutComment() {
+    ;;;
+  }
+
+  public void emptyStatementWithComment() {
+    ;;//EmptyStatement
+  }
+
+  public void simpleForWithEmptyStatement() {
+    for (;;);
+
+    for (;;)/*test*/;
+
+    for (;;);/*test*/
+
+    for (;;)/*test*/;/*test*/
+  }
+
   public void simpleForWithEmptyStatement() {
     for (;;);
 

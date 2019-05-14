@@ -10,6 +10,9 @@ const {
   getImageWithComments
 } = require("./prettier-builder");
 const {
+  displaySemicolon,
+  hasLeadingComments,
+  hasTrailingComments,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps
@@ -19,11 +22,18 @@ class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements) {
+    if (blockStatements && blockStatements.parts.length > 0) {
       return rejectAndJoin(hardline, [
         indent(rejectAndJoin(hardline, [ctx.LCurly[0], blockStatements])),
         ctx.RCurly[0]
       ]);
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
     return concat([ctx.LCurly[0], ctx.RCurly[0]]);
@@ -72,20 +82,7 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   emptyStatement(ctx, params) {
-    const semiColon = ctx.Semicolon[0];
-    if (params !== undefined && params.allowEmptyStatement) {
-      return getImageWithComments(semiColon);
-    }
-
-    if (
-      semiColon.leadingComments === undefined &&
-      semiColon.trailingComments === undefined
-    ) {
-      return "";
-    }
-
-    semiColon.image = "";
-    return getImageWithComments(semiColon);
+    return displaySemicolon(ctx.Semicolon[0], params);
   }
 
   labeledStatement(ctx) {
