@@ -24,8 +24,12 @@ function getImageWithComments(token) {
         arr.push(concat(formatComment(element)));
         arr.push(prettier.hardline);
       } else if (element.tokenType.tokenName === "LineComment") {
+        // Do not add extra space in case of empty statement
+        const separator = token.image === "" ? "" : " ";
         arr.push(
-          prettier.lineSuffix(concat([" ", concat(formatComment(element))]))
+          prettier.lineSuffix(
+            concat([separator, concat(formatComment(element))])
+          )
         );
       } else {
         arr.push(concat(formatComment(element)));
