@@ -52,5 +52,5 @@ jobs:
         node --version
         npm --version
         yarn --version
-        lerna --score=prettier-plugin-java run test:$(TEST_REPOSITORY)
+        yarn run test:prettier-plugin-java test:$(TEST_REPOSITORY)
       displayName: 'Run e2e tests'
