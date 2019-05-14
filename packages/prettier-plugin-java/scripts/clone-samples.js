@@ -92,16 +92,17 @@ const jhipster2 = [
 ];
 
 let sampleRepos = core;
-switch (process.env["TEST_REPOSITORY"]) {
-  case "JHIPSTER-1":
-    sampleRepos = jhipster1;
-    break;
-  case "JHIPSTER-2":
-    sampleRepos = jhipster2;
-    break;
-  case "ALL":
-    sampleRepos = [...core, ...jhipster1, ...jhipster2];
-    break;
+if (process.argv.length === 3) {
+  switch (process.argv[2]) {
+    case "e2e-core":
+      break;
+    case "e2e-jhipster1":
+      sampleRepos = jhipster1;
+      break;
+    case "e2e-jhipster2":
+      sampleRepos = jhipster2;
+      break;
+  }
 }
 
 fs.emptyDirSync(samplesDir);

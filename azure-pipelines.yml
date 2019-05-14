@@ -13,15 +13,10 @@ jobs:
     matrix:
       node_12: 
         node_version: '12.2.0'
-        TEST_REPOSITORY: 'CORE'
       node_10:
         node_version: '10.15.3'
-        TEST_REPOSITORY: 'CORE'
       node_8:
         node_version: '8.16.0'
-        TEST_REPOSITORY: 'CORE'
-  variables:
-    TEST_REPOSITORY: $(test_repository)
   pool:
     vmImage: 'ubuntu-latest'
   steps:
@@ -40,11 +35,9 @@ jobs:
   strategy:
     matrix:
       jhipster-1:
-        TEST_REPOSITORY: 'JHIPSTER-1'
+        TEST_REPOSITORY: 'e2e-jhipster1'
       jhipster-2:
-        TEST_REPOSITORY: 'JHIPSTER-2'
-  variables:
-    TEST_REPOSITORY: $(test_repository)
+        TEST_REPOSITORY: 'e2e-jhipster1'
   pool:
     vmImage: 'ubuntu-latest'
   steps:
@@ -59,5 +52,5 @@ jobs:
         node --version
         npm --version
         yarn --version
-        yarn run test:prettier-plugin-java-repository
+        lerna --score=prettier-plugin-java run test:$(TEST_REPOSITORY)
       displayName: 'Run e2e tests'
