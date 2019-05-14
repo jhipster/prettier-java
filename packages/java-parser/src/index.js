@@ -1,31 +1,37 @@
 "use strict";
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
-let serializedGrammar;
-try {
-  serializedGrammar = require("./gen/grammar.json");
-} catch (err) {
-  //
-}
-const parser = new JavaParser(serializedGrammar);
-if (!serializedGrammar) {
-  const grammar = parser.getSerializedGastProductions();
-  const fs = require("fs");
-  const path = require("path");
+
+function initializeParser() {
+  let serializedGrammar;
   try {
-    try {
-      fs.mkdirSync(path.join(__dirname, "./gen"));
-    } catch (err) {
-      // if folder already exists, do nothing
-    }
-    fs.writeFileSync(
-      path.join(__dirname, "./gen/grammar.json"),
-      JSON.stringify(grammar, null, 2)
-    );
-  } catch (error) {
-    throw Error("An error has occured : " + error);
+    serializedGrammar = require("./gen/grammar.json");
+  } catch (err) {
+    //
   }
+  const parser = new JavaParser(serializedGrammar);
+  if (!serializedGrammar) {
+    const grammar = parser.getSerializedGastProductions();
+    const fs = require("fs");
+    const path = require("path");
+    try {
+      try {
+        fs.mkdirSync(path.join(__dirname, "./gen"));
+      } catch (err) {
+        // if folder already exists, do nothing
+      }
+      fs.writeFileSync(
+        path.join(__dirname, "./gen/grammar.json"),
+        JSON.stringify(grammar, null, 2)
+      );
+    } catch (error) {
+      throw Error("An error has occured : " + error);
+    }
+  }
+  return parser;
 }
+
+const parser = initializeParser();
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -137,6 +143,7 @@ function attachComments(tokens, comments) {
 
 module.exports = {
   parse,
+  initializeParser,
   BaseJavaCstVisitor,
   BaseJavaCstVisitorWithDefaults
 };
