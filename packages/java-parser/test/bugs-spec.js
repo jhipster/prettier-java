@@ -32,3 +32,10 @@ describe("The Java Parser fixed bugs", () => {
     ).to.not.throw();
   });
 });
+
+describe("The Java Parser fixed bugs", () => {
+  it("issue #177 - annotation in packageDeclaration", () => {
+    const input = "@Test public class Foo{}";
+    expect(() => javaParser.parse(input)).to.not.throw();
+  });
+});

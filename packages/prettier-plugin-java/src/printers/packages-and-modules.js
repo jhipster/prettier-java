@@ -1,14 +1,19 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
+const { line, hardline } = require("prettier").doc.builders;
 const {
   concat,
   indent,
   join,
-  line,
-  hardline
-} = require("prettier").doc.builders;
-const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
+  getImageWithComments
+} = require("./prettier-builder");
+const {
+  buildFqn,
+  rejectAndJoin,
+  rejectAndConcat,
+  rejectAndJoinSeps
+} = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
@@ -44,11 +49,11 @@ class PackagesAndModulesPrettierVisitor {
 
   packageDeclaration(ctx) {
     const modifiers = this.mapVisit(ctx.packageModifier);
-    const name = buildFqn(ctx.Identifier);
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, modifiers),
-      concat(["package", " ", name, ";"])
+      concat([ctx.Package[0], " ", name, ctx.Semicolon[0]])
     ]);
   }
 
@@ -57,15 +62,15 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   importDeclaration(ctx) {
-    const optionalStatic = ctx.Static ? "static" : "";
+    const optionalStatic = ctx.Static ? ctx.Static[0] : "";
     const packageOrTypeName = this.visit(ctx.packageOrTypeName);
 
-    const optionalDotStar = ctx.Dot ? ".*" : "";
+    const optionalDotStar = ctx.Dot ? concat([ctx.Dot[0], ctx.Star[0]]) : "";
 
     return rejectAndJoin(" ", [
-      "import",
+      ctx.Import[0],
       optionalStatic,
-      rejectAndConcat([packageOrTypeName, optionalDotStar, ";"])
+      rejectAndConcat([packageOrTypeName, optionalDotStar, ctx.Semicolon[0]])
     ]);
   }
 
@@ -75,17 +80,19 @@ class PackagesAndModulesPrettierVisitor {
 
   moduleDeclaration(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const optionalOpen = ctx.Open ? "open" : "";
-    const name = buildFqn(ctx.Identifier);
+    const optionalOpen = ctx.Open ? ctx.Open[0] : "";
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
     const moduleDirectives = this.mapVisit(ctx.moduleDirective);
     return rejectAndJoin(" ", [
       join(" ", annotations),
       optionalOpen,
-      "module",
+      ctx.Module[0],
       name,
-      indent(rejectAndJoin(line, ["{", join(line, moduleDirectives)])),
+      indent(
+        rejectAndJoin(line, [ctx.LCurly[0], join(line, moduleDirectives)])
+      ),
       line,
-      "}"
+      ctx.RCurly[0]
     ]);
   }
 
@@ -98,57 +105,74 @@ class PackagesAndModulesPrettierVisitor {
     const moduleName = this.visit(ctx.moduleName);
 
     return rejectAndJoin(" ", [
-      "requires",
+      ctx.Requires[0],
       join(" ", modifiers),
-      concat([moduleName, ";"])
+      concat([moduleName, ctx.Semicolon[0]])
     ]);
   }
 
   exportsModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndConcat([
-      rejectAndJoin(" ", ["exports", packageName, to, join(", ", moduleNames)]),
-      ";"
+      rejectAndJoin(" ", [
+        ctx.Exports[0],
+        packageName,
+        to,
+        rejectAndJoinSeps(commas, moduleNames)
+      ]),
+      ctx.Semicolon[0]
     ]);
   }
 
   opensModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndConcat([
-      rejectAndJoin(" ", ["opens", packageName, to, join(", ", moduleNames)]),
-      ";"
+      rejectAndJoin(" ", [
+        ctx.Opens[0],
+        packageName,
+        to,
+        rejectAndJoinSeps(commas, moduleNames)
+      ]),
+      ctx.Semicolon[0]
     ]);
   }
 
   usesModuleDirective(ctx) {
     const typeName = this.visit(ctx.typeName);
 
-    return rejectAndConcat(["uses ", typeName, ";"]);
+    return rejectAndConcat([
+      concat([ctx.Uses[0], " "]),
+      typeName,
+      ctx.Semicolon[0]
+    ]);
   }
 
   providesModuleDirective(ctx) {
     const firstTypeName = this.visit(ctx.typeName[0]);
     const otherTypeNames = this.mapVisit(ctx.typeName.slice(1));
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndConcat([
       rejectAndJoin(" ", [
-        "provides",
+        ctx.Provides[0],
         firstTypeName,
-        "with",
-        join(", ", otherTypeNames)
+        ctx.With[0],
+        rejectAndJoinSeps(commas, otherTypeNames)
       ]),
-      ";"
+      ctx.Semicolon[0]
     ]);
   }
 
   requiresModifier(ctx) {
-    return this.getSingle(ctx).image;
+    return getImageWithComments(this.getSingle(ctx));
   }
 
   isModuleCompilationUnit(ctx) {
