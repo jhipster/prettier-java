@@ -36,7 +36,7 @@ jobs:
         yarn run ci
       displayName: 'Run CI'
 
-- job: Extended_tests
+- job: e2e_tests
   strategy:
     matrix:
       jhipster-1:
@@ -60,4 +60,4 @@ jobs:
         npm --version
         yarn --version
         yarn run test:prettier-plugin-java-repository
-      displayName: 'Run extended tests'
+      displayName: 'Run e2e tests'
