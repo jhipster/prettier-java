@@ -161,13 +161,16 @@ class InterfacesPrettierVisitor {
   }
 
   annotationTypeBody(ctx) {
-    const annotationTypeMemberDeclaration = this.visit(
+    const annotationTypeMemberDeclaration = this.mapVisit(
       ctx.annotationTypeMemberDeclaration
     );
 
     return rejectAndJoin(line, [
       indent(
-        rejectAndJoin(line, [ctx.LCurly[0], annotationTypeMemberDeclaration])
+        rejectAndJoin(line, [
+          ctx.LCurly[0],
+          rejectAndJoin(concat([line, line]), annotationTypeMemberDeclaration)
+        ])
       ),
       ctx.RCurly[0]
     ]);

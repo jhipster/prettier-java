@@ -9,7 +9,7 @@
     "lerna:version": "lerna version",
     "lerna:publish": "lerna publish from-git --yes",
     "ci": "npm-run-all build lint format:validate test",
-    "test": "lerna run test",
+    "test": "lerna run test --stream",
     "lint": "eslint packages/**/*.js",
     "format:fix": "prettier --write \"**/*.@(js|json|md)\"",
     "format:validate": "prettier --list-different \"**/*.@(js|json|md)\"",

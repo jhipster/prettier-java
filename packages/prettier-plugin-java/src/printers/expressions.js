@@ -17,7 +17,8 @@ const {
   sortAnnotationIdentifier,
   sortTokens,
   rejectAndJoinSeps,
-  findDeepElementInPartsArray
+  findDeepElementInPartsArray,
+  isExplicitLambdaParameter
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -47,7 +48,6 @@ class ExpressionsPrettierVisitor {
   lambdaParametersWithBraces(ctx) {
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
 
-    //console.log(JSON.stringify(lambdaParameterList)+" "+findDeepElementInPartsArray(lambdaParameterList, ','))
     if (findDeepElementInPartsArray(lambdaParameterList, ",")) {
       return rejectAndConcat([
         ctx.LBrace[0],
@@ -58,10 +58,13 @@ class ExpressionsPrettierVisitor {
 
     // removing braces when only no comments attached
     if (
-      (ctx.LBrace && ctx.RBrace && !lambdaParameterList) ||
-      (ctx.LBrace[0].leadingComments ||
-        (ctx.LBrace[0].trailingComments && ctx.RBrace[0].leadingComments) ||
-        ctx.RBrace[0].trailingComments)
+      (ctx.LBrace &&
+        ctx.RBrace &&
+        (!lambdaParameterList || isExplicitLambdaParameter(ctx))) ||
+      ctx.LBrace[0].leadingComments ||
+      ctx.LBrace[0].trailingComments ||
+      ctx.RBrace[0].leadingComments ||
+      ctx.RBrace[0].trailingComments
     ) {
       return rejectAndConcat([
         ctx.LBrace[0],
@@ -171,18 +174,41 @@ class ExpressionsPrettierVisitor {
         segment.push(rejectAndJoin(" ", [token, expression.shift()]));
       } else if (
         i + 1 < sortedTokens.length &&
-        ((sortedTokens[i].image === ">" && sortedTokens[i + 1].image === ">") ||
-          (sortedTokens[i].image === "<" && sortedTokens[i + 1].image === "<"))
+        ((sortedTokens[i].image === ">" &&
+          sortedTokens[i + 1].image === ">" &&
+          sortedTokens[i].startOffset ===
+            sortedTokens[i + 1].startOffset - 1) ||
+          (sortedTokens[i].image === "<" &&
+            sortedTokens[i + 1].image === "<" &&
+            sortedTokens[i].startOffset ===
+              sortedTokens[i + 1].startOffset - 1))
       ) {
-        // TODO: fix here by implementing print for s << 2, s >> 2 and s >>> 2
-        // currently work only for s << 2 and s >> 2
-        segment.push(
-          rejectAndJoin(" ", [
-            rejectAndConcat([token, sortedTokens[i + 1]]),
-            unaryExpression.shift()
-          ])
-        );
-        i += 1;
+        if (
+          sortedTokens[i + 2] &&
+          sortedTokens[i + 2].image === ">" &&
+          sortedTokens[i + 1].startOffset ===
+            sortedTokens[i + 2].startOffset - 1
+        ) {
+          segment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([
+                token,
+                sortedTokens[i + 1],
+                sortedTokens[i + 2]
+              ]),
+              unaryExpression.shift()
+            ])
+          );
+          i++;
+        } else {
+          segment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([token, sortedTokens[i + 1]]),
+              unaryExpression.shift()
+            ])
+          );
+        }
+        i++;
       } else if (matchCategory(token, "'BinaryOperator'")) {
         segment.push(
           indent(
@@ -205,7 +231,6 @@ class ExpressionsPrettierVisitor {
     const unarySuffixOperator = ctx.UnarySuffixOperator
       ? ctx.UnarySuffixOperator
       : [];
-
     return rejectAndConcat([
       rejectAndConcat(unaryPrefixOperator),
       primary,
@@ -256,7 +281,7 @@ class ExpressionsPrettierVisitor {
   }
 
   primaryPrefix(ctx) {
-    if (ctx.This || ctx.Void) {
+    if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
 
@@ -486,15 +511,13 @@ class ExpressionsPrettierVisitor {
   }
 
   classLiteralSuffix(ctx) {
-    let squares = "";
+    const squares = [];
     if (ctx.LSquare) {
-      squares = [];
       for (let i = 0; i < ctx.LSquare.length; i++) {
         squares.push(concat([ctx.LSquare[i], ctx.RSquare[i]]));
       }
     }
-
-    return rejectAndConcat([squares, concat([ctx.Dot[0], ctx.Class[0]])]);
+    return rejectAndConcat([...squares, ctx.Dot[0], ctx.Class[0]]);
   }
 
   arrayAccessSuffix(ctx) {

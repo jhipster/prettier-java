@@ -156,6 +156,16 @@ function findDeepElementInPartsArray(item, elt) {
   return false;
 }
 
+function isExplicitLambdaParameter(ctx) {
+  return (
+    ctx &&
+    ctx.lambdaParameterList &&
+    ctx.lambdaParameterList[0] &&
+    ctx.lambdaParameterList[0].children &&
+    ctx.lambdaParameterList[0].children.explicitLambdaParameterList
+  );
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -166,5 +176,6 @@ module.exports = {
   matchCategory,
   sortModifiers,
   rejectAndJoinSeps,
-  findDeepElementInPartsArray
+  findDeepElementInPartsArray,
+  isExplicitLambdaParameter
 };

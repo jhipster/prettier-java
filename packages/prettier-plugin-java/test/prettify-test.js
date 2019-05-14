@@ -1,10 +1,28 @@
 "use strict";
 const { resolve } = require("path");
+const { testRepositorySample } = require("./test-utils");
+
+const jhipsterRepository = ["jhipster", "jhipster-sample-app"];
+
 describe("prettier-java", () => {
-  require("./test-utils").testRepositorySample(
-    resolve(__dirname, "../samples/jhipster-sample-app"),
-    "./mvnw",
-    ["compile"],
-    { cwd: resolve(__dirname, "../samples/jhipster-sample-app") }
+  testRepositorySample(
+    resolve(__dirname, "../samples/java-design-patterns"),
+    "true",
+    []
   );
+
+  testRepositorySample(resolve(__dirname, "../samples/spring-boot"), "./mvnw", [
+    "clean",
+    "install",
+    "-Ddisable.checks",
+    "-DskipTests"
+  ]);
+
+  jhipsterRepository.forEach(repository => {
+    testRepositorySample(
+      resolve(__dirname, `../samples/${repository}`),
+      "./mvnw",
+      ["compile"]
+    );
+  });
 });
