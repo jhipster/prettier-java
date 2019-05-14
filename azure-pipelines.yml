@@ -12,13 +12,13 @@ jobs:
   strategy:
     matrix:
       node_12: 
-        node_version: '12'
+        node_version: '12.2.0'
         TEST_REPOSITORY: 'CORE'
       node_10:
-        node_version: '10'
+        node_version: '10.15.3'
         TEST_REPOSITORY: 'CORE'
       node_8:
-        node_version: '8'
+        node_version: '8.16.0'
         TEST_REPOSITORY: 'CORE'
   variables:
     TEST_REPOSITORY: $(test_repository)
@@ -50,7 +50,7 @@ jobs:
   steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '10'
+        versionSpec: '10.15.3'
       displayName: 'Install Node.js'
     - script: |
         yarn
