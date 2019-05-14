@@ -10,24 +10,8 @@ function initializeParser() {
     //
   }
   const parser = new JavaParser(serializedGrammar);
-  if (!serializedGrammar) {
-    const grammar = parser.getSerializedGastProductions();
-    const fs = require("fs");
-    const path = require("path");
-    try {
-      try {
-        fs.mkdirSync(path.join(__dirname, "./gen"));
-      } catch (err) {
-        // if folder already exists, do nothing
-      }
-      fs.writeFileSync(
-        path.join(__dirname, "./gen/grammar.json"),
-        JSON.stringify(grammar, null, 2)
-      );
-    } catch (error) {
-      throw Error("An error has occured : " + error);
-    }
-  }
+  //generate the grammar.
+  require("../scripts/gen-grammar");
   return parser;
 }
 

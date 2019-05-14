@@ -4,3 +4,4 @@ lerna.json
 /packages/prettier-plugin-java/test-samples
 /packages/prettier-plugin-java/samples
 node_modules
+/packages/java-parser/src/gen
