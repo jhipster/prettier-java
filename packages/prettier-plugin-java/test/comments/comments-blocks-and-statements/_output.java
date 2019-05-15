@@ -3,8 +3,7 @@ public class PrettierTest {
 
   public void myFunction(int arg1) {
     try {
-      ;// Empty Statement
-
+      ; // Empty Statement
     } /*catch*/catch (EmptyStackException e) {
       throw new RuntimeException(e);
     } /*multi-catch*/catch (
@@ -39,11 +38,10 @@ public class PrettierTest {
         0,
         2
       };
-      loop:// Label statement
+      loop: // Label statement
       //foreach
       for (int num /* num is every number in arr*/: arr) {
-        /*switch*/switch (num) {//switch
-
+        /*switch*/switch (num) { //switch
           case 1:
             System.out.println("One ");
             /*just a break*/break;
@@ -61,8 +59,7 @@ public class PrettierTest {
   }
 
   private synchronized void myFunction(int arg1, int arg2/*overloading*/) {
-    for (int i = 0; i < /*=*/arg1; i++) do/*dodododo*/ {//do whiles
-
+    for (int i = 0; i < /*=*/arg1; i++) do/*dodododo*/ { //do whiles
       //asserting
       assert/*true*/ true == true;
       continue;
