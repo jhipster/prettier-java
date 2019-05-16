@@ -28,7 +28,7 @@ jobs:
       node_8:
         node_version: '8.16.0'
   pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: 'Ubuntu 16.04'
   steps:
     - task: NodeTool@0
       inputs:
