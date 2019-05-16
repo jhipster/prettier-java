@@ -10,8 +10,10 @@ function initializeParser() {
     //
   }
   const parser = new JavaParser(serializedGrammar);
-  //generate the grammar.
-  require("../scripts/gen-grammar");
+  //generate the grammar if it does not exist
+  if (!serializedGrammar) {
+    require("../scripts/gen-grammar");
+  }
   return parser;
 }
 
