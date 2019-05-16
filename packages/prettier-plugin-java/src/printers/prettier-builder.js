@@ -5,9 +5,12 @@ function getImageWithComments(token) {
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
     token.leadingComments.forEach(element => {
-      arr.push(concat(formatComment(element)));
       if (element.startLine !== token.startLine) {
+        arr.push(prettier.lineSuffixBoundary);
+        arr.push(concat(formatComment(element)));
         arr.push(prettier.hardline);
+      } else {
+        arr.push(concat(formatComment(element)));
       }
     });
   }
@@ -17,12 +20,19 @@ function getImageWithComments(token) {
       arr.push(prettier.hardline);
     }
     token.trailingComments.forEach(element => {
-      arr.push(concat(formatComment(element)));
-      if (
-        element.startLine !== token.startLine ||
-        element.tokenType.tokenName === "LineComment"
-      ) {
+      if (element.startLine !== token.startLine) {
+        arr.push(concat(formatComment(element)));
         arr.push(prettier.hardline);
+      } else if (element.tokenType.tokenName === "LineComment") {
+        // Do not add extra space in case of empty statement
+        const separator = token.image === "" ? "" : " ";
+        arr.push(
+          prettier.lineSuffix(
+            concat([separator, concat(formatComment(element))])
+          )
+        );
+      } else {
+        arr.push(concat(formatComment(element)));
       }
     });
     if (
