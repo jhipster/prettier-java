@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const prettier = require("prettier");
 
-let samplesDir = path.resolve(__dirname, "../test");
+let samplesDir = path.resolve(__dirname, "../test/unit-test");
 let originalSamplesDir = samplesDir;
 if (process.argv.indexOf("-single") > -1) {
   samplesDir = path.resolve(__dirname, "./single-printer-run");
