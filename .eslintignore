@@ -1,2 +1,4 @@
 /packages/java-parser/samples
+/packages/prettier-plugin-java/samples
+/packages/prettier-plugin-java/test-samples
 node_modules

@@ -10,9 +10,12 @@
     "prettier": "1.15.3"
   },
   "scripts": {
-    "test": "npm-run-all clone-samples test:execute test:repository",
-    "test:execute": "mocha \"test/**/*-spec.js\"",
-    "test:repository": "mocha \"test/prettify-test.js\"",
+    "test": "npm-run-all test:unit test:e2e-core",
+    "test:unit": "mocha \"test/unit-test/**/*-spec.js\"",
+    "test:e2e-core": "node scripts/clone-samples e2e-core && mocha \"test/repository-test/core-test.js\"",
+    "test:e2e-jhipster1": "node scripts/clone-samples e2e-jhipster1 && mocha \"test/repository-test/jhipster-1-test.js\"",
+    "test:e2e-jhipster2": "node scripts/clone-samples e2e-jhipster2 && mocha \"test/repository-test/jhipster-2-test.js\"",
+    "test:all": "npm-run-all test test:e2e-jhipster1 test:e2e-jhipster2",
     "clone-samples": "node scripts/clone-samples.js"
   }
 }

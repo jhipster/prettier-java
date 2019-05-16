@@ -69,7 +69,8 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`prettify ${relative(samplesDir, fileDesc.path)}`, () => {
+      it(`prettify ${relative(samplesDir, fileDesc.path)}`, function() {
+        this.timeout(5000);
         const javaFileText = readFileSync(fileDesc.path, "utf8");
         expect(() => {
           try {
@@ -90,12 +91,14 @@ function testRepositorySample(testFolder, command, args) {
     it(`verify semantic validity ${testFolder}`, function(done) {
       this.timeout(0);
       const code = spawnSync(command, args, {
-        cwd: samplesDir
+        cwd: samplesDir,
+        maxBuffer: Infinity
       });
       if (code.status !== 0) {
-        console.error(code.stdout.toString());
         expect.fail(
-          `Cannot build ${testFolder}, please check the output above.`
+          `Cannot build ${testFolder}, please check the output below:\n ${
+            code.stderr ? code.stderr.toString() : "No error output"
+          }`
         );
       }
       done();
