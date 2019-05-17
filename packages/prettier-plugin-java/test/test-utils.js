@@ -96,9 +96,7 @@ function testRepositorySample(testFolder, command, args) {
       });
       if (code.status !== 0) {
         expect.fail(
-          `Cannot build ${testFolder}, please check the output below:\n ${
-            code.stderr ? code.stderr.toString() : "No error output"
-          }`
+          `Cannot build ${testFolder}, please check the output below:\n ${code.stdout.toString()}`
         );
       }
       done();
