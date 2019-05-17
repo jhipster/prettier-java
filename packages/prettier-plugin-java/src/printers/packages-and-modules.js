@@ -62,6 +62,10 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   importDeclaration(ctx) {
+    if (ctx.emptyStatement !== undefined) {
+      return this.visit(ctx.emptyStatement);
+    }
+
     const optionalStatic = ctx.Static ? ctx.Static[0] : "";
     const packageOrTypeName = this.visit(ctx.packageOrTypeName);
 

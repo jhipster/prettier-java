@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat } = require("./prettier-builder");
+const { join, concat, getImageWithComments } = require("./prettier-builder");
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -156,6 +156,31 @@ function findDeepElementInPartsArray(item, elt) {
   return false;
 }
 
+function displaySemicolon(token, params) {
+  if (params !== undefined && params.allowEmptyStatement) {
+    return getImageWithComments(token);
+  }
+
+  if (!hasComments(token)) {
+    return "";
+  }
+
+  token.image = "";
+  return getImageWithComments(token);
+}
+
+function hasLeadingComments(token) {
+  return token.leadingComments !== undefined;
+}
+
+function hasTrailingComments(token) {
+  return token.trailingComments !== undefined;
+}
+
+function hasComments(token) {
+  return hasLeadingComments(token) || hasTrailingComments(token);
+}
+
 function isExplicitLambdaParameter(ctx) {
   return (
     ctx &&
@@ -165,8 +190,10 @@ function isExplicitLambdaParameter(ctx) {
     ctx.lambdaParameterList[0].children.explicitLambdaParameterList
   );
 }
+
 module.exports = {
   buildFqn,
+  reject,
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
@@ -176,5 +203,9 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
-  isExplicitLambdaParameter
+  hasLeadingComments,
+  hasTrailingComments,
+  hasComments,
+  isExplicitLambdaParameter,
+  displaySemicolon
 };

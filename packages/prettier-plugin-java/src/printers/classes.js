@@ -8,11 +8,15 @@ const {
   hardline
 } = require("prettier").doc.builders;
 const {
+  reject,
   rejectAndConcat,
   rejectAndJoin,
   sortClassTypeChildren,
   sortModifiers,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  hasLeadingComments,
+  hasTrailingComments,
+  displaySemicolon
 } = require("./printer-utils");
 const {
   concat,
@@ -125,7 +129,7 @@ class ClassesPrettierVisitor {
   }
 
   classBody(ctx) {
-    const classBodyDecls = this.mapVisit(ctx.classBodyDeclaration);
+    const classBodyDecls = reject(this.mapVisit(ctx.classBodyDeclaration));
 
     if (classBodyDecls.length !== 0) {
       return rejectAndConcat([
@@ -134,6 +138,13 @@ class ClassesPrettierVisitor {
         line,
         ctx.RCurly[0]
       ]);
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
     }
 
     return concat([ctx.LCurly[0], ctx.RCurly[0]]);
@@ -145,7 +156,7 @@ class ClassesPrettierVisitor {
 
   classMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return getImageWithComments(this.getSingle(ctx));
+      return displaySemicolon(ctx.Semicolon[0]);
     }
     return this.visitSingle(ctx);
   }
@@ -617,6 +628,13 @@ class ClassesPrettierVisitor {
         line,
         ctx.RCurly[0]
       ]);
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
     }
 
     return concat([ctx.LCurly[0], ctx.RCurly[0]]);
