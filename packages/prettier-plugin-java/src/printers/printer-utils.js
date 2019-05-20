@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat } = require("./prettier-builder");
+const { join, concat, getImageWithComments } = require("./prettier-builder");
 const { hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
@@ -157,6 +157,31 @@ function findDeepElementInPartsArray(item, elt) {
   return false;
 }
 
+function displaySemicolon(token, params) {
+  if (params !== undefined && params.allowEmptyStatement) {
+    return getImageWithComments(token);
+  }
+
+  if (!hasComments(token)) {
+    return "";
+  }
+
+  token.image = "";
+  return getImageWithComments(token);
+}
+
+function hasLeadingComments(token) {
+  return token.leadingComments !== undefined;
+}
+
+function hasTrailingComments(token) {
+  return token.trailingComments !== undefined;
+}
+
+function hasComments(token) {
+  return hasLeadingComments(token) || hasTrailingComments(token);
+}
+
 function isExplicitLambdaParameter(ctx) {
   return (
     ctx &&
@@ -189,6 +214,7 @@ function getBlankLinesSeparator(ctx) {
 
 module.exports = {
   buildFqn,
+  reject,
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
@@ -199,5 +225,9 @@ module.exports = {
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
-  getBlankLinesSeparator
+  getBlankLinesSeparator,
+  hasLeadingComments,
+  hasTrailingComments,
+  hasComments,
+  displaySemicolon
 };

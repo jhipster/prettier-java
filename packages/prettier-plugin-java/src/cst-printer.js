@@ -58,9 +58,9 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
       return singleElementValues[0];
     };
 
-    this.visitSingle = function(ctx) {
+    this.visitSingle = function(ctx, params) {
       const singleElement = this.getSingle(ctx);
-      return this.visit(singleElement);
+      return this.visit(singleElement, params);
     };
 
     // hack to get a reference to the inherited visit method from

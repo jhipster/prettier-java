@@ -10,6 +10,9 @@ const {
   getImageWithComments
 } = require("./prettier-builder");
 const {
+  displaySemicolon,
+  hasLeadingComments,
+  hasTrailingComments,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
@@ -20,11 +23,18 @@ class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements) {
+    if (blockStatements && blockStatements.parts.length > 0) {
       return rejectAndJoin(hardline, [
         indent(rejectAndJoin(hardline, [ctx.LCurly[0], blockStatements])),
         ctx.RCurly[0]
       ]);
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
     return concat([ctx.LCurly[0], ctx.RCurly[0]]);
@@ -66,16 +76,16 @@ class BlocksAndStatementPrettierVisitor {
     return getImageWithComments(this.getSingle(ctx));
   }
 
-  statement(ctx) {
-    return this.visitSingle(ctx);
+  statement(ctx, params) {
+    return this.visitSingle(ctx, params);
   }
 
-  statementWithoutTrailingSubstatement(ctx) {
-    return this.visitSingle(ctx);
+  statementWithoutTrailingSubstatement(ctx, params) {
+    return this.visitSingle(ctx, params);
   }
 
-  emptyStatement(ctx) {
-    return getImageWithComments(ctx.Semicolon[0]);
+  emptyStatement(ctx, params) {
+    return displaySemicolon(ctx.Semicolon[0], params);
   }
 
   labeledStatement(ctx) {
@@ -96,21 +106,39 @@ class BlocksAndStatementPrettierVisitor {
 
   ifStatement(ctx) {
     const expression = this.visit(ctx.expression);
-    const ifStatement = this.visit(ctx.statement[0]);
 
-    const elseStatement = ctx.Else
-      ? rejectAndJoin(" ", [
-          concat([" ", ctx.Else[0]]),
-          this.visit(ctx.statement[1])
-        ])
-      : "";
+    const ifStatement = this.visit(ctx.statement[0], {
+      allowEmptyStatement: true
+    });
+    const ifSeparator =
+      ifStatement.contents !== undefined &&
+      ifStatement.contents.parts[0] === ";"
+        ? ""
+        : " ";
+
+    let elsePart = "";
+    if (ctx.Else !== undefined) {
+      const elseStatement = this.visit(ctx.statement[1], {
+        allowEmptyStatement: true
+      });
+      const elseSeparator =
+        elseStatement.contents !== undefined &&
+        elseStatement.contents.parts[0] === ";"
+          ? ""
+          : " ";
+
+      elsePart = rejectAndJoin(elseSeparator, [
+        concat([" ", ctx.Else[0]]),
+        elseStatement
+      ]);
+    }
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.If[0], ctx.LBrace[0]]),
       expression,
-      concat([ctx.RBrace[0], " "]),
+      concat([ctx.RBrace[0], ifSeparator]),
       ifStatement,
-      elseStatement
+      elsePart
     ]);
   }
 
@@ -172,22 +200,36 @@ class BlocksAndStatementPrettierVisitor {
 
   whileStatement(ctx) {
     const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(ctx.statement[0], {
+      allowEmptyStatement: true
+    });
+    const statementSeparator =
+      statement.contents !== undefined && statement.contents.parts[0] === ";"
+        ? ""
+        : " ";
 
     return rejectAndJoin(" ", [
       ctx.While[0],
-      rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
-      statement
+      rejectAndJoin(statementSeparator, [
+        rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
+        statement
+      ])
     ]);
   }
 
   doStatement(ctx) {
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(ctx.statement[0], {
+      allowEmptyStatement: true
+    });
+    const statementSeparator =
+      statement.contents !== undefined && statement.contents.parts[0] === ";"
+        ? ""
+        : " ";
+
     const expression = this.visit(ctx.expression);
 
     return rejectAndJoin(" ", [
-      ctx.Do[0],
-      statement,
+      rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
       ctx.While[0],
       rejectAndConcat([
         ctx.LBrace[0],
@@ -206,14 +248,20 @@ class BlocksAndStatementPrettierVisitor {
     const forInit = this.visit(ctx.forInit);
     const expression = this.visit(ctx.expression);
     const forUpdate = this.visit(ctx.forUpdate);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(ctx.statement[0], {
+      allowEmptyStatement: true
+    });
+    const statementSeparator =
+      statement.contents !== undefined && statement.contents.parts[0] === ";"
+        ? ""
+        : " ";
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
       forInit,
       rejectAndJoin(" ", [ctx.Semicolon[0], expression]),
       rejectAndJoin(" ", [ctx.Semicolon[1], forUpdate]),
-      concat([ctx.RBrace[0], " "]),
+      concat([ctx.RBrace[0], statementSeparator]),
       statement
     ]);
   }
@@ -241,7 +289,13 @@ class BlocksAndStatementPrettierVisitor {
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement);
+    const statement = this.visit(ctx.statement[0], {
+      allowEmptyStatement: true
+    });
+    const statementSeparator =
+      statement.contents !== undefined && statement.contents.parts[0] === ";"
+        ? ""
+        : " ";
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
@@ -252,7 +306,7 @@ class BlocksAndStatementPrettierVisitor {
       ]),
       concat([" ", ctx.Colon[0], " "]),
       expression,
-      concat([ctx.RBrace[0], " "]),
+      concat([ctx.RBrace[0], statementSeparator]),
       statement
     ]);
   }
