@@ -26,12 +26,25 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
-    // eslint-ignore next - We want the conversion to boolean!
     if (item.parts && item.parts.length === 0) {
       return false;
     }
+    // eslint-ignore next - We want the conversion to boolean!
     return item != false;
   });
+}
+
+function rejectSeparators(separators, elems) {
+  const realElements = reject(elems);
+
+  const realSeparators = [];
+  for (let i = 0; i < realElements.length - 1; i++) {
+    if (realElements[i] !== "") {
+      realSeparators.push(separators[i]);
+    }
+  }
+
+  return realSeparators;
 }
 
 function rejectAndJoin(sep, elems) {
@@ -229,5 +242,6 @@ module.exports = {
   hasLeadingComments,
   hasTrailingComments,
   hasComments,
-  displaySemicolon
+  displaySemicolon,
+  rejectSeparators
 };

@@ -17,7 +17,8 @@ const {
   getBlankLinesSeparator,
   hasLeadingComments,
   hasTrailingComments,
-  displaySemicolon
+  displaySemicolon,
+  rejectSeparators
 } = require("./printer-utils");
 const {
   concat,
@@ -131,7 +132,10 @@ class ClassesPrettierVisitor {
 
   classBody(ctx) {
     const classBodyDecls = reject(this.mapVisit(ctx.classBodyDeclaration));
-    const separators = getBlankLinesSeparator(ctx.classBodyDeclaration);
+    const separators = rejectSeparators(
+      getBlankLinesSeparator(ctx.classBodyDeclaration),
+      classBodyDecls
+    );
 
     for (let i = 0; i < classBodyDecls.length - 1; i++) {
       if (
