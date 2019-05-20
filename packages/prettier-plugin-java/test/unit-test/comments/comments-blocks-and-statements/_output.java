@@ -78,6 +78,7 @@ public class PrettierTest {
     }
   }
 }
+
 //Additionnal enumeration
 enum Cards {
   //The Heart and the Spade

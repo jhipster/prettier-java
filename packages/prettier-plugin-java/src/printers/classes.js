@@ -14,11 +14,10 @@ const {
   sortClassTypeChildren,
   sortModifiers,
   rejectAndJoinSeps,
-  getBlankLinesSeparator,
   hasLeadingComments,
   hasTrailingComments,
   displaySemicolon,
-  rejectSeparators
+  handleClassBodyDeclaration
 } = require("./printer-utils");
 const {
   concat,
@@ -131,31 +130,30 @@ class ClassesPrettierVisitor {
   }
 
   classBody(ctx) {
-    const classBodyDecls = reject(this.mapVisit(ctx.classBodyDeclaration));
-    const separators = rejectSeparators(
-      getBlankLinesSeparator(ctx.classBodyDeclaration),
-      classBodyDecls
+    const classBodyDeclsVisited = reject(
+      this.mapVisit(ctx.classBodyDeclaration)
+    );
+    const classBodyDecls = handleClassBodyDeclaration(
+      ctx.classBodyDeclaration,
+      classBodyDeclsVisited
     );
 
-    for (let i = 0; i < classBodyDecls.length - 1; i++) {
+    if (classBodyDecls.length !== 0) {
+      let firstSeparator = hardline;
       if (
         !(
-          ctx.classBodyDeclaration[i + 1].children.classMemberDeclaration !==
+          ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
             undefined &&
-          ctx.classBodyDeclaration[i + 1].children.classMemberDeclaration[0]
+          ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
             .children.fieldDeclaration !== undefined
         )
       ) {
-        separators[i] = hardline;
+        firstSeparator = concat([hardline, hardline]);
       }
-    }
 
-    if (classBodyDecls.length !== 0) {
       return rejectAndConcat([
         ctx.LCurly[0],
-        indent(
-          rejectAndConcat([line, rejectAndJoinSeps(separators, classBodyDecls)])
-        ),
+        indent(rejectAndConcat([firstSeparator, classBodyDecls])),
         line,
         ctx.RCurly[0]
       ]);
@@ -180,11 +178,7 @@ class ClassesPrettierVisitor {
       return displaySemicolon(ctx.Semicolon[0]);
     }
 
-    if (ctx.fieldDeclaration) {
-      return this.visitSingle(ctx);
-    }
-
-    return concat([line, this.visitSingle(ctx)]);
+    return this.visitSingle(ctx);
   }
 
   fieldDeclaration(ctx) {
@@ -496,21 +490,18 @@ class ClassesPrettierVisitor {
       throwsPart = indent(rejectAndConcat([softline, throws]));
     }
 
-    return rejectAndConcat([
-      line,
-      rejectAndJoin(" ", [
-        group(
-          rejectAndJoin(hardline, [
-            rejectAndJoin(hardline, firstAnnotations),
-            rejectAndJoin(" ", [
-              join(" ", otherModifiers),
-              constructorDeclarator,
-              throwsPart
-            ])
+    return rejectAndJoin(" ", [
+      group(
+        rejectAndJoin(hardline, [
+          rejectAndJoin(hardline, firstAnnotations),
+          rejectAndJoin(" ", [
+            join(" ", otherModifiers),
+            constructorDeclarator,
+            throwsPart
           ])
-        ),
-        constructorBody
-      ])
+        ])
+      ),
+      constructorBody
     ]);
   }
 
@@ -637,7 +628,7 @@ class ClassesPrettierVisitor {
       ? ctx.Comma.map(elt => concat([elt, " "]))
       : [];
 
-    if (enumConstantList) {
+    if (enumConstantList || enumBodyDeclarations) {
       return rejectAndConcat([
         ctx.LCurly[0],
         indent(
@@ -700,10 +691,15 @@ class ClassesPrettierVisitor {
   enumBodyDeclarations(ctx) {
     const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
-    return rejectAndJoin(line, [
-      ctx.Semicolon[0],
-      join(line, classBodyDeclaration)
-    ]);
+    const classBodyDeclsVisited = reject(
+      this.mapVisit(ctx.classBodyDeclaration)
+    );
+    const classBodyDecls = handleClassBodyDeclaration(
+      ctx.classBodyDeclaration,
+      classBodyDeclsVisited
+    );
+
+    return rejectAndJoin(line, [ctx.Semicolon[0], classBodyDecls]);
   }
 
   isClassDeclaration(ctx) {

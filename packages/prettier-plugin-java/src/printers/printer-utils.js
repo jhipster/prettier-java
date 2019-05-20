@@ -225,6 +225,46 @@ function getBlankLinesSeparator(ctx) {
   return separators;
 }
 
+function handleClassBodyDeclaration(
+  classBodyDeclarationContext,
+  classBodyDeclsVisited
+) {
+  if (classBodyDeclsVisited.length === 0) {
+    return [];
+  }
+
+  const separators = rejectSeparators(
+    getBlankLinesSeparator(classBodyDeclarationContext),
+    classBodyDeclsVisited
+  );
+
+  for (let i = 0; i < classBodyDeclsVisited.length - 1; i++) {
+    if (
+      !(
+        classBodyDeclarationContext[i + 1].children.classMemberDeclaration !==
+          undefined &&
+        classBodyDeclarationContext[i + 1].children.classMemberDeclaration[0]
+          .children.fieldDeclaration !== undefined
+      )
+    ) {
+      separators[i] = concat([hardline, hardline]);
+    } else {
+      if (
+        !(
+          classBodyDeclarationContext[i].children.classMemberDeclaration !==
+            undefined &&
+          classBodyDeclarationContext[i].children.classMemberDeclaration[0]
+            .children.fieldDeclaration !== undefined
+        )
+      ) {
+        separators[i] = concat([hardline, hardline]);
+      }
+    }
+  }
+
+  return rejectAndJoinSeps(separators, classBodyDeclsVisited);
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -243,5 +283,6 @@ module.exports = {
   hasTrailingComments,
   hasComments,
   displaySemicolon,
-  rejectSeparators
+  rejectSeparators,
+  handleClassBodyDeclaration
 };
