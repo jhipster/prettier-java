@@ -12,7 +12,8 @@ const {
 const {
   rejectAndConcat,
   rejectAndJoin,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  getBlankLinesSeparator
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -31,7 +32,9 @@ class BlocksAndStatementPrettierVisitor {
 
   blockStatements(ctx) {
     const blockStatement = this.mapVisit(ctx.blockStatement);
-    return rejectAndJoin(hardline, blockStatement);
+    const separators = getBlankLinesSeparator(ctx.blockStatement);
+
+    return rejectAndJoinSeps(separators, blockStatement);
   }
 
   blockStatement(ctx) {

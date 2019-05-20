@@ -126,8 +126,10 @@ public final class ArrayTable<R, C, V>
       ? new ArrayTable<R, C, V>((ArrayTable<R, C, V>) table)
       : new ArrayTable<R, C, V>(table);
   }
+
   private final ImmutableList<R> rowList;
   private final ImmutableList<C> columnList;
+
   // TODO(jlevy): Add getters returning rowKeyToIndex and columnKeyToIndex?
   private final ImmutableMap<R, Integer> rowKeyToIndex;
   private final ImmutableMap<C, Integer> columnKeyToIndex;
@@ -140,6 +142,7 @@ public final class ArrayTable<R, C, V>
     this.rowList = ImmutableList.copyOf(rowKeys);
     this.columnList = ImmutableList.copyOf(columnKeys);
     checkArgument(rowList.isEmpty() == columnList.isEmpty());
+
     /*
     * TODO(jlevy): Support only one of rowKey / columnKey being empty? If we
     * do, when columnKeys is empty but rowKeys isn't, rowKeyList() can contain
@@ -148,9 +151,11 @@ public final class ArrayTable<R, C, V>
     */
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
+
     @SuppressWarnings("unchecked"
     ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
+
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
     eraseAll();
   }
@@ -172,6 +177,7 @@ public final class ArrayTable<R, C, V>
       System.arraycopy(table.array[i], 0, copy[i], 0, table.array[i].length);
     }
   }
+
   private abstract static class ArrayMap<K, V>
     extends IteratorBasedAbstractMap<K, V> {
     private final ImmutableMap<K, Integer> keyIndex;
@@ -604,6 +610,7 @@ public final class ArrayTable<R, C, V>
     return (columnIndex == null) ? ImmutableMap.<R, V>of()
       : new Column(columnIndex);
   }
+
   private class Column extends ArrayMap<R, V> {
     final int columnIndex;
 
@@ -638,6 +645,7 @@ public final class ArrayTable<R, C, V>
   public ImmutableSet<C> columnKeySet() {
     return columnKeyToIndex.keySet();
   }
+
   private transient @MonotonicNonNull ColumnMap columnMap;
 
   @Override
@@ -645,6 +653,7 @@ public final class ArrayTable<R, C, V>
     ColumnMap map = columnMap;
     return (map == null) ? columnMap = new ColumnMap() : map;
   }
+
   @WeakOuter
   private class ColumnMap extends ArrayMap<C, Map<R, V>> {
 
@@ -690,6 +699,7 @@ public final class ArrayTable<R, C, V>
     Integer rowIndex = rowKeyToIndex.get(rowKey);
     return (rowIndex == null) ? ImmutableMap.<C, V>of() : new Row(rowIndex);
   }
+
   private class Row extends ArrayMap<C, V> {
     final int rowIndex;
 
@@ -724,6 +734,7 @@ public final class ArrayTable<R, C, V>
   public ImmutableSet<R> rowKeySet() {
     return rowKeyToIndex.keySet();
   }
+
   private transient @MonotonicNonNull RowMap rowMap;
 
   @Override
@@ -731,6 +742,7 @@ public final class ArrayTable<R, C, V>
     RowMap map = rowMap;
     return (map == null) ? rowMap = new RowMap() : map;
   }
+
   @WeakOuter
   private class RowMap extends ArrayMap<R, Map<C, V>> {
 
@@ -792,5 +804,6 @@ public final class ArrayTable<R, C, V>
       this::getValue
     );
   }
+
   private static final long serialVersionUID = 0;
 }

@@ -1,6 +1,7 @@
 "use strict";
 const _ = require("lodash");
 const { join, concat } = require("./prettier-builder");
+const { hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -165,6 +166,27 @@ function isExplicitLambdaParameter(ctx) {
     ctx.lambdaParameterList[0].children.explicitLambdaParameterList
   );
 }
+
+function getBlankLinesSeparator(ctx) {
+  if (ctx === undefined) {
+    return undefined;
+  }
+
+  const separators = [];
+  for (let i = 0; i < ctx.length - 1; i++) {
+    const previousRuleEndLine = ctx[i].location.endLine;
+    const nextRuleStartLine = ctx[i + 1].location.startLine;
+
+    if (nextRuleStartLine > previousRuleEndLine + 1) {
+      separators.push(concat([hardline, hardline]));
+    } else {
+      separators.push(hardline);
+    }
+  }
+
+  return separators;
+}
+
 module.exports = {
   buildFqn,
   rejectAndJoin,
@@ -176,5 +198,6 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
-  isExplicitLambdaParameter
+  isExplicitLambdaParameter,
+  getBlankLinesSeparator
 };

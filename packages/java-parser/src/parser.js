@@ -118,7 +118,8 @@ class JavaParser extends Parser {
         interfaceDeclaration: {
           OR: true
         }
-      }
+      },
+      nodePositionTracking: "full"
     });
 
     const $ = this;

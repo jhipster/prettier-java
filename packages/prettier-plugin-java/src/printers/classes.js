@@ -12,7 +12,8 @@ const {
   rejectAndJoin,
   sortClassTypeChildren,
   sortModifiers,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  getBlankLinesSeparator
 } = require("./printer-utils");
 const {
   concat,
@@ -126,11 +127,27 @@ class ClassesPrettierVisitor {
 
   classBody(ctx) {
     const classBodyDecls = this.mapVisit(ctx.classBodyDeclaration);
+    const separators = getBlankLinesSeparator(ctx.classBodyDeclaration);
+
+    for (let i = 0; i < classBodyDecls.length - 1; i++) {
+      if (
+        !(
+          ctx.classBodyDeclaration[i + 1].children.classMemberDeclaration !==
+            undefined &&
+          ctx.classBodyDeclaration[i + 1].children.classMemberDeclaration[0]
+            .children.fieldDeclaration !== undefined
+        )
+      ) {
+        separators[i] = hardline;
+      }
+    }
 
     if (classBodyDecls.length !== 0) {
       return rejectAndConcat([
         ctx.LCurly[0],
-        indent(rejectAndConcat([line, rejectAndJoin(line, classBodyDecls)])),
+        indent(
+          rejectAndConcat([line, rejectAndJoinSeps(separators, classBodyDecls)])
+        ),
         line,
         ctx.RCurly[0]
       ]);
@@ -147,7 +164,12 @@ class ClassesPrettierVisitor {
     if (ctx.Semicolon) {
       return getImageWithComments(this.getSingle(ctx));
     }
-    return this.visitSingle(ctx);
+
+    if (ctx.fieldDeclaration) {
+      return this.visitSingle(ctx);
+    }
+
+    return concat([line, this.visitSingle(ctx)]);
   }
 
   fieldDeclaration(ctx) {
@@ -285,14 +307,12 @@ class ClassesPrettierVisitor {
       body.contents.parts.includes(";")
         ? ""
         : " ";
-    return rejectAndConcat([
-      line,
-      rejectAndJoin(hardline, [
-        rejectAndJoin(hardline, firstAnnotations),
-        rejectAndJoin(" ", [
-          rejectAndJoin(" ", otherModifiers),
-          rejectAndJoin(headerBodySeparator, [header, body])
-        ])
+
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        rejectAndJoin(headerBodySeparator, [header, body])
       ])
     ]);
   }

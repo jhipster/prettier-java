@@ -2,6 +2,7 @@ public class Instantiation {
 
   public void instantiation() {
     new Constructor("few", "arguments");
+
     new Constructor(
       "a",
       "really",
