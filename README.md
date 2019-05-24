@@ -32,9 +32,9 @@ This project contains 2 packages:
 - [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for
   Prettier to format Java code
 
-      [![npm-prettier-plugin-java][npm-prettier-plugin-java-image]][npm-prettier-plugin-java-url]
+  [![npm-prettier-plugin-java][npm-prettier-plugin-java-image]][npm-prettier-plugin-java-url]
 
-- [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which output a **C**oncrete **S**yntax **T**ree
+* [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which output a **C**oncrete **S**yntax **T**ree
 
   [![npm-java-parser][npm-java-parser-image]][npm-java-parser-url]
 
