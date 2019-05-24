@@ -40,6 +40,10 @@ The plugin will be automatically loaded, check [here](https://prettier.io/docs/e
 
 ## Usage
 
+### CLI
+
+### API
+
 ```javascript
 const prettier = require("prettier");
 const javaText = `
