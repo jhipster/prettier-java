@@ -36,7 +36,7 @@ If you installed Prettier globally and want to format java code via the CLI, run
 
 `npm install -g prettier-plugin-java`
 
-The plugin with be automatically loaded, check [here](https://prettier.io/docs/en/plugins.html#using-plugins) for more.
+The plugin will be automatically loaded, check [here](https://prettier.io/docs/en/plugins.html#using-plugins) for more.
 
 ## Usage
 
