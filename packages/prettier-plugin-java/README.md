@@ -16,11 +16,11 @@ The plugin implementation is pretty straightforward as it uses [java-parser](../
 
 Since the plugin is meant to be used with Prettier, you need to install it:
 
-`npm install prettier --save-dev`
+`npm install --save-dev --save-exact prettier`
 
 or
 
-`yarn add prettier --dev`
+`yarn add prettier --dev --exact`
 
 ### Install plugin
 
