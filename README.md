@@ -25,26 +25,19 @@ What this means is that unlike many other Prettier plugins,
 `prettier-java` has **no additional runtime pre-requisites** (e.g: Python executable).
 It could even be used inside a browser.
 
+## Subpackages
+
+This project contains 2 packages:
+
+- [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which outputs **C**oncrete **S**yntax **T**ree
+- [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for Prettier to format Java code
+
 ## Status
 
-- Parser package alpha version done.
-- Now Investigating the re-printer (actually `prettier-java` package)
+- Parser package alpha version done, it can parse most of Java code. However, we still need to make some tweaks and improvements.
+- The printer (actually `prettier-java` package) is mostly done, it can output formatted code but needs to be improved on some cases.
 
-## Road map to Alpha
-
-- Parser Package
-
-  - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
-  - [x] Milestone 1 - Success parsing ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
-  - [x] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
-  - [x] Investigate performance optimizations.
-  - [x] Release Alpha version to npm. - https://www.npmjs.com/package/java-parser
-
-- `prettier-java` package
-
-  - [ ] POC: Prettier "Re-writer" based on a Chevrotain CST instead of an AST.
-  - [ ] Milestone 1 - Success cyclic rewriting ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
-  - [ ] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
+## Install
 
 ## Contributing
 
