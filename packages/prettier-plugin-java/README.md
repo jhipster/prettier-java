@@ -75,33 +75,24 @@ const formattedText = prettier.format(javaText, {
 
 ### Input
 
-```java
+```
 public class HelloWorld {
+public static void main(String[] args) {System.out.println("Hello World!");;;;;}
 
-  public static void main(String[] args) {
-    System.out.println("Hello World!");
-  }
-
-  @Override
-  public String toString() {
-    return "Hello World";
-  }
-
-  public int sum(
-    int argument1,
-    int argument2,
-    int argument3,
-    int argument4,
-    int argument5
+@Override
+public String toString() {
+  return "Hello World";
+}
+  public int sum(int argument1,int argument2,int argument3,int argument4,int argument5
   ) {
-    return argument1 + argument2 + argument3 + argument4 + argument5;
+    return argument1+argument2+ argument3 +argument4  + argument5;
   }
 }
 ```
 
 ### Output
 
-```java
+```
 public class HelloWorld {
 
   public static void main(String[] args) {
