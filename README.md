@@ -2,7 +2,12 @@
     :construction: Work in Progress! :construction:
 </p>
 
-[![Build Status](https://travis-ci.org/jhipster/prettier-java.svg?branch=master)](https://travis-ci.org/jhipster/prettier-java)
+[![Azure DevOps Build Status][azure-devops-image]][azure-devops-url-main] [![Build Status][travis-image]][travis-url]
+
+[azure-devops-image]: https://dev.azure.com/jhipster/prettier-java/_apis/build/status/jhipster.prettier-java?branchName=master
+[azure-devops-url-main]: https://dev.azure.com/jhipster/prettier-java/_build
+[travis-image]: https://travis-ci.org/jhipster/prettier-java.svg?branch=master
+[travis-url]: https://travis-ci.org/jhipster/prettier-java
 
 # Prettier Java
 
