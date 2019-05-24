@@ -41,6 +41,21 @@ This project contains 2 packages:
 
 This need to updated when the next version will be released.
 
+In the meantime, you can run the plugin by following these steps:
+
+```
+git clone https://github.com/jhipster/prettier-java
+cd prettier-java
+yarn
+cd packages/prettier-plugin-java/scripts
+node update-test-output.js -single
+```
+
+It will format the code contained in `packages/prettier-plugin-java/scripts/single-printer-run/_input.java` and ouput the formatted code in `packages/prettier-plugin-java/scripts/single-printer-run/_output_.java`.
+
+It is also possible to format a folder with the following command:
+`node update-test-output.js -repository path-to-folder`. The output will be stored in `packages/prettier-plugin-java/test-samples/`.
+
 ## Contributing
 
 Contributions are very welcome.
