@@ -38,9 +38,9 @@ This project contains 2 packages:
 
   [![npm-java-parser][npm-java-parser-image]][npm-java-parser-url]
 
-[npm-prettier-plugin-java-image]: https://img.shields.io/npm/v/prettier-plugin-java.svg?label=prettier-plugin-java
+[npm-prettier-plugin-java-image]: https://img.shields.io/npm/v/prettier-plugin-java.svg?color=blue&label=prettier-plugin-java&logo=prettier-plugin-java
 [npm-prettier-plugin-java-url]: https://www.npmjs.com/package/prettier-plugin-java
-[npm-java-parser-image]: https://img.shields.io/npm/v/java-parser.svg?label=java-parser
+[npm-java-parser-image]: https://img.shields.io/npm/v/java-parser.svg?color=blue&label=java-parser&logo=java-parser
 [npm-java-parser-url]: https://www.npmjs.com/package/java-parser
 
 ## Status
