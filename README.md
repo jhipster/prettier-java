@@ -29,8 +29,19 @@ It could even be used inside a browser.
 
 This project contains 2 packages:
 
+- [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for
+  Prettier to format Java code
+
+      [![npm-prettier-plugin-java][npm-prettier-plugin-java-image]][npm-prettier-plugin-java-url]
+
 - [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which output a **C**oncrete **S**yntax **T**ree
-- [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for Prettier to format Java code
+
+  [![npm-java-parser][npm-java-parser-image]][npm-java-parser-url]
+
+[npm-prettier-plugin-java-image]: https://img.shields.io/npm/v/prettier-plugin-java.svg?label=prettier-plugin-java
+[npm-prettier-plugin-java-url]: https://www.npmjs.com/package/prettier-plugin-java
+[npm-java-parser-image]: https://img.shields.io/npm/v/java-parser.svg?label=java-parser
+[npm-java-parser-url]: https://www.npmjs.com/package/java-parser
 
 ## Status
 
