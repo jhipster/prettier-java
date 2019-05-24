@@ -4,6 +4,12 @@
 
 ![Prettier Banner](https://raw.githubusercontent.com/prettier/prettier-logo/master/images/prettier-banner-light.png)
 
+Prettier is an opinionated code formatter which forces a certain code style. It makes the code consistent through an entire project.
+
+This plugin allows the support of Java on Prettier.
+
+The plugin implementation is pretty straightforward as it uses [java-parser](../java-parser) visitor to traverse the **C**oncrete **S**yntax **T**ree and apply the format processing on each node (it uses Prettier API).
+
 ## Installation
 
 ### Prerequirements
@@ -23,6 +29,14 @@ or
 or
 
 `yarn add prettier-plugin-java --dev`
+
+### CLI
+
+If you installed Prettier globally and want to format java code via the CLI, run the following command:
+
+`npm install -g prettier-plugin-java`
+
+The plugin with be automatically loaded, check [here](https://prettier.io/docs/en/plugins.html#using-plugins) for more.
 
 ## Usage
 

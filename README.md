@@ -29,7 +29,7 @@ It could even be used inside a browser.
 
 This project contains 2 packages:
 
-- [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which outputs **C**oncrete **S**yntax **T**ree
+- [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which output a **C**oncrete **S**yntax **T**ree
 - [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for Prettier to format Java code
 
 ## Status
@@ -38,6 +38,8 @@ This project contains 2 packages:
 - The printer (actually `prettier-java` package) is mostly done, it can output formatted code but needs to be improved on some cases.
 
 ## Install
+
+This need to updated when the next version will be released.
 
 ## Contributing
 
