@@ -42,6 +42,18 @@ class JavaParser extends Parser {
       maxLookahead: 2,
       // ambiguities resolved by backtracking
       ignoredIssues: {
+        binaryExpression: {
+          OR: true
+        },
+        lambdaParameterType: {
+          OR: true
+        },
+        annotation: {
+          OR: true
+        },
+        localVariableType: {
+          OR: true
+        },
         annotationTypeMemberDeclaration: {
           OR: true
         },
@@ -119,7 +131,7 @@ class JavaParser extends Parser {
           OR: true
         }
       },
-      nodePositionTracking: "full"
+      nodeLocationTracking: "full"
     });
 
     const $ = this;
