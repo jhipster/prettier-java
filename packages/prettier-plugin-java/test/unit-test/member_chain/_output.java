@@ -17,6 +17,18 @@ public class BreakLongFunctionCall {
       .something();
   }
 
+  public void doSomethingLongWithArgument() {
+    return something()
+      .more(firstArgument, secondArgument)
+      .and(
+        firstArgument,
+        secondArgument,
+        thirdArgument,
+        fourthArgument,
+        fifthArgument
+      );
+  }
+
   public void doSomethingLongNew2() {
     return new Object()
       .something()
