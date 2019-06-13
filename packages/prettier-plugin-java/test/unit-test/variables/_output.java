@@ -19,15 +19,8 @@ public class Variables {
     "ghi",
     "jkl"
   );
-  private Map<Integer, String> genericVariable4 = new HashMap<
-    Integer,
-    String
-  >();
-  private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<
-    Integer,
-    String,
-    Integer
-  >();
+  private Map<Integer, String> genericVariable4 = new HashMap<Integer, String>();
+  private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<Integer, String, Integer>();
 
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];

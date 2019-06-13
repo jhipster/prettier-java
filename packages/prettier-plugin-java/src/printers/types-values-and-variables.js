@@ -3,15 +3,8 @@
 
 const _ = require("lodash");
 
-const { line, softline } = require("prettier").doc.builders;
+const { concat, join, getImageWithComments } = require("./prettier-builder");
 const {
-  concat,
-  join,
-  group,
-  getImageWithComments
-} = require("./prettier-builder");
-const {
-  putIntoBraces,
   rejectAndJoin,
   rejectAndConcat,
   sortClassTypeChildren,
@@ -173,17 +166,12 @@ class TypesValuesAndVariablesPrettierVisitor {
   typeArguments(ctx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
-    return putIntoBraces(
-      typeArgumentList,
-      softline,
-      ctx.Less[0],
-      ctx.Greater[0]
-    );
+    return rejectAndConcat([ctx.Less[0], typeArgumentList, ctx.Greater[0]]);
   }
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
     return rejectAndJoinSeps(commas, typeArguments);
   }
 
