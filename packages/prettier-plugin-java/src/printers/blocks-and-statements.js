@@ -25,7 +25,7 @@ class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements && blockStatements.parts.length > 0) {
+    if (blockStatements !== "") {
       return putIntoBraces(
         blockStatements,
         hardline,

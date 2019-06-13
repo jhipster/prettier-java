@@ -6,6 +6,7 @@ import com.other.interfaces.RequiredI;
 */
 public /*a*/interface/*b*/ MyInterface
   /*a*/extends/*b*/ /*a*/OfferedI/*b*//*a*/,/*b*/ /*a*/RequiredI/*b*/ {
+// comment
   /**
   * Javadoc
   * @param p1 parameter 1

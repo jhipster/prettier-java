@@ -528,16 +528,27 @@ class ClassesPrettierVisitor {
 
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return rejectAndJoin(line, [
-      indent(
-        rejectAndJoin(line, [
-          ctx.LCurly[0],
+    if (blockStatements !== "" || explicitConstructorInvocation !== "") {
+      return putIntoBraces(
+        rejectAndJoin(hardline, [
           explicitConstructorInvocation,
           blockStatements
-        ])
-      ),
-      ctx.RCurly[0]
-    ]);
+        ]),
+        hardline,
+        ctx.LCurly[0],
+        ctx.RCurly[0]
+      );
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      // TODO: to fix
+      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
+    }
+
+    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
   }
 
   explicitConstructorInvocation(ctx) {

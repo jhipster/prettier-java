@@ -14,7 +14,9 @@ const {
   rejectAndJoin,
   sortModifiers,
   rejectAndJoinSeps,
-  putIntoBraces
+  putIntoBraces,
+  hasTrailingComments,
+  hasLeadingComments
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -82,14 +84,29 @@ class InterfacesPrettierVisitor {
       ctx.interfaceMemberDeclaration
     );
 
-    return rejectAndConcat([
-      "{",
-      indent(
-        rejectAndConcat([line, rejectAndJoin(line, interfaceMemberDeclaration)])
-      ),
+    const joinedInterfaceMemberDeclaration = rejectAndJoin(
       line,
-      "}"
-    ]);
+      interfaceMemberDeclaration
+    );
+
+    if (joinedInterfaceMemberDeclaration !== "") {
+      return putIntoBraces(
+        joinedInterfaceMemberDeclaration,
+        hardline,
+        ctx.LCurly[0],
+        ctx.RCurly[0]
+      );
+    }
+
+    if (
+      hasTrailingComments(ctx.LCurly[0]) ||
+      hasLeadingComments(ctx.RCurly[0])
+    ) {
+      // TODO: to fix
+      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
+    }
+
+    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
   }
 
   interfaceMemberDeclaration(ctx) {
