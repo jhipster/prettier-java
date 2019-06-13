@@ -19,8 +19,10 @@ public class Variables {
     "ghi",
     "jkl"
   );
-  private Map<Integer, String> genericVariable4 = new HashMap<Integer, String>(
-  );
+  private Map<Integer, String> genericVariable4 = new HashMap<
+    Integer,
+    String
+  >();
   private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<
     Integer,
     String,

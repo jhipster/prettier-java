@@ -17,7 +17,8 @@ const {
   hasLeadingComments,
   hasTrailingComments,
   displaySemicolon,
-  handleClassBodyDeclaration
+  handleClassBodyDeclaration,
+  putIntoBraces
 } = require("./printer-utils");
 const {
   concat,
@@ -89,21 +90,19 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndConcat([
+    return putIntoBraces(
+      typeParameterList,
+      softline,
       ctx.Less[0],
-      group(
-        rejectAndConcat([indent(typeParameterList), softline, ctx.Greater[0]])
-      )
-    ]);
+      ctx.Greater[0]
+    );
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, typeParameter)])
-    );
+    return rejectAndJoinSeps(commas, typeParameter);
   }
 
   superclass(ctx) {
@@ -374,9 +373,11 @@ class ClassesPrettierVisitor {
 
     return rejectAndConcat([
       identifier,
-      ctx.LBrace[0],
-      group(
-        rejectAndConcat([indent(formalParameterList), softline, ctx.RBrace[0]])
+      putIntoBraces(
+        formalParameterList,
+        softline,
+        ctx.LBrace[0],
+        ctx.RBrace[0]
       ),
       dims
     ]);
@@ -400,9 +401,7 @@ class ClassesPrettierVisitor {
   formalParameterList(ctx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, formalParameter)])
-    );
+    return rejectAndJoinSeps(commas, formalParameter);
   }
 
   formalParameter(ctx) {
@@ -522,15 +521,11 @@ class ClassesPrettierVisitor {
     return rejectAndConcat([
       typeParameters,
       simpleTypeName,
-      ctx.LBrace[0],
-      group(
-        rejectAndConcat([
-          indent(
-            rejectAndJoinSeps(commas, [receiverParameter, formalParameterList])
-          ),
-          softline,
-          ctx.RBrace[0]
-        ])
+      putIntoBraces(
+        rejectAndJoinSeps(commas, [receiverParameter, formalParameterList]),
+        softline,
+        ctx.LBrace[0],
+        ctx.RBrace[0]
       )
     ]);
   }
@@ -566,17 +561,14 @@ class ClassesPrettierVisitor {
     const typeArguments = this.visit(ctx.typeArguments);
     const keyWord = ctx.This ? ctx.This[0] : ctx.Super[0];
     const argumentList = this.visit(ctx.argumentList);
-
     return rejectAndConcat([
       typeArguments,
       " ",
       keyWord,
-      ctx.LBrace[0],
       group(
         rejectAndConcat([
-          indent(argumentList),
-          softline,
-          concat([ctx.RBrace[0], ctx.Semicolon[0]])
+          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ctx.Semicolon[0]
         ])
       )
     ]);
@@ -592,12 +584,10 @@ class ClassesPrettierVisitor {
       ctx.Dot[0],
       typeArguments,
       ctx.Super[0],
-      ctx.LBrace[0],
       group(
         rejectAndConcat([
-          indent(argumentList),
-          softline,
-          concat([ctx.RBrace[0], ctx.Semicolon[0]])
+          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ctx.Semicolon[0]
         ])
       )
     ]);
@@ -671,7 +661,7 @@ class ClassesPrettierVisitor {
     const classBody = this.visit(ctx.classBody);
 
     const optionnalBracesAndArgumentList = ctx.LBrace
-      ? rejectAndConcat([ctx.LBrace[0], argumentList, ctx.RBrace[0]])
+      ? putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
       : "";
 
     return rejectAndJoin(hardline, [

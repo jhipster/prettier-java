@@ -170,8 +170,8 @@ public final class ArrayTable<R, C, V>
     columnList = table.columnList;
     rowKeyToIndex = table.rowKeyToIndex;
     columnKeyToIndex = table.columnKeyToIndex;
-    @SuppressWarnings("unchecked") V[][] copy = (V[][]) new Object[rowList.size(
-    )][columnList.size()];
+    @SuppressWarnings("unchecked"
+    ) V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
     array = copy;
     for (int i = 0; i < rowList.size(); i++) {
       System.arraycopy(table.array[i], 0, copy[i], 0, table.array[i].length);

@@ -18,7 +18,8 @@ public class BreakLongFunctionCall {
   }
 
   public void doSomethingLongNew2() {
-    return new Object().something()
+    return new Object()
+      .something()
       .more()
       .and()
       .that()

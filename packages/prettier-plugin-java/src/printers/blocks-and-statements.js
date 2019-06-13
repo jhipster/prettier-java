@@ -17,7 +17,8 @@ const {
   rejectAndJoin,
   rejectAndJoinSeps,
   getBlankLinesSeparator,
-  rejectSeparators
+  rejectSeparators,
+  putIntoBraces
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -25,16 +26,19 @@ class BlocksAndStatementPrettierVisitor {
     const blockStatements = this.visit(ctx.blockStatements);
 
     if (blockStatements && blockStatements.parts.length > 0) {
-      return rejectAndJoin(hardline, [
-        indent(rejectAndJoin(hardline, [ctx.LCurly[0], blockStatements])),
+      return putIntoBraces(
+        blockStatements,
+        hardline,
+        ctx.LCurly[0],
         ctx.RCurly[0]
-      ]);
+      );
     }
 
     if (
       hasTrailingComments(ctx.LCurly[0]) ||
       hasLeadingComments(ctx.RCurly[0])
     ) {
+      // TODO: to fix
       return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
@@ -138,6 +142,7 @@ class BlocksAndStatementPrettierVisitor {
       ]);
     }
 
+    // TODO: fix line wrapping
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.If[0], ctx.LBrace[0]]),
       expression,
@@ -161,6 +166,7 @@ class BlocksAndStatementPrettierVisitor {
     const expression = this.visit(ctx.expression);
     const switchBlock = this.visit(ctx.switchBlock);
 
+    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       ctx.Switch[0],
       rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
@@ -171,12 +177,12 @@ class BlocksAndStatementPrettierVisitor {
   switchBlock(ctx) {
     const switchCases = this.mapVisit(ctx.switchCase);
 
-    return rejectAndJoin(line, [
-      indent(
-        rejectAndJoin(line, [ctx.LCurly[0], rejectAndJoin(line, switchCases)])
-      ),
+    return putIntoBraces(
+      rejectAndJoin(line, switchCases),
+      line,
+      ctx.LCurly[0],
       ctx.RCurly[0]
-    ]);
+    );
   }
 
   switchCase(ctx) {
@@ -213,6 +219,7 @@ class BlocksAndStatementPrettierVisitor {
         ? ""
         : " ";
 
+    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       ctx.While[0],
       rejectAndJoin(statementSeparator, [
@@ -233,6 +240,7 @@ class BlocksAndStatementPrettierVisitor {
 
     const expression = this.visit(ctx.expression);
 
+    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
       ctx.While[0],
@@ -261,6 +269,7 @@ class BlocksAndStatementPrettierVisitor {
         ? ""
         : " ";
 
+    // TODO: fix line wrapping
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
       forInit,
@@ -400,6 +409,7 @@ class BlocksAndStatementPrettierVisitor {
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
 
+    // TODO: fix line wrapping
     return rejectAndConcat([
       group(
         rejectAndConcat([
