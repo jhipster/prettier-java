@@ -69,7 +69,12 @@ class InterfacesPrettierVisitor {
   extendsInterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
-    return indent(rejectAndJoin(" ", [ctx.Extends[0], interfaceTypeList]));
+    return group(
+      rejectAndConcat([
+        ctx.Extends[0],
+        indent(rejectAndConcat([line, interfaceTypeList]))
+      ])
+    );
   }
 
   interfaceBody(ctx) {
