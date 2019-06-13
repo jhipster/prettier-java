@@ -13,7 +13,8 @@ const {
   rejectAndConcat,
   rejectAndJoin,
   sortModifiers,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  putIntoBraces
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -227,20 +228,26 @@ class InterfacesPrettierVisitor {
   annotation(ctx) {
     const fqn = this.visit(ctx.typeName);
 
-    const annoArgs = [];
+    let annoArgs = "";
     if (ctx.LBrace) {
-      annoArgs.push(ctx.LBrace[0]);
       if (ctx.elementValuePairList) {
-        annoArgs.push(this.visit(ctx.elementValuePairList));
+        annoArgs = putIntoBraces(
+          this.visit(ctx.elementValuePairList),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        );
       } else if (ctx.elementValue) {
-        annoArgs.push(this.visit(ctx.elementValue));
+        annoArgs = putIntoBraces(
+          this.visit(ctx.elementValue),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        );
       }
-      annoArgs.push(dedent(concat([softline, ctx.RBrace[0]])));
     }
 
-    return group(
-      rejectAndConcat([ctx.At[0], fqn, indent(rejectAndConcat(annoArgs))])
-    );
+    return group(rejectAndConcat([ctx.At[0], fqn, annoArgs]));
   }
 
   elementValuePairList(ctx) {

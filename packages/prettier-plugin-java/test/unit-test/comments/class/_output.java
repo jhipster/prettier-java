@@ -152,7 +152,8 @@ public final class ArrayTable<R, C, V>
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
-    @SuppressWarnings("unchecked"
+    @SuppressWarnings(
+      "unchecked"
     ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
 
@@ -170,7 +171,8 @@ public final class ArrayTable<R, C, V>
     columnList = table.columnList;
     rowKeyToIndex = table.rowKeyToIndex;
     columnKeyToIndex = table.columnKeyToIndex;
-    @SuppressWarnings("unchecked"
+    @SuppressWarnings(
+      "unchecked"
     ) V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
     array = copy;
     for (int i = 0; i < rowList.size(); i++) {
