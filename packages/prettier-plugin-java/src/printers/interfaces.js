@@ -52,8 +52,7 @@ class InterfacesPrettierVisitor {
       group(
         rejectAndJoin(" ", [
           ctx.Interface[0],
-          typeIdentifier,
-          typeParameters,
+          concat([typeIdentifier, typeParameters]),
           extendsInterfacesPart
         ])
       ),
