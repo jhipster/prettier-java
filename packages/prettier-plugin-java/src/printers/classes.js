@@ -83,17 +83,12 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return putIntoBraces(
-      typeParameterList,
-      softline,
-      ctx.Less[0],
-      ctx.Greater[0]
-    );
+    return rejectAndConcat([ctx.Less[0], typeParameterList, ctx.Greater[0]]);
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndJoinSeps(commas, typeParameter);
   }
