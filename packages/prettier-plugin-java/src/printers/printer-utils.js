@@ -31,11 +31,8 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
-    if (item.parts && item.parts.length === 0) {
-      return false;
-    }
     // eslint-ignore next - We want the conversion to boolean!
-    return item != false;
+    return item != false && item !== undefined;
   });
 }
 
