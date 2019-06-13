@@ -19,6 +19,7 @@ const {
   concat,
   join,
   group,
+  fill,
   indent,
   getImageWithComments
 } = require("./prettier-builder");
@@ -616,28 +617,23 @@ class ClassesPrettierVisitor {
       ? ctx.Comma.map(elt => concat([elt, " "]))
       : [];
 
-    if (enumConstantList || enumBodyDeclarations) {
-      return rejectAndConcat([
+    if (enumConstantList !== "" || enumBodyDeclarations !== "") {
+      return putIntoBraces(
+        rejectAndJoinSeps(optionnalComma, [
+          enumConstantList,
+          enumBodyDeclarations
+        ]),
+        hardline,
         ctx.LCurly[0],
-        indent(
-          rejectAndConcat([
-            line,
-            rejectAndJoinSeps(optionnalComma, [
-              enumConstantList,
-              enumBodyDeclarations
-            ])
-          ])
-        ),
-        line,
         ctx.RCurly[0]
-      ]);
+      );
     }
 
     if (
       hasTrailingComments(ctx.LCurly[0]) ||
       hasLeadingComments(ctx.RCurly[0])
     ) {
-      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
+      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
     return concat([ctx.LCurly[0], ctx.RCurly[0]]);
@@ -646,7 +642,13 @@ class ClassesPrettierVisitor {
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return rejectAndJoinSeps(commas, enumConstants);
+
+    const enumConstantsWithSeparators = [enumConstants[0]];
+    for (let i = 1; i < enumConstants.length; i++) {
+      enumConstantsWithSeparators.push(commas[i - 1], enumConstants[i]);
+    }
+
+    return fill(reject(enumConstantsWithSeparators));
   }
 
   enumConstant(ctx) {
