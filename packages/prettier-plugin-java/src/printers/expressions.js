@@ -259,20 +259,27 @@ class ExpressionsPrettierVisitor {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
-    const separators = [];
+    const suffixes = [];
+    let addIndent = false;
     for (let i = 0; i < primarySuffixes.length; i++) {
       if (ctx.primarySuffix[i].children.Dot !== undefined) {
-        separators.push(indent(softline));
+        suffixes.push(indent(softline), primarySuffixes[i]);
+        addIndent = true;
       } else if (
         ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
       ) {
-        separators.push(softline);
+        suffixes.push(softline, primarySuffixes[i]);
       } else {
-        separators.push("");
+        if (addIndent) {
+          suffixes.push(indent(primarySuffixes[i]));
+          addIndent = false;
+        } else {
+          suffixes.push(primarySuffixes[i]);
+        }
       }
     }
 
-    let firstSeparator = separators.shift();
+    let firstSeparator = suffixes.shift();
     if (
       ctx.primaryPrefix[0].children.This !== undefined ||
       firstSeparator === undefined
@@ -284,7 +291,7 @@ class ExpressionsPrettierVisitor {
       rejectAndConcat([
         primaryPrefix,
         firstSeparator,
-        rejectAndJoinSeps(separators, primarySuffixes)
+        rejectAndConcat(suffixes)
       ])
     );
   }
