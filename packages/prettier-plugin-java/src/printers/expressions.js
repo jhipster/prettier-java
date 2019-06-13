@@ -5,7 +5,6 @@ const _ = require("lodash");
 const { line, softline } = require("prettier").doc.builders;
 const {
   concat,
-  dedent,
   group,
   indent,
   getImageWithComments
