@@ -77,31 +77,44 @@ function processComments(docs) {
 }
 
 function concat(docs) {
-  return prettier.concat(processComments(docs));
+  const concatenation = prettier.concat(processComments(docs));
+  return concatenation.parts.length === 0 ? "" : concatenation;
 }
 
 function join(sep, docs) {
-  return prettier.join(processComments(sep), processComments(docs));
+  const concatenation = prettier.join(
+    processComments(sep),
+    processComments(docs)
+  );
+  return concatenation.parts.length === 0 ? "" : concatenation;
 }
 
 function group(doc, opts) {
-  return prettier.group(processComments(doc), opts);
+  const group = prettier.group(processComments(doc), opts);
+  return group.contents === undefined ? "" : group;
+}
+
+function fill(docs) {
+  const fill = prettier.fill(processComments(docs));
+  return fill.parts.length === 0 ? "" : fill;
 }
 
 function indent(doc) {
-  return prettier.indent(processComments(doc));
+  const indentedDoc = prettier.indent(processComments(doc));
+  return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
 function dedent(doc) {
-  return prettier.dedent(processComments(doc));
+  const indentedDoc = prettier.dedent(processComments(doc));
+  return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
 module.exports = {
   concat,
   join,
   group,
+  fill,
   indent,
   dedent,
-  getImageWithComments,
-  isToken
+  getImageWithComments
 };
