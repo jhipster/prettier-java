@@ -8,10 +8,10 @@ const {
   concat,
   join,
   group,
-  indent,
   getImageWithComments
 } = require("./prettier-builder");
 const {
+  putIntoBraces,
   rejectAndJoin,
   rejectAndConcat,
   sortClassTypeChildren,
@@ -173,20 +173,18 @@ class TypesValuesAndVariablesPrettierVisitor {
   typeArguments(ctx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
-    return rejectAndConcat([
+    return putIntoBraces(
+      typeArgumentList,
+      softline,
       ctx.Less[0],
-      group(
-        rejectAndConcat([indent(typeArgumentList), softline, ctx.Greater[0]])
-      )
-    ]);
+      ctx.Greater[0]
+    );
   }
 
   typeArgumentList(ctx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, typeArguments)])
-    );
+    return rejectAndJoinSeps(commas, typeArguments);
   }
 
   typeArgument(ctx) {

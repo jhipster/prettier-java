@@ -247,9 +247,7 @@ class InterfacesPrettierVisitor {
     const elementValuePairs = this.mapVisit(ctx.elementValuePair);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, elementValuePairs)])
-    );
+    return rejectAndJoinSeps(commas, elementValuePairs);
   }
 
   elementValuePair(ctx) {

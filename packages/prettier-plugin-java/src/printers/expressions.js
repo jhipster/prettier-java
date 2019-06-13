@@ -18,7 +18,8 @@ const {
   sortTokens,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
-  isExplicitLambdaParameter
+  isExplicitLambdaParameter,
+  putIntoBraces
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -257,26 +258,35 @@ class ExpressionsPrettierVisitor {
 
   primary(ctx) {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
-
-    const segments = [];
-    let currentSegment = [];
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
+    const separators = [];
     for (let i = 0; i < primarySuffixes.length; i++) {
-      currentSegment.push(primarySuffixes[i]);
-      if (
-        i + 1 < ctx.primarySuffix.length &&
-        ctx.primarySuffix[i + 1].children.methodInvocationSuffix
+      if (ctx.primarySuffix[i].children.Dot !== undefined) {
+        separators.push(indent(softline));
+      } else if (
+        ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
       ) {
-        currentSegment.push(primarySuffixes[i + 1]);
-        i += 1;
+        separators.push(softline);
+      } else {
+        separators.push("");
       }
-      segments.push(rejectAndConcat(currentSegment));
-      currentSegment = [];
+    }
+
+    let firstSeparator = separators.shift();
+    if (
+      ctx.primaryPrefix[0].children.This !== undefined ||
+      firstSeparator === undefined
+    ) {
+      firstSeparator = "";
     }
 
     return group(
-      concat([primaryPrefix, indent(rejectAndJoin(softline, segments))])
+      rejectAndConcat([
+        primaryPrefix,
+        firstSeparator,
+        rejectAndJoinSeps(separators, primarySuffixes)
+      ])
     );
   }
 
@@ -413,8 +423,7 @@ class ExpressionsPrettierVisitor {
       rejectAndConcat([
         typeArguments,
         classOrInterfaceTypeToInstantiate,
-        ctx.LBrace[0],
-        group(rejectAndConcat([indent(argumentList), softline, ctx.RBrace[0]]))
+        putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
       ]),
       classBody
     ]);
@@ -453,22 +462,18 @@ class ExpressionsPrettierVisitor {
   }
 
   methodInvocationSuffix(ctx) {
+    if (ctx.argumentList === undefined) {
+      return rejectAndConcat([ctx.LBrace[0], ctx.RBrace[0]]);
+    }
+
     const argumentList = this.visit(ctx.argumentList);
-    return group(
-      rejectAndConcat([
-        rejectAndConcat([ctx.LBrace[0], argumentList]),
-        dedent(softline),
-        ctx.RBrace[0]
-      ])
-    );
+    return putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, expressions)])
-    );
+    return rejectAndJoinSeps(commas, expressions);
   }
 
   arrayCreationExpression(ctx) {

@@ -2,18 +2,14 @@
 /* eslint-disable no-unused-vars */
 
 const { line, hardline } = require("prettier").doc.builders;
-const {
-  concat,
-  indent,
-  join,
-  getImageWithComments
-} = require("./prettier-builder");
+const { concat, join, getImageWithComments } = require("./prettier-builder");
 const {
   buildFqn,
   rejectAndJoin,
   rejectAndConcat,
   rejectAndJoinSeps,
-  displaySemicolon
+  displaySemicolon,
+  putIntoBraces
 } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -96,11 +92,12 @@ class PackagesAndModulesPrettierVisitor {
       optionalOpen,
       ctx.Module[0],
       name,
-      indent(
-        rejectAndJoin(line, [ctx.LCurly[0], join(line, moduleDirectives)])
-      ),
-      line,
-      ctx.RCurly[0]
+      putIntoBraces(
+        join(line, moduleDirectives),
+        line,
+        ctx.LCurly[0],
+        ctx.RCurly[0]
+      )
     ]);
   }
 

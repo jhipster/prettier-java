@@ -1,15 +1,13 @@
 package test;
 
-@SingleMemberAnnotation2(
-  name = "Something much long that breaks",
+@SingleMemberAnnotation2(name = "Something much long that breaks",
   date = "01/01/2018"
 )
 @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
 @NormalAnnotation("value")
 @MarkerAnnotation
 public class MarkerAnnotations {
-  @SingleMemberAnnotation2(
-    name = "Something much long that breaks",
+  @SingleMemberAnnotation2(name = "Something much long that breaks",
     date = "01/01/2018"
   )
   @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
@@ -17,8 +15,7 @@ public class MarkerAnnotations {
   @MarkerAnnotation
   SomeService service;
 
-  @SingleMemberAnnotation2(
-    name = "Something much long that breaks",
+  @SingleMemberAnnotation2(name = "Something much long that breaks",
     date = "01/01/2018"
   )
   @SingleMemberAnnotation1(name = "Thorben von Hacht", date = "01/01/2018")
@@ -42,8 +39,7 @@ public class MarkerAnnotations {
     System.out.println("element value array initializer");
   }
 
-  @ArrayInitializersWithKey(
-    key = { "abc", "def" },
+  @ArrayInitializersWithKey(key = { "abc", "def" },
     key2 = { "ghi", "jkl" },
     key3 = { "mno", "pqr" }
   )
