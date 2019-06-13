@@ -14,6 +14,7 @@ public class GenericClass<BEAN> {
     return t;
   }
 }
+
 public class ComplexGenericClass<
   BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>,
   BEANTYPE,

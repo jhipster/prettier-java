@@ -37,6 +37,10 @@ public class PrettierTest {
                         case 1:
         
                         System.out.println("One ");
+                        System.out.println("One ");
+
+
+                        System.out.println("One ");
                         /*just a break*/break;
                         case 2:
                         System.out.println("Two ");
