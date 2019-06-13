@@ -203,8 +203,7 @@ createToken({
 });
 createToken({
   name: "StringLiteral",
-  // TODO: align with the spec, the pattern below is incorrect
-  pattern: /"[^"\\]*(\\.[^"\\]*)*"/
+  pattern: /"(?:[^\\"]|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))*"/
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
