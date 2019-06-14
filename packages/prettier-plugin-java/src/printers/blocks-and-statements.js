@@ -463,19 +463,19 @@ class BlocksAndStatementPrettierVisitor {
     const resourceList = this.visit(ctx.resourceList);
     const optionalSemicolon = ctx.Semicolon ? ctx.Semicolon[0] : "";
 
-    return rejectAndConcat([
+    return putIntoBraces(
+      rejectAndConcat([resourceList, optionalSemicolon]),
+      softline,
       ctx.LBrace[0],
-      resourceList,
-      optionalSemicolon,
       ctx.RBrace[0]
-    ]);
+    );
   }
 
   resourceList(ctx) {
     const resources = this.mapVisit(ctx.resource);
     const semicolons = ctx.Semicolon
       ? ctx.Semicolon.map(elt => {
-          return concat([elt, " "]);
+          return concat([elt, line]);
         })
       : [""];
     return rejectAndJoinSeps(semicolons, resources);
