@@ -2,14 +2,9 @@
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
 
-// const startTime = new Date().getTime();
 const parser = new JavaParser();
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
-
-// const endTime = new Date().getTime();
-// const totalTime = endTime - startTime;
-// console.log("parse start time (ms): " + totalTime);
 
 function parse(inputText, entryPoint = "compilationUnit") {
   // Lex
