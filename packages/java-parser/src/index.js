@@ -27,10 +27,32 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
+  const existToken = lexResult.tokens.length !== 0;
+  const tokenMock = [
+    {
+      image: "",
+      startOffset: 1,
+      endOffset: Infinity,
+      startLine: 1,
+      endLine: Infinity,
+      startColumn: 1,
+      endColumn: Infinity,
+      tokenTypeIdx: 91
+    }
+  ];
+
+  let cst;
+  if (existToken) {
+    parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
+    cst = parser[entryPoint]();
+  } else {
+    parser.input = tokenMock;
+    parser.input[0].trailingComments = [...lexResult.groups.comments];
+    cst = parser["emptyStatement"]();
+  }
 
   // Automatic CST created when parsing
-  const cst = parser[entryPoint]();
+
   if (parser.errors.length > 0) {
     const error = parser.errors[0];
     throw Error(
