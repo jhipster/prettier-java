@@ -38,7 +38,8 @@ class BlocksAndStatementPrettierVisitor {
       hasTrailingComments(ctx.LCurly[0]) ||
       hasLeadingComments(ctx.RCurly[0])
     ) {
-      // TODO: to fix
+      // TODO: Find a more efficient way to deal with comments in empty block
+      // It does not work with multi-lines comments, for instance
       return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
@@ -142,7 +143,6 @@ class BlocksAndStatementPrettierVisitor {
       ]);
     }
 
-    // TODO: fix line wrapping
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.If[0], ctx.LBrace[0]]),
       expression,
@@ -166,7 +166,6 @@ class BlocksAndStatementPrettierVisitor {
     const expression = this.visit(ctx.expression);
     const switchBlock = this.visit(ctx.switchBlock);
 
-    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       ctx.Switch[0],
       rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
@@ -219,7 +218,6 @@ class BlocksAndStatementPrettierVisitor {
         ? ""
         : " ";
 
-    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       ctx.While[0],
       rejectAndJoin(statementSeparator, [
@@ -240,7 +238,6 @@ class BlocksAndStatementPrettierVisitor {
 
     const expression = this.visit(ctx.expression);
 
-    // TODO: fix line wrapping
     return rejectAndJoin(" ", [
       rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
       ctx.While[0],
@@ -269,7 +266,6 @@ class BlocksAndStatementPrettierVisitor {
         ? ""
         : " ";
 
-    // TODO: fix line wrapping
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
       forInit,
@@ -409,7 +405,6 @@ class BlocksAndStatementPrettierVisitor {
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
 
-    // TODO: fix line wrapping
     return rejectAndConcat([
       group(
         rejectAndConcat([

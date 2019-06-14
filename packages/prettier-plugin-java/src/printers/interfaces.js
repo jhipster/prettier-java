@@ -101,7 +101,8 @@ class InterfacesPrettierVisitor {
       hasTrailingComments(ctx.LCurly[0]) ||
       hasLeadingComments(ctx.RCurly[0])
     ) {
-      // TODO: to fix
+      // TODO: Find a more efficient way to deal with comments in empty interface body
+      // It does not work with multi-lines comments, for instance
       return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
     }
 
