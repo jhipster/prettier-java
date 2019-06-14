@@ -1,6 +1,7 @@
 "use strict";
 const _ = require("lodash");
 const { join, concat, getImageWithComments } = require("./prettier-builder");
+const { hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -25,12 +26,25 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
-    // eslint-ignore next - We want the conversion to boolean!
     if (item.parts && item.parts.length === 0) {
       return false;
     }
+    // eslint-ignore next - We want the conversion to boolean!
     return item != false;
   });
+}
+
+function rejectSeparators(separators, elems) {
+  const realElements = reject(elems);
+
+  const realSeparators = [];
+  for (let i = 0; i < realElements.length - 1; i++) {
+    if (realElements[i] !== "") {
+      realSeparators.push(separators[i]);
+    }
+  }
+
+  return realSeparators;
 }
 
 function rejectAndJoin(sep, elems) {
@@ -191,6 +205,66 @@ function isExplicitLambdaParameter(ctx) {
   );
 }
 
+function getBlankLinesSeparator(ctx) {
+  if (ctx === undefined) {
+    return undefined;
+  }
+
+  const separators = [];
+  for (let i = 0; i < ctx.length - 1; i++) {
+    const previousRuleEndLine = ctx[i].location.endLine;
+    const nextRuleStartLine = ctx[i + 1].location.startLine;
+
+    if (nextRuleStartLine > previousRuleEndLine + 1) {
+      separators.push(concat([hardline, hardline]));
+    } else {
+      separators.push(hardline);
+    }
+  }
+
+  return separators;
+}
+
+function handleClassBodyDeclaration(
+  classBodyDeclarationContext,
+  classBodyDeclsVisited
+) {
+  if (classBodyDeclsVisited.length === 0) {
+    return [];
+  }
+
+  const separators = rejectSeparators(
+    getBlankLinesSeparator(classBodyDeclarationContext),
+    classBodyDeclsVisited
+  );
+
+  for (let i = 0; i < classBodyDeclsVisited.length - 1; i++) {
+    if (
+      !(
+        classBodyDeclarationContext[i + 1].children.classMemberDeclaration !==
+          undefined &&
+        classBodyDeclarationContext[i + 1].children.classMemberDeclaration[0]
+          .children.fieldDeclaration !== undefined
+      )
+    ) {
+      separators[i] = concat([hardline, hardline]);
+    } else {
+      if (
+        !(
+          classBodyDeclarationContext[i].children.classMemberDeclaration !==
+            undefined &&
+          classBodyDeclarationContext[i].children.classMemberDeclaration[0]
+            .children.fieldDeclaration !== undefined
+        )
+      ) {
+        separators[i] = concat([hardline, hardline]);
+      }
+    }
+  }
+
+  return rejectAndJoinSeps(separators, classBodyDeclsVisited);
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -203,9 +277,12 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
+  isExplicitLambdaParameter,
+  getBlankLinesSeparator,
   hasLeadingComments,
   hasTrailingComments,
   hasComments,
-  isExplicitLambdaParameter,
-  displaySemicolon
+  displaySemicolon,
+  rejectSeparators,
+  handleClassBodyDeclaration
 };

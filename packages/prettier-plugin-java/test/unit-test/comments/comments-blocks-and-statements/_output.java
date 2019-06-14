@@ -25,6 +25,7 @@ public class PrettierTest {
     if (arg1 == 0 && arg2 == 0 && arg == 3) throw new RuntimeException(
       "X Y Z cannot be all 0"
     );
+
     int /*variable name is of value var */var = arg1 + arg2 + arg3;
     if/*true*/ (var == 0) {
       System.out.println("The value is 0");
@@ -38,11 +39,15 @@ public class PrettierTest {
         0,
         2
       };
+
       loop: // Label statement
       //foreach
       for (int num /* num is every number in arr*/: arr) {
         /*switch*/switch (num) { //switch
           case 1:
+            System.out.println("One ");
+            System.out.println("One ");
+
             System.out.println("One ");
             /*just a break*/break;
           case 2:
@@ -50,6 +55,7 @@ public class PrettierTest {
             break;
           case 0:
             System.out.println("Zero ");
+
             continue/*labeled continued*/ loop;
           default/*def*/:
             /*labeled break*/break loop;
@@ -72,6 +78,7 @@ public class PrettierTest {
     }
   }
 }
+
 //Additionnal enumeration
 enum Cards {
   //The Heart and the Spade

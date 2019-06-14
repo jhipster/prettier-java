@@ -12,7 +12,8 @@ const {
   buildFqn,
   rejectAndJoin,
   rejectAndConcat,
-  rejectAndJoinSeps
+  rejectAndJoinSeps,
+  displaySemicolon
 } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -32,7 +33,7 @@ class PackagesAndModulesPrettierVisitor {
       rejectAndJoin(concat([line, line]), [
         packageDecl,
         rejectAndJoin(line, importsDecl),
-        rejectAndJoin(line, typesDecl)
+        rejectAndJoin(concat([line, line]), typesDecl)
       ]),
       line
     ]);
@@ -79,6 +80,9 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   typeDeclaration(ctx) {
+    if (ctx.Semicolon) {
+      return displaySemicolon(ctx.Semicolon[0]);
+    }
     return this.visitSingle(ctx);
   }
 
