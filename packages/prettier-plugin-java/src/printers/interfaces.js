@@ -15,8 +15,7 @@ const {
   sortModifiers,
   rejectAndJoinSeps,
   putIntoBraces,
-  hasTrailingComments,
-  hasLeadingComments
+  putIntoCurlyBraces
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -88,25 +87,12 @@ class InterfacesPrettierVisitor {
       interfaceMemberDeclaration
     );
 
-    if (joinedInterfaceMemberDeclaration !== "") {
-      return putIntoBraces(
-        joinedInterfaceMemberDeclaration,
-        hardline,
-        ctx.LCurly[0],
-        ctx.RCurly[0]
-      );
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      // TODO: Find a more efficient way to deal with comments in empty interface body
-      // It does not work with multi-lines comments, for instance
-      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      joinedInterfaceMemberDeclaration,
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   interfaceMemberDeclaration(ctx) {

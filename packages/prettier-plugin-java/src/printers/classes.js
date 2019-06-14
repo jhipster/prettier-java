@@ -9,11 +9,10 @@ const {
   sortClassTypeChildren,
   sortModifiers,
   rejectAndJoinSeps,
-  hasLeadingComments,
-  hasTrailingComments,
   displaySemicolon,
   handleClassBodyDeclaration,
-  putIntoBraces
+  putIntoBraces,
+  putIntoCurlyBraces
 } = require("./printer-utils");
 const {
   concat,
@@ -125,8 +124,8 @@ class ClassesPrettierVisitor {
       classBodyDeclsVisited
     );
 
+    let content = "";
     if (classBodyDecls.length !== 0) {
-      let firstSeparator = hardline;
       if (
         !(
           ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
@@ -135,25 +134,13 @@ class ClassesPrettierVisitor {
             .children.fieldDeclaration !== undefined
         )
       ) {
-        firstSeparator = concat([hardline, hardline]);
+        content = rejectAndConcat([hardline, classBodyDecls]);
+      } else {
+        content = classBodyDecls;
       }
-
-      return rejectAndConcat([
-        ctx.LCurly[0],
-        indent(rejectAndConcat([firstSeparator, classBodyDecls])),
-        line,
-        ctx.RCurly[0]
-      ]);
     }
 
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0]);
   }
 
   classBodyDeclaration(ctx) {
@@ -529,28 +516,12 @@ class ClassesPrettierVisitor {
 
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements !== "" || explicitConstructorInvocation !== "") {
-      return putIntoBraces(
-        rejectAndJoin(hardline, [
-          explicitConstructorInvocation,
-          blockStatements
-        ]),
-        hardline,
-        ctx.LCurly[0],
-        ctx.RCurly[0]
-      );
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      // TODO: Find a more efficient way to deal with comments in empty constructor body
-      // It does not work with multi-lines comments, for instance
-      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      rejectAndJoin(hardline, [explicitConstructorInvocation, blockStatements]),
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   explicitConstructorInvocation(ctx) {
@@ -618,26 +589,15 @@ class ClassesPrettierVisitor {
       ? ctx.Comma.map(elt => concat([elt, " "]))
       : [];
 
-    if (enumConstantList !== "" || enumBodyDeclarations !== "") {
-      return putIntoBraces(
-        rejectAndJoinSeps(optionnalComma, [
-          enumConstantList,
-          enumBodyDeclarations
-        ]),
-        hardline,
-        ctx.LCurly[0],
-        ctx.RCurly[0]
-      );
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      rejectAndJoinSeps(optionnalComma, [
+        enumConstantList,
+        enumBodyDeclarations
+      ]),
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   enumConstantList(ctx) {
