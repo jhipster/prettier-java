@@ -57,7 +57,7 @@ function attachComments(tokens, comments) {
 
   // edge case: when the file only contains comments
   if (tokens.length === 1) {
-    tokens[0].trailingComments = [...comments];
+    tokens[0].leadingComments = [...comments];
     return tokens;
   }
 

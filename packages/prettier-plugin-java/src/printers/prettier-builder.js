@@ -62,7 +62,7 @@ function formatComment(comment) {
 }
 
 function isToken(doc) {
-  return doc && doc.image && doc.tokenType;
+  return doc && doc.hasOwnProperty("image") && doc.tokenType;
 }
 
 function processComments(docs) {
