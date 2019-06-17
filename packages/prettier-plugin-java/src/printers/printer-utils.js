@@ -282,6 +282,18 @@ function putIntoBraces(argument, separator, LBrace, RBrace) {
   );
 }
 
+function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
+  if (argument !== undefined && argument !== "") {
+    return putIntoBraces(argument, separator, LBrace, RBrace);
+  }
+
+  if (hasTrailingComments(LBrace) || hasLeadingComments(RBrace)) {
+    return concat([LBrace, indent(hardline), RBrace]);
+  }
+
+  return concat([LBrace, RBrace]);
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -302,5 +314,6 @@ module.exports = {
   displaySemicolon,
   rejectSeparators,
   handleClassBodyDeclaration,
-  putIntoBraces
+  putIntoBraces,
+  putIntoCurlyBraces
 };

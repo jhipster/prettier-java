@@ -1,9 +1,12 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { line } = require("prettier").doc.builders;
-const { group, indent } = require("./prettier-builder");
-const { rejectAndConcat, rejectAndJoinSeps } = require("./printer-utils");
+const { line, softline } = require("prettier").doc.builders;
+const {
+  rejectAndConcat,
+  rejectAndJoinSeps,
+  putIntoCurlyBraces
+} = require("./printer-utils");
 
 class ArraysPrettierVisitor {
   arrayInitializer(ctx) {
@@ -12,17 +15,11 @@ class ArraysPrettierVisitor {
     );
     const optionalComma = ctx.Comma ? ctx.Comma[0] : "";
 
-    const separator = ctx.variableInitializerList || ctx.Comma ? line : "";
-
-    return group(
-      rejectAndConcat([
-        ctx.LCurly[0],
-        indent(
-          rejectAndConcat([optionalVariableInitializerList, optionalComma])
-        ),
-        separator,
-        ctx.RCurly[0]
-      ])
+    return putIntoCurlyBraces(
+      rejectAndConcat([optionalVariableInitializerList, optionalComma]),
+      line,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
     );
   }
 
@@ -34,10 +31,7 @@ class ArraysPrettierVisitor {
         })
       : [];
 
-    return rejectAndConcat([
-      line,
-      rejectAndJoinSeps(commas, variableInitializers)
-    ]);
+    return rejectAndJoinSeps(commas, variableInitializers);
   }
 }
 

@@ -11,39 +11,25 @@ const {
 } = require("./prettier-builder");
 const {
   displaySemicolon,
-  hasLeadingComments,
-  hasTrailingComments,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
   getBlankLinesSeparator,
   rejectSeparators,
-  putIntoBraces
+  putIntoBraces,
+  putIntoCurlyBraces
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements !== "") {
-      return putIntoBraces(
-        blockStatements,
-        hardline,
-        ctx.LCurly[0],
-        ctx.RCurly[0]
-      );
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      // TODO: Find a more efficient way to deal with comments in empty block
-      // It does not work with multi-lines comments, for instance
-      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      blockStatements,
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   blockStatements(ctx) {
