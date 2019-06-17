@@ -22,31 +22,10 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  const existToken = lexResult.tokens.length !== 0;
-  const tokenMock = [
-    {
-      image: "",
-      startOffset: 1,
-      endOffset: Infinity,
-      startLine: 1,
-      endLine: Infinity,
-      startColumn: 1,
-      endColumn: Infinity,
-      tokenTypeIdx: 91
-    }
-  ];
-
-  let cst;
-  if (existToken) {
-    parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
-    cst = parser[entryPoint]();
-  } else {
-    parser.input = tokenMock;
-    parser.input[0].trailingComments = [...lexResult.groups.comments];
-    cst = parser["emptyStatement"]();
-  }
+  parser.input = lexResult.tokens;
 
   // Automatic CST created when parsing
+  const cst = parser[entryPoint]();
 
   if (parser.errors.length > 0) {
     const error = parser.errors[0];
@@ -62,11 +41,25 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
+  if (lexResult.tokens.length === 0) {
+    const EOF = Object.assign({}, cst.children.EOF[0]);
+    cst.children.EOF = [EOF];
+    attachComments(cst.children.EOF, lexResult.groups.comments);
+  } else {
+    attachComments(lexResult.tokens, lexResult.groups.comments);
+  }
+
   return cst;
 }
 
 function attachComments(tokens, comments) {
   const attachComments = [...comments];
+
+  // edge case: when the file only contains comments
+  if (tokens.length === 1) {
+    tokens[0].trailingComments = [...comments];
+    return tokens;
+  }
 
   // edge case: when the file start with comments, it attaches as leadingComments to the first token
   const firstToken = tokens[0];

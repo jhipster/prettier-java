@@ -14,7 +14,9 @@ const {
 
 class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
-    return this.visitSingle(ctx);
+    const EOF = ctx.EOF[0];
+    delete ctx.EOF;
+    return concat([this.visitSingle(ctx), EOF]);
   }
 
   ordinaryCompilationUnit(ctx) {
