@@ -6,7 +6,7 @@ const {
   group,
   getImageWithComments
 } = require("./prettier-builder");
-const { indent, hardline } = require("prettier").doc.builders;
+const { indent, hardline, dedent } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -294,6 +294,67 @@ function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
   return concat([LBrace, RBrace]);
 }
 
+function retrieveNodesToken(ctx) {
+  const tokens = retrieveNodesTokenRec(ctx);
+  tokens.sort((token1, token2) => {
+    return token1.startOffset - token2.startOffset;
+  });
+  return tokens;
+}
+
+function retrieveNodesTokenRec(ctx) {
+  const tokens = [];
+  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+    if (ctx.leadingComments) {
+      tokens.push(...ctx.leadingComments);
+    }
+    tokens.push(ctx);
+    if (ctx.trailingComments) {
+      tokens.push(...ctx.trailingComments);
+    }
+    return tokens;
+  }
+  Object.keys(ctx.children).forEach(child => {
+    ctx.children[child].forEach(subctx => {
+      tokens.push(...retrieveNodesTokenRec(subctx));
+    });
+  });
+  return tokens;
+}
+
+function buildOriginalText(tokens) {
+  if (tokens.length == 0) {
+    ("");
+  }
+  if (tokens.length == 1) {
+    return dedent(concat([tokens[0]]));
+  }
+  const originalText = [];
+  let lastToken = tokens[0];
+  let startLine;
+  let space;
+  for (let i = 0; i < tokens.length; i++) {
+    startLine = tokens[i].startLine;
+    while (startLine - lastToken.startLine > 0) {
+      originalText.push(hardline);
+      startLine--;
+    }
+    if (tokens[i].startLine - lastToken.startLine > 0) {
+      space = tokens[i].startColumn - 1;
+    } else {
+      space = tokens[i].startColumn - lastToken.endColumn - 1;
+    }
+    while (space > 0) {
+      originalText.push(" ");
+      space--;
+    }
+    originalText.push(tokens[i].image);
+    lastToken = tokens[i];
+  }
+
+  return dedent(concat(originalText));
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -315,5 +376,7 @@ module.exports = {
   rejectSeparators,
   handleClassBodyDeclaration,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  retrieveNodesToken,
+  buildOriginalText
 };

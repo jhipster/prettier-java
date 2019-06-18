@@ -18,6 +18,10 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
+const {
+  buildOriginalText,
+  retrieveNodesToken
+} = require("./printers/printer-utils");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
@@ -71,6 +75,17 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
       if (ctx === undefined) {
         // empty Doc
         return "";
+      }
+
+      if (ctx.ignore) {
+        try {
+          return buildOriginalText(retrieveNodesToken(ctx));
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(
+            "There might be a problem with prettier-ignore, check cst-printer.js"
+          );
+        }
       }
 
       return orgVisit.call(this, ctx, inParam);
