@@ -1,4 +1,3 @@
-
 /*
 * # Copyright 2013-2019 the original author or authors from the JHipster project.
 * #

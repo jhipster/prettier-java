@@ -43,6 +43,8 @@ function parse(inputText, entryPoint = "compilationUnit") {
 
   if (lexResult.tokens.length === 0) {
     const EOF = Object.assign({}, cst.children.EOF[0]);
+    EOF.startOffset = Number.MAX_SAFE_INTEGER;
+    EOF.endOffset = Number.MAX_SAFE_INTEGER;
     cst.children.EOF = [EOF];
     attachComments(cst.children.EOF, lexResult.groups.comments);
   } else {
@@ -55,9 +57,21 @@ function parse(inputText, entryPoint = "compilationUnit") {
 function attachComments(tokens, comments) {
   const attachComments = [...comments];
 
-  // edge case: when the file only contains comments
+  // edge case: when the file contains only one token (;/if no token then EOF)
   if (tokens.length === 1) {
-    tokens[0].leadingComments = [...comments];
+    attachComments.forEach(comment => {
+      if (comment.endOffset < tokens[0].startOffset) {
+        if (!tokens[0].leadingComments) {
+          tokens[0].leadingComments = [];
+        }
+        tokens[0].leadingComments.push(comment);
+      } else {
+        if (!tokens[0].trailingComments) {
+          tokens[0].trailingComments = [];
+        }
+        tokens[0].trailingComments.push(comment);
+      }
+    });
     return tokens;
   }
 
