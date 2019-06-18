@@ -194,6 +194,7 @@ class ClassesPrettierVisitor {
       return rejectAndJoin(" ", [
         variableDeclaratorId,
         ctx.Equals[0],
+        softline,
         variableInitializer
       ]);
     }
