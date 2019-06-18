@@ -48,7 +48,11 @@ function getImageWithComments(token) {
 function formatComment(comment) {
   const res = [];
   comment.image.split("\n").forEach(l => {
-    res.push(l.trim());
+    if (l.match(/(\s+)(\*)(.*)/gm)) {
+      res.push(l.trim());
+    } else {
+      res.push(l);
+    }
     res.push(prettier.hardline);
   });
   if (res[res.length - 1] === prettier.hardline) {
@@ -58,7 +62,7 @@ function formatComment(comment) {
 }
 
 function isToken(doc) {
-  return doc && doc.image && doc.tokenType;
+  return doc && doc.hasOwnProperty("image") && doc.tokenType;
 }
 
 function processComments(docs) {

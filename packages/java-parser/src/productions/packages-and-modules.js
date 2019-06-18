@@ -1,5 +1,5 @@
 "use strict";
-const { isRecognitionException, tokenMatcher } = require("chevrotain");
+const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
@@ -15,6 +15,8 @@ function defineRules($, t) {
         ALT: () => $.SUBRULE($.modularCompilationUnit)
       }
     ]);
+    // https://github.com/jhipster/prettier-java/pull/217
+    $.CONSUME(EOF);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-OrdinaryCompilationUnit

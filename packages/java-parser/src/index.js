@@ -2,14 +2,9 @@
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
 
-// const startTime = new Date().getTime();
 const parser = new JavaParser();
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
-
-// const endTime = new Date().getTime();
-// const totalTime = endTime - startTime;
-// console.log("parse start time (ms): " + totalTime);
 
 function parse(inputText, entryPoint = "compilationUnit") {
   // Lex
@@ -27,10 +22,11 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  parser.input = attachComments(lexResult.tokens, lexResult.groups.comments);
+  parser.input = lexResult.tokens;
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
+
   if (parser.errors.length > 0) {
     const error = parser.errors[0];
     throw Error(
@@ -45,11 +41,39 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
+  if (lexResult.tokens.length === 0) {
+    const EOF = Object.assign({}, cst.children.EOF[0]);
+    EOF.startOffset = Number.MAX_SAFE_INTEGER;
+    EOF.endOffset = Number.MAX_SAFE_INTEGER;
+    cst.children.EOF = [EOF];
+    attachComments(cst.children.EOF, lexResult.groups.comments);
+  } else {
+    attachComments(lexResult.tokens, lexResult.groups.comments);
+  }
+
   return cst;
 }
 
 function attachComments(tokens, comments) {
   const attachComments = [...comments];
+
+  // edge case: when the file contains only one token (;/if no token then EOF)
+  if (tokens.length === 1) {
+    attachComments.forEach(comment => {
+      if (comment.endOffset < tokens[0].startOffset) {
+        if (!tokens[0].leadingComments) {
+          tokens[0].leadingComments = [];
+        }
+        tokens[0].leadingComments.push(comment);
+      } else {
+        if (!tokens[0].trailingComments) {
+          tokens[0].trailingComments = [];
+        }
+        tokens[0].trailingComments.push(comment);
+      }
+    });
+    return tokens;
+  }
 
   // edge case: when the file start with comments, it attaches as leadingComments to the first token
   const firstToken = tokens[0];
