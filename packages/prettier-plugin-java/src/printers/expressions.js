@@ -210,10 +210,16 @@ class ExpressionsPrettierVisitor {
         }
         i++;
       } else if (matchCategory(token, "'BinaryOperator'")) {
+        let separator = "";
+        if (token.image === "&&" || token.image === "||") {
+          separator = softline;
+        } else {
+          separator = " ";
+        }
         segment.push(
           indent(
             rejectAndConcat([
-              softline,
+              separator,
               rejectAndJoin(" ", [token, unaryExpression.shift()])
             ])
           )

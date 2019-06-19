@@ -71,4 +71,29 @@ public class Expressions {
       System.out.println("instanceOf");
     }
   }
+
+  public void printSimple() {
+    if (myValue == 42) {}
+
+    if (myValue != 42) {
+      System.out.println("Why not 42 !");
+    }
+  }
+
+  public void printLine() {
+    if (myValue == 42
+      || myValue == 42
+      && myValue == 42
+      && myValue == 42
+      || myValue == 42
+      && myValue == 42) {}
+  }
+
+  public void printLineMix() {
+    if (myValue != 42
+      && 42 / 42
+      || myValue & 42
+      && myValue > 42
+      || myValue < 42) {}
+  }
 }
