@@ -226,7 +226,7 @@ class ExpressionsPrettierVisitor {
         );
       }
     }
-    return group(rejectAndJoin(" ", segment));
+    return group(concat([softline, rejectAndJoin(" ", segment), softline]));
   }
 
   unaryExpression(ctx) {
