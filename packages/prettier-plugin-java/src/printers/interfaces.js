@@ -13,9 +13,10 @@ const {
   rejectAndJoin,
   sortModifiers,
   rejectAndJoinSeps,
-  getBlankLinesSeparator,
+  getInterfaceBodyDeclarationsSeparator,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  displaySemicolon
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -85,49 +86,9 @@ class InterfacesPrettierVisitor {
         ctx.interfaceMemberDeclaration
       );
 
-      const additionalBlankLines = [];
-      ctx.interfaceMemberDeclaration.forEach(elt => {
-        if (elt.children.constantDeclaration !== undefined) {
-          const constantDeclaration = elt.children.constantDeclaration[0];
-          if (
-            constantDeclaration.children.constantModifier !== undefined &&
-            constantDeclaration.children.constantModifier[0].children
-              .annotation !== undefined
-          ) {
-            additionalBlankLines.push(hardline);
-          } else {
-            additionalBlankLines.push("");
-          }
-        } else if (elt.children.interfaceMethodDeclaration !== undefined) {
-          const interfaceMethodDeclaration =
-            elt.children.interfaceMethodDeclaration[0];
-          if (
-            interfaceMethodDeclaration.children.interfaceMethodModifier !==
-              undefined &&
-            interfaceMethodDeclaration.children.interfaceMethodModifier[0]
-              .children.annotation !== undefined
-          ) {
-            additionalBlankLines.push(hardline);
-          } else {
-            additionalBlankLines.push("");
-          }
-        } else {
-          additionalBlankLines.push(hardline);
-        }
-      });
-
-      const userBlankLinesSeparators = getBlankLinesSeparator(
+      const separators = getInterfaceBodyDeclarationsSeparator(
         ctx.interfaceMemberDeclaration
       );
-
-      const separators = [];
-      for (let i = 0; i < ctx.interfaceMemberDeclaration.length - 1; i++) {
-        const additionalSep =
-          additionalBlankLines[i + 1] !== "" || additionalBlankLines[i] !== ""
-            ? hardline
-            : "";
-        separators.push(concat([userBlankLinesSeparators[i], additionalSep]));
-      }
 
       joinedInterfaceMemberDeclaration = rejectAndJoinSeps(
         separators,
@@ -144,7 +105,7 @@ class InterfacesPrettierVisitor {
 
   interfaceMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return getImageWithComments(this.getSingle(ctx));
+      return displaySemicolon(ctx.Semicolon[0]);
     }
     return this.visitSingle(ctx);
   }
