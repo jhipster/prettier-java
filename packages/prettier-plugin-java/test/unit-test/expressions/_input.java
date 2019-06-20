@@ -92,7 +92,7 @@ public class Expressions {
       
     }
 
-    if(myValue != 42) {
+    if(myValue != 42 && myValue == 42) {
 
     }
   }
@@ -109,6 +109,10 @@ public class Expressions {
     switch(myValue != 42) {
       
     }
+
+    switch(myValue != 42 && myValue == 42) {
+
+    }
   }
 
   public void printWhile() {
@@ -124,6 +128,10 @@ public class Expressions {
 
     while(myValue != 42) {
       
+    }
+
+    while(myValue != 42 && myValue == 42) {
+
     }
   }
 
@@ -142,6 +150,10 @@ public class Expressions {
       System.out.println("Prettier-java is cool !");
     }
     while(myValue != 42);
+
+    do {
+      System.out.println("Prettier-java is cool !");
+    }while(myValue != 42 && myValue == 42);
   }
 
   public void printSynchronized() {
@@ -154,6 +166,10 @@ public class Expressions {
     }
 
     synchronized(myValue == 42) {
+      System.out.println("Prettier-java is cool !");
+    }
+
+    synchronized(myValue != 42 && myValue == 42) {
       System.out.println("Prettier-java is cool !");
     }
   }
