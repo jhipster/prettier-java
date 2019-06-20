@@ -14,11 +14,12 @@ const {
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
-  sortTokens,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
-  putIntoBraces
+  putIntoBraces,
+  sortGroupTokens,
+  isShiftOperator
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -153,16 +154,58 @@ class ExpressionsPrettierVisitor {
   }
 
   binaryExpression(ctx) {
-    const sortedTokens = sortTokens(
-      ctx.Instanceof,
-      ctx.AssignmentOperator,
-      ctx.Less,
-      ctx.Greater,
-      ctx.BinaryOperator
-    );
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
+
+    const { groups, sortedBinOps } = sortGroupTokens(ctx);
+    const allSegment = [];
+    let tmpSegment = [];
+
+    groups.forEach(gp => {
+      tmpSegment = [];
+      for (let i = 0; i < gp.length; i++) {
+        const token = gp[i];
+        const shiftOperator = isShiftOperator(gp, i);
+        if (token.tokenType.tokenName === "Instanceof") {
+          tmpSegment.push(
+            rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
+          );
+        } else if (matchCategory(token, "'AssignmentOperator'")) {
+          tmpSegment.push(rejectAndJoin(line, [token, expression.shift()]));
+        } else if (
+          shiftOperator === "shiftLeft" ||
+          shiftOperator === "shiftRight"
+        ) {
+          tmpSegment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([token, gp[i + 1]]),
+              unaryExpression.shift()
+            ])
+          );
+          i++;
+        } else if (shiftOperator === "doubleShiftRight") {
+          tmpSegment.push(
+            rejectAndJoin(" ", [
+              rejectAndConcat([token, gp[i + 1], gp[i + 2]]),
+              unaryExpression.shift()
+            ])
+          );
+          i += 2;
+        } else if (matchCategory(token, "'BinaryOperator'")) {
+          tmpSegment.push(
+            rejectAndConcat([
+              " ",
+              rejectAndJoin(line, [token, unaryExpression.shift()])
+            ])
+          );
+        }
+      }
+      allSegment.push(group(concat(tmpSegment)));
+    });
+    return group(rejectAndJoinSeps(sortedBinOps, allSegment));
+
+    /*
     const segment = [unaryExpression.shift()];
     for (let i = 0; i < sortedTokens.length; i++) {
       const token = sortedTokens[i];
@@ -222,7 +265,7 @@ class ExpressionsPrettierVisitor {
         );
       }
     }
-    return group(rejectAndJoin(" ", segment));
+    return group(rejectAndJoin(" ", segment));*/
   }
 
   unaryExpression(ctx) {

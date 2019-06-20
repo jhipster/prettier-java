@@ -294,6 +294,69 @@ function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
   return concat([LBrace, RBrace]);
 }
 
+const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
+function sortGroupTokens(ctx) {
+  // separate tokens into groups by andOrBinaryOperators ("&&", "||", "&", "|", "^")
+  const tokens = sortTokens(
+    ctx.Instanceof,
+    ctx.AssignmentOperator,
+    ctx.Less,
+    ctx.Greater,
+    ctx.BinaryOperator
+  );
+
+  const groups = [];
+  const sortedBinOps = [];
+  let tmpGroup = [];
+  tokens.forEach(token => {
+    if (matchCategory(token, "'BinaryOperator'")) {
+      if (andOrBinaryOperators.has(token.image)) {
+        sortedBinOps.push(token);
+        groups.push(tmpGroup);
+        tmpGroup = [];
+      } else {
+        tmpGroup.push(token);
+      }
+    } else {
+      tmpGroup.push(token);
+    }
+  });
+
+  return {
+    groups,
+    sortedBinOps
+  };
+}
+
+function isShiftOperator(tokens, index) {
+  if (tokens.length < index + 1) {
+    return "none";
+  }
+  if (
+    tokens[index].image === "<" &&
+    tokens[index + 1].image === "<" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    return "shiftLeft";
+  }
+  if (
+    tokens[index].image === ">" &&
+    tokens[index + 1].image === ">" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    if (
+      tokens.length > index + 2 &&
+      tokens[index + 2].image === ">" &&
+      tokens[index + 1].startOffset === tokens[index + 2].startOffset - 1
+    ) {
+      return "doubleShiftRight";
+    }
+    return "shiftRight";
+  }
+
+  return "none";
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -315,5 +378,7 @@ module.exports = {
   rejectSeparators,
   handleClassBodyDeclaration,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  sortGroupTokens,
+  isShiftOperator
 };
