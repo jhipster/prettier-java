@@ -89,21 +89,21 @@ public class Expressions {
       .getName();
 
     if (
+      myValue == 42 ||
+      myValue == 42 &&
+      myValue == 42 &&
+      myValue == 42 ||
+      myValue == 42 &&
       myValue == 42
-      || myValue == 42
-      && myValue == 42
-      && myValue == 42
-      || myValue == 42
-      && myValue == 42
     ) {}
 
     if (
-      myValue != 42
-      && 42 / 42
-      || myValue & 42
-      && myValue > 42
-      || myValue < 42
-      && myValue == 42
+      myValue != 42 &&
+      42 / 42 ||
+      myValue & 42 &&
+      myValue > 42 ||
+      myValue < 42 &&
+      myValue == 42
     ) {}
 
     if (myValue != 42) {}
@@ -111,21 +111,21 @@ public class Expressions {
 
   public void printSwitch() {
     switch (
+      myValue == 42 ||
+      myValue == 42 &&
+      myValue == 42 &&
+      myValue == 42 ||
+      myValue == 42 &&
       myValue == 42
-      || myValue == 42
-      && myValue == 42
-      && myValue == 42
-      || myValue == 42
-      && myValue == 42
     ) {}
 
     switch (
-      myValue != 42
-      && 42 / 42
-      || myValue & 42
-      && myValue > 42
-      || myValue < 42
-      && myValue == 42
+      myValue != 42 &&
+      42 / 42 ||
+      myValue & 42 &&
+      myValue > 42 ||
+      myValue < 42 &&
+      myValue == 42
     ) {}
 
     switch (myValue != 42) {}
@@ -135,21 +135,21 @@ public class Expressions {
     while/*infinite*/ (true) /*stop the program*/throw new RuntimeException();
 
     while (
+      myValue == 42 ||
+      myValue == 42 &&
+      myValue == 42 &&
+      myValue == 42 ||
+      myValue == 42 &&
       myValue == 42
-      || myValue == 42
-      && myValue == 42
-      && myValue == 42
-      || myValue == 42
-      && myValue == 42
     ) {}
 
     while (
-      myValue != 42
-      && 42 / 42
-      || myValue & 42
-      && myValue > 42
-      || myValue < 42
-      && myValue == 42
+      myValue != 42 &&
+      42 / 42 ||
+      myValue & 42 &&
+      myValue > 42 ||
+      myValue < 42 &&
+      myValue == 42
     ) {}
 
     while (myValue != 42) {}
@@ -159,23 +159,23 @@ public class Expressions {
     do {
       System.out.println("Prettier-java is cool !");
     } while (
+      myValue == 42 ||
+      myValue == 42 &&
+      myValue == 42 &&
+      myValue == 42 ||
+      myValue == 42 &&
       myValue == 42
-      || myValue == 42
-      && myValue == 42
-      && myValue == 42
-      || myValue == 42
-      && myValue == 42
     );
 
     do {
       System.out.println("Prettier-java is cool !");
     } while (
-      myValue != 42
-      && 42 / 42
-      || myValue & 42
-      && myValue > 42
-      || myValue < 42
-      && myValue == 42
+      myValue != 42 &&
+      42 / 42 ||
+      myValue & 42 &&
+      myValue > 42 ||
+      myValue < 42 &&
+      myValue == 42
     );
 
     do {
@@ -185,23 +185,23 @@ public class Expressions {
 
   public void printSynchronized() {
     synchronized (
+      myValue == 42 ||
+      myValue == 42 &&
+      myValue == 42 &&
+      myValue == 42 ||
+      myValue == 42 &&
       myValue == 42
-      || myValue == 42
-      && myValue == 42
-      && myValue == 42
-      || myValue == 42
-      && myValue == 42
     ) {
       System.out.println("Prettier-java is cool !");
     }
 
     synchronized (
-      myValue != 42
-      && 42 / 42
-      || myValue & 42
-      && myValue > 42
-      || myValue < 42
-      && myValue == 42
+      myValue != 42 &&
+      42 / 42 ||
+      myValue & 42 &&
+      myValue > 42 ||
+      myValue < 42 &&
+      myValue == 42
     ) {
       System.out.println("Prettier-java is cool !");
     }

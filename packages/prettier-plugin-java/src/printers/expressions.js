@@ -210,16 +210,16 @@ class ExpressionsPrettierVisitor {
         }
         i++;
       } else if (matchCategory(token, "'BinaryOperator'")) {
-        let separator = "";
+        let separator = " ";
         if (token.image === "&&" || token.image === "||") {
-          separator = softline;
+          separator = line;
         } else {
           separator = " ";
         }
         segment.push(
           rejectAndConcat([
-            separator,
-            rejectAndJoin(" ", [token, unaryExpression.shift()])
+            " ",
+            rejectAndJoin(separator, [token, unaryExpression.shift()])
           ])
         );
       }
