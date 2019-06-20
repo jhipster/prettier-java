@@ -163,7 +163,7 @@ class ExpressionsPrettierVisitor {
     let tmpSegment = [];
 
     groups.forEach(gp => {
-      tmpSegment = [];
+      tmpSegment = [unaryExpression.shift()];
       for (let i = 0; i < gp.length; i++) {
         const token = gp[i];
         const shiftOperator = isShiftOperator(gp, i);
@@ -172,7 +172,9 @@ class ExpressionsPrettierVisitor {
             rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
           );
         } else if (matchCategory(token, "'AssignmentOperator'")) {
-          tmpSegment.push(rejectAndJoin(line, [token, expression.shift()]));
+          tmpSegment.push(
+            indent(rejectAndJoin(line, [token, expression.shift()]))
+          );
         } else if (
           shiftOperator === "shiftLeft" ||
           shiftOperator === "shiftRight"
@@ -194,16 +196,21 @@ class ExpressionsPrettierVisitor {
           i += 2;
         } else if (matchCategory(token, "'BinaryOperator'")) {
           tmpSegment.push(
-            rejectAndConcat([
-              " ",
-              rejectAndJoin(line, [token, unaryExpression.shift()])
-            ])
+            indent(rejectAndJoin(line, [token, unaryExpression.shift()]))
           );
         }
       }
-      allSegment.push(group(concat(tmpSegment)));
+      allSegment.push(group(rejectAndJoin(" ", tmpSegment)));
     });
-    return group(rejectAndJoinSeps(sortedBinOps, allSegment));
+    if (groups.length === 0) {
+      return unaryExpression.shift();
+    }
+    return group(
+      rejectAndJoinSeps(
+        sortedBinOps.map(elt => concat([" ", elt, line])),
+        allSegment
+      )
+    );
 
     /*
     const segment = [unaryExpression.shift()];

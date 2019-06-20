@@ -322,6 +322,8 @@ function sortGroupTokens(ctx) {
     }
   });
 
+  groups.push(tmpGroup);
+
   return {
     groups,
     sortedBinOps
@@ -329,9 +331,10 @@ function sortGroupTokens(ctx) {
 }
 
 function isShiftOperator(tokens, index) {
-  if (tokens.length < index + 1) {
+  if (tokens.length <= index + 1) {
     return "none";
   }
+
   if (
     tokens[index].image === "<" &&
     tokens[index + 1].image === "<" &&

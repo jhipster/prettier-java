@@ -100,7 +100,8 @@ public class Expressions {
     if (
       myValue != 42 &&
       42 / 42 ||
-      myValue & 42 &&
+      myValue &
+      42 &&
       myValue > 42 ||
       myValue < 42 &&
       myValue == 42
@@ -122,7 +123,8 @@ public class Expressions {
     switch (
       myValue != 42 &&
       42 / 42 ||
-      myValue & 42 &&
+      myValue &
+      42 &&
       myValue > 42 ||
       myValue < 42 &&
       myValue == 42
@@ -148,7 +150,8 @@ public class Expressions {
     while (
       myValue != 42 &&
       42 / 42 ||
-      myValue & 42 &&
+      myValue &
+      42 &&
       myValue > 42 ||
       myValue < 42 &&
       myValue == 42
@@ -176,7 +179,8 @@ public class Expressions {
     } while (
       myValue != 42 &&
       42 / 42 ||
-      myValue & 42 &&
+      myValue &
+      42 &&
       myValue > 42 ||
       myValue < 42 &&
       myValue == 42
@@ -206,7 +210,8 @@ public class Expressions {
     synchronized (
       myValue != 42 &&
       42 / 42 ||
-      myValue & 42 &&
+      myValue &
+      42 &&
       myValue > 42 ||
       myValue < 42 &&
       myValue == 42
