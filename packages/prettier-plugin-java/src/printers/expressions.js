@@ -213,8 +213,6 @@ class ExpressionsPrettierVisitor {
         let separator = " ";
         if (token.image === "&&" || token.image === "||") {
           separator = line;
-        } else {
-          separator = " ";
         }
         segment.push(
           rejectAndConcat([
