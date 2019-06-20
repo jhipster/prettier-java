@@ -217,16 +217,14 @@ class ExpressionsPrettierVisitor {
           separator = " ";
         }
         segment.push(
-          indent(
-            rejectAndConcat([
-              separator,
-              rejectAndJoin(" ", [token, unaryExpression.shift()])
-            ])
-          )
+          rejectAndConcat([
+            separator,
+            rejectAndJoin(" ", [token, unaryExpression.shift()])
+          ])
         );
       }
     }
-    return group(concat([softline, rejectAndJoin(" ", segment), softline]));
+    return group(rejectAndJoin(" ", segment));
   }
 
   unaryExpression(ctx) {
