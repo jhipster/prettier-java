@@ -144,17 +144,20 @@ function defineRules($, t) {
           ALT: () => {
             $.OR2([
               {
+                GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
                 ALT: () => {
                   $.CONSUME(t.Less);
                   $.CONSUME2(t.Less);
                 }
               },
               {
+                GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
                 ALT: () => {
                   $.CONSUME(t.Greater);
                   $.CONSUME2(t.Greater);
-                  $.OPTION(() => {
-                    $.CONSUME3(t.Greater);
+                  $.OPTION({
+                    GATE: () => $.LA(0).startOffset + 1 === $.LA(1).startOffset,
+                    DEF: () => $.CONSUME3(t.Greater)
                   });
                 }
               }
