@@ -308,27 +308,27 @@ function separateTokensIntoGroups(ctx) {
     ctx.BinaryOperator
   );
 
-  const groups = [];
-  const sortedBinOps = [];
+  const groupsOfOperator = [];
+  const sortedBinaryOperators = [];
   let tmpGroup = [];
   tokens.forEach(token => {
     if (
       matchCategory(token, "'BinaryOperator'") &&
       andOrBinaryOperators.has(token.image)
     ) {
-      sortedBinOps.push(token);
-      groups.push(tmpGroup);
+      sortedBinaryOperators.push(token);
+      groupsOfOperator.push(tmpGroup);
       tmpGroup = [];
     } else {
       tmpGroup.push(token);
     }
   });
 
-  groups.push(tmpGroup);
+  groupsOfOperator.push(tmpGroup);
 
   return {
-    groups,
-    sortedBinOps
+    groupsOfOperator,
+    sortedBinaryOperators
   };
 }
 
