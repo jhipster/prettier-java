@@ -10,9 +10,9 @@ const {
   sortModifiers,
   rejectAndJoinSeps,
   displaySemicolon,
-  handleClassBodyDeclaration,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  getClassBodyDeclarationsSeparator
 } = require("./printer-utils");
 const {
   concat,
@@ -116,27 +116,29 @@ class ClassesPrettierVisitor {
   }
 
   classBody(ctx) {
-    const classBodyDeclsVisited = reject(
-      this.mapVisit(ctx.classBodyDeclaration)
-    );
-    const classBodyDecls = handleClassBodyDeclaration(
-      ctx.classBodyDeclaration,
-      classBodyDeclsVisited
-    );
-
     let content = "";
-    if (classBodyDecls.length !== 0) {
+    if (ctx.classBodyDeclaration !== undefined) {
+      const classBodyDeclsVisited = reject(
+        this.mapVisit(ctx.classBodyDeclaration)
+      );
+
+      const separators = getClassBodyDeclarationsSeparator(
+        ctx.classBodyDeclaration
+      );
+
+      content = rejectAndJoinSeps(separators, classBodyDeclsVisited);
+
       if (
         !(
           ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
             undefined &&
-          ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined
+          (ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
+            .children.fieldDeclaration !== undefined ||
+            ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
+              .children.Semicolon !== undefined)
         )
       ) {
-        content = rejectAndConcat([hardline, classBodyDecls]);
-      } else {
-        content = classBodyDecls;
+        content = rejectAndConcat([hardline, content]);
       }
     }
 
@@ -640,17 +642,17 @@ class ClassesPrettierVisitor {
   }
 
   enumBodyDeclarations(ctx) {
-    const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
+    let content = "";
+    if (ctx.classBodyDeclaration !== undefined) {
+      const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
-    const classBodyDeclsVisited = reject(
-      this.mapVisit(ctx.classBodyDeclaration)
-    );
-    const classBodyDecls = handleClassBodyDeclaration(
-      ctx.classBodyDeclaration,
-      classBodyDeclsVisited
-    );
+      const separators = getClassBodyDeclarationsSeparator(
+        ctx.classBodyDeclaration
+      );
 
-    return rejectAndJoin(line, [ctx.Semicolon[0], classBodyDecls]);
+      content = rejectAndJoinSeps(separators, classBodyDeclaration);
+    }
+    return rejectAndJoin(line, [ctx.Semicolon[0], content]);
   }
 
   isClassDeclaration(ctx) {

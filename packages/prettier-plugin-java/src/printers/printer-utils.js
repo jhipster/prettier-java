@@ -227,44 +227,125 @@ function getBlankLinesSeparator(ctx) {
   return separators;
 }
 
-function handleClassBodyDeclaration(
-  classBodyDeclarationContext,
-  classBodyDeclsVisited
+function getDeclarationsSeparator(
+  declarations,
+  needLineDeclaration,
+  isSemicolon
 ) {
-  if (classBodyDeclsVisited.length === 0) {
-    return [];
-  }
+  const separators = [];
+  const additionalBlankLines = [];
 
-  const separators = rejectSeparators(
-    getBlankLinesSeparator(classBodyDeclarationContext),
-    classBodyDeclsVisited
-  );
-
-  for (let i = 0; i < classBodyDeclsVisited.length - 1; i++) {
-    if (
-      !(
-        classBodyDeclarationContext[i + 1].children.classMemberDeclaration !==
-          undefined &&
-        classBodyDeclarationContext[i + 1].children.classMemberDeclaration[0]
-          .children.fieldDeclaration !== undefined
-      )
-    ) {
-      separators[i] = concat([hardline, hardline]);
+  declarations.forEach(declaration => {
+    if (needLineDeclaration(declaration)) {
+      additionalBlankLines.push(hardline);
     } else {
-      if (
-        !(
-          classBodyDeclarationContext[i].children.classMemberDeclaration !==
-            undefined &&
-          classBodyDeclarationContext[i].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined
-        )
-      ) {
-        separators[i] = concat([hardline, hardline]);
-      }
+      additionalBlankLines.push("");
+    }
+  });
+
+  const userBlankLinesSeparators = getBlankLinesSeparator(declarations);
+
+  for (let i = 0; i < declarations.length - 1; i++) {
+    if (!isSemicolon(declarations[i])) {
+      const isTwoHardLines =
+        userBlankLinesSeparators[i].parts[0].type === "concat";
+      const additionalSep =
+        !isTwoHardLines &&
+        (additionalBlankLines[i + 1] !== "" || additionalBlankLines[i] !== "")
+          ? hardline
+          : "";
+      separators.push(concat([userBlankLinesSeparators[i], additionalSep]));
     }
   }
 
-  return rejectAndJoinSeps(separators, classBodyDeclsVisited);
+  return separators;
+}
+
+function needLineClassBodyDeclaration(declaration) {
+  if (declaration.children.classMemberDeclaration === undefined) {
+    return true;
+  }
+
+  const classMemberDeclaration = declaration.children.classMemberDeclaration[0];
+
+  if (classMemberDeclaration.children.fieldDeclaration !== undefined) {
+    const fieldDeclaration =
+      classMemberDeclaration.children.fieldDeclaration[0];
+    if (
+      fieldDeclaration.children.fieldModifier !== undefined &&
+      fieldDeclaration.children.fieldModifier[0].children.annotation !==
+        undefined
+    ) {
+      return true;
+    }
+    return false;
+  } else if (classMemberDeclaration.children.Semicolon !== undefined) {
+    return false;
+  }
+
+  return true;
+}
+
+function needLineInterfaceMemberDeclaration(declaration) {
+  if (declaration.children.constantDeclaration !== undefined) {
+    const constantDeclaration = declaration.children.constantDeclaration[0];
+    if (
+      constantDeclaration.children.constantModifier !== undefined &&
+      constantDeclaration.children.constantModifier[0].children.annotation !==
+        undefined
+    ) {
+      return true;
+    }
+    return false;
+  } else if (declaration.children.interfaceMethodDeclaration !== undefined) {
+    const interfaceMethodDeclaration =
+      declaration.children.interfaceMethodDeclaration[0];
+    if (
+      interfaceMethodDeclaration.children.interfaceMethodModifier !==
+        undefined &&
+      interfaceMethodDeclaration.children.interfaceMethodModifier[0].children
+        .annotation !== undefined
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+function isClassBodyDeclarationASemicolon(classBodyDeclaration) {
+  if (classBodyDeclaration.children.classMemberDeclaration) {
+    if (
+      classBodyDeclaration.children.classMemberDeclaration[0].children
+        .Semicolon !== undefined
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isInterfaceMemberASemicolon(interfaceMemberDeclaration) {
+  return interfaceMemberDeclaration.children.Semicolon !== undefined;
+}
+
+function getClassBodyDeclarationsSeparator(classBodyDeclarationContext) {
+  return getDeclarationsSeparator(
+    classBodyDeclarationContext,
+    needLineClassBodyDeclaration,
+    isClassBodyDeclarationASemicolon
+  );
+}
+
+function getInterfaceBodyDeclarationsSeparator(
+  interfaceMemberDeclarationContext
+) {
+  return getDeclarationsSeparator(
+    interfaceMemberDeclarationContext,
+    needLineInterfaceMemberDeclaration,
+    isInterfaceMemberASemicolon
+  );
 }
 
 function putIntoBraces(argument, separator, LBrace, RBrace) {
@@ -376,14 +457,12 @@ module.exports = {
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
   getBlankLinesSeparator,
-  hasLeadingComments,
-  hasTrailingComments,
-  hasComments,
   displaySemicolon,
   rejectSeparators,
-  handleClassBodyDeclaration,
   putIntoBraces,
   putIntoCurlyBraces,
+  getInterfaceBodyDeclarationsSeparator,
+  getClassBodyDeclarationsSeparator,
   separateTokensIntoGroups,
   isShiftOperator
 };
