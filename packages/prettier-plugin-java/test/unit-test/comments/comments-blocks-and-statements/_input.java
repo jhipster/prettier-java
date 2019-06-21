@@ -68,7 +68,7 @@ public class PrettierTest {
                 return/*dead code*/ ;
             }   /*at least one iteration !*/while (false);
         synchronized/*declares synchronizd statement*/ (this){
-        while/*infinite loop*/      (true)
+        while/*infinite*/ (true)
             /*stop the program*/throw new RuntimeException();
         }
         

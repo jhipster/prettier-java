@@ -294,6 +294,74 @@ function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
   return concat([LBrace, RBrace]);
 }
 
+const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
+function separateTokensIntoGroups(ctx) {
+  /**
+   * separate tokens into groups by andOrBinaryOperators ("&&", "||", "&", "|", "^")
+   * in order to break those operators in priority.
+   */
+  const tokens = sortTokens(
+    ctx.Instanceof,
+    ctx.AssignmentOperator,
+    ctx.Less,
+    ctx.Greater,
+    ctx.BinaryOperator
+  );
+
+  const groupsOfOperator = [];
+  const sortedBinaryOperators = [];
+  let tmpGroup = [];
+  tokens.forEach(token => {
+    if (
+      matchCategory(token, "'BinaryOperator'") &&
+      andOrBinaryOperators.has(token.image)
+    ) {
+      sortedBinaryOperators.push(token);
+      groupsOfOperator.push(tmpGroup);
+      tmpGroup = [];
+    } else {
+      tmpGroup.push(token);
+    }
+  });
+
+  groupsOfOperator.push(tmpGroup);
+
+  return {
+    groupsOfOperator,
+    sortedBinaryOperators
+  };
+}
+
+function isShiftOperator(tokens, index) {
+  if (tokens.length <= index + 1) {
+    return "none";
+  }
+
+  if (
+    tokens[index].image === "<" &&
+    tokens[index + 1].image === "<" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    return "leftShift";
+  }
+  if (
+    tokens[index].image === ">" &&
+    tokens[index + 1].image === ">" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    if (
+      tokens.length > index + 2 &&
+      tokens[index + 2].image === ">" &&
+      tokens[index + 1].startOffset === tokens[index + 2].startOffset - 1
+    ) {
+      return "doubleRightShift";
+    }
+    return "rightShift";
+  }
+
+  return "none";
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -315,5 +383,7 @@ module.exports = {
   rejectSeparators,
   handleClassBodyDeclaration,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  separateTokensIntoGroups,
+  isShiftOperator
 };

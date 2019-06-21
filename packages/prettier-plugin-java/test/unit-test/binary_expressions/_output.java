@@ -2,8 +2,8 @@ public class BinaryOperations {
 
   public void binaryOperationThatShouldBreak() {
     System.out.println(
-      "This operation with two very long string should break"
-        + "in a very nice way"
+      "This operation with two very long string should break" +
+        "in a very nice way"
     );
   }
 

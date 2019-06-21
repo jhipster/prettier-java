@@ -130,9 +130,13 @@ class BlocksAndStatementPrettierVisitor {
     }
 
     return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.If[0], ctx.LBrace[0]]),
-      expression,
-      concat([ctx.RBrace[0], ifSeparator]),
+      rejectAndJoin(" ", [
+        ctx.If[0],
+        concat([
+          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ifSeparator
+        ])
+      ]),
       ifStatement,
       elsePart
     ]);
@@ -154,7 +158,7 @@ class BlocksAndStatementPrettierVisitor {
 
     return rejectAndJoin(" ", [
       ctx.Switch[0],
-      rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
+      putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
       switchBlock
     ]);
   }
@@ -207,7 +211,7 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndJoin(" ", [
       ctx.While[0],
       rejectAndJoin(statementSeparator, [
-        rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
+        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
         statement
       ])
     ]);
@@ -228,9 +232,7 @@ class BlocksAndStatementPrettierVisitor {
       rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
       ctx.While[0],
       rejectAndConcat([
-        ctx.LBrace[0],
-        expression,
-        ctx.RBrace[0],
+        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
         ctx.Semicolon[0]
       ])
     ]);
@@ -363,9 +365,13 @@ class BlocksAndStatementPrettierVisitor {
     const block = this.visit(ctx.block);
 
     return rejectAndConcat([
-      join(" ", [ctx.Synchronized[0], ctx.LBrace[0]]),
-      expression,
-      concat([ctx.RBrace[0], " "]),
+      join(" ", [
+        ctx.Synchronized[0],
+        concat([
+          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          " "
+        ])
+      ]),
       block
     ]);
   }
