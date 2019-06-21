@@ -233,7 +233,7 @@ class ExpressionsPrettierVisitor {
       : [];
     return rejectAndConcat([
       rejectAndConcat(unaryPrefixOperator),
-      primary,
+      primary, //System.out.println("...");  //userRepository.findAll().collectList().block().size();
       rejectAndConcat(unarySuffixOperator)
     ]);
   }
@@ -257,50 +257,52 @@ class ExpressionsPrettierVisitor {
 
   primary(ctx) {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
-    const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
-    const suffixes = [];
-    let addIndent = false;
-    for (let i = 0; i < primarySuffixes.length; i++) {
-      if (ctx.primarySuffix[i].children.Dot !== undefined) {
-        suffixes.push(indent(softline), primarySuffixes[i]);
-        addIndent = true;
-      } else if (
-        ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
-      ) {
-        suffixes.push(softline, primarySuffixes[i]);
-      } else {
-        if (addIndent) {
-          suffixes.push(indent(primarySuffixes[i]));
-          addIndent = false;
+    if (ctx.primarySuffix !== undefined) {
+      const primarySuffixes = this.mapVisit(ctx.primarySuffix);
+
+      const separators = [];
+
+      ctx.primarySuffix.forEach(primarySuffix => {
+        if (primarySuffix.children.Dot !== undefined) {
+          separators.push(softline);
+        } else if (
+          primarySuffix.children.classLiteralSuffix !== undefined &&
+          primarySuffix.children.classLiteralSuffix[0].children.Dot !==
+            undefined
+        ) {
+          separators.push(softline);
         } else {
-          suffixes.push(primarySuffixes[i]);
+          separators.push("");
         }
+      });
+
+      let firstSeparator = separators.shift();
+
+      if (ctx.primaryPrefix[0].children.This !== undefined) {
+        firstSeparator = "";
       }
+
+      return group(
+        concat([
+          // comment below overtakes priority
+          // primarySuffixes.length > 1 ? primaryPrefix : group(primaryPrefix), // System.out.println      // "..."    //userRepostiory.findAll()
+          primaryPrefix,
+          rejectAndConcat([
+            indent(firstSeparator),
+            rejectAndJoinSeps(separators, primarySuffixes) // .collectList().block().size()
+          ])
+        ])
+      );
     }
 
-    let firstSeparator = suffixes.shift();
-    if (
-      ctx.primaryPrefix[0].children.This !== undefined ||
-      firstSeparator === undefined
-    ) {
-      firstSeparator = "";
-    }
-
-    return group(
-      rejectAndConcat([
-        primaryPrefix,
-        firstSeparator,
-        rejectAndConcat(suffixes)
-      ])
-    );
+    return primaryPrefix;
   }
 
   primaryPrefix(ctx) {
     if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
-
     return this.visitSingle(ctx);
   }
 
@@ -328,12 +330,14 @@ class ExpressionsPrettierVisitor {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
-    return rejectAndConcat([rejectAndJoinSeps(dots, fqnOrRefTypePart), dims]);
+    return rejectAndConcat([
+      rejectAndJoinSeps(dots, fqnOrRefTypePart, "", indent(softline)),
+      dims
+    ]);
   }
 
   fqnOrRefTypePart(ctx) {
     const annotation = this.mapVisit(ctx.annotation);
-
     let fqnOrRefTypePart$methodTypeArguments = "";
     if (
       ctx.$methodTypeArguments &&
@@ -351,7 +355,6 @@ class ExpressionsPrettierVisitor {
     } else {
       keyWord = ctx.Super[0];
     }
-
     let fqnOrRefTypePart$classTypeArguments = "";
     if (
       ctx.$classTypeArguments &&

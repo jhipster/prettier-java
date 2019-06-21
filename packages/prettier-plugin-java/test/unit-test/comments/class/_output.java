@@ -151,9 +151,8 @@ public final class ArrayTable<R, C, V>
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
-    @SuppressWarnings(
-      "unchecked"
-    ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
+    @SuppressWarnings("unchecked")
+    V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
 
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
@@ -170,9 +169,8 @@ public final class ArrayTable<R, C, V>
     columnList = table.columnList;
     rowKeyToIndex = table.rowKeyToIndex;
     columnKeyToIndex = table.columnKeyToIndex;
-    @SuppressWarnings(
-      "unchecked"
-    ) V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
+    @SuppressWarnings("unchecked")
+    V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
     array = copy;
     for (int i = 0; i < rowList.size(); i++) {
       System.arraycopy(table.array[i], 0, copy[i], 0, table.array[i].length);
@@ -246,11 +244,8 @@ public final class ArrayTable<R, C, V>
 
     @Override
     Spliterator<Entry<K, V>> entrySpliterator() {
-      return CollectSpliterators.indexed(
-        size(),
-        Spliterator.ORDERED,
-        this::getEntry
-      );
+      return CollectSpliterators
+        .indexed(size(), Spliterator.ORDERED, this::getEntry);
     }
 
     // TODO(lowasser): consider an optimized values() implementation
@@ -360,11 +355,9 @@ public final class ArrayTable<R, C, V>
   */
   @GwtIncompatible // reflection
   public V[][] toArray(Class<V> valueClass) {
-    @SuppressWarnings("unchecked") V[][] copy = (V[][]) Array.newInstance( // TODO: safe?
-      valueClass,
-      rowList.size(),
-      columnList.size()
-    );
+    @SuppressWarnings("unchecked")  // TODO: safe?
+    V[][] copy = (V[][]) Array
+      .newInstance(valueClass, rowList.size(), columnList.size());
     for (int i = 0; i < rowList.size(); i++) {
       System.arraycopy(array[i], 0, copy[i], 0, array[i].length);
     }
@@ -558,10 +551,11 @@ public final class ArrayTable<R, C, V>
 
   @Override
   Spliterator<Cell<R, C, V>> cellSpliterator() {
-    return CollectSpliterators.indexed(
-      size(),
-      Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.DISTINCT,
-      this::getCell
+    return CollectSpliterators
+      .indexed(
+        size(),
+        Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.DISTINCT,
+        this::getCell
     );
   }
 
@@ -799,11 +793,8 @@ public final class ArrayTable<R, C, V>
 
   @Override
   Spliterator<V> valuesSpliterator() {
-    return CollectSpliterators.indexed(
-      size(),
-      Spliterator.ORDERED,
-      this::getValue
-    );
+    return CollectSpliterators
+      .indexed(size(), Spliterator.ORDERED, this::getValue);
   }
 
   private static final long serialVersionUID = 0;

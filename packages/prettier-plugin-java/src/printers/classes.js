@@ -191,12 +191,13 @@ class ClassesPrettierVisitor {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
-      return rejectAndJoin(" ", [
-        variableDeclaratorId,
-        ctx.Equals[0],
-        softline,
-        variableInitializer
-      ]);
+      return group(
+        rejectAndJoin(" ", [
+          variableDeclaratorId,
+          ctx.Equals[0],
+          variableInitializer
+        ])
+      );
     }
     return variableDeclaratorId;
   }

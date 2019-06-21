@@ -12,7 +12,7 @@ function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
 
-function rejectAndJoinSeps(sepTokens, elems, sep) {
+function rejectAndJoinSeps(sepTokens, elems, sepAfter, sepBefore) {
   if (!Array.isArray(sepTokens)) {
     return rejectAndJoin(sepTokens, elems);
   }
@@ -20,9 +20,13 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
   const res = [];
 
   for (let i = 0; i < sepTokens.length; i++) {
-    res.push(actualElements[i], sepTokens[i]);
-    if (sep) {
-      res.push(sep);
+    res.push(actualElements[i]);
+    if (sepBefore) {
+      res.push(sepBefore);
+    }
+    res.push(sepTokens[i]);
+    if (sepAfter) {
+      res.push(sepAfter);
     }
   }
   res.push(...actualElements.slice(sepTokens.length));

@@ -49,7 +49,7 @@ class BlocksAndStatementPrettierVisitor {
 
   localVariableDeclarationStatement(ctx) {
     const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
-    return rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]);
+    return group(rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]));
   }
 
   localVariableDeclaration(ctx) {
@@ -58,9 +58,15 @@ class BlocksAndStatementPrettierVisitor {
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
 
     return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifiers),
-      localVariableType,
-      variableDeclaratorList
+      rejectAndJoin(" ", variableModifiers), //@SuppressWarnings("unchecked")
+      group(
+        concat([
+          softline,
+          localVariableType,
+          " ", //V[][]
+          variableDeclaratorList
+        ])
+      ) //tmpArray = (V[][]) new Object[rowList{BREKALINE}.size()][columnList.size()]
     ]);
   }
 
