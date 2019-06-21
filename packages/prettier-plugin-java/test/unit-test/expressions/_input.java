@@ -72,5 +72,107 @@ public class Expressions {
     }
   }
 
+  public void printSimple() {
+    if(myValue == 42) {
+    }
+
+    if(myValue != 42) {
+      System.out.println("Why not 42 !");
+    }
+  }
+
+  public void printIf() {
+    Object myObject = new PrettierObject().getSingleton().getAuthentication().getCredentials().getRights().getName();
+
+    if(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
+
+    }
+
+    if(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
+      
+    }
+
+    if(myValue != 42 && myValue == 42) {
+
+    }
+  }
+
+  public void printSwitch() {
+    switch(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
+
+    }
+
+    switch(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
+      
+    }
+
+    switch(myValue != 42) {
+      
+    }
+
+    switch(myValue != 42 && myValue == 42) {
+
+    }
+  }
+
+  public void printWhile() {
+    while/*infinite*/ (true) /*stop the program*/throw new RuntimeException();
+    
+    while(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
+
+    }
+
+    while(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
+      
+    }
+
+    while(myValue != 42) {
+      
+    }
+
+    while(myValue != 42 && myValue == 42) {
+
+    }
+  }
+
+  public void printDoWhile() {
+    do{
+      System.out.println("Prettier-java is cool !");
+    }
+    while(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42);
+
+    do {
+      System.out.println("Prettier-java is cool !");
+    }
+    while(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42);
+
+    do {
+      System.out.println("Prettier-java is cool !");
+    }
+    while(myValue != 42);
+
+    do {
+      System.out.println("Prettier-java is cool !");
+    }while(myValue != 42 && myValue == 42);
+  }
+
+  public void printSynchronized() {
+    synchronized(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
+      System.out.println("Prettier-java is cool !");
+    }
+
+    synchronized(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
+      System.out.println("Prettier-java is cool !");
+    }
+
+    synchronized(myValue == 42) {
+      System.out.println("Prettier-java is cool !");
+    }
+
+    synchronized(myValue != 42 && myValue == 42) {
+      System.out.println("Prettier-java is cool !");
+    }
+  }
+
 }
 
