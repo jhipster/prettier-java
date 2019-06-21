@@ -14,11 +14,12 @@ const {
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
-  sortTokens,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
-  putIntoBraces
+  putIntoBraces,
+  separateTokensIntoGroups,
+  isShiftOperator
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -153,74 +154,68 @@ class ExpressionsPrettierVisitor {
   }
 
   binaryExpression(ctx) {
-    const sortedTokens = sortTokens(
-      ctx.Instanceof,
-      ctx.AssignmentOperator,
-      ctx.Less,
-      ctx.Greater,
-      ctx.BinaryOperator
-    );
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
-    const segment = [unaryExpression.shift()];
-    for (let i = 0; i < sortedTokens.length; i++) {
-      const token = sortedTokens[i];
-      if (token.tokenType.tokenName === "Instanceof") {
-        segment.push(
-          rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
-        );
-      } else if (matchCategory(token, "'AssignmentOperator'")) {
-        segment.push(rejectAndJoin(" ", [token, expression.shift()]));
-      } else if (
-        i + 1 < sortedTokens.length &&
-        ((sortedTokens[i].image === ">" &&
-          sortedTokens[i + 1].image === ">" &&
-          sortedTokens[i].startOffset ===
-            sortedTokens[i + 1].startOffset - 1) ||
-          (sortedTokens[i].image === "<" &&
-            sortedTokens[i + 1].image === "<" &&
-            sortedTokens[i].startOffset ===
-              sortedTokens[i + 1].startOffset - 1))
-      ) {
-        if (
-          sortedTokens[i + 2] &&
-          sortedTokens[i + 2].image === ">" &&
-          sortedTokens[i + 1].startOffset ===
-            sortedTokens[i + 2].startOffset - 1
+
+    const {
+      groupsOfOperator,
+      sortedBinaryOperators
+    } = separateTokensIntoGroups(ctx);
+    const segmentsSplittedByBinaryOperator = [];
+    let currentSegment = [];
+
+    groupsOfOperator.forEach(subgroup => {
+      currentSegment = [unaryExpression.shift()];
+      for (let i = 0; i < subgroup.length; i++) {
+        const token = subgroup[i];
+        const shiftOperator = isShiftOperator(subgroup, i);
+        if (token.tokenType.tokenName === "Instanceof") {
+          currentSegment.push(
+            rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
+          );
+        } else if (matchCategory(token, "'AssignmentOperator'")) {
+          currentSegment.push(
+            indent(rejectAndJoin(line, [token, expression.shift()]))
+          );
+        } else if (
+          shiftOperator === "leftShift" ||
+          shiftOperator === "rightShift"
         ) {
-          segment.push(
+          currentSegment.push(
             rejectAndJoin(" ", [
-              rejectAndConcat([
-                token,
-                sortedTokens[i + 1],
-                sortedTokens[i + 2]
-              ]),
+              rejectAndConcat([token, subgroup[i + 1]]),
               unaryExpression.shift()
             ])
           );
           i++;
-        } else {
-          segment.push(
+        } else if (shiftOperator === "doubleRightShift") {
+          currentSegment.push(
             rejectAndJoin(" ", [
-              rejectAndConcat([token, sortedTokens[i + 1]]),
+              rejectAndConcat([token, subgroup[i + 1], subgroup[i + 2]]),
               unaryExpression.shift()
             ])
           );
+          i += 2;
+        } else if (matchCategory(token, "'BinaryOperator'")) {
+          currentSegment.push(
+            indent(rejectAndJoin(line, [token, unaryExpression.shift()]))
+          );
         }
-        i++;
-      } else if (matchCategory(token, "'BinaryOperator'")) {
-        segment.push(
-          indent(
-            rejectAndConcat([
-              softline,
-              rejectAndJoin(" ", [token, unaryExpression.shift()])
-            ])
-          )
-        );
       }
+      segmentsSplittedByBinaryOperator.push(
+        group(rejectAndJoin(" ", currentSegment))
+      );
+    });
+    if (groupsOfOperator.length === 0) {
+      return unaryExpression.shift();
     }
-    return group(rejectAndJoin(" ", segment));
+    return group(
+      rejectAndJoinSeps(
+        sortedBinaryOperators.map(elt => concat([" ", elt, line])),
+        segmentsSplittedByBinaryOperator
+      )
+    );
   }
 
   unaryExpression(ctx) {
