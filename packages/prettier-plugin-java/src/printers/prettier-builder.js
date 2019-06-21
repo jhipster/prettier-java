@@ -1,6 +1,8 @@
 "use strict";
 const prettier = require("prettier").doc.builders;
 
+const hardLineWithoutBreakParent = { type: "line", hard: true };
+
 function getImageWithComments(token) {
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
@@ -8,7 +10,7 @@ function getImageWithComments(token) {
       if (element.startLine !== token.startLine) {
         arr.push(prettier.lineSuffixBoundary);
         arr.push(concat(formatComment(element)));
-        arr.push(prettier.hardline);
+        arr.push(hardLineWithoutBreakParent);
       } else {
         arr.push(concat(formatComment(element)));
       }
@@ -17,12 +19,12 @@ function getImageWithComments(token) {
   arr.push(token.image);
   if (token.hasOwnProperty("trailingComments")) {
     if (token.trailingComments[0].startLine !== token.startLine) {
-      arr.push(prettier.hardline);
+      arr.push(hardLineWithoutBreakParent);
     }
     token.trailingComments.forEach(element => {
       if (element.startLine !== token.startLine) {
         arr.push(concat(formatComment(element)));
-        arr.push(prettier.hardline);
+        arr.push(hardLineWithoutBreakParent);
       } else if (element.tokenType.tokenName === "LineComment") {
         // Do not add extra space in case of empty statement
         const separator = token.image === "" ? "" : " ";
@@ -53,9 +55,9 @@ function formatComment(comment) {
     } else {
       res.push(l);
     }
-    res.push(prettier.hardline);
+    res.push(hardLineWithoutBreakParent);
   });
-  if (res[res.length - 1] === prettier.hardline) {
+  if (res[res.length - 1] === hardLineWithoutBreakParent) {
     res.pop();
   }
   return res;
@@ -120,5 +122,6 @@ module.exports = {
   fill,
   indent,
   dedent,
-  getImageWithComments
+  getImageWithComments,
+  hardLineWithoutBreakParent
 };

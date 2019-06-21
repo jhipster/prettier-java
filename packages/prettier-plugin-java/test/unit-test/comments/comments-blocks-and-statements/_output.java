@@ -81,6 +81,5 @@ public class PrettierTest {
 //Additionnal enumeration
 enum Cards {
   //The Heart and the Spade
-  HEART/*the heart*/,
-  SPADES/*and the spade*/;
+  HEART/*the heart*/, SPADES/*and the spade*/;
 }
