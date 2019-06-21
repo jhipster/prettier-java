@@ -22,18 +22,29 @@ public interface Interfaces extends Interface1, Interface2, Interface3, Interfac
 
 }
 
-private interface UserRepository extends ReactiveMongoRepository<User, String> {
-  String USERS_BY_LOGIN_CACHE = "usersByLogin";
-  String USERS_BY_EMAIL_CACHE = "usersByEmail";
+private interface Interface {
+  String STRING_1 = "STRING_1";
+  String STRING_2 = "STRING_2";
   class T {}
-  Mono<User> findOneByActivationKey(String activationKey);
-  Flux<User> findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(Instant dateTime);
-  interface T {}
-  Mono<User> findOneByResetKey(String resetKey);
-  @Cacheable(cacheNames = USERS_BY_EMAIL_CACHE)
-  Mono<User> findOneByEmailIgnoreCase(String email);
-  @Cacheable(cacheNames = USERS_BY_LOGIN_CACHE)
-  Mono<User> findOneByLogin(String login);
-  Flux<User> findAllByLoginNot(Pageable pageable, String login);
-  Mono<Long> countAllByLoginNot(String anonymousUser);
+  CustomClass myFirstInterfaceMethod(String string);
+  CustomOtherClass mySecondInterfaceMethodWithAVeryLongName(String aVeryLongString);
+  interface I {}
+  CustomClass myThirdInterfaceMethod(String string);
+  @Annotation(annotationAttribute = CONSTANT_STRING)
+  CustomClass annotatedInterfaceMethod(String string);
+  @Annotation(annotationAttribute = CONSTANT_STRING)
+  CustomClass otherAnnotatedInterfaceMethod(String string);
+  CustomClass myFourthInterfaceMethod(String string);
+  @Annotation(annotationAttribute = CONSTANT_STRING)
+  String STRING_3 = "STRING_3";
+  String STRING_4 = "STRING_4";
+}
+
+public interface EmptyInterface {
+  ;
+}
+
+public interface InterfaceWithSemicolon {
+  ;
+  String STRING_1 = "STRING_1";
 }
