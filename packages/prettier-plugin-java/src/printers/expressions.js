@@ -7,6 +7,7 @@ const {
   concat,
   group,
   indent,
+  dedent,
   getImageWithComments
 } = require("./prettier-builder");
 const {
@@ -277,17 +278,25 @@ class ExpressionsPrettierVisitor {
       if (ctx.primaryPrefix[0].children.This !== undefined) {
         firstSeparator = "";
       }
+      // console.log("=====================");
+      // console.log(ctx.primaryPrefix[0]);
+      // console.log("---------------------");
+      // console.log(primarySuffixes[0]);
+      // console.log("size -> " + primarySuffixes.length);
+      // console.log("=====================");
 
       return group(
-        concat([
-          // comment below overtakes priority
-          // primarySuffixes.length > 1 ? primaryPrefix : group(primaryPrefix), // System.out.println      // "..."    //userRepostiory.findAll()
-          primaryPrefix,
-          rejectAndConcat([
-            indent(firstSeparator),
-            rejectAndJoinSeps(separators, primarySuffixes) // .collectList().block().size()
+        indent(
+          concat([
+            // comment below overtakes priority
+            // primarySuffixes.length > 1 ? primaryPrefix : group(primaryPrefix), // System.out.println      // "..."    //userRepostiory.findAll()
+            primaryPrefix,
+            rejectAndConcat([
+              firstSeparator,
+              rejectAndJoinSeps(separators, primarySuffixes) // .collectList().block().size()
+            ])
           ])
-        ])
+        )
       );
     }
 
@@ -298,6 +307,7 @@ class ExpressionsPrettierVisitor {
     if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
+
     return this.visitSingle(ctx);
   }
 
@@ -326,7 +336,7 @@ class ExpressionsPrettierVisitor {
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
     return rejectAndConcat([
-      rejectAndJoinSeps(dots, fqnOrRefTypePart, "", indent(softline)),
+      rejectAndJoinSeps(dots, fqnOrRefTypePart, "", softline),
       dims
     ]);
   }

@@ -12,7 +12,7 @@ function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
 
-function rejectAndJoinSeps(sepTokens, elems, sepAfter, sepBefore) {
+function rejectAndJoinSeps(sepTokens, elems, sepAfter = "", sepBefore = "") {
   if (!Array.isArray(sepTokens)) {
     return rejectAndJoin(sepTokens, elems);
   }

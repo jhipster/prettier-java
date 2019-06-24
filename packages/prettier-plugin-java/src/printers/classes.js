@@ -440,7 +440,6 @@ class ClassesPrettierVisitor {
     if (ctx.block) {
       return this.visit(ctx.block);
     }
-
     return getImageWithComments(this.getSingle(ctx));
   }
 
