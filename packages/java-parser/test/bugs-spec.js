@@ -39,3 +39,39 @@ describe("The Java Parser fixed bugs", () => {
     expect(() => javaParser.parse(input)).to.not.throw();
   });
 });
+
+describe("The Java Parser fixed bugs", () => {
+  it("issue #113 - Bit shifting operators must not include whitespace - >>", () => {
+    const input = "public class Foo{int hello = 1 >> 5;}";
+    expect(() => javaParser.parse(input)).to.not.throw();
+  });
+
+  it("issue #113 - Bit shifting operators must not include whitespace - >>>", () => {
+    const input = "public class Foo{int hello = 1 >>> 5;}";
+    expect(() => javaParser.parse(input)).to.not.throw();
+  });
+
+  it("issue #113 - Bit shifting operators must not include whitespace - <<", () => {
+    const input = "public class Foo{int hello = 1 << 5;}";
+    expect(() => javaParser.parse(input)).to.not.throw();
+  });
+
+  it("issue #113 - Bit shifting operators must not include whitespace - space after first >", () => {
+    const input = "public class Foo{int hello = 1 > >> 5;}";
+    expect(() => javaParser.parse(input)).to.throw();
+  });
+
+  it("issue #113 - Bit shifting operators must not include whitespace - space after second >", () => {
+    const input = "public class Foo{int hello = 1 >> > 5;}";
+    expect(() => javaParser.parse(input)).to.throw();
+  });
+  it("issue #113 - Bit shifting operators must not include whitespace - space on all >", () => {
+    const input = "public class Foo{int hello = 1 > > > 5;}";
+    expect(() => javaParser.parse(input)).to.throw();
+  });
+
+  it("issue #113 - Bit shifting operators must not include whitespace - space after first <", () => {
+    const input = "public class Foo{int hello = 1 < < 5;}";
+    expect(() => javaParser.parse(input)).to.throw();
+  });
+});

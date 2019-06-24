@@ -6,7 +6,6 @@ const {
   concat,
   group,
   indent,
-  dedent,
   getImageWithComments
 } = require("./prettier-builder");
 const {
@@ -14,8 +13,10 @@ const {
   rejectAndJoin,
   sortModifiers,
   rejectAndJoinSeps,
+  getInterfaceBodyDeclarationsSeparator,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  displaySemicolon
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -78,15 +79,22 @@ class InterfacesPrettierVisitor {
   }
 
   interfaceBody(ctx) {
-    const interfaceMemberDeclaration = this.mapVisit(
-      ctx.interfaceMemberDeclaration
-    );
+    let joinedInterfaceMemberDeclaration = "";
 
-    const joinedInterfaceMemberDeclaration = rejectAndJoin(
-      line,
-      interfaceMemberDeclaration
-    );
+    if (ctx.interfaceMemberDeclaration !== undefined) {
+      const interfaceMemberDeclaration = this.mapVisit(
+        ctx.interfaceMemberDeclaration
+      );
 
+      const separators = getInterfaceBodyDeclarationsSeparator(
+        ctx.interfaceMemberDeclaration
+      );
+
+      joinedInterfaceMemberDeclaration = rejectAndJoinSeps(
+        separators,
+        interfaceMemberDeclaration
+      );
+    }
     return putIntoCurlyBraces(
       joinedInterfaceMemberDeclaration,
       hardline,
@@ -97,7 +105,7 @@ class InterfacesPrettierVisitor {
 
   interfaceMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return getImageWithComments(this.getSingle(ctx));
+      return displaySemicolon(ctx.Semicolon[0]);
     }
     return this.visitSingle(ctx);
   }

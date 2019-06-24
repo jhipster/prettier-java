@@ -73,7 +73,7 @@ public class PrettierTest {
       return/*dead code*/;
     } /*at least one iteration !*/while (false);
     synchronized/*declares synchronizd statement*/ (this) {
-      while/*infinite loop*/ (true) /*stop the program*/throw new RuntimeException();
+      while/*infinite*/ (true) /*stop the program*/throw new RuntimeException();
     }
   }
 }
@@ -81,6 +81,5 @@ public class PrettierTest {
 //Additionnal enumeration
 enum Cards {
   //The Heart and the Spade
-  HEART/*the heart*/,
-  SPADES/*and the spade*/;
+  HEART/*the heart*/, SPADES/*and the spade*/;
 }
