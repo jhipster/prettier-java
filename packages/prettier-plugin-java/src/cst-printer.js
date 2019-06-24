@@ -81,8 +81,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         try {
           return buildOriginalText(retrieveNodesToken(ctx));
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(
+          throw Error(
             "There might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
           );
         }
