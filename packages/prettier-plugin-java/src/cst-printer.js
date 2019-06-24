@@ -83,7 +83,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error(
-            "There might be a problem with prettier-ignore, check cst-printer.js"
+            "There might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
           );
         }
       }
