@@ -79,10 +79,11 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
 
       if (ctx.ignore) {
         try {
-          return buildOriginalText(retrieveNodesToken(ctx));
+          return buildOriginalText(retrieveNodesToken(ctx), this.originalText);
         } catch (e) {
           throw Error(
-            "There might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
+            e +
+              "\nThere might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
           );
         }
       }
@@ -121,7 +122,8 @@ const prettyPrinter = new CstPrettierPrinter();
 
 // TODO: do we need the "path" and "print" arguments passed by prettier
 // see https://github.com/prettier/prettier/issues/5747
-function createPrettierDoc(cstNode) {
+function createPrettierDoc(cstNode, originalText) {
+  prettyPrinter.originalText = originalText;
   return prettyPrinter.visit(cstNode);
 }
 

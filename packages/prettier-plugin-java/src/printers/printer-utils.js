@@ -6,7 +6,7 @@ const {
   group,
   getImageWithComments
 } = require("./prettier-builder");
-const { indent, hardline, dedent } = require("prettier").doc.builders;
+const { indent, hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -471,37 +471,22 @@ function retrieveNodesTokenRec(ctx) {
   return tokens;
 }
 
-function buildOriginalText(tokens) {
-  if (tokens.length == 0) {
+function buildOriginalText(tokens, originalText) {
+  if (tokens.length === 0) {
     return "";
   }
-  if (tokens.length == 1) {
-    return dedent(concat([tokens[0]]));
+  let startOffset = tokens[0].startOffset;
+  let endOffset = tokens[tokens.length - 1].endOffset;
+  if (tokens[0].leadingComments) {
+    startOffset = tokens[0].leadingComments[0].startOffset;
   }
-  const originalText = [];
-  let lastToken = tokens[0];
-  let startLine;
-  let space;
-  for (let i = 0; i < tokens.length; i++) {
-    startLine = tokens[i].startLine;
-    while (startLine - lastToken.startLine > 0) {
-      originalText.push(hardline);
-      startLine--;
-    }
-    if (tokens[i].startLine - lastToken.startLine > 0) {
-      space = tokens[i].startColumn - 1;
-    } else {
-      space = tokens[i].startColumn - lastToken.endColumn - 1;
-    }
-    while (space > 0) {
-      originalText.push(" ");
-      space--;
-    }
-    originalText.push(tokens[i].image);
-    lastToken = tokens[i];
+  if (tokens[tokens.length - 1].trailingComments) {
+    endOffset =
+      tokens[tokens.length - 1].trailingComments[
+        tokens[tokens.length - 1].trailingComments.length - 1
+      ].endOffset;
   }
-
-  return dedent(concat(originalText));
+  return originalText.substring(startOffset, endOffset + 1);
 }
 
 module.exports = {
