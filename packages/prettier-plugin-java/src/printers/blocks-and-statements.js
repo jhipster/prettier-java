@@ -61,9 +61,7 @@ class BlocksAndStatementPrettierVisitor {
       group(
         concat([
           variableModifiers.length > 0 ? softline : [],
-          localVariableType,
-          " ",
-          variableDeclaratorList
+          rejectAndJoin(" ", [localVariableType, variableDeclaratorList])
         ])
       )
     ]);
