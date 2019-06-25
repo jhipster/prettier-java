@@ -151,9 +151,8 @@ public final class ArrayTable<R, C, V>
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
-    @SuppressWarnings(
-      "unchecked"
-    ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
+    @SuppressWarnings("unchecked")
+    V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
 
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
@@ -170,9 +169,8 @@ public final class ArrayTable<R, C, V>
     columnList = table.columnList;
     rowKeyToIndex = table.rowKeyToIndex;
     columnKeyToIndex = table.columnKeyToIndex;
-    @SuppressWarnings(
-      "unchecked"
-    ) V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
+    @SuppressWarnings("unchecked")
+    V[][] copy = (V[][]) new Object[rowList.size()][columnList.size()];
     array = copy;
     for (int i = 0; i < rowList.size(); i++) {
       System.arraycopy(table.array[i], 0, copy[i], 0, table.array[i].length);
@@ -360,7 +358,8 @@ public final class ArrayTable<R, C, V>
   */
   @GwtIncompatible // reflection
   public V[][] toArray(Class<V> valueClass) {
-    @SuppressWarnings("unchecked") V[][] copy = (V[][]) Array.newInstance( // TODO: safe?
+    @SuppressWarnings("unchecked")  // TODO: safe?
+    V[][] copy = (V[][]) Array.newInstance(
       valueClass,
       rowList.size(),
       columnList.size()
