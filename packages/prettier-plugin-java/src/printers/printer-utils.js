@@ -473,7 +473,7 @@ function retrieveNodesTokenRec(ctx) {
 
 function buildOriginalText(tokens) {
   if (tokens.length == 0) {
-    ("");
+    return "";
   }
   if (tokens.length == 1) {
     return dedent(concat([tokens[0]]));
