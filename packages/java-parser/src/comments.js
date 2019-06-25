@@ -122,7 +122,9 @@ function extendCommentRange(tokens, comments) {
 
 function filterPrettierIgnore(comments) {
   return [...comments].filter(comment =>
-    comment.image.match(/\/\/(\s*)prettier-ignore(\s*)/gm)
+    comment.image.match(
+      /(\/\/(\s*)prettier-ignore(\s*))|(\/\*(\s*)prettier-ignore(\s*)\*\/)/gm
+    )
   );
 }
 
