@@ -151,8 +151,17 @@ public final class ArrayTable<R, C, V>
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
-    @SuppressWarnings("unchecked")
-    V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
+    @SuppressWarnings(
+      {
+        "all",
+        "deprecation",
+        "unchecked",
+        "fallthrough",
+        "path",
+        "serial",
+        "finally"
+      }
+    ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
 
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.

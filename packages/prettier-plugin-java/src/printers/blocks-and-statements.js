@@ -49,7 +49,7 @@ class BlocksAndStatementPrettierVisitor {
 
   localVariableDeclarationStatement(ctx) {
     const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
-    return group(rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]));
+    return rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]);
   }
 
   localVariableDeclaration(ctx) {
