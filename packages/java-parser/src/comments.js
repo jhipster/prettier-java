@@ -83,6 +83,13 @@ function attachComments(tokens, comments) {
   return tokens;
 }
 
+/**
+ * Search where is the position of the comment in the token array by
+ * using dichotomic search.
+ * @param {*} tokens ordered array of tokens
+ * @param {*} comment comment token
+ * @return the position of the token next to the comment
+ */
 function findUpperBoundToken(tokens, comment) {
   let diff;
   let i;
@@ -104,6 +111,14 @@ function findUpperBoundToken(tokens, comment) {
   return i;
 }
 
+/**
+ * Extends each comments offsets to the left and the right in order to match the
+ * previous and next token offset. This allow to directly match the prettier-ignore
+ * comment to the correct CSTNode.
+ * @param {*} tokens ordered array of tokens
+ * @param {*} comments array of prettier-ignore comments
+ * @return prettier-ignore comment array with extended location
+ */
 function extendCommentRange(tokens, comments) {
   const ignoreComments = [...comments];
   let position;
