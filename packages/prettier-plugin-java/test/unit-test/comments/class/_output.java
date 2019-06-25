@@ -161,7 +161,8 @@ public final class ArrayTable<R, C, V>
         "serial",
         "finally"
       }
-    ) V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
+    )
+    V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
 
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
@@ -367,7 +368,7 @@ public final class ArrayTable<R, C, V>
   */
   @GwtIncompatible // reflection
   public V[][] toArray(Class<V> valueClass) {
-    @SuppressWarnings("unchecked")  // TODO: safe?
+    @SuppressWarnings("unchecked") // TODO: safe?
     V[][] copy = (V[][]) Array.newInstance(
       valueClass,
       rowList.size(),
