@@ -1,4 +1,5 @@
 "use strict";
+const _ = require("lodash");
 
 function attachComments(tokens, comments) {
   const attachComments = [...comments];
@@ -144,13 +145,13 @@ function filterPrettierIgnore(comments) {
 }
 
 function shouldIgnore(node, comments, ignoredNodes) {
-  for (let i = 0; i < comments.length; i++) {
-    if (comments[i].extendedRange.endOffset === node.location.startOffset) {
-      ignoredNodes[comments[i].startOffset] = node;
-      return true;
-    }
+  const matchingComment = _.find(
+    comments,
+    comment => comment.extendedRange.endOffset === node.location.startOffset
+  );
+  if (matchingComment) {
+    ignoredNodes[matchingComment.startOffset] = node;
   }
-  return false;
 }
 
 function attachIgnoreNodes(ignoreComments, ignoredNodes) {
