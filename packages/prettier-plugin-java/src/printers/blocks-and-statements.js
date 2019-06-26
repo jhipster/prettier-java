@@ -56,12 +56,12 @@ class BlocksAndStatementPrettierVisitor {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifiers),
-      localVariableType,
-      variableDeclaratorList
-    ]);
+    return group(
+      rejectAndJoin(line, [
+        rejectAndJoin(" ", variableModifiers),
+        rejectAndJoin(" ", [localVariableType, variableDeclaratorList])
+      ])
+    );
   }
 
   localVariableType(ctx) {
