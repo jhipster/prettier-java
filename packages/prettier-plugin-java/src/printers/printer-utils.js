@@ -471,22 +471,32 @@ function retrieveNodesTokenRec(ctx) {
   return tokens;
 }
 
-function buildOriginalText(tokens, originalText) {
-  if (tokens.length === 0) {
-    return "";
+function buildOriginalText(firstToken, lastToken, originalText) {
+  let startOffset = firstToken.startOffset;
+  let endOffset = lastToken.endOffset;
+  if (firstToken.leadingComments) {
+    startOffset = firstToken.leadingComments[0].startOffset;
   }
-  let startOffset = tokens[0].startOffset;
-  let endOffset = tokens[tokens.length - 1].endOffset;
-  if (tokens[0].leadingComments) {
-    startOffset = tokens[0].leadingComments[0].startOffset;
-  }
-  if (tokens[tokens.length - 1].trailingComments) {
+  if (lastToken.trailingComments) {
     endOffset =
-      tokens[tokens.length - 1].trailingComments[
-        tokens[tokens.length - 1].trailingComments.length - 1
-      ].endOffset;
+      lastToken.trailingComments[lastToken.trailingComments.length - 1]
+        .endOffset;
   }
   return originalText.substring(startOffset, endOffset + 1);
+}
+
+function getCSTNodeToken(ctx, sortFunction) {
+  const tokens = [];
+  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+    return ctx;
+  }
+  Object.keys(ctx.children).forEach(child => {
+    ctx.children[child].forEach(subctx => {
+      tokens.push(getCSTNodeToken(subctx, sortFunction));
+    });
+  });
+  tokens.sort(sortFunction);
+  return tokens[0];
 }
 
 module.exports = {
@@ -512,5 +522,6 @@ module.exports = {
   separateTokensIntoGroups,
   isShiftOperator,
   retrieveNodesToken,
-  buildOriginalText
+  buildOriginalText,
+  getCSTNodeToken
 };
