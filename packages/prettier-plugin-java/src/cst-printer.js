@@ -18,6 +18,10 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
+const {
+  buildOriginalText,
+  getCSTNodeStartEndToken
+} = require("./printers/printer-utils");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
@@ -73,6 +77,22 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         return "";
       }
 
+      if (ctx.ignore) {
+        try {
+          const startEndTokens = getCSTNodeStartEndToken(ctx);
+          return buildOriginalText(
+            startEndTokens[0],
+            startEndTokens[1],
+            this.originalText
+          );
+        } catch (e) {
+          throw Error(
+            e +
+              "\nThere might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
+          );
+        }
+      }
+
       return orgVisit.call(this, ctx, inParam);
     };
   }
@@ -107,7 +127,8 @@ const prettyPrinter = new CstPrettierPrinter();
 
 // TODO: do we need the "path" and "print" arguments passed by prettier
 // see https://github.com/prettier/prettier/issues/5747
-function createPrettierDoc(cstNode) {
+function createPrettierDoc(cstNode, originalText) {
+  prettyPrinter.originalText = originalText;
   return prettyPrinter.visit(cstNode);
 }
 
