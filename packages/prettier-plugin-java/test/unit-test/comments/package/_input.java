@@ -2,12 +2,10 @@
     /*a*/requires/*a*/ java.desktopa /*a*/;/*b*/
     requires soat.vending.machine.model;
     requires /*a*/transitive/*b*/ soat.core;
-    /*a*/ exports /*b*/ fr.soat.vending.machine.model /*a*/to/*b*/  
-    another /*a*/,/*b*/ again /*c*/,/*d*/ ano /*a*/;/*b*/
+    /*a*/ exports /*b*/ fr.soat.vending.machine.model /*a*/to/*b*/ another /*a*/,/*b*/ again /*c*/,/*d*/ ano /*a*/;/*b*/
 
     // opens
-    /*a*/ opens /*b*/ fr.soat.vending.machine.model /*a*/to/*b*/  
-    another /*a*/,/*b*/ again /*c*/,/*d*/ ano /*a*/;/*b*/
+    /*a*/ opens /*b*/ fr.soat.vending.machine.model /*a*/to/*b*/ another /*a*/,/*b*/ again /*c*/,/*d*/ ano /*a*/;/*b*/
 
 
     // uses

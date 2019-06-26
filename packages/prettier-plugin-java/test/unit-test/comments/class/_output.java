@@ -96,13 +96,13 @@ public final class ArrayTable<R, C, V>
   ) {
     return new ArrayTable<>(rowKeys, columnKeys);
   }
+
   /*
   * TODO(jlevy): Add factory methods taking an Enum class, instead of an
   * iterable, to specify the allowed row keys and/or column keys. Note that
   * custom serialization logic is needed to support different enum sizes during
   * serialization and deserialization.
   */
-
   /**
   * Creates an {@code ArrayTable} with the mappings in the provided table.
   *
@@ -476,11 +476,11 @@ public final class ArrayTable<R, C, V>
     );
     return set(rowIndex, columnIndex, value);
   }
+
   /*
   * TODO(jlevy): Consider creating a merge() method, similar to putAll() but
   * copying non-null values only.
   */
-
   /**
   * {@inheritDoc}
   *
@@ -816,4 +816,13 @@ public final class ArrayTable<R, C, V>
   }
 
   private static final long serialVersionUID = 0;
+
+  @Override
+  public Optional<String> getCurrentAuditor() {
+    // There is currently no reactive AuditorAware implementation so we can't
+    // extract the currently logged-in user from the Reactor Context.
+    // Therefore createdBy and lastModifiedBy will have to be set explicitly.
+    // See https://jira.spring.io/browse/DATACMNS-1231
+    return Optional.of(Constants.SYSTEM_ACCOUNT);
+  }
 }
