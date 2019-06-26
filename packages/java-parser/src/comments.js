@@ -64,17 +64,18 @@ function attachComments(tokens, comments) {
       currentToken++;
     }
 
-    // attach comment to the closest token
+    // attach comment to the next token by default,
+    // it attaches to the current one when the comment and token is on the same line
     if (
-      element.startOffset - tokens[currentToken].endOffset <
-      tokens[currentToken + 1].startOffset - element.endOffset
+      element.startLine === tokens[currentToken].endLine &&
+      element.startLine !== tokens[currentToken + 1].startLine
     ) {
-      if (!tokens[currentToken].hasOwnProperty("trailingComments")) {
+      if (!tokens[currentToken].trailingComments) {
         tokens[currentToken].trailingComments = [];
       }
       tokens[currentToken].trailingComments.push(element);
     } else {
-      if (!tokens[currentToken + 1].hasOwnProperty("leadingComments")) {
+      if (!tokens[currentToken + 1].leadingComments) {
         tokens[currentToken + 1].leadingComments = [];
       }
       tokens[currentToken + 1].leadingComments.push(element);
