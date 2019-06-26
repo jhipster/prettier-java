@@ -485,18 +485,34 @@ function buildOriginalText(firstToken, lastToken, originalText) {
   return originalText.substring(startOffset, endOffset + 1);
 }
 
-function getCSTNodeToken(ctx, sortFunction) {
+function getCSTNodeStartEndToken(ctx) {
   const tokens = [];
   if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
-    return ctx;
+    return [ctx, ctx];
   }
   Object.keys(ctx.children).forEach(child => {
     ctx.children[child].forEach(subctx => {
-      tokens.push(getCSTNodeToken(subctx, sortFunction));
+      const subStartEndToken = getCSTNodeStartEndToken(subctx);
+      if (subStartEndToken) {
+        tokens.push(subStartEndToken);
+      }
     });
   });
-  tokens.sort(sortFunction);
-  return tokens[0];
+  if (tokens.length === 0) {
+    return;
+  }
+  const startEndTokens = tokens.reduce((tokenArr1, tokenArr2) => {
+    const ftoken =
+      tokenArr1[0].startOffset - tokenArr2[0].startOffset < 0
+        ? tokenArr1[0]
+        : tokenArr2[0];
+    const ltoken =
+      tokenArr2[1].startOffset - tokenArr1[1].startOffset < 0
+        ? tokenArr1[1]
+        : tokenArr2[1];
+    return [ftoken, ltoken];
+  });
+  return startEndTokens;
 }
 
 module.exports = {
@@ -523,5 +539,5 @@ module.exports = {
   isShiftOperator,
   retrieveNodesToken,
   buildOriginalText,
-  getCSTNodeToken
+  getCSTNodeStartEndToken
 };

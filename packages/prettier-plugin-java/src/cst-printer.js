@@ -20,7 +20,7 @@ const {
 } = require("./printers/packages-and-modules");
 const {
   buildOriginalText,
-  getCSTNodeToken
+  getCSTNodeStartEndToken
 } = require("./printers/printer-utils");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
@@ -79,15 +79,10 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
 
       if (ctx.ignore) {
         try {
+          const startEndTokens = getCSTNodeStartEndToken(ctx);
           return buildOriginalText(
-            getCSTNodeToken(
-              ctx,
-              (token1, token2) => token1.startOffset - token2.startOffset
-            ),
-            getCSTNodeToken(
-              ctx,
-              (token1, token2) => token2.startOffset - token1.startOffset
-            ),
+            startEndTokens[0],
+            startEndTokens[1],
             this.originalText
           );
         } catch (e) {
