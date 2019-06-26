@@ -7,9 +7,9 @@ public class PrettierTest {
     } /*catch*/catch (EmptyStackException e) {
       throw new RuntimeException(e);
     } /*multi-catch*/catch (
-      /*1*/FirstException | /*2*/SecondException |/*3*/ ThirdException e2
+      /*1*/FirstException | /*2*/SecondException | /*3*/ThirdException e2
     ) {
-      throw/*throw an exception*/ new/*don't forget new when throwing exceptions*/ RuntimeException(
+      throw /*throw an exception*/new /*don't forget new when throwing exceptions*/RuntimeException(
         e2
       );
     } /*is always executed no matter what*/finally {
@@ -17,8 +17,8 @@ public class PrettierTest {
     }
   }
 
-  private void myFunction(/* axis x */
-    int arg1,
+  private void myFunction(
+    /* axis x */int arg1,
     /* axis y */int arg2,
     /* axis z */int arg3
   ) {
@@ -27,9 +27,9 @@ public class PrettierTest {
     );
 
     int /*variable name is of value var */var = arg1 + arg2 + arg3;
-    if/*true*/ (var == 0) {
+    if /*true*/(var == 0) {
       System.out.println("The value is 0");
-    } else/*false*/ {
+    } else /*false*/{
       int[] arr = {
         /*One*/1,
         /*Two */2,
@@ -56,7 +56,7 @@ public class PrettierTest {
           case 0:
             System.out.println("Zero ");
 
-            continue/*labeled continued*/ loop;
+            continue /*labeled continued*/loop;
           default/*def*/:
             /*labeled break*/break loop;
         }
@@ -65,15 +65,15 @@ public class PrettierTest {
   }
 
   private synchronized void myFunction(int arg1, int arg2/*overloading*/) {
-    for (int i = 0; i < /*=*/arg1; i++) do/*dodododo*/ { //do whiles
+    for (int i = 0; i < /*=*/arg1; i++) do /*dodododo*/{ //do whiles
       //asserting
-      assert/*true*/ true == true;
+      assert /*true*/true == true;
       continue;
       break/*dead code*/;
       return/*dead code*/;
     } /*at least one iteration !*/while (false);
-    synchronized/*declares synchronizd statement*/ (this) {
-      while/*infinite*/ (true) /*stop the program*/throw new RuntimeException();
+    synchronized /*declares synchronizd statement*/(this) {
+      while /*infinite*/(true) /*stop the program*/throw new RuntimeException();
     }
   }
 }
