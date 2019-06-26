@@ -126,19 +126,24 @@ class PackagesAndModulesPrettierVisitor {
     const moduleNames = this.mapVisit(ctx.moduleName);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      indent(
-        rejectAndJoin(line, [
-          rejectAndJoin(" ", [ctx.Exports[0], packageName]),
-          group(
-            indent(
-              rejectAndJoin(line, [to, rejectAndJoinSeps(commas, moduleNames)])
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Exports[0], packageName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  to,
+                  rejectAndJoinSeps(commas, moduleNames)
+                ])
+              )
             )
-          )
-        ])
-      ),
-      ctx.Semicolon[0]
-    ]);
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   opensModuleDirective(ctx) {
@@ -147,19 +152,24 @@ class PackagesAndModulesPrettierVisitor {
     const moduleNames = this.mapVisit(ctx.moduleName);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      indent(
-        rejectAndJoin(line, [
-          rejectAndJoin(" ", [ctx.Opens[0], packageName]),
-          group(
-            indent(
-              rejectAndJoin(line, [to, rejectAndJoinSeps(commas, moduleNames)])
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Opens[0], packageName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  to,
+                  rejectAndJoinSeps(commas, moduleNames)
+                ])
+              )
             )
-          )
-        ])
-      ),
-      ctx.Semicolon[0]
-    ]);
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   usesModuleDirective(ctx) {
@@ -177,22 +187,24 @@ class PackagesAndModulesPrettierVisitor {
     const otherTypeNames = this.mapVisit(ctx.typeName.slice(1));
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      indent(
-        rejectAndJoin(line, [
-          rejectAndJoin(" ", [ctx.Provides[0], firstTypeName]),
-          group(
-            indent(
-              rejectAndJoin(line, [
-                ctx.With[0],
-                rejectAndJoinSeps(commas, otherTypeNames)
-              ])
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Provides[0], firstTypeName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  ctx.With[0],
+                  rejectAndJoinSeps(commas, otherTypeNames)
+                ])
+              )
             )
-          )
-        ])
-      ),
-      ctx.Semicolon[0]
-    ]);
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   requiresModifier(ctx) {
