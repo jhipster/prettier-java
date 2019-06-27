@@ -1,12 +1,12 @@
 {
   "name": "prettier-plugin-java",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Prettier Java Plugin",
   "main": "src/index.js",
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
-    "java-parser": "0.2.0",
+    "java-parser": "^0.3.0",
     "prettier": "1.15.3"
   },
   "scripts": {
