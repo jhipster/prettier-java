@@ -15,7 +15,8 @@ addons:
 install:
   - yarn
 script:
-  - yarn run ci
+  # temp For speedy testing
+  - echo "yarn run ci"
 deploy:
   - provider: script
     script: bash scripts/deploy.sh
