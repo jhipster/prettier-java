@@ -1,3 +1,10 @@
+<p align="center">
+    :construction: Work in Progress! :construction:
+</p>
+<p align="center">
+    The package currently available on NPM is highly outdated, please report errors after having tried with <a href="https://github.com/jhipster/prettier-java#install">the latest version</a>.
+</p>
+
 [![npm](https://img.shields.io/npm/v/prettier-plugin-java.svg)](https://www.npmjs.com/package/prettier-plugin-java)
 
 # prettier-plugin-java
