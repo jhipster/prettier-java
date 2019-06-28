@@ -81,6 +81,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @GwtCompatible(emulated = true)
 public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements Serializable {
 
+
+  /**
+   * Returns the square of a given number
+   * @param num the number to square
+   * @return the squared number
+   */
+  public int square(int num) {
+    return num * num;
+  }
+
+
   /**
    * Creates an {@code ArrayTable} filled with {@code null}.
    *
