@@ -30,7 +30,7 @@ It could even be used inside a browser.
 This project contains 2 packages:
 
 - [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for
-  Prettier to format Java code
+  [Prettier](https://prettier.io/) to format Java code
 
   [![npm-prettier-plugin-java][npm-prettier-plugin-java-image]][npm-prettier-plugin-java-url]
 
