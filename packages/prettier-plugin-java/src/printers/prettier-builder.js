@@ -50,8 +50,8 @@ function getImageWithComments(token) {
 function formatComment(comment) {
   const res = [];
   comment.image.split("\n").forEach(l => {
-    if (l.match(/(\s+)(\*)(.*)/gm)) {
-      res.push(l.trim());
+    if (l.match(/(\s+)(\*)(.*)/gm) && !l.match(/(\/)(\*)(.*)(\*)(\/)/gm)) {
+      res.push(" " + l.trim());
     } else {
       res.push(l);
     }
