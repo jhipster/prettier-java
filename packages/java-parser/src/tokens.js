@@ -39,6 +39,22 @@ FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
 FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
+FRAGMENT("UnicodeMarker", "uu*");
+FRAGMENT("UnicodeEscape", "\\\\{{UnicodeMarker}}{{HexDigit}}{4}");
+FRAGMENT("RawInputCharacter", "\\\\{{UnicodeMarker}}[0-9a-fA-F]{4}");
+FRAGMENT("UnicodeInputCharacter", "({{UnicodeEscape}}|{{RawInputCharacter}})");
+FRAGMENT("OctalDigit", "[0-7]");
+FRAGMENT("ZeroToThree", "[0-3]");
+FRAGMENT(
+  "OctalEscape",
+  "\\\\({{OctalDigit}}|{{ZeroToThree}}?{{OctalDigit}}{2})"
+);
+FRAGMENT("EscapeSequence", "\\\\[btnfr\"'\\\\]|{{OctalEscape}}");
+// Not using InputCharacter terminology there because CR and LF are already captured in EscapeSequence
+FRAGMENT(
+  "StringCharacter",
+  "(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}})"
+);
 
 function matchJavaIdentifier(text, startOffset) {
   let endOffset = startOffset;
@@ -199,12 +215,14 @@ createToken({
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({
   name: "CharLiteral",
-  pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/
+  // Not using SingleCharacter Terminology because ' and \ are captured in EscapeSequence
+  pattern: MAKE_PATTERN(
+    "'(?:[^\\\\']|(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}}))'"
+  )
 });
 createToken({
   name: "StringLiteral",
-  // TODO: align with the spec, the pattern below is incorrect
-  pattern: /"[^"\\]*(\\.[^"\\]*)*"/
+  pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
