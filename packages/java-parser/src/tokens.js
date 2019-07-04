@@ -40,9 +40,9 @@ FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
 FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
 FRAGMENT("UnicodeMarker", "uu*");
-FRAGMENT("UnicodeEscape", "\\{{UnicodeMarker}}{{HexDigit}}{4}");
-FRAGMENT("RawInputCharacter", "\\{{UnicodeMarker}}[0-9a-fA-F]{4}");
-FRAGMENT("UnicodeInputCharacter", "[{{UnicodeEscape}}{{RawInputCharacter}}]");
+FRAGMENT("UnicodeEscape", "\\\\{{UnicodeMarker}}{{HexDigit}}{4}");
+FRAGMENT("RawInputCharacter", "\\\\{{UnicodeMarker}}[0-9a-fA-F]{4}");
+FRAGMENT("UnicodeInputCharacter", "({{UnicodeEscape}}|{{RawInputCharacter}})");
 FRAGMENT("OctalDigit", "[0-7]");
 FRAGMENT("ZeroToThree", "[0-3]");
 FRAGMENT(
@@ -50,14 +50,12 @@ FRAGMENT(
   "\\\\({{OctalDigit}}|{{ZeroToThree}}?{{OctalDigit}}{2})"
 );
 FRAGMENT("EscapeSequence", "\\\\[btnfr\"'\\\\]|{{OctalEscape}}");
+// Not using InputCharacter terminology there because CR and LF are already captured in EscapeSequence
 FRAGMENT(
-  "CharacterLiteral",
-  "'(?:[^\\\\']|(?:(?:{{EscapeSequence}})|\\\\u[0-9a-fA-F]{4}))'"
+  "StringCharacter",
+  "(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}})"
 );
-FRAGMENT(
-  "StringLiteral",
-  '"(?:[^\\\\"]|(?:(?:{{EscapeSequence}})|\\\\u[0-9a-fA-F]{4}))*"'
-);
+
 function matchJavaIdentifier(text, startOffset) {
   let endOffset = startOffset;
   let charCode = text.codePointAt(endOffset);
@@ -217,11 +215,14 @@ createToken({
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({
   name: "CharLiteral",
-  pattern: MAKE_PATTERN("{{CharacterLiteral}}")
+  // Not using SingleCharacter Terminology because ' and \ are captured in EscapeSequence
+  pattern: MAKE_PATTERN(
+    "'(?:[^\\\\']|(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}}))'"
+  )
 });
 createToken({
   name: "StringLiteral",
-  pattern: MAKE_PATTERN("{{StringLiteral}}")
+  pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
