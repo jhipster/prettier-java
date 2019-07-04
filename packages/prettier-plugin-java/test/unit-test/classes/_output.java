@@ -10,3 +10,7 @@ public class ClassDeclaration {
     class LocalClassDeclaration {}
   }
 }
+
+class ClassWithSemicolon {
+  private FieldOneClass fieldOne;
+}

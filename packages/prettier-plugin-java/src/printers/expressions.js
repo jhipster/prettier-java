@@ -5,7 +5,6 @@ const _ = require("lodash");
 const { line, softline } = require("prettier").doc.builders;
 const {
   concat,
-  dedent,
   group,
   indent,
   getImageWithComments
@@ -15,10 +14,12 @@ const {
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
-  sortTokens,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
-  isExplicitLambdaParameter
+  isExplicitLambdaParameter,
+  putIntoBraces,
+  separateTokensIntoGroups,
+  isShiftOperator
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -153,74 +154,68 @@ class ExpressionsPrettierVisitor {
   }
 
   binaryExpression(ctx) {
-    const sortedTokens = sortTokens(
-      ctx.Instanceof,
-      ctx.AssignmentOperator,
-      ctx.Less,
-      ctx.Greater,
-      ctx.BinaryOperator
-    );
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
-    const segment = [unaryExpression.shift()];
-    for (let i = 0; i < sortedTokens.length; i++) {
-      const token = sortedTokens[i];
-      if (token.tokenType.tokenName === "Instanceof") {
-        segment.push(
-          rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
-        );
-      } else if (matchCategory(token, "'AssignmentOperator'")) {
-        segment.push(rejectAndJoin(" ", [token, expression.shift()]));
-      } else if (
-        i + 1 < sortedTokens.length &&
-        ((sortedTokens[i].image === ">" &&
-          sortedTokens[i + 1].image === ">" &&
-          sortedTokens[i].startOffset ===
-            sortedTokens[i + 1].startOffset - 1) ||
-          (sortedTokens[i].image === "<" &&
-            sortedTokens[i + 1].image === "<" &&
-            sortedTokens[i].startOffset ===
-              sortedTokens[i + 1].startOffset - 1))
-      ) {
-        if (
-          sortedTokens[i + 2] &&
-          sortedTokens[i + 2].image === ">" &&
-          sortedTokens[i + 1].startOffset ===
-            sortedTokens[i + 2].startOffset - 1
+
+    const {
+      groupsOfOperator,
+      sortedBinaryOperators
+    } = separateTokensIntoGroups(ctx);
+    const segmentsSplittedByBinaryOperator = [];
+    let currentSegment = [];
+
+    groupsOfOperator.forEach(subgroup => {
+      currentSegment = [unaryExpression.shift()];
+      for (let i = 0; i < subgroup.length; i++) {
+        const token = subgroup[i];
+        const shiftOperator = isShiftOperator(subgroup, i);
+        if (token.tokenType.tokenName === "Instanceof") {
+          currentSegment.push(
+            rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
+          );
+        } else if (matchCategory(token, "'AssignmentOperator'")) {
+          currentSegment.push(
+            indent(rejectAndJoin(line, [token, expression.shift()]))
+          );
+        } else if (
+          shiftOperator === "leftShift" ||
+          shiftOperator === "rightShift"
         ) {
-          segment.push(
+          currentSegment.push(
             rejectAndJoin(" ", [
-              rejectAndConcat([
-                token,
-                sortedTokens[i + 1],
-                sortedTokens[i + 2]
-              ]),
+              rejectAndConcat([token, subgroup[i + 1]]),
               unaryExpression.shift()
             ])
           );
           i++;
-        } else {
-          segment.push(
+        } else if (shiftOperator === "doubleRightShift") {
+          currentSegment.push(
             rejectAndJoin(" ", [
-              rejectAndConcat([token, sortedTokens[i + 1]]),
+              rejectAndConcat([token, subgroup[i + 1], subgroup[i + 2]]),
               unaryExpression.shift()
             ])
           );
+          i += 2;
+        } else if (matchCategory(token, "'BinaryOperator'")) {
+          currentSegment.push(
+            indent(rejectAndJoin(line, [token, unaryExpression.shift()]))
+          );
         }
-        i++;
-      } else if (matchCategory(token, "'BinaryOperator'")) {
-        segment.push(
-          indent(
-            rejectAndConcat([
-              softline,
-              rejectAndJoin(" ", [token, unaryExpression.shift()])
-            ])
-          )
-        );
       }
+      segmentsSplittedByBinaryOperator.push(
+        group(rejectAndJoin(" ", currentSegment))
+      );
+    });
+    if (groupsOfOperator.length === 0) {
+      return unaryExpression.shift();
     }
-    return group(rejectAndJoin(" ", segment));
+    return group(
+      rejectAndJoinSeps(
+        sortedBinaryOperators.map(elt => concat([" ", elt, line])),
+        segmentsSplittedByBinaryOperator
+      )
+    );
   }
 
   unaryExpression(ctx) {
@@ -257,26 +252,42 @@ class ExpressionsPrettierVisitor {
 
   primary(ctx) {
     const primaryPrefix = this.visit(ctx.primaryPrefix);
-
-    const segments = [];
-    let currentSegment = [];
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
+    const suffixes = [];
+    let addIndent = false;
     for (let i = 0; i < primarySuffixes.length; i++) {
-      currentSegment.push(primarySuffixes[i]);
-      if (
-        i + 1 < ctx.primarySuffix.length &&
-        ctx.primarySuffix[i + 1].children.methodInvocationSuffix
+      if (ctx.primarySuffix[i].children.Dot !== undefined) {
+        suffixes.push(indent(softline), primarySuffixes[i]);
+        addIndent = true;
+      } else if (
+        ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
       ) {
-        currentSegment.push(primarySuffixes[i + 1]);
-        i += 1;
+        suffixes.push(softline, primarySuffixes[i]);
+      } else {
+        if (addIndent) {
+          suffixes.push(indent(primarySuffixes[i]));
+          addIndent = false;
+        } else {
+          suffixes.push(primarySuffixes[i]);
+        }
       }
-      segments.push(rejectAndConcat(currentSegment));
-      currentSegment = [];
+    }
+
+    let firstSeparator = suffixes.shift();
+    if (
+      ctx.primaryPrefix[0].children.This !== undefined ||
+      firstSeparator === undefined
+    ) {
+      firstSeparator = "";
     }
 
     return group(
-      concat([primaryPrefix, indent(rejectAndJoin(softline, segments))])
+      rejectAndConcat([
+        primaryPrefix,
+        firstSeparator,
+        rejectAndConcat(suffixes)
+      ])
     );
   }
 
@@ -413,8 +424,7 @@ class ExpressionsPrettierVisitor {
       rejectAndConcat([
         typeArguments,
         classOrInterfaceTypeToInstantiate,
-        ctx.LBrace[0],
-        group(rejectAndConcat([indent(argumentList), softline, ctx.RBrace[0]]))
+        putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
       ]),
       classBody
     ]);
@@ -453,22 +463,18 @@ class ExpressionsPrettierVisitor {
   }
 
   methodInvocationSuffix(ctx) {
+    if (ctx.argumentList === undefined) {
+      return rejectAndConcat([ctx.LBrace[0], ctx.RBrace[0]]);
+    }
+
     const argumentList = this.visit(ctx.argumentList);
-    return group(
-      rejectAndConcat([
-        rejectAndConcat([ctx.LBrace[0], argumentList]),
-        dedent(softline),
-        ctx.RBrace[0]
-      ])
-    );
+    return putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
   argumentList(ctx) {
     const expressions = this.mapVisit(ctx.expression);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, expressions)])
-    );
+    return rejectAndJoinSeps(commas, expressions);
   }
 
   arrayCreationExpression(ctx) {

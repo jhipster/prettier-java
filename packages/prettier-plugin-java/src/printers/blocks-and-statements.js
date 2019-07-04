@@ -11,34 +11,25 @@ const {
 } = require("./prettier-builder");
 const {
   displaySemicolon,
-  hasLeadingComments,
-  hasTrailingComments,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
   getBlankLinesSeparator,
-  rejectSeparators
+  rejectSeparators,
+  putIntoBraces,
+  putIntoCurlyBraces
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    if (blockStatements && blockStatements.parts.length > 0) {
-      return rejectAndJoin(hardline, [
-        indent(rejectAndJoin(hardline, [ctx.LCurly[0], blockStatements])),
-        ctx.RCurly[0]
-      ]);
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      return concat([ctx.LCurly[0], indent(hardline), ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      blockStatements,
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   blockStatements(ctx) {
@@ -65,12 +56,12 @@ class BlocksAndStatementPrettierVisitor {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifiers),
-      localVariableType,
-      variableDeclaratorList
-    ]);
+    return group(
+      rejectAndJoin(line, [
+        rejectAndJoin(" ", variableModifiers),
+        rejectAndJoin(" ", [localVariableType, variableDeclaratorList])
+      ])
+    );
   }
 
   localVariableType(ctx) {
@@ -139,9 +130,13 @@ class BlocksAndStatementPrettierVisitor {
     }
 
     return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.If[0], ctx.LBrace[0]]),
-      expression,
-      concat([ctx.RBrace[0], ifSeparator]),
+      rejectAndJoin(" ", [
+        ctx.If[0],
+        concat([
+          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ifSeparator
+        ])
+      ]),
       ifStatement,
       elsePart
     ]);
@@ -163,7 +158,7 @@ class BlocksAndStatementPrettierVisitor {
 
     return rejectAndJoin(" ", [
       ctx.Switch[0],
-      rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
+      putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
       switchBlock
     ]);
   }
@@ -171,12 +166,12 @@ class BlocksAndStatementPrettierVisitor {
   switchBlock(ctx) {
     const switchCases = this.mapVisit(ctx.switchCase);
 
-    return rejectAndJoin(line, [
-      indent(
-        rejectAndJoin(line, [ctx.LCurly[0], rejectAndJoin(line, switchCases)])
-      ),
+    return putIntoBraces(
+      rejectAndJoin(line, switchCases),
+      line,
+      ctx.LCurly[0],
       ctx.RCurly[0]
-    ]);
+    );
   }
 
   switchCase(ctx) {
@@ -216,7 +211,7 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndJoin(" ", [
       ctx.While[0],
       rejectAndJoin(statementSeparator, [
-        rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]),
+        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
         statement
       ])
     ]);
@@ -237,9 +232,7 @@ class BlocksAndStatementPrettierVisitor {
       rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
       ctx.While[0],
       rejectAndConcat([
-        ctx.LBrace[0],
-        expression,
-        ctx.RBrace[0],
+        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
         ctx.Semicolon[0]
       ])
     ]);
@@ -372,9 +365,13 @@ class BlocksAndStatementPrettierVisitor {
     const block = this.visit(ctx.block);
 
     return rejectAndConcat([
-      join(" ", [ctx.Synchronized[0], ctx.LBrace[0]]),
-      expression,
-      concat([ctx.RBrace[0], " "]),
+      join(" ", [
+        ctx.Synchronized[0],
+        concat([
+          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          " "
+        ])
+      ]),
       block
     ]);
   }
@@ -458,19 +455,19 @@ class BlocksAndStatementPrettierVisitor {
     const resourceList = this.visit(ctx.resourceList);
     const optionalSemicolon = ctx.Semicolon ? ctx.Semicolon[0] : "";
 
-    return rejectAndConcat([
+    return putIntoBraces(
+      rejectAndConcat([resourceList, optionalSemicolon]),
+      softline,
       ctx.LBrace[0],
-      resourceList,
-      optionalSemicolon,
       ctx.RBrace[0]
-    ]);
+    );
   }
 
   resourceList(ctx) {
     const resources = this.mapVisit(ctx.resource);
     const semicolons = ctx.Semicolon
       ? ctx.Semicolon.map(elt => {
-          return concat([elt, " "]);
+          return concat([elt, line]);
         })
       : [""];
     return rejectAndJoinSeps(semicolons, resources);

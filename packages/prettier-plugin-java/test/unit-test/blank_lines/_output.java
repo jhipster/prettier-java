@@ -17,7 +17,8 @@ public class BlankLines {
   }
 
   public void shouldAddOnlyOneLineBefore() {
-    System.out.println("Should add only one empty line between the two methods"
+    System.out.println(
+      "Should add only one empty line between the two methods"
     );
   }
 

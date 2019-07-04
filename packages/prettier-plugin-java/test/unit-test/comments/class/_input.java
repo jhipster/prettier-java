@@ -81,6 +81,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @GwtCompatible(emulated = true)
 public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements Serializable {
 
+
+  /**
+   * Returns the square of a given number
+   * @param num the number to square
+   * @return the squared number
+   */
+  public int square(int num) {
+    return num * num;
+  }
+
+
   /**
    * Creates an {@code ArrayTable} filled with {@code null}.
    *
@@ -147,7 +158,7 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"all", "deprecation", "unchecked", "fallthrough", "path", "serial", "finally"})
     V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
@@ -774,4 +785,14 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
   }
 
   private static final long serialVersionUID = 0;
+
+
+  @Override
+  public Optional<String> getCurrentAuditor() {
+    // There is currently no reactive AuditorAware implementation so we can't
+    // extract the currently logged-in user from the Reactor Context.
+    // Therefore createdBy and lastModifiedBy will have to be set explicitly.
+    // See https://jira.spring.io/browse/DATACMNS-1231
+    return Optional.of(Constants.SYSTEM_ACCOUNT);
+  }
 }

@@ -29,7 +29,8 @@ public class MarkerAnnotations {
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  @SuppressWarnings2({
+  @SuppressWarnings2(
+    {
       "rawtypes",
       "unchecked",
       "something",

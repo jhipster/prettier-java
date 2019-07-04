@@ -1,12 +1,7 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 const _ = require("lodash");
-const {
-  line,
-  softline,
-  breakParent,
-  hardline
-} = require("prettier").doc.builders;
+const { line, softline, hardline } = require("prettier").doc.builders;
 const {
   reject,
   rejectAndConcat,
@@ -14,15 +9,16 @@ const {
   sortClassTypeChildren,
   sortModifiers,
   rejectAndJoinSeps,
-  hasLeadingComments,
-  hasTrailingComments,
   displaySemicolon,
-  handleClassBodyDeclaration
+  putIntoBraces,
+  putIntoCurlyBraces,
+  getClassBodyDeclarationsSeparator
 } = require("./printer-utils");
 const {
   concat,
   join,
   group,
+  fill,
   indent,
   getImageWithComments
 } = require("./prettier-builder");
@@ -53,23 +49,21 @@ class ClassesPrettierVisitor {
 
     let superClassesPart = "";
     if (optionalSuperClasses) {
-      superClassesPart = indent(
-        rejectAndConcat([softline, optionalSuperClasses])
-      );
+      superClassesPart = indent(rejectAndConcat([line, optionalSuperClasses]));
     }
 
     let superInterfacesPart = "";
     if (optionalSuperInterfaces) {
       superInterfacesPart = indent(
-        rejectAndConcat([softline, optionalSuperInterfaces])
+        rejectAndConcat([line, optionalSuperInterfaces])
       );
     }
 
     return rejectAndJoin(" ", [
       group(
-        rejectAndJoin(" ", [
-          ctx.Class[0],
-          rejectAndConcat([name, optionalTypeParams]),
+        rejectAndConcat([
+          rejectAndJoin(" ", [ctx.Class[0], name]),
+          optionalTypeParams,
           superClassesPart,
           superInterfacesPart
         ])
@@ -89,21 +83,14 @@ class ClassesPrettierVisitor {
   typeParameters(ctx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndConcat([
-      ctx.Less[0],
-      group(
-        rejectAndConcat([indent(typeParameterList), softline, ctx.Greater[0]])
-      )
-    ]);
+    return rejectAndConcat([ctx.Less[0], typeParameterList, ctx.Greater[0]]);
   }
 
   typeParameterList(ctx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, typeParameter)])
-    );
+    return rejectAndJoinSeps(commas, typeParameter);
   }
 
   superclass(ctx) {
@@ -113,60 +100,49 @@ class ClassesPrettierVisitor {
   superinterfaces(ctx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
-    return indent(rejectAndJoin(" ", [ctx.Implements[0], interfaceTypeList]));
+    return group(
+      rejectAndConcat([
+        ctx.Implements[0],
+        indent(rejectAndConcat([line, interfaceTypeList]))
+      ])
+    );
   }
 
   interfaceTypeList(ctx) {
     const interfaceType = this.mapVisit(ctx.interfaceType);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return group(
-      rejectAndConcat([
-        softline,
-        rejectAndJoinSeps(commas, interfaceType),
-        breakParent
-      ])
-    );
+    return group(rejectAndJoinSeps(commas, interfaceType));
   }
 
   classBody(ctx) {
-    const classBodyDeclsVisited = reject(
-      this.mapVisit(ctx.classBodyDeclaration)
-    );
-    const classBodyDecls = handleClassBodyDeclaration(
-      ctx.classBodyDeclaration,
-      classBodyDeclsVisited
-    );
+    let content = "";
+    if (ctx.classBodyDeclaration !== undefined) {
+      const classBodyDeclsVisited = reject(
+        this.mapVisit(ctx.classBodyDeclaration)
+      );
 
-    if (classBodyDecls.length !== 0) {
-      let firstSeparator = hardline;
+      const separators = getClassBodyDeclarationsSeparator(
+        ctx.classBodyDeclaration
+      );
+
+      content = rejectAndJoinSeps(separators, classBodyDeclsVisited);
+
       if (
         !(
           ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
             undefined &&
-          ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined
+          (ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
+            .children.fieldDeclaration !== undefined ||
+            ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
+              .children.Semicolon !== undefined)
         )
       ) {
-        firstSeparator = concat([hardline, hardline]);
+        content = rejectAndConcat([hardline, content]);
       }
-
-      return rejectAndConcat([
-        ctx.LCurly[0],
-        indent(rejectAndConcat([firstSeparator, classBodyDecls])),
-        line,
-        ctx.RCurly[0]
-      ]);
     }
 
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0]);
   }
 
   classBodyDeclaration(ctx) {
@@ -374,9 +350,11 @@ class ClassesPrettierVisitor {
 
     return rejectAndConcat([
       identifier,
-      ctx.LBrace[0],
-      group(
-        rejectAndConcat([indent(formalParameterList), softline, ctx.RBrace[0]])
+      putIntoBraces(
+        formalParameterList,
+        softline,
+        ctx.LBrace[0],
+        ctx.RBrace[0]
       ),
       dims
     ]);
@@ -400,9 +378,7 @@ class ClassesPrettierVisitor {
   formalParameterList(ctx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return group(
-      rejectAndConcat([softline, rejectAndJoinSeps(commas, formalParameter)])
-    );
+    return rejectAndJoinSeps(commas, formalParameter);
   }
 
   formalParameter(ctx) {
@@ -522,15 +498,11 @@ class ClassesPrettierVisitor {
     return rejectAndConcat([
       typeParameters,
       simpleTypeName,
-      ctx.LBrace[0],
-      group(
-        rejectAndConcat([
-          indent(
-            rejectAndJoinSeps(commas, [receiverParameter, formalParameterList])
-          ),
-          softline,
-          ctx.RBrace[0]
-        ])
+      putIntoBraces(
+        rejectAndJoinSeps(commas, [receiverParameter, formalParameterList]),
+        softline,
+        ctx.LBrace[0],
+        ctx.RBrace[0]
       )
     ]);
   }
@@ -546,16 +518,12 @@ class ClassesPrettierVisitor {
 
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return rejectAndJoin(line, [
-      indent(
-        rejectAndJoin(line, [
-          ctx.LCurly[0],
-          explicitConstructorInvocation,
-          blockStatements
-        ])
-      ),
+    return putIntoCurlyBraces(
+      rejectAndJoin(hardline, [explicitConstructorInvocation, blockStatements]),
+      hardline,
+      ctx.LCurly[0],
       ctx.RCurly[0]
-    ]);
+    );
   }
 
   explicitConstructorInvocation(ctx) {
@@ -566,17 +534,14 @@ class ClassesPrettierVisitor {
     const typeArguments = this.visit(ctx.typeArguments);
     const keyWord = ctx.This ? ctx.This[0] : ctx.Super[0];
     const argumentList = this.visit(ctx.argumentList);
-
     return rejectAndConcat([
       typeArguments,
       " ",
       keyWord,
-      ctx.LBrace[0],
       group(
         rejectAndConcat([
-          indent(argumentList),
-          softline,
-          concat([ctx.RBrace[0], ctx.Semicolon[0]])
+          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ctx.Semicolon[0]
         ])
       )
     ]);
@@ -592,12 +557,10 @@ class ClassesPrettierVisitor {
       ctx.Dot[0],
       typeArguments,
       ctx.Super[0],
-      ctx.LBrace[0],
       group(
         rejectAndConcat([
-          indent(argumentList),
-          softline,
-          concat([ctx.RBrace[0], ctx.Semicolon[0]])
+          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          ctx.Semicolon[0]
         ])
       )
     ]);
@@ -628,37 +591,27 @@ class ClassesPrettierVisitor {
       ? ctx.Comma.map(elt => concat([elt, " "]))
       : [];
 
-    if (enumConstantList || enumBodyDeclarations) {
-      return rejectAndConcat([
-        ctx.LCurly[0],
-        indent(
-          rejectAndConcat([
-            line,
-            rejectAndJoinSeps(optionnalComma, [
-              enumConstantList,
-              enumBodyDeclarations
-            ])
-          ])
-        ),
-        line,
-        ctx.RCurly[0]
-      ]);
-    }
-
-    if (
-      hasTrailingComments(ctx.LCurly[0]) ||
-      hasLeadingComments(ctx.RCurly[0])
-    ) {
-      return concat([ctx.LCurly[0], hardline, ctx.RCurly[0]]);
-    }
-
-    return concat([ctx.LCurly[0], ctx.RCurly[0]]);
+    return putIntoCurlyBraces(
+      rejectAndJoinSeps(optionnalComma, [
+        enumConstantList,
+        enumBodyDeclarations
+      ]),
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-    return rejectAndJoinSeps(commas, enumConstants);
+
+    const enumConstantsWithSeparators = [enumConstants[0]];
+    for (let i = 1; i < enumConstants.length; i++) {
+      enumConstantsWithSeparators.push(commas[i - 1], enumConstants[i]);
+    }
+
+    return fill(reject(enumConstantsWithSeparators));
   }
 
   enumConstant(ctx) {
@@ -671,7 +624,7 @@ class ClassesPrettierVisitor {
     const classBody = this.visit(ctx.classBody);
 
     const optionnalBracesAndArgumentList = ctx.LBrace
-      ? rejectAndConcat([ctx.LBrace[0], argumentList, ctx.RBrace[0]])
+      ? putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
       : "";
 
     return rejectAndJoin(hardline, [
@@ -689,17 +642,17 @@ class ClassesPrettierVisitor {
   }
 
   enumBodyDeclarations(ctx) {
-    const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
+    let content = "";
+    if (ctx.classBodyDeclaration !== undefined) {
+      const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
-    const classBodyDeclsVisited = reject(
-      this.mapVisit(ctx.classBodyDeclaration)
-    );
-    const classBodyDecls = handleClassBodyDeclaration(
-      ctx.classBodyDeclaration,
-      classBodyDeclsVisited
-    );
+      const separators = getClassBodyDeclarationsSeparator(
+        ctx.classBodyDeclaration
+      );
 
-    return rejectAndJoin(line, [ctx.Semicolon[0], classBodyDecls]);
+      content = rejectAndJoinSeps(separators, classBodyDeclaration);
+    }
+    return rejectAndJoin(line, [ctx.Semicolon[0], content]);
   }
 
   isClassDeclaration(ctx) {

@@ -57,4 +57,15 @@ public class TryCatch {
       System.out.println("Warning: Not breaking multi exceptions");
     }
   }
+
+  void multiResourceTry() {
+    try (
+      FirstResource firstResource = new FirstResource();
+      SecondResource secondResource = new SecondResource()
+    ) {
+      return br.readLine();
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+      System.out.println("Warning: Not breaking multi exceptions");
+    }
+  }
 }

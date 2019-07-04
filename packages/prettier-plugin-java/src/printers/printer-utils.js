@@ -1,7 +1,12 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat, getImageWithComments } = require("./prettier-builder");
-const { hardline } = require("prettier").doc.builders;
+const {
+  join,
+  concat,
+  group,
+  getImageWithComments
+} = require("./prettier-builder");
+const { indent, hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
@@ -26,11 +31,8 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
-    if (item.parts && item.parts.length === 0) {
-      return false;
-    }
     // eslint-ignore next - We want the conversion to boolean!
-    return item != false;
+    return item != false && item !== undefined;
   });
 }
 
@@ -225,44 +227,292 @@ function getBlankLinesSeparator(ctx) {
   return separators;
 }
 
-function handleClassBodyDeclaration(
-  classBodyDeclarationContext,
-  classBodyDeclsVisited
+function getDeclarationsSeparator(
+  declarations,
+  needLineDeclaration,
+  isSemicolon
 ) {
-  if (classBodyDeclsVisited.length === 0) {
-    return [];
-  }
+  const separators = [];
+  const additionalBlankLines = [];
 
-  const separators = rejectSeparators(
-    getBlankLinesSeparator(classBodyDeclarationContext),
-    classBodyDeclsVisited
-  );
-
-  for (let i = 0; i < classBodyDeclsVisited.length - 1; i++) {
-    if (
-      !(
-        classBodyDeclarationContext[i + 1].children.classMemberDeclaration !==
-          undefined &&
-        classBodyDeclarationContext[i + 1].children.classMemberDeclaration[0]
-          .children.fieldDeclaration !== undefined
-      )
-    ) {
-      separators[i] = concat([hardline, hardline]);
+  declarations.forEach(declaration => {
+    if (needLineDeclaration(declaration)) {
+      additionalBlankLines.push(hardline);
     } else {
-      if (
-        !(
-          classBodyDeclarationContext[i].children.classMemberDeclaration !==
-            undefined &&
-          classBodyDeclarationContext[i].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined
-        )
-      ) {
-        separators[i] = concat([hardline, hardline]);
-      }
+      additionalBlankLines.push("");
+    }
+  });
+
+  const userBlankLinesSeparators = getBlankLinesSeparator(declarations);
+
+  for (let i = 0; i < declarations.length - 1; i++) {
+    if (!isSemicolon(declarations[i])) {
+      const isTwoHardLines =
+        userBlankLinesSeparators[i].parts[0].type === "concat";
+      const additionalSep =
+        !isTwoHardLines &&
+        (additionalBlankLines[i + 1] !== "" || additionalBlankLines[i] !== "")
+          ? hardline
+          : "";
+      separators.push(concat([userBlankLinesSeparators[i], additionalSep]));
     }
   }
 
-  return rejectAndJoinSeps(separators, classBodyDeclsVisited);
+  return separators;
+}
+
+function needLineClassBodyDeclaration(declaration) {
+  if (declaration.children.classMemberDeclaration === undefined) {
+    return true;
+  }
+
+  const classMemberDeclaration = declaration.children.classMemberDeclaration[0];
+
+  if (classMemberDeclaration.children.fieldDeclaration !== undefined) {
+    const fieldDeclaration =
+      classMemberDeclaration.children.fieldDeclaration[0];
+    if (
+      fieldDeclaration.children.fieldModifier !== undefined &&
+      fieldDeclaration.children.fieldModifier[0].children.annotation !==
+        undefined
+    ) {
+      return true;
+    }
+    return false;
+  } else if (classMemberDeclaration.children.Semicolon !== undefined) {
+    return false;
+  }
+
+  return true;
+}
+
+function needLineInterfaceMemberDeclaration(declaration) {
+  if (declaration.children.constantDeclaration !== undefined) {
+    const constantDeclaration = declaration.children.constantDeclaration[0];
+    if (
+      constantDeclaration.children.constantModifier !== undefined &&
+      constantDeclaration.children.constantModifier[0].children.annotation !==
+        undefined
+    ) {
+      return true;
+    }
+    return false;
+  } else if (declaration.children.interfaceMethodDeclaration !== undefined) {
+    const interfaceMethodDeclaration =
+      declaration.children.interfaceMethodDeclaration[0];
+    if (
+      interfaceMethodDeclaration.children.interfaceMethodModifier !==
+        undefined &&
+      interfaceMethodDeclaration.children.interfaceMethodModifier[0].children
+        .annotation !== undefined
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+function isClassBodyDeclarationASemicolon(classBodyDeclaration) {
+  if (classBodyDeclaration.children.classMemberDeclaration) {
+    if (
+      classBodyDeclaration.children.classMemberDeclaration[0].children
+        .Semicolon !== undefined
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isInterfaceMemberASemicolon(interfaceMemberDeclaration) {
+  return interfaceMemberDeclaration.children.Semicolon !== undefined;
+}
+
+function getClassBodyDeclarationsSeparator(classBodyDeclarationContext) {
+  return getDeclarationsSeparator(
+    classBodyDeclarationContext,
+    needLineClassBodyDeclaration,
+    isClassBodyDeclarationASemicolon
+  );
+}
+
+function getInterfaceBodyDeclarationsSeparator(
+  interfaceMemberDeclarationContext
+) {
+  return getDeclarationsSeparator(
+    interfaceMemberDeclarationContext,
+    needLineInterfaceMemberDeclaration,
+    isInterfaceMemberASemicolon
+  );
+}
+
+function putIntoBraces(argument, separator, LBrace, RBrace) {
+  if (argument === undefined || argument === "") {
+    return concat([LBrace, RBrace]);
+  }
+
+  return group(
+    rejectAndConcat([
+      LBrace,
+      indent(concat([separator, argument])),
+      separator,
+      RBrace
+    ])
+  );
+}
+
+function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
+  if (argument !== undefined && argument !== "") {
+    return putIntoBraces(argument, separator, LBrace, RBrace);
+  }
+
+  if (hasTrailingComments(LBrace) || hasLeadingComments(RBrace)) {
+    return concat([LBrace, indent(hardline), RBrace]);
+  }
+
+  return concat([LBrace, RBrace]);
+}
+
+const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
+function separateTokensIntoGroups(ctx) {
+  /**
+   * separate tokens into groups by andOrBinaryOperators ("&&", "||", "&", "|", "^")
+   * in order to break those operators in priority.
+   */
+  const tokens = sortTokens(
+    ctx.Instanceof,
+    ctx.AssignmentOperator,
+    ctx.Less,
+    ctx.Greater,
+    ctx.BinaryOperator
+  );
+
+  const groupsOfOperator = [];
+  const sortedBinaryOperators = [];
+  let tmpGroup = [];
+  tokens.forEach(token => {
+    if (
+      matchCategory(token, "'BinaryOperator'") &&
+      andOrBinaryOperators.has(token.image)
+    ) {
+      sortedBinaryOperators.push(token);
+      groupsOfOperator.push(tmpGroup);
+      tmpGroup = [];
+    } else {
+      tmpGroup.push(token);
+    }
+  });
+
+  groupsOfOperator.push(tmpGroup);
+
+  return {
+    groupsOfOperator,
+    sortedBinaryOperators
+  };
+}
+
+function isShiftOperator(tokens, index) {
+  if (tokens.length <= index + 1) {
+    return "none";
+  }
+
+  if (
+    tokens[index].image === "<" &&
+    tokens[index + 1].image === "<" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    return "leftShift";
+  }
+  if (
+    tokens[index].image === ">" &&
+    tokens[index + 1].image === ">" &&
+    tokens[index].startOffset === tokens[index + 1].startOffset - 1
+  ) {
+    if (
+      tokens.length > index + 2 &&
+      tokens[index + 2].image === ">" &&
+      tokens[index + 1].startOffset === tokens[index + 2].startOffset - 1
+    ) {
+      return "doubleRightShift";
+    }
+    return "rightShift";
+  }
+
+  return "none";
+}
+
+function retrieveNodesToken(ctx) {
+  const tokens = retrieveNodesTokenRec(ctx);
+  tokens.sort((token1, token2) => {
+    return token1.startOffset - token2.startOffset;
+  });
+  return tokens;
+}
+
+function retrieveNodesTokenRec(ctx) {
+  const tokens = [];
+  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+    if (ctx.leadingComments) {
+      tokens.push(...ctx.leadingComments);
+    }
+    tokens.push(ctx);
+    if (ctx.trailingComments) {
+      tokens.push(...ctx.trailingComments);
+    }
+    return tokens;
+  }
+  Object.keys(ctx.children).forEach(child => {
+    ctx.children[child].forEach(subctx => {
+      tokens.push(...retrieveNodesTokenRec(subctx));
+    });
+  });
+  return tokens;
+}
+
+function buildOriginalText(firstToken, lastToken, originalText) {
+  let startOffset = firstToken.startOffset;
+  let endOffset = lastToken.endOffset;
+  if (firstToken.leadingComments) {
+    startOffset = firstToken.leadingComments[0].startOffset;
+  }
+  if (lastToken.trailingComments) {
+    endOffset =
+      lastToken.trailingComments[lastToken.trailingComments.length - 1]
+        .endOffset;
+  }
+  return originalText.substring(startOffset, endOffset + 1);
+}
+
+function getCSTNodeStartEndToken(ctx) {
+  const tokens = [];
+  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+    return [ctx, ctx];
+  }
+  Object.keys(ctx.children).forEach(child => {
+    ctx.children[child].forEach(subctx => {
+      const subStartEndToken = getCSTNodeStartEndToken(subctx);
+      if (subStartEndToken) {
+        tokens.push(subStartEndToken);
+      }
+    });
+  });
+  if (tokens.length === 0) {
+    return;
+  }
+  const startEndTokens = tokens.reduce((tokenArr1, tokenArr2) => {
+    const ftoken =
+      tokenArr1[0].startOffset - tokenArr2[0].startOffset < 0
+        ? tokenArr1[0]
+        : tokenArr2[0];
+    const ltoken =
+      tokenArr2[1].startOffset - tokenArr1[1].startOffset < 0
+        ? tokenArr1[1]
+        : tokenArr2[1];
+    return [ftoken, ltoken];
+  });
+  return startEndTokens;
 }
 
 module.exports = {
@@ -279,10 +529,15 @@ module.exports = {
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
   getBlankLinesSeparator,
-  hasLeadingComments,
-  hasTrailingComments,
-  hasComments,
   displaySemicolon,
   rejectSeparators,
-  handleClassBodyDeclaration
+  putIntoBraces,
+  putIntoCurlyBraces,
+  getInterfaceBodyDeclarationsSeparator,
+  getClassBodyDeclarationsSeparator,
+  separateTokensIntoGroups,
+  isShiftOperator,
+  retrieveNodesToken,
+  buildOriginalText,
+  getCSTNodeStartEndToken
 };

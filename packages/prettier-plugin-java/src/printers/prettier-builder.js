@@ -1,6 +1,8 @@
 "use strict";
 const prettier = require("prettier").doc.builders;
 
+const hardLineWithoutBreakParent = { type: "line", hard: true };
+
 function getImageWithComments(token) {
   const arr = [];
   if (token.hasOwnProperty("leadingComments")) {
@@ -8,7 +10,7 @@ function getImageWithComments(token) {
       if (element.startLine !== token.startLine) {
         arr.push(prettier.lineSuffixBoundary);
         arr.push(concat(formatComment(element)));
-        arr.push(prettier.hardline);
+        arr.push(hardLineWithoutBreakParent);
       } else {
         arr.push(concat(formatComment(element)));
       }
@@ -17,12 +19,12 @@ function getImageWithComments(token) {
   arr.push(token.image);
   if (token.hasOwnProperty("trailingComments")) {
     if (token.trailingComments[0].startLine !== token.startLine) {
-      arr.push(prettier.hardline);
+      arr.push(hardLineWithoutBreakParent);
     }
     token.trailingComments.forEach(element => {
       if (element.startLine !== token.startLine) {
         arr.push(concat(formatComment(element)));
-        arr.push(prettier.hardline);
+        arr.push(hardLineWithoutBreakParent);
       } else if (element.tokenType.tokenName === "LineComment") {
         // Do not add extra space in case of empty statement
         const separator = token.image === "" ? "" : " ";
@@ -48,17 +50,21 @@ function getImageWithComments(token) {
 function formatComment(comment) {
   const res = [];
   comment.image.split("\n").forEach(l => {
-    res.push(l.trim());
-    res.push(prettier.hardline);
+    if (l.match(/(\s+)(\*)(.*)/gm) && !l.match(/(\/)(\*)(.*)(\*)(\/)/gm)) {
+      res.push(" " + l.trim());
+    } else {
+      res.push(l);
+    }
+    res.push(hardLineWithoutBreakParent);
   });
-  if (res[res.length - 1] === prettier.hardline) {
+  if (res[res.length - 1] === hardLineWithoutBreakParent) {
     res.pop();
   }
   return res;
 }
 
 function isToken(doc) {
-  return doc && doc.image && doc.tokenType;
+  return doc && doc.hasOwnProperty("image") && doc.tokenType;
 }
 
 function processComments(docs) {
@@ -77,31 +83,45 @@ function processComments(docs) {
 }
 
 function concat(docs) {
-  return prettier.concat(processComments(docs));
+  const concatenation = prettier.concat(processComments(docs));
+  return concatenation.parts.length === 0 ? "" : concatenation;
 }
 
 function join(sep, docs) {
-  return prettier.join(processComments(sep), processComments(docs));
+  const concatenation = prettier.join(
+    processComments(sep),
+    processComments(docs)
+  );
+  return concatenation.parts.length === 0 ? "" : concatenation;
 }
 
 function group(doc, opts) {
-  return prettier.group(processComments(doc), opts);
+  const group = prettier.group(processComments(doc), opts);
+  return group.contents === undefined ? "" : group;
+}
+
+function fill(docs) {
+  const fill = prettier.fill(processComments(docs));
+  return fill.parts.length === 0 ? "" : fill;
 }
 
 function indent(doc) {
-  return prettier.indent(processComments(doc));
+  const indentedDoc = prettier.indent(processComments(doc));
+  return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
 function dedent(doc) {
-  return prettier.dedent(processComments(doc));
+  const indentedDoc = prettier.dedent(processComments(doc));
+  return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
 module.exports = {
   concat,
   join,
   group,
+  fill,
   indent,
   dedent,
   getImageWithComments,
-  isToken
+  hardLineWithoutBreakParent
 };
