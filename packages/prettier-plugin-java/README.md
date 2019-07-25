@@ -46,7 +46,7 @@ The plugin will be automatically loaded, check [here](https://prettier.io/docs/e
 prettier --write MyJavaFile.java
 ```
 
-If the plugin is not cannot be automatically loaded:
+If the plugin is not automatically loaded:
 
 ```bash
 # Example where the plugin is locate in node_modules
