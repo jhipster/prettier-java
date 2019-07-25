@@ -50,22 +50,36 @@ This project contains 2 packages:
 
 ## Install
 
-This need to updated when the next version will be released.
+### Pre-requirements
 
-In the meantime, you can run the plugin by following these steps:
+Since the plugin is meant to be used with Prettier, you need to install it:
 
+`npm install -g prettier`
+
+or
+
+`yarn global add prettier`
+
+### Install plugin
+
+`npm install -g prettier-plugin-java`
+
+or
+
+`yarn global add prettier-plugin-java`
+
+## Usage
+
+```bash
+prettier --write MyJavaFile.java
 ```
-git clone https://github.com/jhipster/prettier-java
-cd prettier-java
-yarn
-cd packages/prettier-plugin-java/scripts
-node update-test-output.js -single
+
+If the plugin is not automatically loaded:
+
+```bash
+# Example where the plugin is locate in node_modules
+prettier --write MyJavaFile.java --plugin=./node_modules/prettier-plugin-java
 ```
-
-It will format the code contained in `packages/prettier-plugin-java/scripts/single-printer-run/_input.java` and ouput the formatted code in `packages/prettier-plugin-java/scripts/single-printer-run/_output_.java`.
-
-It is also possible to format a folder with the following command:
-`node update-test-output.js -repository path-to-folder`. The output will be stored in `packages/prettier-plugin-java/test-samples/`.
 
 ## Contributing
 
