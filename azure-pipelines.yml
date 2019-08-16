@@ -22,9 +22,9 @@ jobs:
   strategy:
     matrix:
       node_12: 
-        node_version: '12.2.0'
+        node_version: '12.7.0'
       node_10:
-        node_version: '10.15.3'
+        node_version: '10.16.1'
       node_8:
         node_version: '8.16.0'
   pool:
@@ -53,7 +53,7 @@ jobs:
   steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '10.15.3'
+        versionSpec: '10.16.1'
       displayName: 'Install Node.js'
     - script: |
         yarn
