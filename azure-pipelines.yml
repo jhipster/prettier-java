@@ -24,7 +24,7 @@ jobs:
       node_12: 
         node_version: '12.7.0'
       node_10:
-        node_version: '10.16.1'
+        node_version: '10.16.3'
       node_8:
         node_version: '8.16.0'
   pool:
