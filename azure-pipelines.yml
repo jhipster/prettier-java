@@ -53,7 +53,7 @@ jobs:
   steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '10.16.1'
+        versionSpec: '10.16.3'
       displayName: 'Install Node.js'
     - script: |
         yarn
