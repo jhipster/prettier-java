@@ -33,7 +33,7 @@ const restIdentUnicodeCategories = new Set(["Mn", "Cf"]);
 
 // Function that pushes in an object an attribute to store the characters
 function pushInUnicode(cat, elt) {
-  if (!unicode.hasOwnProperty(cat)) {
+  if (!Object.prototype.hasOwnProperty.call(unicode, cat)) {
     unicode[cat] = {
       unicode: [],
       ranges: []

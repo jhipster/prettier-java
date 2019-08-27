@@ -5,7 +5,7 @@ const hardLineWithoutBreakParent = { type: "line", hard: true };
 
 function getImageWithComments(token) {
   const arr = [];
-  if (token.hasOwnProperty("leadingComments")) {
+  if (Object.prototype.hasOwnProperty.call(token, "leadingComments")) {
     token.leadingComments.forEach(element => {
       if (element.startLine !== token.startLine) {
         arr.push(prettier.lineSuffixBoundary);
@@ -17,7 +17,7 @@ function getImageWithComments(token) {
     });
   }
   arr.push(token.image);
-  if (token.hasOwnProperty("trailingComments")) {
+  if (Object.prototype.hasOwnProperty.call(token, "trailingComments")) {
     if (token.trailingComments[0].startLine !== token.startLine) {
       arr.push(hardLineWithoutBreakParent);
     }
@@ -64,7 +64,9 @@ function formatComment(comment) {
 }
 
 function isToken(doc) {
-  return doc && doc.hasOwnProperty("image") && doc.tokenType;
+  return (
+    doc && Object.prototype.hasOwnProperty.call(doc, "image") && doc.tokenType
+  );
 }
 
 function processComments(docs) {
