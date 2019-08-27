@@ -53,9 +53,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
 
       if (singleElementValues.length !== 1) {
         throw Error(
-          `Expecting single item in CST ctx key but found: <${
-            singleElementValues.length
-          }> items`
+          `Expecting single item in CST ctx key but found: <${singleElementValues.length}> items`
         );
       }
 

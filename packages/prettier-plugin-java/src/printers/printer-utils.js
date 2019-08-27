@@ -453,7 +453,11 @@ function retrieveNodesToken(ctx) {
 
 function retrieveNodesTokenRec(ctx) {
   const tokens = [];
-  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+  if (
+    ctx &&
+    Object.prototype.hasOwnProperty.call(ctx, "image") &&
+    ctx.tokenType
+  ) {
     if (ctx.leadingComments) {
       tokens.push(...ctx.leadingComments);
     }
@@ -487,7 +491,11 @@ function buildOriginalText(firstToken, lastToken, originalText) {
 
 function getCSTNodeStartEndToken(ctx) {
   const tokens = [];
-  if (ctx && ctx.hasOwnProperty("image") && ctx.tokenType) {
+  if (
+    ctx &&
+    Object.prototype.hasOwnProperty.call(ctx, "image") &&
+    ctx.tokenType
+  ) {
     return [ctx, ctx];
   }
   Object.keys(ctx.children).forEach(child => {

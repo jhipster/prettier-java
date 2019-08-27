@@ -6,8 +6,8 @@
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
-    "java-parser": "^0.3.1",
-    "prettier": "1.15.3"
+    "java-parser": "0.3.1",
+    "prettier": "1.18.2"
   },
   "scripts": {
     "test": "npm-run-all test:unit test:e2e-core",

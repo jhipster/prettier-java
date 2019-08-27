@@ -1,13 +1,13 @@
 /*File generated with ../scripts/unicode.js using ../resources/Unicode/UnicodeData.txt.
-  * As Java Identifiers may contains unicodes letters, this file defines two sets of unicode
-  * characters, firstIdentChar used to help to determine if a character can be the first letter
-  * of a JavaIdentifier and the other one (restIdentChar) to determine if it can be part of a
-  * JavaIdentifier other than the first character.
-  * Java uses the same file UnicodeData.txt as the unicode.js script to define the unicodes.
-  * For more:
-  *   https://github.com/jhipster/prettier-java/issues/116
-  *   https://github.com/jhipster/prettier-java/pull/155
-  */
+ * As Java Identifiers may contains unicodes letters, this file defines two sets of unicode
+ * characters, firstIdentChar used to help to determine if a character can be the first letter
+ * of a JavaIdentifier and the other one (restIdentChar) to determine if it can be part of a
+ * JavaIdentifier other than the first character.
+ * Java uses the same file UnicodeData.txt as the unicode.js script to define the unicodes.
+ * For more:
+ *   https://github.com/jhipster/prettier-java/issues/116
+ *   https://github.com/jhipster/prettier-java/pull/155
+ */
 "use strict";
 const addRanges = (set, rangesArr) => {
   for (let i = 0; i < rangesArr.length; i++) {
