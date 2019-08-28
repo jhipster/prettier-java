@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 "use strict";
 const { createToken: createTokenOrg, Lexer } = require("chevrotain");
-const fs = require("fs");
 let chars;
 // A little mini DSL for easier lexer definition.
 const fragments = {};
