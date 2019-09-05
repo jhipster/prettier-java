@@ -44,7 +44,7 @@ function getImageWithComments(token) {
       arr.pop();
     }
   }
-  return group(concat(arr));
+  return concat(arr);
 }
 
 function formatComment(comment) {

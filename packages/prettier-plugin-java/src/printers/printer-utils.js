@@ -523,6 +523,10 @@ function getCSTNodeStartEndToken(ctx) {
   return startEndTokens;
 }
 
+function isStatementEmptyStatement(statement) {
+  return statement.type === "concat" && statement.parts[0] === ";";
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -547,5 +551,6 @@ module.exports = {
   isShiftOperator,
   retrieveNodesToken,
   buildOriginalText,
-  getCSTNodeStartEndToken
+  getCSTNodeStartEndToken,
+  isStatementEmptyStatement
 };

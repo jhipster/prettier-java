@@ -17,7 +17,8 @@ const {
   getBlankLinesSeparator,
   rejectSeparators,
   putIntoBraces,
-  putIntoCurlyBraces
+  putIntoCurlyBraces,
+  isStatementEmptyStatement
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -106,22 +107,14 @@ class BlocksAndStatementPrettierVisitor {
     const ifStatement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const ifSeparator =
-      ifStatement.contents !== undefined &&
-      ifStatement.contents.parts[0] === ";"
-        ? ""
-        : " ";
+    const ifSeparator = isStatementEmptyStatement(ifStatement) ? "" : " ";
 
     let elsePart = "";
     if (ctx.Else !== undefined) {
       const elseStatement = this.visit(ctx.statement[1], {
         allowEmptyStatement: true
       });
-      const elseSeparator =
-        elseStatement.contents !== undefined &&
-        elseStatement.contents.parts[0] === ";"
-          ? ""
-          : " ";
+      const elseSeparator = isStatementEmptyStatement(elseStatement) ? "" : " ";
 
       elsePart = rejectAndJoin(elseSeparator, [
         concat([" ", ctx.Else[0]]),
@@ -203,10 +196,7 @@ class BlocksAndStatementPrettierVisitor {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator =
-      statement.contents !== undefined && statement.contents.parts[0] === ";"
-        ? ""
-        : " ";
+    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     return rejectAndJoin(" ", [
       ctx.While[0],
@@ -221,10 +211,7 @@ class BlocksAndStatementPrettierVisitor {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator =
-      statement.contents !== undefined && statement.contents.parts[0] === ";"
-        ? ""
-        : " ";
+    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     const expression = this.visit(ctx.expression);
 
@@ -249,10 +236,7 @@ class BlocksAndStatementPrettierVisitor {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator =
-      statement.contents !== undefined && statement.contents.parts[0] === ";"
-        ? ""
-        : " ";
+    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
@@ -290,10 +274,7 @@ class BlocksAndStatementPrettierVisitor {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator =
-      statement.contents !== undefined && statement.contents.parts[0] === ";"
-        ? ""
-        : " ";
+    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
