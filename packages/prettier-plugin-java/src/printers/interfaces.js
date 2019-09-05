@@ -143,10 +143,10 @@ class InterfacesPrettierVisitor {
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
     const separator =
-      methodBody &&
-      methodBody.contents &&
-      methodBody.contents.parts &&
-      methodBody.contents.parts.includes(";")
+      methodBody !== undefined &&
+      methodBody.type === "concat" &&
+      methodBody.parts &&
+      methodBody.parts.includes(";")
         ? ""
         : " ";
 
