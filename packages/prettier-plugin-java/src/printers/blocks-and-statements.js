@@ -325,7 +325,7 @@ class BlocksAndStatementPrettierVisitor {
 
   returnStatement(ctx) {
     if (ctx.expression) {
-      const expression = this.visit(ctx.expression);
+      const expression = this.visit(ctx.expression, { addParenthesis: true });
 
       return rejectAndConcat([
         concat([ctx.Return[0], " "]),

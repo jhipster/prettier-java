@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { line, softline } = require("prettier").doc.builders;
+const { ifBreak, line, softline } = require("prettier").doc.builders;
 const {
   concat,
   group,
@@ -27,8 +27,8 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  expression(ctx) {
-    return this.visitSingle(ctx);
+  expression(ctx, params) {
+    return this.visitSingle(ctx, params);
   }
 
   lambdaExpression(ctx) {
@@ -128,8 +128,8 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  ternaryExpression(ctx) {
-    const binaryExpression = this.visit(ctx.binaryExpression);
+  ternaryExpression(ctx, params) {
+    const binaryExpression = this.visit(ctx.binaryExpression, params);
     if (ctx.QuestionMark) {
       const expression1 = this.visit(ctx.expression[0]);
       const expression2 = this.visit(ctx.expression[1]);
@@ -153,10 +153,11 @@ class ExpressionsPrettierVisitor {
     return binaryExpression;
   }
 
-  binaryExpression(ctx) {
+  binaryExpression(ctx, params) {
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
+    const unaryExpression2 = this.mapVisit(ctx.unaryExpression);
 
     const {
       groupsOfOperator,
@@ -164,6 +165,10 @@ class ExpressionsPrettierVisitor {
     } = separateTokensIntoGroups(ctx);
     const segmentsSplittedByBinaryOperator = [];
     let currentSegment = [];
+
+    if (groupsOfOperator.length === 1 && groupsOfOperator[0].length === 0) {
+      return unaryExpression.shift();
+    }
 
     groupsOfOperator.forEach(subgroup => {
       currentSegment = [unaryExpression.shift()];
@@ -207,9 +212,40 @@ class ExpressionsPrettierVisitor {
         group(rejectAndJoin(" ", currentSegment))
       );
     });
-    if (groupsOfOperator.length === 0) {
-      return unaryExpression.shift();
+
+    if (params !== undefined && params.addParenthesis) {
+      // console.log(
+      //   JSON.stringify(
+      //     ctx,
+      //     (key, value) => { if (key !== 'START_CHARS_HINT' && key !== "location") return value; },
+      //     2
+      //   )
+      // );
+      // console.log(
+      //   JSON.stringify(
+      //     unaryExpression2,
+      //     (key, value) => { if (key !== 'START_CHARS_HINT' && key !== "location") return value; },
+      //     2
+      //   )
+      // );
+      return group(
+        concat([
+          ifBreak("(", ""),
+          indent(
+            concat([
+              softline,
+              rejectAndJoinSeps(
+                sortedBinaryOperators.map(elt => concat([" ", elt, line])),
+                segmentsSplittedByBinaryOperator
+              )
+            ])
+          ),
+          softline,
+          ifBreak(")")
+        ])
+      );
     }
+
     return group(
       rejectAndJoinSeps(
         sortedBinaryOperators.map(elt => concat([" ", elt, line])),
