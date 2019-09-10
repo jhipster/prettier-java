@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { ifBreak, line, softline } = require("prettier").doc.builders;
+const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
 const {
   concat,
   group,
@@ -19,7 +19,8 @@ const {
   isExplicitLambdaParameter,
   putIntoBraces,
   separateTokensIntoGroups,
-  isShiftOperator
+  isShiftOperator,
+  isUniqueMethodInvocation
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -157,7 +158,6 @@ class ExpressionsPrettierVisitor {
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
-    const unaryExpression2 = this.mapVisit(ctx.unaryExpression);
 
     const {
       groupsOfOperator,
@@ -214,20 +214,6 @@ class ExpressionsPrettierVisitor {
     });
 
     if (params !== undefined && params.addParenthesis) {
-      // console.log(
-      //   JSON.stringify(
-      //     ctx,
-      //     (key, value) => { if (key !== 'START_CHARS_HINT' && key !== "location") return value; },
-      //     2
-      //   )
-      // );
-      // console.log(
-      //   JSON.stringify(
-      //     unaryExpression2,
-      //     (key, value) => { if (key !== 'START_CHARS_HINT' && key !== "location") return value; },
-      //     2
-      //   )
-      // );
       return group(
         concat([
           ifBreak("(", ""),
@@ -287,52 +273,56 @@ class ExpressionsPrettierVisitor {
   }
 
   primary(ctx) {
-    const primaryPrefix = this.visit(ctx.primaryPrefix);
+    const countMethodInvocation = isUniqueMethodInvocation(ctx.primarySuffix);
+
+    const primaryPrefix = this.visit(ctx.primaryPrefix, {
+      shouldBreak: countMethodInvocation > 1
+    });
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
     const suffixes = [];
-    let addIndent = false;
-    for (let i = 0; i < primarySuffixes.length; i++) {
-      if (ctx.primarySuffix[i].children.Dot !== undefined) {
-        suffixes.push(indent(softline), primarySuffixes[i]);
-        addIndent = true;
-      } else if (
-        ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
+
+    if (ctx.primarySuffix !== undefined) {
+      if (
+        ctx.primarySuffix[0].children.Dot !== undefined &&
+        ctx.primaryPrefix[0].children.newExpression !== undefined
       ) {
-        suffixes.push(softline, primarySuffixes[i]);
-      } else {
-        if (addIndent) {
-          suffixes.push(indent(primarySuffixes[i]));
-          addIndent = false;
-        } else {
-          suffixes.push(primarySuffixes[i]);
+        suffixes.push(softline);
+      }
+      suffixes.push(primarySuffixes[0]);
+
+      for (let i = 1; i < primarySuffixes.length; i++) {
+        if (
+          ctx.primarySuffix[i].children.Dot !== undefined &&
+          ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
+        ) {
+          suffixes.push(softline);
         }
+        suffixes.push(primarySuffixes[i]);
+      }
+
+      if (countMethodInvocation === 1) {
+        return group(
+          rejectAndConcat([
+            primaryPrefix,
+            suffixes[0],
+            indent(rejectAndConcat(suffixes.slice(1)))
+          ])
+        );
       }
     }
 
-    let firstSeparator = suffixes.shift();
-    if (
-      ctx.primaryPrefix[0].children.This !== undefined ||
-      firstSeparator === undefined
-    ) {
-      firstSeparator = "";
-    }
-
     return group(
-      rejectAndConcat([
-        primaryPrefix,
-        firstSeparator,
-        rejectAndConcat(suffixes)
-      ])
+      rejectAndConcat([primaryPrefix, indent(rejectAndConcat(suffixes))])
     );
   }
 
-  primaryPrefix(ctx) {
+  primaryPrefix(ctx, params) {
     if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
 
-    return this.visitSingle(ctx);
+    return this.visitSingle(ctx, params);
   }
 
   primarySuffix(ctx) {
@@ -355,10 +345,22 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  fqnOrRefType(ctx) {
+  fqnOrRefType(ctx, params) {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
+
+    if (params !== undefined && params.shouldBreak === true) {
+      return rejectAndConcat([
+        indent(
+          rejectAndJoin(concat([softline, dots[0]]), [
+            fqnOrRefTypePart[0],
+            rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePart.slice(1)),
+            dims
+          ])
+        )
+      ]);
+    }
     return rejectAndConcat([rejectAndJoinSeps(dots, fqnOrRefTypePart), dims]);
   }
 

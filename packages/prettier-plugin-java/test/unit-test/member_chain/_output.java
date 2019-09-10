@@ -43,7 +43,8 @@ public class BreakLongFunctionCall {
   }
 
   public void doSomethingLongStatic() {
-    return Object.something()
+    return Object
+      .something()
       .more()
       .and()
       .that()

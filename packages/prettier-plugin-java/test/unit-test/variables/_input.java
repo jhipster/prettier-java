@@ -73,4 +73,23 @@ public class Variables {
     BackupStatus lastStatus = value;
   }
 
+  public void breakVariables() {
+    Obj newObject = new Object().something().more().and().that().as().well().but().not().something();
+
+    Object.test.creation thisObject = classWithName.invocationOne().invocationTwo();
+
+    Object.test.creation thisObject1 = classWithName.invocationOne(argument1, argument2, argument3);
+
+    Object.test.creation thisObject2 = classWithName.invocationOne(argument1, argument2, argument3).invocationTwo();
+
+    Object.test.creation thisObject3 = classWithName.invocationOne().invocationTwo(argument1, argument2, argument3);
+
+    Object.test.creation thisObject4 = classWithName.invocationOne(argument1, argument2, argument3).invocationTwo(argument1, argument2);
+
+    Object.test.creation thisObject5 = classWithName.invocationOne(argument1WithAVeryVeryVeryVeryLongName, argument2, argument3).attributeOne.attributeTwo
+        .invocationTwo(argument1, argument2).attributeThree.invocationThree();
+
+    Object.test.creation thisObject6 = classWithName.invocationOne(argument1, argument2,
+        argument3).attributeOne.attributeTwo.invocationTwo(argument1, argument2).attributeThree.invocationThree();
+  }
 }

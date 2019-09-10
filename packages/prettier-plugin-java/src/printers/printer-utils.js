@@ -583,6 +583,25 @@ function compareFqn(packageOrTypeNameFirst, packageOrTypeNameSecond) {
   return 0;
 }
 
+function isUniqueMethodInvocation(primarySuffixes) {
+  if (primarySuffixes === undefined) {
+    return 0;
+  }
+
+  let count = 0;
+  primarySuffixes.forEach(primarySuffix => {
+    if (primarySuffix.children.methodInvocationSuffix !== undefined) {
+      count++;
+
+      if (count > 1) {
+        return 2;
+      }
+    }
+  });
+
+  return count;
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -607,7 +626,9 @@ module.exports = {
   isShiftOperator,
   retrieveNodesToken,
   buildOriginalText,
+  isStatementEmptyStatement,
   getCSTNodeStartEndToken,
   isStatementEmptyStatement,
-  sortImports
+  sortImports,
+  isUniqueMethodInvocation
 };

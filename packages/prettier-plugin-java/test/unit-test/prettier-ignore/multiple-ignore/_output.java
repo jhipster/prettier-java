@@ -14,7 +14,8 @@ public class PrettierIgnoreClass {
     int param10
   ) {
     for (int i = 0; i < param1; i++) {
-      param2.methodcall()
+      param2
+        .methodcall()
         .methodcall()
         .methodcall()
         .methodcall()

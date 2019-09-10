@@ -32,13 +32,13 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
     // TODO: this methods should be defined on the prototype
     // defining as instance members **after** the validations to avoid
     // false positive errors on redundant methods
-    this.mapVisit = elements => {
+    this.mapVisit = (elements, params) => {
       if (elements === undefined) {
         // TODO: can optimize this by returning an immutable empty array singleton.
         return [];
       }
 
-      return elements.map(this.visit, this);
+      return elements.map(element => this.visit(element, params), this);
     };
 
     this.getSingle = function(ctx) {
