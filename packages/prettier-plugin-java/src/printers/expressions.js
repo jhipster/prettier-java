@@ -213,7 +213,7 @@ class ExpressionsPrettierVisitor {
       );
     });
 
-    if (params !== undefined && params.addParenthesis) {
+    if (params !== undefined && params.addParenthesisToWrapStatement) {
       return group(
         concat([
           ifBreak("(", ""),
@@ -276,7 +276,7 @@ class ExpressionsPrettierVisitor {
     const countMethodInvocation = isUniqueMethodInvocation(ctx.primarySuffix);
 
     const primaryPrefix = this.visit(ctx.primaryPrefix, {
-      shouldBreak: countMethodInvocation > 1
+      shouldBreakBeforeFirstMethodInvocation: countMethodInvocation > 1
     });
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
@@ -350,7 +350,10 @@ class ExpressionsPrettierVisitor {
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
 
-    if (params !== undefined && params.shouldBreak === true) {
+    if (
+      params !== undefined &&
+      params.shouldBreakBeforeFirstMethodInvocation === true
+    ) {
       return rejectAndConcat([
         indent(
           rejectAndJoin(concat([softline, dots[0]]), [

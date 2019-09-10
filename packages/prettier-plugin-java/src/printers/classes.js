@@ -195,21 +195,14 @@ class ClassesPrettierVisitor {
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
 
-      // Array Initialisation
-      if (ctx.variableInitializer[0].children.arrayInitializer !== undefined) {
-        return rejectAndJoin(" ", [
-          variableDeclaratorId,
-          ctx.Equals[0],
-          variableInitializer
-        ]);
-      }
-
-      // Ternary Expression
       if (
-        ctx.variableInitializer[0].children.expression[0].children
+        // Array Initialisation
+        ctx.variableInitializer[0].children.arrayInitializer !== undefined ||
+        // Ternary Expression
+        (ctx.variableInitializer[0].children.expression[0].children
           .ternaryExpression !== undefined &&
-        ctx.variableInitializer[0].children.expression[0].children
-          .ternaryExpression[0].children.QuestionMark !== undefined
+          ctx.variableInitializer[0].children.expression[0].children
+            .ternaryExpression[0].children.QuestionMark !== undefined)
       ) {
         return rejectAndJoin(" ", [
           variableDeclaratorId,

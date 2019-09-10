@@ -602,10 +602,6 @@ function isUniqueMethodInvocation(primarySuffixes) {
   return count;
 }
 
-function isStatementEmptyStatement(statement) {
-  return statement.type === "concat" && statement.parts[0] === ";";
-}
-
 module.exports = {
   buildFqn,
   reject,
@@ -630,7 +626,6 @@ module.exports = {
   isShiftOperator,
   retrieveNodesToken,
   buildOriginalText,
-  isStatementEmptyStatement,
   getCSTNodeStartEndToken,
   isStatementEmptyStatement,
   sortImports,
