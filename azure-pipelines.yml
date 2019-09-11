@@ -21,7 +21,7 @@ jobs:
 - job: Test
   strategy:
     matrix:
-      node_12: 
+      node_12:
         node_version: '12.8.1'
       node_10:
         node_version: '10.16.3'
@@ -64,3 +64,22 @@ jobs:
         yarn --version
         yarn run test:prettier-plugin-java test:$(TEST_REPOSITORY)
       displayName: 'Run e2e tests'
+
+- job: publish
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
+  dependsOn:
+    - Test
+    - e2e_tests
+  displayName: Publish on NPM
+  pool:
+    vmImage: Ubuntu-16.04
+  steps:
+  - script : |
+      echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" >> ~/.npmrc
+  - script: |
+      yarn
+    displayName: 'Install dependencies'
+  - script: |
+      git status
+      git reset --hard
+      yarn run lerna:publish
