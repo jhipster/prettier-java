@@ -41,7 +41,8 @@ javaSampleFiles.forEach(fileDesc => {
     const newExpectedText = prettier.format(javaFileText, {
       parser: "java",
       plugins: [path.resolve(__dirname, "../")],
-      tabWidth: 2
+      tabWidth: 2,
+      endOfLine: "lf"
     });
     let outputFilePath = fileDesc.path.replace(/input.java$/, "output.java");
     if (process.argv.indexOf("-repository") > -1) {
