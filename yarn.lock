@@ -3655,13 +3655,6 @@ isstream@~0.1.2:
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
 
-java-parser@0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/java-parser/-/java-parser-0.3.1.tgz#5a581fa41a794bf833d95f2142d359a75a927052"
-  integrity sha512-logOHQNwXLqsdgCOL+webwlC5JyMqgb1SbSV4oWR5INTRPHAQnQveBQGa5pKc0S/0st7OQXgdQ1pLbvkUcA/AA==
-  dependencies:
-    chevrotain "4.7.0"
-
 js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
