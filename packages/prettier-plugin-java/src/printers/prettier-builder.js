@@ -4,6 +4,14 @@ const prettier = require("prettier").doc.builders;
 const hardLineWithoutBreakParent = { type: "line", hard: true };
 
 function getImageWithComments(token) {
+  return concat([
+    getLeadingComments(token),
+    token.image,
+    getTrailingComments(token)
+  ]);
+}
+
+function getLeadingComments(token) {
   const arr = [];
   if (Object.prototype.hasOwnProperty.call(token, "leadingComments")) {
     token.leadingComments.forEach(element => {
@@ -16,7 +24,12 @@ function getImageWithComments(token) {
       }
     });
   }
-  arr.push(token.image);
+
+  return concat(arr);
+}
+
+function getTrailingComments(token) {
+  const arr = [];
   if (Object.prototype.hasOwnProperty.call(token, "trailingComments")) {
     if (token.trailingComments[0].startLine !== token.startLine) {
       arr.push(hardLineWithoutBreakParent);
@@ -44,6 +57,7 @@ function getImageWithComments(token) {
       arr.pop();
     }
   }
+
   return concat(arr);
 }
 
@@ -125,5 +139,7 @@ module.exports = {
   indent,
   dedent,
   getImageWithComments,
+  getLeadingComments,
+  getTrailingComments,
   hardLineWithoutBreakParent
 };

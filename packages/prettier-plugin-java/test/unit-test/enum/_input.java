@@ -1,10 +1,23 @@
 public enum EnumWhichNotBreak {
 
+  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+
+}
+
+public enum EnumWhichNotBreakWithExtraSemicolon {
+
   SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
 
 }
 
 public enum EnumWhichBreak {
+
+  ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGTH_VALUE, NINE_VALUE,
+  TEN_VALUE
+
+}
+
+public enum EnumWhichBreakWithExtraSemicolon {
 
   ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGTH_VALUE, NINE_VALUE,
   TEN_VALUE;

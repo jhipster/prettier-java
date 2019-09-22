@@ -524,7 +524,11 @@ function getCSTNodeStartEndToken(ctx) {
 }
 
 function isStatementEmptyStatement(statement) {
-  return statement.type === "concat" && statement.parts[0] === ";";
+  return (
+    statement.type === "concat" &&
+    statement.parts[0] === "" &&
+    statement.parts[1] === ";"
+  );
 }
 
 module.exports = {
