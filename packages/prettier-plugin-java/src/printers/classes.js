@@ -606,12 +606,7 @@ class ClassesPrettierVisitor {
     const enumConstants = this.mapVisit(ctx.enumConstant);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    const enumConstantsWithSeparators = [enumConstants[0]];
-    for (let i = 1; i < enumConstants.length; i++) {
-      enumConstantsWithSeparators.push(commas[i - 1], enumConstants[i]);
-    }
-
-    return fill(reject(enumConstantsWithSeparators));
+    return group(rejectAndJoinSeps(commas, enumConstants));
   }
 
   enumConstant(ctx) {
