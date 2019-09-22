@@ -1,5 +1,9 @@
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
+  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+}
+
+public enum EnumWhichNotBreakWithExtraSemicolon {
+  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
 }
 
 public enum EnumWhichBreak {
@@ -12,7 +16,20 @@ public enum EnumWhichBreak {
   SEVEN_VALUE,
   EIGTH_VALUE,
   NINE_VALUE,
-  TEN_VALUE;
+  TEN_VALUE
+}
+
+public enum EnumWhichBreakWithExtraSemicolon {
+  ONE_VALUE,
+  TWO_VALUE,
+  THREE_VALUE,
+  FOUR_VALUE,
+  FIVE_VALUE,
+  SIX_VALUE,
+  SEVEN_VALUE,
+  EIGTH_VALUE,
+  NINE_VALUE,
+  TEN_VALUE
 }
 
 public enum Enum {
@@ -33,6 +50,6 @@ public enum Enum {
 class CLassWithEnum {
 
   public static enum VALID_THINGS {
-    FIRST, SECOND;
+    FIRST, SECOND
   }
 }

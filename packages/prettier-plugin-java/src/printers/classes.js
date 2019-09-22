@@ -18,9 +18,10 @@ const {
   concat,
   join,
   group,
-  fill,
   indent,
-  getImageWithComments
+  getImageWithComments,
+  getLeadingComments,
+  getTrailingComments
 } = require("./prettier-builder");
 
 class ClassesPrettierVisitor {
@@ -583,9 +584,7 @@ class ClassesPrettierVisitor {
 
   enumBody(ctx) {
     const enumConstantList = this.visit(ctx.enumConstantList);
-    const enumBodyDeclarations = ctx.enumBodyDeclarations
-      ? this.visit(ctx.enumBodyDeclarations)
-      : ";";
+    const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
     const optionnalComma = ctx.Comma
       ? ctx.Comma.map(elt => concat([elt, " "]))
@@ -637,7 +636,6 @@ class ClassesPrettierVisitor {
   }
 
   enumBodyDeclarations(ctx) {
-    let content = "";
     if (ctx.classBodyDeclaration !== undefined) {
       const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
@@ -645,9 +643,17 @@ class ClassesPrettierVisitor {
         ctx.classBodyDeclaration
       );
 
-      content = rejectAndJoinSeps(separators, classBodyDeclaration);
+      return rejectAndJoin(line, [
+        ctx.Semicolon[0],
+        rejectAndJoinSeps(separators, classBodyDeclaration)
+      ]);
     }
-    return rejectAndJoin(line, [ctx.Semicolon[0], content]);
+
+    return concat([
+      getLeadingComments(ctx.Semicolon[0]),
+      "",
+      getTrailingComments(ctx.Semicolon[0])
+    ]);
   }
 
   isClassDeclaration(ctx) {
