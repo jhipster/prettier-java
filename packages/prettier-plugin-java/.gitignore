@@ -2,4 +2,3 @@ test-samples/**/*
 scripts/single-printer-run
 samples/**/*
 !test-samples/.eslintrc.json
-!samples/.eslintrc.json
