@@ -108,8 +108,8 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassBodyDeclaration
   $.RULE("classBodyDeclaration", () => {
-    const nextRuleType = $.BACKTRACK_LOOKAHEAD(
-      $.identifyClassBodyDeclarationType
+    const nextRuleType = $.ACTION(() =>
+      $.BACKTRACK_LOOKAHEAD($.identifyClassBodyDeclarationType)
     );
 
     $.OR([

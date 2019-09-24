@@ -68,8 +68,8 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("interfaceMemberDeclaration", () => {
-    const detectedType = this.BACKTRACK_LOOKAHEAD(
-      $.identifyInterfaceBodyDeclarationType
+    const detectedType = $.ACTION(() =>
+      this.BACKTRACK_LOOKAHEAD($.identifyInterfaceBodyDeclarationType)
     );
     $.OR([
       {
@@ -167,8 +167,8 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("annotationTypeMemberDeclaration", () => {
-    const detectedType = this.BACKTRACK_LOOKAHEAD(
-      $.identifyAnnotationBodyDeclarationType
+    const detectedType = $.ACTION(() =>
+      this.BACKTRACK_LOOKAHEAD($.identifyAnnotationBodyDeclarationType)
     );
     $.OR([
       {
@@ -271,8 +271,8 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValue
   $.RULE("elementValue", () => {
-    const isSimpleElementValueAnnotation = this.BACKTRACK_LOOKAHEAD(
-      $.isSimpleElementValueAnnotation
+    const isSimpleElementValueAnnotation = $.ACTION(() =>
+      this.BACKTRACK_LOOKAHEAD($.isSimpleElementValueAnnotation)
     );
     $.OR([
       // Spec Deviation: "conditionalExpression" replaced with "expression"
