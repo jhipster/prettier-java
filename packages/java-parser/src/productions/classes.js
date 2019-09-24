@@ -1,6 +1,6 @@
 "use strict";
 
-const { isRecognitionException, tokenMatcher } = require("chevrotain");
+const { tokenMatcher } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassDeclaration
@@ -662,24 +662,19 @@ function defineRules($, t) {
       return false;
     }
 
-    try {
-      // The {classModifier} is a super grammar of the "interfaceModifier"
-      // So we must parse all the "{classModifier}" before we can distinguish
-      // between the alternatives.
-      $.MANY({
-        GATE: () =>
-          (tokenMatcher($.LA(1).tokenType, t.At) &&
-            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-        DEF: () => {
+    let continueLoop = true;
+    while (continueLoop) {
+      if (
+        (tokenMatcher($.LA(1).tokenType, t.At) &&
+          tokenMatcher($.LA(2).tokenType, t.Interface)) === false
+      ) {
+        try {
           $.SUBRULE($.classModifier);
+        } catch (e) {
+          continueLoop = false;
         }
-      });
-    } catch (e) {
-      if (isRecognitionException(e)) {
-        // TODO: add original syntax error?
-        throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
       } else {
-        throw e;
+        continueLoop = false;
       }
     }
 

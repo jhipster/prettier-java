@@ -600,12 +600,10 @@ function defineRules($, t) {
   });
 
   $.RULE("isCastExpression", () => {
-    return $.ACTION(() => {
-      if (this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression)) {
-        return true;
-      }
-      return this.BACKTRACK_LOOKAHEAD($.isReferenceTypeCastExpression);
-    });
+    if (this.BACKTRACK_LOOKAHEAD($.isPrimitiveCastExpression)) {
+      return true;
+    }
+    return this.BACKTRACK_LOOKAHEAD($.isReferenceTypeCastExpression);
   });
 
   $.RULE("isPrimitiveCastExpression", () => {
@@ -616,21 +614,19 @@ function defineRules($, t) {
     return true;
   });
 
-  let firstForUnaryExpressionNotPlusMinus = undefined;
   $.RULE("isReferenceTypeCastExpression", () => {
-    if (firstForUnaryExpressionNotPlusMinus === undefined) {
-      const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
-        "unaryExpressionNotPlusMinus",
-        []
-      );
-      const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
-        x => x.nextTokenType
-      );
-      // uniq
-      firstForUnaryExpressionNotPlusMinus = nextTokTypes.filter(
-        (v, i, a) => a.indexOf(v) === i
-      );
-    }
+    const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
+      "unaryExpressionNotPlusMinus",
+      []
+    );
+    const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
+      x => x.nextTokenType
+    );
+    // uniq
+    const firstForUnaryExpressionNotPlusMinus = nextTokTypes.filter(
+      (v, i, a) => a.indexOf(v) === i
+    );
+
     $.CONSUME(t.LBrace);
     $.SUBRULE($.referenceType);
     $.MANY(() => {
@@ -665,10 +661,11 @@ function defineRules($, t) {
     }
 
     // in the middle of a "classReferenceType"
-    $.OPTION2(() => {
+    try {
       $.CONSUME(t.Dot);
       $.SUBRULE($.classOrInterfaceType);
-    });
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
 
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
     return tokenMatcher(firstTokTypeAfterRefType, t.ColonColon);
