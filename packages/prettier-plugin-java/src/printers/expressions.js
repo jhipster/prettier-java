@@ -170,7 +170,7 @@ class ExpressionsPrettierVisitor {
       for (let i = 0; i < subgroup.length; i++) {
         const token = subgroup[i];
         const shiftOperator = isShiftOperator(subgroup, i);
-        if (token.tokenType.tokenName === "Instanceof") {
+        if (token.tokenType.name === "Instanceof") {
           currentSegment.push(
             rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
           );

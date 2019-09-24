@@ -25,7 +25,7 @@ function getImageWithComments(token) {
       if (element.startLine !== token.startLine) {
         arr.push(concat(formatComment(element)));
         arr.push(hardLineWithoutBreakParent);
-      } else if (element.tokenType.tokenName === "LineComment") {
+      } else if (element.tokenType.name === "LineComment") {
         // Do not add extra space in case of empty statement
         const separator = token.image === "" ? "" : " ";
         arr.push(
