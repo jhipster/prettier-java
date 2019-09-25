@@ -203,9 +203,18 @@ class ExpressionsPrettierVisitor {
           );
           i += 2;
         } else if (matchCategory(token, "'BinaryOperator'")) {
-          currentSegment.push(
-            indent(rejectAndJoin(line, [token, unaryExpression.shift()]))
-          );
+          const binaryOperation = rejectAndJoin(line, [
+            token,
+            unaryExpression.shift()
+          ]);
+          if (
+            params !== undefined &&
+            !params.shouldIndentBinaryOperationInExpression
+          ) {
+            currentSegment.push(binaryOperation);
+          } else {
+            currentSegment.push(indent(binaryOperation));
+          }
         }
       }
       segmentsSplittedByBinaryOperator.push(
@@ -416,8 +425,10 @@ class ExpressionsPrettierVisitor {
   }
 
   parenthesisExpression(ctx) {
-    const expression = this.visit(ctx.expression);
-    return rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]);
+    const expression = this.visit(ctx.expression, {
+      shouldIndentBinaryOperationInExpression: false
+    });
+    return putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
   castExpression(ctx) {
