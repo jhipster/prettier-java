@@ -1,5 +1,5 @@
 "use strict";
-const { tokenMatcher, EOF } = require("chevrotain");
+const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
@@ -220,27 +220,29 @@ function defineRules($, t) {
       return false;
     });
 
-    let continueLoop1 = true;
-    while (continueLoop1) {
-      if (
-        tokenMatcher($.LA(1).tokenType, t.Semicolon) ||
-        tokenMatcher($.LA(1).tokenType, t.Import)
-      ) {
+    try {
+      // the "{importDeclaration}" is a common prefix
+      $.MANY(() => {
         $.SUBRULE2($.importDeclaration);
-      } else {
-        continueLoop1 = false;
-      }
-    }
+      });
 
-    let continueLoop2 = true;
-    while (continueLoop2) {
-      if (
-        tokenMatcher($.LA(1).tokenType, t.At) &&
-        !tokenMatcher($.LA(2).tokenType, t.Interface)
-      ) {
-        $.SUBRULE($.annotation);
+      $.MANY2({
+        // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
+        GATE: () =>
+          (tokenMatcher($.LA(1).tokenType, t.At) &&
+            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
+        DEF: () => {
+          $.SUBRULE($.annotation);
+        }
+      });
+    } catch (e) {
+      // This means we had a syntax error in the imports or annotations
+      // So we can't keep parsing deep enough to make the decision
+      if (isRecognitionException(e)) {
+        // TODO: add original syntax error?
+        throw "Cannot Identify if the source code is an OrdinaryCompilationUnit or  ModularCompilationUnit";
       } else {
-        continueLoop2 = false;
+        throw e;
       }
     }
 
