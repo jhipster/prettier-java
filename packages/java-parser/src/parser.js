@@ -172,23 +172,25 @@ class JavaParser extends Parser {
   }
 
   BACKTRACK_LOOKAHEAD(production, errValue = false) {
-    this.isBackTrackingStack.push(1);
-    // TODO: "saveRecogState" does not handle the occurrence stack
-    const orgState = this.saveRecogState();
-    try {
-      // hack to enable outputting none CST values from grammar rules.
-      this.outputCst = false;
-      return production.call(this);
-    } catch (e) {
-      if (isRecognitionException(e)) {
-        return errValue;
+    return this.ACTION(() => {
+      this.isBackTrackingStack.push(1);
+      // TODO: "saveRecogState" does not handle the occurrence stack
+      const orgState = this.saveRecogState();
+      try {
+        // hack to enable outputting none CST values from grammar rules.
+        this.outputCst = false;
+        return production.call(this);
+      } catch (e) {
+        if (isRecognitionException(e)) {
+          return errValue;
+        }
+        throw e;
+      } finally {
+        this.outputCst = true;
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
       }
-      throw e;
-    } finally {
-      this.outputCst = true;
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
-    }
+    });
   }
 
   setIgnoredComments(comments) {

@@ -203,14 +203,10 @@ function defineRules($, t) {
   });
 
   $.RULE("primaryPrefix", () => {
-    const isCastExpression = $.ACTION(() => {
-      let isCastExpression = false;
-      if (tokenMatcher($.LA(1).tokenType, t.LBrace)) {
-        isCastExpression = this.BACKTRACK_LOOKAHEAD($.isCastExpression);
-      }
-
-      return isCastExpression;
-    });
+    let isCastExpression = false;
+    if (tokenMatcher($.LA(1).tokenType, t.LBrace)) {
+      isCastExpression = this.BACKTRACK_LOOKAHEAD($.isCastExpression);
+    }
 
     $.OR([
       { ALT: () => $.SUBRULE($.literal) },
@@ -309,18 +305,14 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Super) }
     ]);
 
-    const isRefTypeInMethodRef = $.ACTION(() => {
-      let isRefTypeInMethodRef = false;
-      // Performance optimization, only perform this backtracking when a '<' is found
-      // TODO: performance optimization evaluation: avoid doing this backtracking for every "<" encountered.
-      //       we could do it once (using global state) per "fqnOrRefType"
-      // We could do it only once for
-      if (tokenMatcher($.LA(1).tokenType, t.Less)) {
-        isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD($.isRefTypeInMethodRef);
-      }
-
-      return isRefTypeInMethodRef;
-    });
+    let isRefTypeInMethodRef = false;
+    // Performance optimization, only perform this backtracking when a '<' is found
+    // TODO: performance optimization evaluation: avoid doing this backtracking for every "<" encountered.
+    //       we could do it once (using global state) per "fqnOrRefType"
+    // We could do it only once for
+    if (tokenMatcher($.LA(1).tokenType, t.Less)) {
+      isRefTypeInMethodRef = this.BACKTRACK_LOOKAHEAD($.isRefTypeInMethodRef);
+    }
 
     $.OPTION2({
       NAME: "$classTypeArguments",
@@ -381,9 +373,7 @@ function defineRules($, t) {
     unqualifiedClassInstanceCreationExpression: 2
   };
   $.RULE("newExpression", () => {
-    const type = $.ACTION(() =>
-      this.BACKTRACK_LOOKAHEAD($.identifyNewExpressionType)
-    );
+    const type = this.BACKTRACK_LOOKAHEAD($.identifyNewExpressionType);
 
     $.OR([
       {

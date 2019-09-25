@@ -5,9 +5,8 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
-    const isModule = $.ACTION(() =>
-      $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit)
-    );
+    const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
+
     $.OR([
       {
         GATE: () => isModule === false,
@@ -99,9 +98,8 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
   $.RULE("typeDeclaration", () => {
     // TODO: consider extracting the prefix modifiers here to avoid backtracking
-    const isClassDeclaration = $.ACTION(() =>
-      this.BACKTRACK_LOOKAHEAD($.isClassDeclaration)
-    );
+    const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
+
     $.OR([
       {
         GATE: () => isClassDeclaration,

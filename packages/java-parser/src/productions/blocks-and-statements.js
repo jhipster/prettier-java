@@ -25,9 +25,10 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BlockStatement
   $.RULE("blockStatement", () => {
-    const isLocalVariableDeclaration = $.ACTION(() =>
-      this.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration)
+    const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(
+      $.isLocalVariableDeclaration
     );
+
     $.OR([
       {
         GATE: () => isLocalVariableDeclaration,
