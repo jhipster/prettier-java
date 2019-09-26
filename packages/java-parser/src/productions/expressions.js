@@ -633,6 +633,7 @@ function defineRules($, t) {
   });
 
   $.RULE("isRefTypeInMethodRef", () => {
+    let result = undefined;
     $.SUBRULE($.typeArguments);
 
     // arrayType
@@ -642,20 +643,23 @@ function defineRules($, t) {
 
     const firstTokTypeAfterTypeArgs = this.LA(1).tokenType;
     if (tokenMatcher(firstTokTypeAfterTypeArgs, t.ColonColon)) {
-      return true;
+      result = true;
     }
     // we must be at the end of a "referenceType" if "dims" were encountered
     // So there is not point to check farther
     else if (hasDims) {
-      return false;
+      result = false;
     }
 
     // in the middle of a "classReferenceType"
-    try {
+    $.OPTION2(() => {
       $.CONSUME(t.Dot);
       $.SUBRULE($.classOrInterfaceType);
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
+    });
+
+    if (result !== undefined) {
+      return result;
+    }
 
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
     return tokenMatcher(firstTokTypeAfterRefType, t.ColonColon);

@@ -1,6 +1,6 @@
 "use strict";
 
-const { tokenMatcher } = require("chevrotain");
+const { isRecognitionException, tokenMatcher } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-ClassDeclaration
@@ -653,29 +653,40 @@ function defineRules($, t) {
   });
 
   $.RULE("isClassDeclaration", () => {
+    let isEmptyTypeDeclaration = false;
+
     if (
       $.OPTION(() => {
         $.CONSUME(t.Semicolon);
       })
     ) {
       // an empty "TypeDeclaration"
-      return false;
+      isEmptyTypeDeclaration = true;
     }
 
-    let continueLoop = true;
-    while (continueLoop) {
-      if (
-        (tokenMatcher($.LA(1).tokenType, t.At) &&
-          tokenMatcher($.LA(2).tokenType, t.Interface)) === false
-      ) {
-        try {
+    try {
+      // The {classModifier} is a super grammar of the "interfaceModifier"
+      // So we must parse all the "{classModifier}" before we can distinguish
+      // between the alternatives.
+      $.MANY({
+        GATE: () =>
+          (tokenMatcher($.LA(1).tokenType, t.At) &&
+            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
+        DEF: () => {
           $.SUBRULE($.classModifier);
-        } catch (e) {
-          continueLoop = false;
         }
+      });
+    } catch (e) {
+      if (isRecognitionException(e)) {
+        // TODO: add original syntax error?
+        throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
       } else {
-        continueLoop = false;
+        throw e;
       }
+    }
+
+    if (isEmptyTypeDeclaration) {
+      return false;
     }
 
     const nextTokenType = this.LA(1).tokenType;
