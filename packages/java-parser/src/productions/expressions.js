@@ -92,10 +92,13 @@ function defineRules($, t) {
   });
 
   $.RULE("lambdaParameterType", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.unannType) },
-      { ALT: () => $.CONSUME(t.Var) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.unannType) },
+        { ALT: () => $.CONSUME(t.Var) }
+      ],
+      IGNORE_AMBIGUITIES: true
+    });
   });
 
   $.RULE("lambdaBody", () => {
@@ -166,6 +169,8 @@ function defineRules($, t) {
           }
         },
         {
+          // Remove ambiguity with first OR option
+          GATE: () => !tokenMatcher($.LA(1).tokenType, t.Instanceof),
           ALT: () => {
             $.CONSUME(t.BinaryOperator);
             $.SUBRULE3($.unaryExpression);

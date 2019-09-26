@@ -241,17 +241,22 @@ function defineRules($, t) {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
     $.OPTION(() => {
       $.CONSUME(t.LBrace);
-      $.OR([
-        // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
-        { ALT: () => $.SUBRULE($.elementValuePairList) },
-        // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
-        { ALT: () => $.SUBRULE($.elementValue) },
-        {
-          ALT: () => {
-            /* empty normal annotation contents */
+      $.OR({
+        DEF: [
+          // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+          { ALT: () => $.SUBRULE($.elementValuePairList) },
+          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+          {
+            ALT: () => $.SUBRULE($.elementValue)
+          },
+          {
+            ALT: () => {
+              /* empty normal annotation contents */
+            }
           }
-        }
-      ]);
+        ],
+        IGNORE_AMBIGUITIES: true
+      });
       $.CONSUME(t.RBrace);
     });
   });
