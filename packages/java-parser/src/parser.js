@@ -68,7 +68,11 @@ class JavaParser extends Parser {
     blocksStatements.defineRules.call(this, $, t);
     expressions.defineRules.call(this, $, t);
 
+    this.firstForUnaryExpressionNotPlusMinus = [];
     this.performSelfAnalysis();
+    this.firstForUnaryExpressionNotPlusMinus = expressions.computeFirstForUnaryExpressionNotPlusMinus.call(
+      this
+    );
   }
 
   // hack to turn off CST building side effects during backtracking

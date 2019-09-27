@@ -612,18 +612,6 @@ function defineRules($, t) {
   });
 
   $.RULE("isReferenceTypeCastExpression", () => {
-    const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
-      "unaryExpressionNotPlusMinus",
-      []
-    );
-    const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
-      x => x.nextTokenType
-    );
-    // uniq
-    const firstForUnaryExpressionNotPlusMinus = nextTokTypes.filter(
-      (v, i, a) => a.indexOf(v) === i
-    );
-
     $.CONSUME(t.LBrace);
     $.SUBRULE($.referenceType);
     $.MANY(() => {
@@ -633,7 +621,7 @@ function defineRules($, t) {
     const firstTokTypeAfterRBrace = this.LA(1).tokenType;
 
     return (
-      firstForUnaryExpressionNotPlusMinus.find(tokType =>
+      this.firstForUnaryExpressionNotPlusMinus.find(tokType =>
         tokenMatcher(firstTokTypeAfterRBrace, tokType)
       ) !== undefined
     );
@@ -673,6 +661,19 @@ function defineRules($, t) {
   });
 }
 
+function computeFirstForUnaryExpressionNotPlusMinus() {
+  const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
+    "unaryExpressionNotPlusMinus",
+    []
+  );
+  const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
+    x => x.nextTokenType
+  );
+  // uniq
+  return nextTokTypes.filter((v, i, a) => a.indexOf(v) === i);
+}
+
 module.exports = {
-  defineRules
+  defineRules,
+  computeFirstForUnaryExpressionNotPlusMinus
 };
