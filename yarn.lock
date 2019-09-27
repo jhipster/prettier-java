@@ -1517,10 +1517,10 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-chevrotain@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-4.7.0.tgz#1a1acab4275cee8b1e208e6a10b1622c5b92b02e"
-  integrity sha512-FmXTi1hMN/6TT9NlrYP1kHHW6P7qpVzQD2vGrbsfI7wbFXXg2ANpIaN3pHPnVx/ZPHOnConE0TmyP6rguyzkZQ==
+chevrotain@6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-6.5.0.tgz#dcbef415516b0af80fd423cc0d96b28d3f11374e"
+  integrity sha512-BwqQ/AgmKJ8jcMEjaSnfMybnKMgGTrtDKowfTP3pX4jwVy0kNjRsT/AP6h+wC3+3NC+X8X15VWBnTCQlX+wQFg==
   dependencies:
     regexp-to-ast "0.4.0"
 

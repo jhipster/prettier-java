@@ -71,6 +71,7 @@ function defineRules($, t) {
     const detectedType = this.BACKTRACK_LOOKAHEAD(
       $.identifyInterfaceBodyDeclarationType
     );
+
     $.OR([
       {
         GATE: () => detectedType === InterfaceBodyTypes.constantDeclaration,
@@ -170,6 +171,7 @@ function defineRules($, t) {
     const detectedType = this.BACKTRACK_LOOKAHEAD(
       $.identifyAnnotationBodyDeclarationType
     );
+
     $.OR([
       {
         GATE: () =>
@@ -239,17 +241,22 @@ function defineRules($, t) {
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
     $.OPTION(() => {
       $.CONSUME(t.LBrace);
-      $.OR([
-        // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
-        { ALT: () => $.SUBRULE($.elementValuePairList) },
-        // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
-        { ALT: () => $.SUBRULE($.elementValue) },
-        {
-          ALT: () => {
-            /* empty normal annotation contents */
+      $.OR({
+        DEF: [
+          // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+          { ALT: () => $.SUBRULE($.elementValuePairList) },
+          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+          {
+            ALT: () => $.SUBRULE($.elementValue)
+          },
+          {
+            ALT: () => {
+              /* empty normal annotation contents */
+            }
           }
-        }
-      ]);
+        ],
+        IGNORE_AMBIGUITIES: true
+      });
       $.CONSUME(t.RBrace);
     });
   });
@@ -274,6 +281,7 @@ function defineRules($, t) {
     const isSimpleElementValueAnnotation = this.BACKTRACK_LOOKAHEAD(
       $.isSimpleElementValueAnnotation
     );
+
     $.OR([
       // Spec Deviation: "conditionalExpression" replaced with "expression"
       // Because we cannot differentiate between the two using fixed lookahead.

@@ -653,13 +653,15 @@ function defineRules($, t) {
   });
 
   $.RULE("isClassDeclaration", () => {
+    let isEmptyTypeDeclaration = false;
+
     if (
       $.OPTION(() => {
         $.CONSUME(t.Semicolon);
       })
     ) {
       // an empty "TypeDeclaration"
-      return false;
+      isEmptyTypeDeclaration = true;
     }
 
     try {
@@ -681,6 +683,10 @@ function defineRules($, t) {
       } else {
         throw e;
       }
+    }
+
+    if (isEmptyTypeDeclaration) {
+      return false;
     }
 
     const nextTokenType = this.LA(1).tokenType;

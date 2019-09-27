@@ -6,6 +6,7 @@ function defineRules($, t) {
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
     const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
+
     $.OR([
       {
         GATE: () => isModule === false,
@@ -98,6 +99,7 @@ function defineRules($, t) {
   $.RULE("typeDeclaration", () => {
     // TODO: consider extracting the prefix modifiers here to avoid backtracking
     const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
+
     $.OR([
       {
         GATE: () => isClassDeclaration,
@@ -243,6 +245,7 @@ function defineRules($, t) {
         throw e;
       }
     }
+
     const nextTokenType = this.LA(1).tokenType;
     return (
       tokenMatcher(nextTokenType, t.Open) ||

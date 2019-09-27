@@ -6,7 +6,7 @@
   "repository": "https://github.com/jhipster/prettier-java/tree/master/packages/java-parser",
   "license": "Apache-2.0",
   "dependencies": {
-    "chevrotain": "4.7.0",
+    "chevrotain": "6.5.0",
     "lodash": "4.17.15"
   },
   "scripts": {
