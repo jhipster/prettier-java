@@ -122,61 +122,63 @@ function defineRules($, t) {
   $.RULE("binaryExpression", () => {
     $.SUBRULE($.unaryExpression);
     $.MANY(() => {
-      $.OR([
-        {
-          ALT: () => {
-            $.CONSUME(t.Instanceof);
-            $.SUBRULE($.referenceType);
-          }
-        },
-        {
-          ALT: () => {
-            $.CONSUME(t.AssignmentOperator);
-            $.SUBRULE2($.expression);
-          }
-        },
-        // This is an example of why Java does not have a well designed grammar
-        // See: https://manas.tech/blog/2008/10/12/why-java-generics-dont-have-problems-with-right-shift-operator.html
-        // TODO: ensure the LT/GT sequences have no whitespace between each other.
-        {
-          // TODO: this is a bug in Chevrotain lookahead calculation. the "BinaryOperator" token can match "Less" or "Greater"
-          //   as well, but because it is a **token Category** Chevrotain does not understand it need to looks two tokens ahead.
-          GATE: () =>
-            tokenMatcher($.LA(2).tokenType, t.Less) ||
-            tokenMatcher($.LA(2).tokenType, t.Greater),
-          ALT: () => {
-            $.OR2([
-              {
-                GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
-                ALT: () => {
-                  $.CONSUME(t.Less);
-                  $.CONSUME2(t.Less);
+      $.OR({
+        DEF: [
+          {
+            ALT: () => {
+              $.CONSUME(t.Instanceof);
+              $.SUBRULE($.referenceType);
+            }
+          },
+          {
+            ALT: () => {
+              $.CONSUME(t.AssignmentOperator);
+              $.SUBRULE2($.expression);
+            }
+          },
+          // This is an example of why Java does not have a well designed grammar
+          // See: https://manas.tech/blog/2008/10/12/why-java-generics-dont-have-problems-with-right-shift-operator.html
+          // TODO: ensure the LT/GT sequences have no whitespace between each other.
+          {
+            // TODO: this is a bug in Chevrotain lookahead calculation. the "BinaryOperator" token can match "Less" or "Greater"
+            //   as well, but because it is a **token Category** Chevrotain does not understand it need to looks two tokens ahead.
+            GATE: () =>
+              tokenMatcher($.LA(2).tokenType, t.Less) ||
+              tokenMatcher($.LA(2).tokenType, t.Greater),
+            ALT: () => {
+              $.OR2([
+                {
+                  GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+                  ALT: () => {
+                    $.CONSUME(t.Less);
+                    $.CONSUME2(t.Less);
+                  }
+                },
+                {
+                  GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+                  ALT: () => {
+                    $.CONSUME(t.Greater);
+                    $.CONSUME2(t.Greater);
+                    $.OPTION({
+                      GATE: () =>
+                        $.LA(0).startOffset + 1 === $.LA(1).startOffset,
+                      DEF: () => $.CONSUME3(t.Greater)
+                    });
+                  }
                 }
-              },
-              {
-                GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
-                ALT: () => {
-                  $.CONSUME(t.Greater);
-                  $.CONSUME2(t.Greater);
-                  $.OPTION({
-                    GATE: () => $.LA(0).startOffset + 1 === $.LA(1).startOffset,
-                    DEF: () => $.CONSUME3(t.Greater)
-                  });
-                }
-              }
-            ]);
-            $.SUBRULE2($.unaryExpression);
+              ]);
+              $.SUBRULE2($.unaryExpression);
+            }
+          },
+          {
+            ALT: () => {
+              $.CONSUME(t.BinaryOperator);
+              $.SUBRULE3($.unaryExpression);
+            }
           }
-        },
-        {
-          // Remove ambiguity with first OR option
-          GATE: () => !tokenMatcher($.LA(1).tokenType, t.Instanceof),
-          ALT: () => {
-            $.CONSUME(t.BinaryOperator);
-            $.SUBRULE3($.unaryExpression);
-          }
-        }
-      ]);
+        ],
+        IGNORE_AMBIGUITIES: true // the ambiguity between 1 and 4 options is resolved by the order (instanceOf is first)
+      });
     });
   });
 
