@@ -75,11 +75,9 @@ class JavaParser extends Parser {
     );
   }
 
-  // hack to turn off CST building side effects during backtracking
-  // TODO: should be patched in Chevrotain
   cstPostNonTerminal(ruleCstResult, ruleName) {
+    super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
-      super.cstPostNonTerminal(ruleCstResult, ruleName);
       shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
     }
   }
