@@ -545,18 +545,13 @@ function sortImports(imports) {
     }
 
     // TODO: Could be optimized as we could expect that the array is already almost sorted
-    staticImports.sort((first, second) =>
+    const comparator = (first, second) =>
       compareFqn(
         first.children.packageOrTypeName[0],
         second.children.packageOrTypeName[0]
-      )
-    );
-    nonStaticImports.sort((first, second) =>
-      compareFqn(
-        first.children.packageOrTypeName[0],
-        second.children.packageOrTypeName[0]
-      )
-    );
+      );
+    staticImports.sort(comparator);
+    nonStaticImports.sort(comparator);
   }
 
   return {
