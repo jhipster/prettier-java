@@ -4,11 +4,7 @@ const prettier = require("prettier").doc.builders;
 const hardLineWithoutBreakParent = { type: "line", hard: true };
 
 function getImageWithComments(token) {
-  return concat([
-    getLeadingComments(token),
-    token.image,
-    getTrailingComments(token)
-  ]);
+  return token.image;
 }
 
 function getLeadingComments(token) {
@@ -168,5 +164,6 @@ module.exports = {
   getImageWithComments,
   getLeadingComments,
   getTrailingComments,
-  hardLineWithoutBreakParent
+  hardLineWithoutBreakParent,
+  formatComment
 };

@@ -23,6 +23,8 @@ const {
   getCSTNodeStartEndToken
 } = require("./printers/printer-utils");
 
+const { processComments } = require("./comments");
+
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
     super();
@@ -91,7 +93,8 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         }
       }
 
-      return orgVisit.call(this, ctx, inParam);
+      // return orgVisit.call(this, ctx, inParam);
+      return processComments(ctx, orgVisit.call(this, ctx, inParam));
     };
   }
 }
