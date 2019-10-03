@@ -10,7 +10,6 @@ const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
-const { shouldIgnore } = require("./comments");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -45,8 +44,9 @@ class JavaParser extends Parser {
     });
 
     const $ = this;
-    this.ignoreNodes = {};
-    this.ignoreComments = [];
+
+    this.leadingComments = {};
+    this.trailingComments = {};
 
     // ---------------------
     // Productions from §3 (Lexical Structure)
@@ -79,6 +79,9 @@ class JavaParser extends Parser {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
       shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
+
+      this.leadingComments[ruleCstResult.location.startOffset] = ruleCstResult;
+      this.trailingComments[ruleCstResult.location.endOffset] = ruleCstResult;
     }
   }
 
@@ -102,11 +105,6 @@ class JavaParser extends Parser {
         this.isBackTrackingStack.pop();
       }
     });
-  }
-
-  setIgnoredComments(comments) {
-    this.ignoredNodes = {};
-    this.ignoredComments = [...comments];
   }
 }
 

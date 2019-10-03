@@ -1,11 +1,7 @@
 "use strict";
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
-const {
-  attachComments,
-  ignoredComments,
-  attachIgnoreNodes
-} = require("./comments");
+const { attachComments } = require("./comments");
 
 const parser = new JavaParser();
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
@@ -29,13 +25,6 @@ function parse(inputText, entryPoint = "compilationUnit") {
 
   parser.input = lexResult.tokens;
 
-  // prettier-ignore support
-  const ignoreComments = ignoredComments(
-    lexResult.tokens,
-    lexResult.groups.comments
-  );
-  parser.setIgnoredComments(ignoreComments);
-
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
 
@@ -53,19 +42,9 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  // only comments code support
-  // https://github.com/jhipster/prettier-java/pull/217
-  if (lexResult.tokens.length === 0) {
-    const EOF = Object.assign({}, cst.children.EOF[0]);
-    EOF.startOffset = Number.MAX_SAFE_INTEGER;
-    EOF.endOffset = Number.MAX_SAFE_INTEGER;
-    cst.children.EOF = [EOF];
-    attachComments(cst.children.EOF, lexResult.groups.comments);
-  } else {
-    attachComments(lexResult.tokens, lexResult.groups.comments);
-  }
+  // TODO: only comments code support
 
-  attachIgnoreNodes(ignoreComments, parser.ignoredNodes);
+  attachComments(lexResult.tokens, lexResult.groups.comments, parser);
 
   return cst;
 }
