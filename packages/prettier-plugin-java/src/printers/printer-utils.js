@@ -528,10 +528,8 @@ function getCSTNodeStartEndToken(ctx) {
 
 function isStatementEmptyStatement(statement) {
   return (
-    statement.type === "concat" &&
-    statement.parts[0].type === "concat" &&
-    statement.parts[0].parts[0].type === "concat" &&
-    statement.parts[0].parts[0].parts[0] === ";"
+    statement === ";" ||
+    (statement.type === "concat" && statement.parts[0] === ";")
   );
 }
 

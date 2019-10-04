@@ -16,7 +16,8 @@ const {
   getInterfaceBodyDeclarationsSeparator,
   putIntoBraces,
   putIntoCurlyBraces,
-  displaySemicolon
+  displaySemicolon,
+  isStatementEmptyStatement
 } = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
@@ -142,14 +143,7 @@ class InterfacesPrettierVisitor {
 
     const methodHeader = this.visit(ctx.methodHeader);
     const methodBody = this.visit(ctx.methodBody);
-    const separator =
-      methodBody !== undefined &&
-      methodBody.type === "concat" &&
-      methodBody.parts.length === 1 &&
-      methodBody.parts[0].type === "concat" &&
-      methodBody.parts[0].parts[0] === ";"
-        ? ""
-        : " ";
+    const separator = isStatementEmptyStatement(methodBody) ? "" : " ";
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, firstAnnotations),

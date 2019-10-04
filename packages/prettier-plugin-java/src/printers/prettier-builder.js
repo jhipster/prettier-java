@@ -5,7 +5,9 @@ function getImageWithComments(token) {
   const leadingComments = getLeadingComments(token);
   const trailingComments = getTrailingComments(token);
 
-  return concat([leadingComments, token.image, trailingComments]);
+  return leadingComments === "" && trailingComments === ""
+    ? token.image
+    : concat([leadingComments, token.image, trailingComments]);
 }
 
 function getLeadingComments(token) {
