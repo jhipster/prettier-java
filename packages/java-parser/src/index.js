@@ -24,6 +24,8 @@ function parse(inputText, entryPoint = "compilationUnit") {
   }
 
   parser.input = lexResult.tokens;
+  parser.leadingComments = {};
+  parser.trailingComments = {};
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
