@@ -478,54 +478,6 @@ function retrieveNodesTokenRec(ctx) {
   return tokens;
 }
 
-function buildOriginalText(firstToken, lastToken, originalText) {
-  let startOffset = firstToken.startOffset;
-  let endOffset = lastToken.endOffset;
-  if (firstToken.leadingComments) {
-    startOffset = firstToken.leadingComments[0].startOffset;
-  }
-  if (lastToken.trailingComments) {
-    endOffset =
-      lastToken.trailingComments[lastToken.trailingComments.length - 1]
-        .endOffset;
-  }
-  return originalText.substring(startOffset, endOffset + 1);
-}
-
-function getCSTNodeStartEndToken(ctx) {
-  const tokens = [];
-  if (
-    ctx &&
-    Object.prototype.hasOwnProperty.call(ctx, "image") &&
-    ctx.tokenType
-  ) {
-    return [ctx, ctx];
-  }
-  Object.keys(ctx.children).forEach(child => {
-    ctx.children[child].forEach(subctx => {
-      const subStartEndToken = getCSTNodeStartEndToken(subctx);
-      if (subStartEndToken) {
-        tokens.push(subStartEndToken);
-      }
-    });
-  });
-  if (tokens.length === 0) {
-    return;
-  }
-  const startEndTokens = tokens.reduce((tokenArr1, tokenArr2) => {
-    const ftoken =
-      tokenArr1[0].startOffset - tokenArr2[0].startOffset < 0
-        ? tokenArr1[0]
-        : tokenArr2[0];
-    const ltoken =
-      tokenArr2[1].startOffset - tokenArr1[1].startOffset < 0
-        ? tokenArr1[1]
-        : tokenArr2[1];
-    return [ftoken, ltoken];
-  });
-  return startEndTokens;
-}
-
 function isStatementEmptyStatement(statement) {
   return (
     statement === ";" ||
@@ -627,8 +579,6 @@ module.exports = {
   separateTokensIntoGroups,
   isShiftOperator,
   retrieveNodesToken,
-  buildOriginalText,
-  getCSTNodeStartEndToken,
   isStatementEmptyStatement,
   sortImports,
   isUniqueMethodInvocation

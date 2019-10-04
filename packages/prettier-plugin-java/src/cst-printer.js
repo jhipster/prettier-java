@@ -18,11 +18,6 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
-const {
-  buildOriginalText,
-  getCSTNodeStartEndToken
-} = require("./printers/printer-utils");
-
 const { processComments } = require("./comments");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
@@ -79,12 +74,16 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
 
       if (ctx.ignore) {
         try {
-          const startEndTokens = getCSTNodeStartEndToken(ctx);
-          return buildOriginalText(
-            startEndTokens[0],
-            startEndTokens[1],
-            this.originalText
-          );
+          const startOffset =
+            ctx.leadingComments !== undefined
+              ? ctx.leadingComments[0].startOffset
+              : ctx.location.startOffset;
+          const endOffset =
+            ctx.trailingComments !== undefined
+              ? ctx.trailingComments[ctx.trailingComments.length - 1].endOffset
+              : ctx.location.endOffset;
+
+          return this.originalText.substring(startOffset, endOffset + 1);
         } catch (e) {
           throw Error(
             e +
