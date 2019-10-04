@@ -44,8 +44,6 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  // TODO: only comments code support
-
   attachComments(lexResult.tokens, lexResult.groups.comments, parser);
 
   return cst;
