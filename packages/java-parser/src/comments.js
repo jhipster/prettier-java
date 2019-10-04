@@ -28,6 +28,12 @@ function findUpperBoundToken(tokens, comment) {
   return i;
 }
 
+function isPrettierIgnoreComment(comment) {
+  return comment.image.match(
+    /(\/\/(\s*)prettier-ignore(\s*))|(\/\*(\s*)prettier-ignore(\s*)\*\/)/gm
+  );
+}
+
 function pretraitement(tokens, comments) {
   const commentsEndOffset = {};
   const commentsStartOffset = {};
@@ -41,6 +47,9 @@ function pretraitement(tokens, comments) {
       position == tokens.length
         ? comment.endOffset
         : tokens[position].startOffset;
+    comment.extendedOffset = {
+      endOffset
+    };
 
     if (commentsEndOffset[endOffset] === undefined) {
       commentsEndOffset[endOffset] = [comment];
@@ -58,6 +67,30 @@ function pretraitement(tokens, comments) {
   return { commentsEndOffset, commentsStartOffset };
 }
 
+function shouldAttachTrailingComments(comment, node, parser) {
+  if (isPrettierIgnoreComment(comment)) {
+    return false;
+  }
+
+  const nextNode = parser.leadingComments[comment.extendedOffset.endOffset];
+  if (nextNode === undefined) {
+    return true;
+  }
+
+  if (comment.startLine !== node.location.endLine) {
+    return false;
+  }
+
+  if (
+    nextNode !== undefined &&
+    comment.endLine === nextNode.location.startLine
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function attachComments(tokens, comments, parser) {
   // Edge case: only comments
   if (tokens.length === 0) {
@@ -71,37 +104,18 @@ function attachComments(tokens, comments, parser) {
   );
   const commentsToAttach = new Set(comments);
 
-  Object.keys(parser.leadingComments).forEach(startOffset => {
-    if (commentsEndOffset[startOffset] !== undefined) {
-      parser.leadingComments[startOffset].leadingComments =
-        commentsEndOffset[startOffset];
-
-      // prettier ignore support
-      let ignoreNode = false;
-      for (let i = 0; i < commentsEndOffset[startOffset].length; i++) {
-        if (
-          commentsEndOffset[startOffset][i].image.match(
-            /(\/\/(\s*)prettier-ignore(\s*))|(\/\*(\s*)prettier-ignore(\s*)\*\/)/gm
-          )
-        ) {
-          ignoreNode = true;
-        }
-      }
-
-      if (ignoreNode) {
-        parser.leadingComments[startOffset].ignore = true;
-      }
-
-      commentsEndOffset[startOffset].forEach(comment => {
-        commentsToAttach.delete(comment);
-      });
-    }
-  });
-
   Object.keys(parser.trailingComments).forEach(endOffset => {
     if (commentsStartOffset[endOffset] !== undefined) {
       const nodeTrailingComments = commentsStartOffset[endOffset].filter(
-        comment => commentsToAttach.has(comment)
+        comment => {
+          return (
+            shouldAttachTrailingComments(
+              comment,
+              parser.trailingComments[endOffset],
+              parser
+            ) && commentsToAttach.has(comment)
+          );
+        }
       );
 
       if (nodeTrailingComments.length > 0) {
@@ -111,6 +125,32 @@ function attachComments(tokens, comments, parser) {
       }
 
       nodeTrailingComments.forEach(comment => {
+        commentsToAttach.delete(comment);
+      });
+    }
+  });
+
+  Object.keys(parser.leadingComments).forEach(startOffset => {
+    if (commentsEndOffset[startOffset] !== undefined) {
+      const nodeLeadingComments = commentsEndOffset[startOffset].filter(
+        comment => commentsToAttach.has(comment)
+      );
+
+      parser.leadingComments[startOffset].leadingComments = nodeLeadingComments;
+
+      // prettier ignore support
+      let ignoreNode = false;
+      for (let i = 0; i < nodeLeadingComments.length; i++) {
+        if (isPrettierIgnoreComment(nodeLeadingComments[i])) {
+          ignoreNode = true;
+        }
+      }
+
+      if (ignoreNode) {
+        parser.leadingComments[startOffset].ignore = true;
+      }
+
+      nodeLeadingComments.forEach(comment => {
         commentsToAttach.delete(comment);
       });
     }

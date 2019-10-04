@@ -53,7 +53,7 @@ public class EmptyStament {
       System.out.println("one");
     }
 
-    if (test); /*test*/else {
+    if (test);/*test*/ else {
       System.out.println("one");
     }
 
@@ -65,7 +65,7 @@ public class EmptyStament {
       System.out.println("two");
     } else;/*test*/
 
-    if (test); /*test*/else;/*test*/
+    if (test);/*test*/ else;/*test*/
 
     if (test) /*test*/; else /*test*/;
   }
@@ -81,6 +81,6 @@ public class EmptyStament {
   public void doWhileWithEmptyStatement(boolean one) {
     do; while (one);
     do /*test*/; while (one);
-    do; /*test*/while (one);
+    do;/*test*/ while (one);
   }
 }

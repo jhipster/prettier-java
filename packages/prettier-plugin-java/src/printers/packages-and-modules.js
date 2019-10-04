@@ -18,7 +18,12 @@ class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
     const compilationUnit =
       ctx.ordinaryCompilationUnit || ctx.modularCompilationUnit;
-    return concat([this.visit(compilationUnit[0]), ctx.EOF[0]]);
+
+    // Do not add additional line if only comments in file
+    const additionalLine = isNaN(compilationUnit[0].location.startOffset)
+      ? ""
+      : line;
+    return concat([this.visit(compilationUnit[0]), additionalLine]);
   }
 
   ordinaryCompilationUnit(ctx) {
@@ -29,7 +34,6 @@ class PackagesAndModulesPrettierVisitor {
     const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
 
     const typesDecl = this.mapVisit(ctx.typeDeclaration);
-
     // TODO: utility to add item+line (or multiple lines) but only if an item exists
     return rejectAndConcat([
       rejectAndJoin(concat([hardline, hardline]), [
