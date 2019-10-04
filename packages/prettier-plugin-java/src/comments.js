@@ -7,6 +7,10 @@ function processComments(ctx, value) {
     return processComentsOnNode(ctx, value);
   }
 
+  if (ctx.length === 1) {
+    return processComentsOnNode(ctx[0], value);
+  }
+
   return concat(
     ctx.map(elt => {
       return processComentsOnNode(elt, value);
@@ -52,7 +56,8 @@ function processComentsOnNode(node, value) {
       arr.pop();
     }
   }
-  return concat(arr);
+
+  return arr.length === 1 ? value : concat(arr);
 }
 
 function formatComment(comment) {

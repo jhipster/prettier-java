@@ -31,6 +31,9 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
+    if (typeof item === "string") {
+      return item !== "";
+    }
     // eslint-ignore next - We want the conversion to boolean!
     return item != false && item !== undefined;
   });
@@ -526,8 +529,9 @@ function getCSTNodeStartEndToken(ctx) {
 function isStatementEmptyStatement(statement) {
   return (
     statement.type === "concat" &&
-    statement.parts[0] === "" &&
-    statement.parts[1] === ";"
+    statement.parts[0].type === "concat" &&
+    statement.parts[0].parts[0].type === "concat" &&
+    statement.parts[0].parts[0].parts[0] === ";"
   );
 }
 

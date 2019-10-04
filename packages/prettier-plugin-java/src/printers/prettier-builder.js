@@ -1,10 +1,11 @@
 "use strict";
 const prettier = require("prettier").doc.builders;
 
-const hardLineWithoutBreakParent = { type: "line", hard: true };
-
 function getImageWithComments(token) {
-  return token.image;
+  const leadingComments = getLeadingComments(token);
+  const trailingComments = getTrailingComments(token);
+
+  return concat([leadingComments, token.image, trailingComments]);
 }
 
 function getLeadingComments(token) {
@@ -14,7 +15,7 @@ function getLeadingComments(token) {
       if (element.startLine !== token.startLine) {
         arr.push(prettier.lineSuffixBoundary);
         arr.push(concat(formatComment(element)));
-        arr.push(hardLineWithoutBreakParent);
+        arr.push(prettier.hardline);
       } else {
         arr.push(concat(formatComment(element)));
       }
@@ -28,12 +29,12 @@ function getTrailingComments(token) {
   const arr = [];
   if (Object.prototype.hasOwnProperty.call(token, "trailingComments")) {
     if (token.trailingComments[0].startLine !== token.startLine) {
-      arr.push(hardLineWithoutBreakParent);
+      arr.push(prettier.hardline);
     }
     token.trailingComments.forEach(element => {
       if (element.startLine !== token.startLine) {
         arr.push(concat(formatComment(element)));
-        arr.push(hardLineWithoutBreakParent);
+        arr.push(prettier.hardline);
       } else if (element.tokenType.name === "LineComment") {
         // Do not add extra space in case of empty statement
         const separator = token.image === "" ? "" : " ";
@@ -86,17 +87,17 @@ function formatJavaDoc(lines) {
 
 function formatComment(comment) {
   const res = [];
-  const lines = comment.image.split("\n");
-
-  if (isJavaDoc(comment, lines)) {
-    return formatJavaDoc(lines);
-  }
-
-  lines.forEach(line => {
-    res.push(line);
-    res.push(prettier.literalline);
+  comment.image.split("\n").forEach(l => {
+    if (l.match(/(\s+)(\*)(.*)/gm) && !l.match(/(\/)(\*)(.*)(\*)(\/)/gm)) {
+      res.push(" " + l.trim());
+    } else {
+      res.push(l);
+    }
+    res.push(prettier.hardline);
   });
-  res.pop();
+  if (res[res.length - 1] === prettier.hardline) {
+    res.pop();
+  }
   return res;
 }
 
@@ -164,6 +165,5 @@ module.exports = {
   getImageWithComments,
   getLeadingComments,
   getTrailingComments,
-  hardLineWithoutBreakParent,
   formatComment
 };

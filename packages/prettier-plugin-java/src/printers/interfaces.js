@@ -145,8 +145,9 @@ class InterfacesPrettierVisitor {
     const separator =
       methodBody !== undefined &&
       methodBody.type === "concat" &&
-      methodBody.parts &&
-      methodBody.parts.includes(";")
+      methodBody.parts.length === 1 &&
+      methodBody.parts[0].type === "concat" &&
+      methodBody.parts[0].parts[0] === ";"
         ? ""
         : " ";
 
