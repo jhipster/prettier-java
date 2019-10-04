@@ -109,6 +109,10 @@ function attachComments(tokens, comments, parser) {
           endOffset
         ].trailingComments = nodeTrailingComments;
       }
+
+      nodeTrailingComments.forEach(comment => {
+        commentsToAttach.delete(comment);
+      });
     }
   });
 
