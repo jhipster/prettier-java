@@ -59,6 +59,12 @@ function pretraitement(tokens, comments) {
 }
 
 function attachComments(tokens, comments, parser) {
+  // Edge case: only comments
+  if (tokens.length === 0) {
+    parser.leadingComments[NaN].leadingComments = comments;
+    return;
+  }
+
   const { commentsStartOffset, commentsEndOffset } = pretraitement(
     tokens,
     comments
@@ -105,6 +111,8 @@ function attachComments(tokens, comments, parser) {
       }
     }
   });
+
+  // console.log(commentsToAttach);
 }
 
 module.exports = {
