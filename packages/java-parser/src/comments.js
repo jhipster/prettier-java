@@ -112,7 +112,39 @@ function attachComments(tokens, comments, parser) {
     }
   });
 
-  // console.log(commentsToAttach);
+  attachRestCommentsToToken(tokens, commentsToAttach);
+}
+
+function attachRestCommentsToToken(tokens, commentsToAttach) {
+  let currentToken = 0;
+  commentsToAttach.forEach(comment => {
+    // find the correct position to place the comment
+    while (
+      !(
+        comment.startOffset > tokens[currentToken].endOffset &&
+        comment.endOffset < tokens[currentToken + 1].startOffset
+      )
+    ) {
+      currentToken++;
+    }
+
+    // attach comment to the next token by default,
+    // it attaches to the current one when the comment and token is on the same line
+    if (
+      comment.startLine === tokens[currentToken].endLine &&
+      comment.startLine !== tokens[currentToken + 1].startLine
+    ) {
+      if (!tokens[currentToken].trailingComments) {
+        tokens[currentToken].trailingComments = [];
+      }
+      tokens[currentToken].trailingComments.push(comment);
+    } else {
+      if (!tokens[currentToken + 1].leadingComments) {
+        tokens[currentToken + 1].leadingComments = [];
+      }
+      tokens[currentToken + 1].leadingComments.push(comment);
+    }
+  });
 }
 
 module.exports = {
