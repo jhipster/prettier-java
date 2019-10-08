@@ -158,7 +158,8 @@ public final class ArrayTable<R, C, V>
      * elements but rowKeySet() will be empty and containsRow() won't
      * acknolwedge them.
      */
-    rowKeyToIndex = Maps.indexMap(rowList);
+    rowKeyToIndex =
+      Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
     @SuppressWarnings(

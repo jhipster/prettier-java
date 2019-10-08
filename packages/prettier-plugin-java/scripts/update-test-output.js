@@ -11,7 +11,10 @@ if (process.argv.indexOf("-single") > -1) {
   samplesDir = path.resolve(__dirname, "./single-printer-run");
 } else if (process.argv.indexOf("-repository") > -1) {
   const testSamples = path.resolve(__dirname, "../test-samples");
-  originalSamplesDir = path.resolve(__dirname, process.argv[3]);
+  originalSamplesDir = path.resolve(
+    __dirname,
+    process.argv[process.argv.indexOf("-repository") + 1]
+  );
   samplesDir = path.resolve(testSamples, path.basename(originalSamplesDir));
   if (fs.existsSync(samplesDir)) {
     fs.removeSync(samplesDir);
@@ -19,6 +22,11 @@ if (process.argv.indexOf("-single") > -1) {
   console.log(`start copy ${originalSamplesDir} to ${samplesDir}`);
   fs.copySync(originalSamplesDir, samplesDir);
   console.log(`end copy ${originalSamplesDir} to ${samplesDir}`);
+}
+
+let numberOfTime = 1;
+if (process.argv.indexOf("-times") > -1) {
+  numberOfTime = process.argv[process.argv.indexOf("-times") + 1];
 }
 
 const sampleFiles = klawSync(samplesDir, { nodir: true });
@@ -38,12 +46,15 @@ javaSampleFiles.forEach(fileDesc => {
 
   try {
     console.log(`Reading <${fileDesc.path}>`);
-    const newExpectedText = prettier.format(javaFileText, {
-      parser: "java",
-      plugins: [path.resolve(__dirname, "../")],
-      tabWidth: 2,
-      endOfLine: "lf"
-    });
+    let newExpectedText = javaFileText;
+    for (let i = 0; i < numberOfTime; i++) {
+      newExpectedText = prettier.format(newExpectedText, {
+        parser: "java",
+        plugins: [path.resolve(__dirname, "../")],
+        tabWidth: 2,
+        endOfLine: "lf"
+      });
+    }
     let outputFilePath = fileDesc.path.replace(/input.java$/, "output.java");
     if (process.argv.indexOf("-repository") > -1) {
       outputFilePath = fileDesc.path;
