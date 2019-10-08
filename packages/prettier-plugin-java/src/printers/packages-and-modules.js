@@ -10,7 +10,8 @@ const {
   rejectAndJoinSeps,
   displaySemicolon,
   putIntoCurlyBraces,
-  getBlankLinesSeparator
+  getBlankLinesSeparator,
+  sortImports
 } = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
@@ -22,17 +23,20 @@ class PackagesAndModulesPrettierVisitor {
 
   ordinaryCompilationUnit(ctx) {
     const packageDecl = this.visit(ctx.packageDeclaration);
-    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
-    // TODO2: should the imports be grouped in some manner?
-    const importsDecl = this.mapVisit(ctx.importDeclaration);
+
+    const sortedImportsDecl = sortImports(ctx.importDeclaration);
+    const nonStaticImports = this.mapVisit(sortedImportsDecl.nonStaticImports);
+    const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
+
     const typesDecl = this.mapVisit(ctx.typeDeclaration);
 
     // TODO: utility to add item+line (or multiple lines) but only if an item exists
     return rejectAndConcat([
-      rejectAndJoin(concat([line, line]), [
+      rejectAndJoin(concat([hardline, hardline]), [
         packageDecl,
-        rejectAndJoin(line, importsDecl),
-        rejectAndJoin(concat([line, line]), typesDecl)
+        rejectAndJoin(hardline, staticImports),
+        rejectAndJoin(hardline, nonStaticImports),
+        rejectAndJoin(concat([hardline, hardline]), typesDecl)
       ]),
       line
     ]);

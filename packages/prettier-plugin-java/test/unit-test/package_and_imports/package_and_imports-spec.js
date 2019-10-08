@@ -1,3 +1,9 @@
+const { testSample } = require("../../test-utils");
+const path = require("path");
+
 describe("prettier-java", () => {
-  require("../../test-utils").testSample(__dirname);
+  testSample(path.resolve(__dirname, "./classWithMixedImports"));
+  testSample(path.resolve(__dirname, "./classWithNoImports"));
+  testSample(path.resolve(__dirname, "./classWithOnlyStaticImports"));
+  testSample(path.resolve(__dirname, "./classWithOnlyNonStaticImports"));
 });

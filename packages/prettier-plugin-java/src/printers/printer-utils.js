@@ -531,6 +531,58 @@ function isStatementEmptyStatement(statement) {
   );
 }
 
+function sortImports(imports) {
+  const staticImports = [];
+  const nonStaticImports = [];
+
+  if (imports !== undefined) {
+    for (let i = 0; i < imports.length; i++) {
+      if (imports[i].children.Static !== undefined) {
+        staticImports.push(imports[i]);
+      } else if (imports[i].children.emptyStatement === undefined) {
+        nonStaticImports.push(imports[i]);
+      }
+    }
+
+    // TODO: Could be optimized as we could expect that the array is already almost sorted
+    const comparator = (first, second) =>
+      compareFqn(
+        first.children.packageOrTypeName[0],
+        second.children.packageOrTypeName[0]
+      );
+    staticImports.sort(comparator);
+    nonStaticImports.sort(comparator);
+  }
+
+  return {
+    staticImports,
+    nonStaticImports
+  };
+}
+
+function compareFqn(packageOrTypeNameFirst, packageOrTypeNameSecond) {
+  const identifiersFirst = packageOrTypeNameFirst.children.Identifier;
+  const identifiersSecond = packageOrTypeNameSecond.children.Identifier;
+
+  const minParts = Math.min(identifiersFirst.length, identifiersSecond.length);
+  for (let i = 0; i < minParts; i++) {
+    const identifierComparison = identifiersFirst[i].image.localeCompare(
+      identifiersSecond[i].image
+    );
+    if (identifierComparison !== 0) {
+      return identifierComparison;
+    }
+  }
+
+  if (identifiersFirst.length < identifiersSecond.length) {
+    return -1;
+  } else if (identifiersFirst.length > identifiersSecond.length) {
+    return 1;
+  }
+
+  return 0;
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -556,5 +608,6 @@ module.exports = {
   retrieveNodesToken,
   buildOriginalText,
   getCSTNodeStartEndToken,
-  isStatementEmptyStatement
+  isStatementEmptyStatement,
+  sortImports
 };
