@@ -43,12 +43,17 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   modularCompilationUnit(ctx) {
-    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
-    // TODO2: should the imports be grouped in some manner?
-    const importsDecl = this.mapVisit(ctx.importDeclaration);
+    const sortedImportsDecl = sortImports(ctx.importDeclaration);
+    const nonStaticImports = this.mapVisit(sortedImportsDecl.nonStaticImports);
+    const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
+
     const moduleDeclaration = this.visit(ctx.moduleDeclaration);
 
-    return join(concat(line, line), [importsDecl, moduleDeclaration]);
+    return rejectAndJoin(concat([hardline, hardline]), [
+      rejectAndJoin(hardline, staticImports),
+      rejectAndJoin(hardline, nonStaticImports),
+      moduleDeclaration
+    ]);
   }
 
   packageDeclaration(ctx) {
