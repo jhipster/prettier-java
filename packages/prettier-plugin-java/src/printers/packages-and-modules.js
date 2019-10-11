@@ -49,10 +49,13 @@ class PackagesAndModulesPrettierVisitor {
 
     const moduleDeclaration = this.visit(ctx.moduleDeclaration);
 
-    return rejectAndJoin(concat([hardline, hardline]), [
-      rejectAndJoin(hardline, staticImports),
-      rejectAndJoin(hardline, nonStaticImports),
-      moduleDeclaration
+    return rejectAndConcat([
+      rejectAndJoin(concat([hardline, hardline]), [
+        rejectAndJoin(hardline, staticImports),
+        rejectAndJoin(hardline, nonStaticImports),
+        moduleDeclaration
+      ]),
+      line
     ]);
   }
 
