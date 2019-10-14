@@ -65,4 +65,36 @@ public class Variables {
     String str = new String();
     Map<String, String> map = new HashMap<>();
   }
+
+  public boolean localVariableDeclarationWhichBreak() {
+    @Nullable
+    final BackupStatus lastStatus = BackupStatus.fromDbValue(
+      backupRepository.getLastStatus()
+    );
+
+    final BackupStatus lastStatus = BackupStatus.fromDbValue(
+      backupRepository.getLastStatus()
+    );
+
+    @Nullable
+    BackupStatus lastStatus = BackupStatus.fromDbValue(
+      backupRepository.getLastStatus()
+    );
+
+    BackupStatus lastStatus = BackupStatus.fromDbValue(
+      backupRepository.getLastStatus()
+    );
+  }
+
+  public boolean localVariableDeclarationWhichDoNotBreak() {
+    @Nullable
+    final BackupStatus lastStatus = value;
+
+    final BackupStatus lastStatus = value;
+
+    @Nullable
+    BackupStatus lastStatus = value;
+
+    BackupStatus lastStatus = value;
+  }
 }

@@ -18,7 +18,8 @@ const {
   rejectSeparators,
   putIntoBraces,
   putIntoCurlyBraces,
-  isStatementEmptyStatement
+  isStatementEmptyStatement,
+  sortModifiers
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -54,15 +55,20 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   localVariableDeclaration(ctx) {
-    const variableModifiers = this.mapVisit(ctx.variableModifier);
+    const modifiers = sortModifiers(ctx.variableModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const finalModifiers = this.mapVisit(modifiers[1]);
+
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
-    return group(
-      rejectAndJoin(line, [
-        rejectAndJoin(" ", variableModifiers),
-        rejectAndJoin(" ", [localVariableType, variableDeclaratorList])
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", finalModifiers),
+        localVariableType,
+        variableDeclaratorList
       ])
-    );
+    ]);
   }
 
   localVariableType(ctx) {
