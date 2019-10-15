@@ -55,7 +55,7 @@ It will basically clone some java repositories and try to parse every java file.
 
 ### prettier-java-plugin
 
-In this section, We suppose you are in the packages/prettier-plugin-java folder.
+In this section, we suppose you are in the packages/prettier-plugin-java folder.
 
 If you would like to check the impact of your changes on a sample code, edit the scripts/single-printer-run/\_input.java file and run
 
@@ -72,6 +72,12 @@ node scripts/update-test-ouput.js -repository relative/path/to/the/repository
 ```
 
 It will then be output inside test-samples/repository-name.
+
+To check the stability of the reformating, you can run several times Prettier with the `-times` flag (e.g. 5 times):
+
+```bash
+node scripts/update-test-output.js -single -times 5
+```
 
 If you run:
 
