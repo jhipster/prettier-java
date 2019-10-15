@@ -194,11 +194,78 @@ class ClassesPrettierVisitor {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
-      return rejectAndJoin(" ", [
-        variableDeclaratorId,
-        ctx.Equals[0],
-        variableInitializer
-      ]);
+
+      if (
+        // Array Initialisation
+        ctx.variableInitializer[0].children.arrayInitializer !== undefined ||
+        // Ternary Expression
+        (ctx.variableInitializer[0].children.expression[0].children
+          .ternaryExpression !== undefined &&
+          ctx.variableInitializer[0].children.expression[0].children
+            .ternaryExpression[0].children.QuestionMark !== undefined)
+      ) {
+        return rejectAndJoin(" ", [
+          variableDeclaratorId,
+          ctx.Equals[0],
+          variableInitializer
+        ]);
+      }
+
+      if (
+        ctx.variableInitializer[0].children.expression[0].children
+          .ternaryExpression !== undefined
+      ) {
+        const firstPrimary =
+          ctx.variableInitializer[0].children.expression[0].children
+            .ternaryExpression[0].children.binaryExpression[0].children
+            .unaryExpression[0].children.primary[0];
+
+        // Cast Expression
+        if (
+          firstPrimary.children.primaryPrefix[0].children.castExpression !==
+          undefined
+        ) {
+          return rejectAndJoin(" ", [
+            variableDeclaratorId,
+            ctx.Equals[0],
+            variableInitializer
+          ]);
+        }
+
+        // New Expression
+        if (
+          firstPrimary.children.primaryPrefix[0].children.newExpression !==
+          undefined
+        ) {
+          return rejectAndJoin(" ", [
+            variableDeclaratorId,
+            ctx.Equals[0],
+            variableInitializer
+          ]);
+        }
+
+        // Method Invocation
+        if (
+          firstPrimary.children.primarySuffix !== undefined &&
+          firstPrimary.children.primarySuffix[0].children
+            .methodInvocationSuffix !== undefined
+        ) {
+          return rejectAndJoin(" ", [
+            variableDeclaratorId,
+            ctx.Equals[0],
+            variableInitializer
+          ]);
+        }
+      }
+
+      return group(
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [variableDeclaratorId, ctx.Equals[0]]),
+            variableInitializer
+          ])
+        )
+      );
     }
     return variableDeclaratorId;
   }

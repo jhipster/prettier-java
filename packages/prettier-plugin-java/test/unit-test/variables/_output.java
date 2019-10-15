@@ -37,8 +37,8 @@ public class Variables {
 
   private Range creator1 = this.dateRangeField.new Range(from, to);
   private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
-  private Range<Date> creator3 = this.dateRangeField
-    .new <Integer>Range<>(from, to);
+  private Range<Date> creator3 =
+    this.dateRangeField.new <Integer>Range<>(from, to);
   private Range<Date> creator3 = new <Integer>Range<>(from, to);
 
   private int hexLiteral = 0x0000;
@@ -96,5 +96,54 @@ public class Variables {
     BackupStatus lastStatus = value;
 
     BackupStatus lastStatus = value;
+  }
+
+  public void breakVariables() {
+    Obj newObject = new Object()
+      .something()
+      .more()
+      .and()
+      .that()
+      .as()
+      .well()
+      .but()
+      .not()
+      .something();
+
+    Object.test.creation thisObject = classWithName
+      .invocationOne()
+      .invocationTwo();
+
+    Object.test.creation thisObject1 = classWithName.invocationOne(
+      argument1,
+      argument2,
+      argument3
+    );
+
+    Object.test.creation thisObject2 = classWithName
+      .invocationOne(argument1, argument2, argument3)
+      .invocationTwo();
+
+    Object.test.creation thisObject3 = classWithName
+      .invocationOne()
+      .invocationTwo(argument1, argument2, argument3);
+
+    Object.test.creation thisObject4 = classWithName
+      .invocationOne(argument1, argument2, argument3)
+      .invocationTwo(argument1, argument2);
+
+    Object.test.creation thisObject5 = classWithName
+      .invocationOne(
+        argument1WithAVeryVeryVeryVeryLongName,
+        argument2,
+        argument3
+      )
+      .attributeOne.attributeTwo.invocationTwo(argument1, argument2)
+      .attributeThree.invocationThree();
+
+    Object.test.creation thisObject6 = classWithName
+      .invocationOne(argument1, argument2, argument3)
+      .attributeOne.attributeTwo.invocationTwo(argument1, argument2)
+      .attributeThree.invocationThree();
   }
 }

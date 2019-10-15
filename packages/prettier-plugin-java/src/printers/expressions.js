@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { line, softline } = require("prettier").doc.builders;
+const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
 const {
   concat,
   group,
@@ -19,7 +19,8 @@ const {
   isExplicitLambdaParameter,
   putIntoBraces,
   separateTokensIntoGroups,
-  isShiftOperator
+  isShiftOperator,
+  isUniqueMethodInvocation
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -27,8 +28,8 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  expression(ctx) {
-    return this.visitSingle(ctx);
+  expression(ctx, params) {
+    return this.visitSingle(ctx, params);
   }
 
   lambdaExpression(ctx) {
@@ -128,8 +129,8 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  ternaryExpression(ctx) {
-    const binaryExpression = this.visit(ctx.binaryExpression);
+  ternaryExpression(ctx, params) {
+    const binaryExpression = this.visit(ctx.binaryExpression, params);
     if (ctx.QuestionMark) {
       const expression1 = this.visit(ctx.expression[0]);
       const expression2 = this.visit(ctx.expression[1]);
@@ -153,7 +154,7 @@ class ExpressionsPrettierVisitor {
     return binaryExpression;
   }
 
-  binaryExpression(ctx) {
+  binaryExpression(ctx, params) {
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
@@ -164,6 +165,10 @@ class ExpressionsPrettierVisitor {
     } = separateTokensIntoGroups(ctx);
     const segmentsSplittedByBinaryOperator = [];
     let currentSegment = [];
+
+    if (groupsOfOperator.length === 1 && groupsOfOperator[0].length === 0) {
+      return unaryExpression.shift();
+    }
 
     groupsOfOperator.forEach(subgroup => {
       currentSegment = [unaryExpression.shift()];
@@ -198,18 +203,44 @@ class ExpressionsPrettierVisitor {
           );
           i += 2;
         } else if (matchCategory(token, "'BinaryOperator'")) {
-          currentSegment.push(
-            indent(rejectAndJoin(line, [token, unaryExpression.shift()]))
-          );
+          const binaryOperation = rejectAndJoin(line, [
+            token,
+            unaryExpression.shift()
+          ]);
+          if (
+            params !== undefined &&
+            !params.shouldIndentBinaryOperationInExpression
+          ) {
+            currentSegment.push(binaryOperation);
+          } else {
+            currentSegment.push(indent(binaryOperation));
+          }
         }
       }
       segmentsSplittedByBinaryOperator.push(
         group(rejectAndJoin(" ", currentSegment))
       );
     });
-    if (groupsOfOperator.length === 0) {
-      return unaryExpression.shift();
+
+    if (params !== undefined && params.addParenthesisToWrapStatement) {
+      return group(
+        concat([
+          ifBreak("(", ""),
+          indent(
+            concat([
+              softline,
+              rejectAndJoinSeps(
+                sortedBinaryOperators.map(elt => concat([" ", elt, line])),
+                segmentsSplittedByBinaryOperator
+              )
+            ])
+          ),
+          softline,
+          ifBreak(")")
+        ])
+      );
     }
+
     return group(
       rejectAndJoinSeps(
         sortedBinaryOperators.map(elt => concat([" ", elt, line])),
@@ -251,52 +282,56 @@ class ExpressionsPrettierVisitor {
   }
 
   primary(ctx) {
-    const primaryPrefix = this.visit(ctx.primaryPrefix);
+    const countMethodInvocation = isUniqueMethodInvocation(ctx.primarySuffix);
+
+    const primaryPrefix = this.visit(ctx.primaryPrefix, {
+      shouldBreakBeforeFirstMethodInvocation: countMethodInvocation > 1
+    });
     const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
     const suffixes = [];
-    let addIndent = false;
-    for (let i = 0; i < primarySuffixes.length; i++) {
-      if (ctx.primarySuffix[i].children.Dot !== undefined) {
-        suffixes.push(indent(softline), primarySuffixes[i]);
-        addIndent = true;
-      } else if (
-        ctx.primarySuffix[i].children.methodInvocationSuffix === undefined
+
+    if (ctx.primarySuffix !== undefined) {
+      if (
+        ctx.primarySuffix[0].children.Dot !== undefined &&
+        ctx.primaryPrefix[0].children.newExpression !== undefined
       ) {
-        suffixes.push(softline, primarySuffixes[i]);
-      } else {
-        if (addIndent) {
-          suffixes.push(indent(primarySuffixes[i]));
-          addIndent = false;
-        } else {
-          suffixes.push(primarySuffixes[i]);
+        suffixes.push(softline);
+      }
+      suffixes.push(primarySuffixes[0]);
+
+      for (let i = 1; i < primarySuffixes.length; i++) {
+        if (
+          ctx.primarySuffix[i].children.Dot !== undefined &&
+          ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
+        ) {
+          suffixes.push(softline);
         }
+        suffixes.push(primarySuffixes[i]);
+      }
+
+      if (countMethodInvocation === 1) {
+        return group(
+          rejectAndConcat([
+            primaryPrefix,
+            suffixes[0],
+            indent(rejectAndConcat(suffixes.slice(1)))
+          ])
+        );
       }
     }
 
-    let firstSeparator = suffixes.shift();
-    if (
-      ctx.primaryPrefix[0].children.This !== undefined ||
-      firstSeparator === undefined
-    ) {
-      firstSeparator = "";
-    }
-
     return group(
-      rejectAndConcat([
-        primaryPrefix,
-        firstSeparator,
-        rejectAndConcat(suffixes)
-      ])
+      rejectAndConcat([primaryPrefix, indent(rejectAndConcat(suffixes))])
     );
   }
 
-  primaryPrefix(ctx) {
+  primaryPrefix(ctx, params) {
     if (ctx.This || ctx.Void || ctx.Boolean) {
       return getImageWithComments(this.getSingle(ctx));
     }
 
-    return this.visitSingle(ctx);
+    return this.visitSingle(ctx, params);
   }
 
   primarySuffix(ctx) {
@@ -319,10 +354,25 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  fqnOrRefType(ctx) {
+  fqnOrRefType(ctx, params) {
     const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
+
+    if (
+      params !== undefined &&
+      params.shouldBreakBeforeFirstMethodInvocation === true
+    ) {
+      return rejectAndConcat([
+        indent(
+          rejectAndJoin(concat([softline, dots[0]]), [
+            fqnOrRefTypePart[0],
+            rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePart.slice(1)),
+            dims
+          ])
+        )
+      ]);
+    }
     return rejectAndConcat([rejectAndJoinSeps(dots, fqnOrRefTypePart), dims]);
   }
 
@@ -375,8 +425,10 @@ class ExpressionsPrettierVisitor {
   }
 
   parenthesisExpression(ctx) {
-    const expression = this.visit(ctx.expression);
-    return rejectAndConcat([ctx.LBrace[0], expression, ctx.RBrace[0]]);
+    const expression = this.visit(ctx.expression, {
+      shouldIndentBinaryOperationInExpression: false
+    });
+    return putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
   castExpression(ctx) {
