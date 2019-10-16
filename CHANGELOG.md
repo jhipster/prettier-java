@@ -8,16 +8,10 @@
 
 ```java
 public enum EnumWhichBreak {
-  ONE_VALUE,
-  TWO_VALUE,
-  THREE_VALUE,
-  FOUR_VALUE,
-  FIVE_VALUE,
-  SIX_VALUE,
-  SEVEN_VALUE,
-  EIGTH_VALUE,
-  NINE_VALUE,
+
+  ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGTH_VALUE, NINE_VALUE,
   TEN_VALUE
+
 }
 ```
 
@@ -58,7 +52,7 @@ public enum EnumWhichNotBreak {
 
 ```java
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
 }
 ```
 
@@ -93,18 +87,17 @@ public enum Enum {
 ```java
 package my.own.pkg;
 
-import static abc.def;
-import static abc.def.Another;
-import static abc.def.Something;
-import static java.utils.*;
-import static something.Different;
-
-import abc.def;
-import abc.def.Another;
-import abc.def.Something;
-import java.utils.*;
-import one.last;
 import something.Different;
+import java.utils.*;;;
+import abc.def.Something;
+import abc.def.Another;;;
+import abc.def;
+import static abc.def;
+import  static something.Different;
+import static  java.utils.*;;;
+import static abc.def.Something;
+import static abc.def.Another;;;
+import one.last;;;
 
 public class PackageAndImports {}
 ```
@@ -138,8 +131,7 @@ public boolean localVariableDeclarationWhichBreak() {
 
   final BackupStatus lastStatus = BackupStatus.fromDbValue(backupRepository.getLastStatus());
 
-  @Nullable
-  BackupStatus lastStatus = BackupStatus.fromDbValue(backupRepository.getLastStatus());
+  @Nullable BackupStatus lastStatus = BackupStatus.fromDbValue(backupRepository.getLastStatus());
 
   BackupStatus lastStatus = BackupStatus.fromDbValue(backupRepository.getLastStatus());
 }
