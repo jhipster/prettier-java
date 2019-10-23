@@ -34,7 +34,20 @@ function isPrettierIgnoreComment(comment) {
   );
 }
 
-function pretraitement(tokens, comments) {
+// Optimisation by encapsulating token in a node ?
+function preprocessingTokens(tokens, leadingComments, trailingComments) {
+  tokens.forEach(token => {
+    if (leadingComments[token.startOffset] === undefined) {
+      leadingComments[token.startOffset] = token;
+    }
+
+    if (trailingComments[token.endOffset] === undefined) {
+      trailingComments[token.endOffset] = token;
+    }
+  });
+}
+
+function preprocessingComments(tokens, comments) {
   const commentsEndOffset = {};
   const commentsStartOffset = {};
 
@@ -77,18 +90,17 @@ function shouldAttachTrailingComments(comment, node, parser) {
     return true;
   }
 
-  if (comment.startLine !== node.location.endLine) {
+  const nodeEndLine =
+    node.location !== undefined ? node.location.endLine : node.endLine;
+  if (comment.startLine !== nodeEndLine) {
     return false;
   }
 
-  if (
-    nextNode !== undefined &&
-    comment.endLine === nextNode.location.startLine
-  ) {
-    return false;
-  }
-
-  return true;
+  const nextNodeStartLine =
+    nextNode.location !== undefined
+      ? nextNode.location.startLine
+      : nextNode.startLine;
+  return comment.endLine !== nextNodeStartLine;
 }
 
 function attachComments(tokens, comments, parser) {
@@ -98,7 +110,9 @@ function attachComments(tokens, comments, parser) {
     return;
   }
 
-  const { commentsStartOffset, commentsEndOffset } = pretraitement(
+  preprocessingTokens(tokens, parser.leadingComments, parser.trailingComments);
+
+  const { commentsStartOffset, commentsEndOffset } = preprocessingComments(
     tokens,
     comments
   );
@@ -153,40 +167,6 @@ function attachComments(tokens, comments, parser) {
       nodeLeadingComments.forEach(comment => {
         commentsToAttach.delete(comment);
       });
-    }
-  });
-
-  attachRestCommentsToToken(tokens, commentsToAttach);
-}
-
-function attachRestCommentsToToken(tokens, commentsToAttach) {
-  let currentToken = 0;
-  commentsToAttach.forEach(comment => {
-    // find the correct position to place the comment
-    while (
-      !(
-        comment.startOffset > tokens[currentToken].endOffset &&
-        comment.endOffset < tokens[currentToken + 1].startOffset
-      )
-    ) {
-      currentToken++;
-    }
-
-    // attach comment to the next token by default,
-    // it attaches to the current one when the comment and token is on the same line
-    if (
-      comment.startLine === tokens[currentToken].endLine &&
-      comment.startLine !== tokens[currentToken + 1].startLine
-    ) {
-      if (!tokens[currentToken].trailingComments) {
-        tokens[currentToken].trailingComments = [];
-      }
-      tokens[currentToken].trailingComments.push(comment);
-    } else {
-      if (!tokens[currentToken + 1].leadingComments) {
-        tokens[currentToken + 1].leadingComments = [];
-      }
-      tokens[currentToken + 1].leadingComments.push(comment);
     }
   });
 }
