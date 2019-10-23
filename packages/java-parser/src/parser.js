@@ -78,8 +78,6 @@ class JavaParser extends Parser {
   cstPostNonTerminal(ruleCstResult, ruleName) {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
-      shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
-
       this.leadingComments[ruleCstResult.location.startOffset] = ruleCstResult;
       this.trailingComments[ruleCstResult.location.endOffset] = ruleCstResult;
     }

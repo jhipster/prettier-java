@@ -23,6 +23,7 @@ class PackagesAndModulesPrettierVisitor {
     const additionalLine = isNaN(compilationUnit[0].location.startOffset)
       ? ""
       : line;
+
     return concat([this.visit(compilationUnit[0]), additionalLine]);
   }
 
@@ -41,8 +42,7 @@ class PackagesAndModulesPrettierVisitor {
         rejectAndJoin(hardline, staticImports),
         rejectAndJoin(hardline, nonStaticImports),
         rejectAndJoin(concat([hardline, hardline]), typesDecl)
-      ]),
-      line
+      ])
     ]);
   }
 
@@ -58,8 +58,7 @@ class PackagesAndModulesPrettierVisitor {
         rejectAndJoin(hardline, staticImports),
         rejectAndJoin(hardline, nonStaticImports),
         moduleDeclaration
-      ]),
-      line
+      ])
     ]);
   }
 
