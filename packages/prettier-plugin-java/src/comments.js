@@ -1,6 +1,6 @@
 "use strict";
-const { concat } = require("./printers/prettier-builder");
-const { hardline, lineSuffix, literalline } = require("prettier").doc.builders;
+const { concat, formatComment } = require("./printers/prettier-builder");
+const { hardline, lineSuffix } = require("prettier").doc.builders;
 
 function processComments(ctx, value) {
   if (!Array.isArray(ctx)) {
@@ -56,49 +56,6 @@ function processComentsOnNode(node, value) {
     });
   }
   return arr.length === 1 ? value : concat(arr);
-}
-
-function isJavaDoc(comment, lines) {
-  let isJavaDoc = true;
-  if (comment.tokenType.name === "TraditionalComment" && lines.length > 1) {
-    for (let i = 1; i < lines.length; i++) {
-      if (lines[i].trim().charAt(0) !== "*") {
-        isJavaDoc = false;
-        break;
-      }
-    }
-  } else {
-    isJavaDoc = false;
-  }
-
-  return isJavaDoc;
-}
-
-function formatJavaDoc(lines) {
-  const res = [lines[0].trim()];
-
-  for (let i = 1; i < lines.length; i++) {
-    res.push(hardline);
-    res.push(" " + lines[i].trim());
-  }
-
-  return res;
-}
-
-function formatComment(comment) {
-  const res = [];
-  const lines = comment.image.split("\n");
-
-  if (isJavaDoc(comment, lines)) {
-    return formatJavaDoc(lines);
-  }
-
-  lines.forEach(line => {
-    res.push(line);
-    res.push(literalline);
-  });
-  res.pop();
-  return res;
 }
 
 module.exports = {
