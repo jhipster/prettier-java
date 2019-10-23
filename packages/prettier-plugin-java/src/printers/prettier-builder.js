@@ -89,17 +89,17 @@ function formatJavaDoc(lines) {
 
 function formatComment(comment) {
   const res = [];
-  comment.image.split("\n").forEach(l => {
-    if (l.match(/(\s+)(\*)(.*)/gm) && !l.match(/(\/)(\*)(.*)(\*)(\/)/gm)) {
-      res.push(" " + l.trim());
-    } else {
-      res.push(l);
-    }
-    res.push(prettier.hardline);
-  });
-  if (res[res.length - 1] === prettier.hardline) {
-    res.pop();
+  const lines = comment.image.split("\n");
+
+  if (isJavaDoc(comment, lines)) {
+    return formatJavaDoc(lines);
   }
+
+  lines.forEach(line => {
+    res.push(line);
+    res.push(prettier.literalline);
+  });
+  res.pop();
   return res;
 }
 

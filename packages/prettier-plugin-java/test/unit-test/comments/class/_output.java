@@ -158,8 +158,7 @@ public final class ArrayTable<R, C, V>
      * elements but rowKeySet() will be empty and containsRow() won't
      * acknolwedge them.
      */
-    rowKeyToIndex =
-      Maps.indexMap(rowList);
+    rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
 
     @SuppressWarnings(
@@ -845,7 +844,8 @@ public final class ArrayTable<R, C, V>
     countryRepository.saveAndFlush(country);
 
     // Get all the countryList
-    restCountryMockMvc.perform(get("/api/countries?sort=id,desc"))
+    restCountryMockMvc
+      .perform(get("/api/countries?sort=id,desc"))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
       .andExpect(
