@@ -42,8 +42,13 @@ function getTrailingComments(token) {
         const separator = token.image === "" ? "" : " ";
         arr.push(
           prettier.lineSuffix(
-            concat([separator, concat(formatComment(element))])
-          )
+            concat([
+              separator,
+              concat(formatComment(element)),
+              prettier.breakParent
+            ])
+          ),
+          prettier.lineSuffixBoundary
         );
       } else {
         arr.push(concat(formatComment(element)));
