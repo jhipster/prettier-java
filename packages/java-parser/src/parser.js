@@ -79,7 +79,7 @@ class JavaParser extends Parser {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
       shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
-      shouldNotFormat(ruleCstResult, this.offOnComments, this.ignoreNodes);
+      shouldNotFormat(ruleCstResult, this.offOnComments);
     }
   }
 

@@ -164,39 +164,47 @@ function filterFormatterOffOn(comments) {
 }
 
 function matchFormatterOffOnPair(comments) {
-  let isCommentOff = false;
-  let isNextCommentOff = true;
+  let isPreviousCommentOff = false;
+  let isCurrentCommentOff = true;
   const pairs = [];
   let paired = {};
-  comments.forEach(comment => {
-    isNextCommentOff = comment.image.slice(comment.image.length - 3) === "off";
+  comments.forEach((comment, index, array) => {
+    isCurrentCommentOff =
+      comment.image.slice(comment.image.length - 3) === "off";
 
-    if (!isCommentOff) {
-      if (isNextCommentOff) {
+    if (!isPreviousCommentOff) {
+      if (isCurrentCommentOff) {
         paired.off = comment;
       }
     } else {
-      if (!isNextCommentOff) {
+      if (!isCurrentCommentOff) {
         paired.on = comment;
         pairs.push(paired);
         paired = {};
       }
     }
 
-    isCommentOff = isNextCommentOff;
+    if (index === array.length - 1 && isCurrentCommentOff) {
+      paired.on = undefined;
+      pairs.push(paired);
+      paired = {};
+    }
+
+    isPreviousCommentOff = isCurrentCommentOff;
   });
 
   return pairs;
 }
 
-function shouldNotFormat(node, commentPairs, ignoredNodes) {
+function shouldNotFormat(node, commentPairs) {
   const matchingPair = _.find(
-    commentPairs,
-    comment => comment.on.extendedRange.startOffset > node.location.endOffset
+    commentPairs.reverse(),
+    comment => comment.off.extendedRange.endOffset < node.location.startOffset
   );
   if (
     matchingPair !== undefined &&
-    matchingPair.off.endOffset < node.location.startOffset
+    (matchingPair.on === undefined ||
+      matchingPair.on.startOffset > node.location.endOffset)
   ) {
     node.ignore = true;
   }
