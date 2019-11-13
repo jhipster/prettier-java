@@ -1,25 +1,46 @@
-public enum Enum {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
+public class PrettierIgnoreClass {
+
+  public void myMethod(
+    int param1,
+    int param2,
+    int param3,
+    int param4,
+    int param5,
+    int param6,
+    int param7,
+    int param8,
+    int param9,
+    int param10
+  ) {}
 }
 
-public enum Enum {
-  THIS_IS_GOOD("abc"), THIS_IS_FINE("abc");
-  public static final String thisWillBeDeleted = "DELETED";
-
-  private final String value;
-
-  public Enum(String value) {
-    this.value = value;
-  }
-
-  public String toString() {
-    return "STRING";
+// @formatter:off
+public class PrettierIgnoreClass {
+  public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
+    
   }
 }
 
-class CLassWithEnum {
+public class PrettierIgnoreClass2 {
 
-  public static enum VALID_THINGS {
-    FIRST, SECOND;
+  public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
+    
   }
+}
+
+// @formatter:on
+public class PrettierIgnoreClass3 {
+
+  public void myMethod(
+    int param1,
+    int param2,
+    int param3,
+    int param4,
+    int param5,
+    int param6,
+    int param7,
+    int param8,
+    int param9,
+    int param10
+  ) {}
 }

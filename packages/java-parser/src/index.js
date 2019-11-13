@@ -4,7 +4,8 @@ const JavaParser = require("./parser");
 const {
   attachComments,
   ignoredComments,
-  attachIgnoreNodes
+  attachIgnoreNodes,
+  formatterOffOnComments
 } = require("./comments");
 
 const parser = new JavaParser();
@@ -35,6 +36,12 @@ function parse(inputText, entryPoint = "compilationUnit") {
     lexResult.groups.comments
   );
   parser.setIgnoredComments(ignoreComments);
+
+  const offOnComments = formatterOffOnComments(
+    lexResult.tokens,
+    lexResult.groups.comments
+  );
+  parser.setOffOnComments(offOnComments);
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();

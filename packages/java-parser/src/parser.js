@@ -10,7 +10,7 @@ const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
-const { shouldIgnore } = require("./comments");
+const { shouldIgnore, shouldNotFormat } = require("./comments");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -79,6 +79,7 @@ class JavaParser extends Parser {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
       shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
+      shouldNotFormat(ruleCstResult, this.offOnComments, this.ignoreNodes);
     }
   }
 
@@ -107,6 +108,10 @@ class JavaParser extends Parser {
   setIgnoredComments(comments) {
     this.ignoredNodes = {};
     this.ignoredComments = [...comments];
+  }
+
+  setOffOnComments(commentOffOn) {
+    this.offOnComments = [...commentOffOn];
   }
 }
 

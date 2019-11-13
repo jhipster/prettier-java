@@ -155,6 +155,53 @@ function shouldIgnore(node, comments, ignoredNodes) {
   }
 }
 
+function filterFormatterOffOn(comments) {
+  return [...comments].filter(comment =>
+    comment.image.match(
+      /(\/\/(\s*)@formatter:off(\s*))|(\/\*(\s*)@formatter:off(\s*)\*\/)|(\/\/(\s*)@formatter:on(\s*))|(\/\*(\s*)@formatter:on(\s*)\*\/)/gm
+    )
+  );
+}
+
+function matchFormatterOffOnPair(comments) {
+  let isCommentOff = false;
+  let isNextCommentOff = true;
+  const pairs = [];
+  let paired = {};
+  comments.forEach(comment => {
+    isNextCommentOff = comment.image.slice(comment.image.length - 3) === "off";
+
+    if (!isCommentOff) {
+      if (isNextCommentOff) {
+        paired.off = comment;
+      }
+    } else {
+      if (!isNextCommentOff) {
+        paired.on = comment;
+        pairs.push(paired);
+        paired = {};
+      }
+    }
+
+    isCommentOff = isNextCommentOff;
+  });
+
+  return pairs;
+}
+
+function shouldNotFormat(node, commentPairs, ignoredNodes) {
+  const matchingPair = _.find(
+    commentPairs,
+    comment => comment.on.extendedRange.startOffset > node.location.endOffset
+  );
+  if (
+    matchingPair !== undefined &&
+    matchingPair.off.endOffset < node.location.startOffset
+  ) {
+    node.ignore = true;
+  }
+}
+
 function attachIgnoreNodes(ignoreComments, ignoredNodes) {
   ignoreComments.forEach(comment => {
     if (ignoredNodes[comment.startOffset]) {
@@ -167,9 +214,19 @@ function ignoredComments(tokens, comments) {
   return extendCommentRange(tokens, filterPrettierIgnore(comments));
 }
 
+function formatterOffOnComments(tokens, comments) {
+  const offOn = filterFormatterOffOn(comments);
+  const extendedRangeOffOn = extendCommentRange(tokens, offOn);
+  const pairs = matchFormatterOffOnPair(extendedRangeOffOn);
+
+  return pairs;
+}
+
 module.exports = {
   attachComments,
   shouldIgnore,
+  shouldNotFormat,
+  formatterOffOnComments,
   ignoredComments,
   attachIgnoreNodes
 };
