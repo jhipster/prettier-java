@@ -21,12 +21,12 @@ jobs:
 - job: Test
   strategy:
     matrix:
+      node_13:
+        node_version: '13.0.1'
       node_12:
-        node_version: '12.8.1'
+        node_version: '12.13.0'
       node_10:
-        node_version: '10.16.3'
-      node_8:
-        node_version: '8.16.1'
+        node_version: '10.17.0'
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
@@ -53,7 +53,7 @@ jobs:
   steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '10.16.3'
+        versionSpec: '12.13.0'
       displayName: 'Install Node.js'
     - script: |
         yarn
