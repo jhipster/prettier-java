@@ -158,7 +158,7 @@ function shouldIgnore(node, comments, ignoredNodes) {
 function filterFormatterOffOn(comments) {
   return [...comments].filter(comment =>
     comment.image.match(
-      /(\/\/(\s*)@formatter:off(\s*))|(\/\*(\s*)@formatter:off(\s*)\*\/)|(\/\/(\s*)@formatter:on(\s*))|(\/\*(\s*)@formatter:on(\s*)\*\/)/gm
+      /(\/\/(\s*)@formatter:(off|on)(\s*))|(\/\*(\s*)@formatter:(off|on)(\s*)\*\/)/gm
     )
   );
 }
@@ -168,9 +168,8 @@ function matchFormatterOffOnPair(comments) {
   let isCurrentCommentOff = true;
   const pairs = [];
   let paired = {};
-  comments.forEach((comment, index, array) => {
-    isCurrentCommentOff =
-      comment.image.slice(comment.image.length - 3) === "off";
+  comments.forEach(comment => {
+    isCurrentCommentOff = comment.image.slice(-3) === "off";
 
     if (!isPreviousCommentOff) {
       if (isCurrentCommentOff) {
@@ -183,22 +182,20 @@ function matchFormatterOffOnPair(comments) {
         paired = {};
       }
     }
-
-    if (index === array.length - 1 && isCurrentCommentOff) {
-      paired.on = undefined;
-      pairs.push(paired);
-      paired = {};
-    }
-
     isPreviousCommentOff = isCurrentCommentOff;
   });
+
+  if (comments.length > 0 && isCurrentCommentOff) {
+    paired.on = undefined;
+    pairs.push(paired);
+  }
 
   return pairs;
 }
 
 function shouldNotFormat(node, commentPairs) {
-  const matchingPair = _.find(
-    commentPairs.reverse(),
+  const matchingPair = _.findLast(
+    commentPairs,
     comment => comment.off.extendedRange.endOffset < node.location.startOffset
   );
   if (
