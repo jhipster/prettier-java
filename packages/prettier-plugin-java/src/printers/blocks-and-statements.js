@@ -19,7 +19,9 @@ const {
   putIntoBraces,
   putIntoCurlyBraces,
   isStatementEmptyStatement,
-  sortModifiers
+  sortModifiers,
+  hasTrailingComments,
+  hasLeadingComments
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -122,8 +124,15 @@ class BlocksAndStatementPrettierVisitor {
       });
       const elseSeparator = isStatementEmptyStatement(elseStatement) ? "" : " ";
 
+      const elseOnSameLine =
+        hasTrailingComments(ctx.statement[0]) ||
+        (hasLeadingComments(ctx.Else[0]) &&
+          ctx.Else[0].leadingComments.tokenType === "LineComment")
+          ? hardline
+          : " ";
+
       elsePart = rejectAndJoin(elseSeparator, [
-        concat([" ", ctx.Else[0]]),
+        concat([elseOnSameLine, ctx.Else[0]]),
         elseStatement
       ]);
     }

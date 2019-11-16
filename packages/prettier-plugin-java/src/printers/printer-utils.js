@@ -568,6 +568,8 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
+  hasLeadingComments,
+  hasTrailingComments,
   isExplicitLambdaParameter,
   getBlankLinesSeparator,
   displaySemicolon,

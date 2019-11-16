@@ -1,11 +1,6 @@
 "use strict";
 const { concat, formatComment } = require("./printers/prettier-builder");
-const {
-  breakParent,
-  hardline,
-  lineSuffix,
-  lineSuffixBoundary
-} = require("prettier").doc.builders;
+const { breakParent, hardline, lineSuffix } = require("prettier").doc.builders;
 
 function processComments(ctx, value) {
   if (!Array.isArray(ctx)) {
@@ -53,8 +48,7 @@ function processComentsOnNode(node, value) {
         arr.push(
           lineSuffix(
             concat([separator, concat(formatComment(comment)), breakParent])
-          ),
-          lineSuffixBoundary
+          )
         );
       } else {
         arr.push(concat(formatComment(comment)));

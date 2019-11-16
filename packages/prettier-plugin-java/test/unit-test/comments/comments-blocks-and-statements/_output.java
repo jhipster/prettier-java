@@ -1,6 +1,18 @@
 public class PrettierTest {
   var x = 0;
 
+  void commentsIf() {
+    if (
+      t // test
+    ) {} // test
+    else {
+      int i = // test
+        3;
+    }
+
+    if (t) {} /* test */else {}
+  }
+
   public void myFunction(int arg1) {
     try {
       // Empty Statement
@@ -40,11 +52,11 @@ public class PrettierTest {
         2
       };
 
-      loop:// Label statement
+      loop: // Label statement
       //foreach
-      for (int num/* num is every number in arr*/ : arr) {
-        /*switch*/switch (num) {
-          //switch
+      for (int num /* num is every number in arr*/: arr) {
+        /*switch*/switch (num) { //switch
+
           case 1:
             System.out.println("One ");
             System.out.println("One ");
@@ -66,14 +78,14 @@ public class PrettierTest {
   }
 
   private synchronized void myFunction(int arg1, int arg2/*overloading*/) {
-    for (int i = 0; i < /*=*/arg1; i++) do /*dodododo*/{
-      //do whiles
+    for (int i = 0; i < /*=*/arg1; i++) do /*dodododo*/{ //do whiles
+
       //asserting
       assert /*true*/true == true;
       continue;
       break/*dead code*/;
       return/*dead code*/;
-    }/*at least one iteration !*/ while (false);
+    } /*at least one iteration !*/while (false);
     synchronized /*declares synchronizd statement*/(this) {
       while /*infinite*/(true) /*stop the program*/throw new RuntimeException();
     }
