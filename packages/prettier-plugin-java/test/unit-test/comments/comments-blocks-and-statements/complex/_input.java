@@ -3,23 +3,6 @@ public class PrettierTest {
 
     var x=0;
 
-    void commentsIf() {
-      if (
-        t // test
-      ) {
-
-      } // test
-      else {
-        int i // test
-            = 3;
-      }
-
-      if (t) {
-
-      } /* test */ else {
-      }
-    }
-
     public void myFunction(int arg1){
         try {
           ;// Empty Statement

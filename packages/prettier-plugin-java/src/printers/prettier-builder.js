@@ -47,8 +47,7 @@ function getTrailingComments(token) {
               concat(formatComment(element)),
               prettier.breakParent
             ])
-          ),
-          prettier.lineSuffixBoundary
+          )
         );
       } else {
         arr.push(concat(formatComment(element)));

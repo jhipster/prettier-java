@@ -20,8 +20,8 @@ const {
   putIntoCurlyBraces,
   isStatementEmptyStatement,
   sortModifiers,
-  hasTrailingComments,
-  hasLeadingComments
+  hasTrailingLineComments,
+  hasLeadingLineComments
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -125,9 +125,8 @@ class BlocksAndStatementPrettierVisitor {
       const elseSeparator = isStatementEmptyStatement(elseStatement) ? "" : " ";
 
       const elseOnSameLine =
-        hasTrailingComments(ctx.statement[0]) ||
-        (hasLeadingComments(ctx.Else[0]) &&
-          ctx.Else[0].leadingComments.tokenType === "LineComment")
+        hasTrailingLineComments(ctx.statement[0]) ||
+        hasLeadingLineComments(ctx.Else[0])
           ? hardline
           : " ";
 
@@ -254,11 +253,20 @@ class BlocksAndStatementPrettierVisitor {
     const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
-      forInit,
-      rejectAndJoin(" ", [ctx.Semicolon[0], expression]),
-      rejectAndJoin(" ", [ctx.Semicolon[1], forUpdate]),
-      concat([ctx.RBrace[0], statementSeparator]),
+      rejectAndJoin(" ", [
+        ctx.For[0],
+        putIntoBraces(
+          rejectAndConcat([
+            forInit,
+            rejectAndJoin(line, [ctx.Semicolon[0], expression]),
+            rejectAndJoin(line, [ctx.Semicolon[1], forUpdate])
+          ]),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        )
+      ]),
+      statementSeparator,
       statement
     ]);
   }
