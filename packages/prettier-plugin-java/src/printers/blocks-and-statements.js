@@ -82,6 +82,31 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   statement(ctx, params) {
+    // handling Labeled statements comments
+    if (ctx.labeledStatement !== undefined) {
+      const newLabelStatement = { ...ctx.labeledStatement[0] };
+      const newColon = { ...ctx.labeledStatement[0].children.Colon[0] };
+      const newStatement = { ...ctx.labeledStatement[0].children.statement[0] };
+
+      const labeledStatementLeadingComments = [];
+
+      if (newColon.trailingComments !== undefined) {
+        labeledStatementLeadingComments.push(...newColon.trailingComments);
+        delete newColon.trailingComments;
+      }
+
+      if (newStatement.leadingComments !== undefined) {
+        labeledStatementLeadingComments.push(...newStatement.leadingComments);
+        delete newStatement.leadingComments;
+      }
+
+      newLabelStatement.leadingComments = labeledStatementLeadingComments;
+      newLabelStatement.children.Colon[0] = newColon;
+      newLabelStatement.children.statement[0] = newStatement;
+
+      return this.visit([newLabelStatement]);
+    }
+
     return this.visitSingle(ctx, params);
   }
 

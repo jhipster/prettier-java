@@ -150,7 +150,11 @@ function attachComments(tokens, comments, parser) {
         comment => commentsToAttach.has(comment)
       );
 
-      parser.leadingComments[startOffset].leadingComments = nodeLeadingComments;
+      if (nodeLeadingComments.length > 0) {
+        parser.leadingComments[
+          startOffset
+        ].leadingComments = nodeLeadingComments;
+      }
 
       // prettier ignore support
       let ignoreNode = false;

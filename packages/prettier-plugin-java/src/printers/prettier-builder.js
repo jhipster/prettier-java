@@ -14,7 +14,11 @@ function getLeadingComments(token) {
   const arr = [];
   if (Object.prototype.hasOwnProperty.call(token, "leadingComments")) {
     token.leadingComments.forEach(element => {
-      if (element.startLine !== token.startLine) {
+      if (
+        element.tokenType.name === "LineComment" ||
+        element.startLine !== token.startLine ||
+        element.startOffset > token.startOffset
+      ) {
         arr.push(prettier.lineSuffixBoundary);
         arr.push(concat(formatComment(element)));
         arr.push(prettier.hardline);

@@ -22,7 +22,11 @@ function processComentsOnNode(node, value) {
   const arr = [];
   if (Object.prototype.hasOwnProperty.call(node, "leadingComments")) {
     node.leadingComments.forEach(comment => {
-      if (comment.endLine !== node.location.startLine) {
+      if (
+        comment.tokenType.name === "LineComment" ||
+        comment.endLine !== node.location.startLine ||
+        comment.startOffset > node.location.startOffset
+      ) {
         arr.push(concat(formatComment(comment)));
         arr.push(hardline);
       } else {
