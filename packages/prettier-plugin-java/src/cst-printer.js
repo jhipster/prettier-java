@@ -92,7 +92,6 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         }
       }
 
-      // return orgVisit.call(this, ctx, inParam);
       return processComments(ctx, orgVisit.call(this, ctx, inParam));
     };
   }

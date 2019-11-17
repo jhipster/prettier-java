@@ -11,7 +11,6 @@ const {
 } = require("./prettier-builder");
 const {
   matchCategory,
-  reject,
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
