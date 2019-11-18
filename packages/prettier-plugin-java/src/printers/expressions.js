@@ -229,9 +229,11 @@ class ExpressionsPrettierVisitor {
           indent(
             concat([
               softline,
-              rejectAndJoinSeps(
-                sortedBinaryOperators.map(elt => concat([" ", elt, line])),
-                segmentsSplittedByBinaryOperator
+              group(
+                rejectAndJoinSeps(
+                  sortedBinaryOperators.map(elt => concat([" ", elt, line])),
+                  segmentsSplittedByBinaryOperator
+                )
               )
             ])
           ),
