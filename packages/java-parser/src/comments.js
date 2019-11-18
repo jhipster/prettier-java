@@ -115,7 +115,7 @@ function findUpperBoundToken(tokens, comment) {
 
 /**
  * Extends each comments offsets to the left and the right in order to match the
- * previous and next token offset. This allow to directly match the prettier-ignore
+ * previous and next token offset. This allow to directly match the prettier-ignore or formatter:off|on
  * comment to the correct CSTNode.
  * @param {*} tokens ordered array of tokens
  * @param {*} comments array of prettier-ignore comments
@@ -137,6 +137,11 @@ function extendCommentRange(tokens, comments) {
   return ignoreComments;
 }
 
+/**
+ * Filter comments to find prettier-ignore's ones.
+ * @param comments
+ * @returns prettier-ignore comments
+ */
 function filterPrettierIgnore(comments) {
   return [...comments].filter(comment =>
     comment.image.match(
@@ -145,6 +150,12 @@ function filterPrettierIgnore(comments) {
   );
 }
 
+/**
+ * Check if an node must be ignore because of prettier-ignore comment
+ * @param node
+ * @param comments
+ * @param ignoredNodes
+ */
 function shouldIgnore(node, comments, ignoredNodes) {
   const matchingComment = _.find(
     comments,
@@ -155,6 +166,23 @@ function shouldIgnore(node, comments, ignoredNodes) {
   }
 }
 
+function attachIgnoreNodes(ignoreComments, ignoredNodes) {
+  ignoreComments.forEach(comment => {
+    if (ignoredNodes[comment.startOffset]) {
+      ignoredNodes[comment.startOffset].ignore = true;
+    }
+  });
+}
+
+function ignoredComments(tokens, comments) {
+  return extendCommentRange(tokens, filterPrettierIgnore(comments));
+}
+
+/**
+ * Filter comments to find formatter:off and formatter:on.
+ * @param comments
+ * @returns formatter:off and formatter:on comments
+ */
 function filterFormatterOffOn(comments) {
   return [...comments].filter(comment =>
     comment.image.match(
@@ -163,6 +191,11 @@ function filterFormatterOffOn(comments) {
   );
 }
 
+/**
+ * Create pairs of formatter:off and formatter:on
+ * @param comments
+ * @returns pairs of formatter:off and formatter:on
+ */
 function matchFormatterOffOnPair(comments) {
   let isPreviousCommentOff = false;
   let isCurrentCommentOff = true;
@@ -193,6 +226,11 @@ function matchFormatterOffOnPair(comments) {
   return pairs;
 }
 
+/**
+ * Check if the node is between formatter:off and formatter:on and change his ignore state
+ * @param node
+ * @param commentPairs
+ */
 function shouldNotFormat(node, commentPairs) {
   const matchingPair = _.findLast(
     commentPairs,
@@ -207,24 +245,10 @@ function shouldNotFormat(node, commentPairs) {
   }
 }
 
-function attachIgnoreNodes(ignoreComments, ignoredNodes) {
-  ignoreComments.forEach(comment => {
-    if (ignoredNodes[comment.startOffset]) {
-      ignoredNodes[comment.startOffset].ignore = true;
-    }
-  });
-}
-
-function ignoredComments(tokens, comments) {
-  return extendCommentRange(tokens, filterPrettierIgnore(comments));
-}
-
 function formatterOffOnComments(tokens, comments) {
   const offOn = filterFormatterOffOn(comments);
   const extendedRangeOffOn = extendCommentRange(tokens, offOn);
-  const pairs = matchFormatterOffOnPair(extendedRangeOffOn);
-
-  return pairs;
+  return matchFormatterOffOnPair(extendedRangeOffOn);
 }
 
 module.exports = {
