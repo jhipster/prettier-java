@@ -18,7 +18,7 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
-const { processComments } = require("./comments");
+const { processCommentsOnNode } = require("./printers/comments");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
@@ -92,7 +92,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         }
       }
 
-      return processComments(ctx, orgVisit.call(this, ctx, inParam));
+      return processCommentsOnNode(ctx, orgVisit.call(this, ctx, inParam));
     };
   }
 }

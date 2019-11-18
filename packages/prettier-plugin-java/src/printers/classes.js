@@ -15,15 +15,12 @@ const {
   getClassBodyDeclarationsSeparator,
   isStatementEmptyStatement
 } = require("./printer-utils");
+const { concat, join, group, indent } = require("./prettier-builder");
 const {
-  concat,
-  join,
-  group,
-  indent,
-  getImageWithComments,
-  getLeadingComments,
-  getTrailingComments
-} = require("./prettier-builder");
+  printTokenWithComments,
+  getTokenLeadingComments,
+  getTokenTrailingComments
+} = require("./comments");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
@@ -79,7 +76,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   typeParameters(ctx) {
@@ -182,7 +179,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   variableDeclaratorList(ctx) {
@@ -290,7 +287,7 @@ class ClassesPrettierVisitor {
     if (ctx.numericType) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   unannReferenceType(ctx) {
@@ -344,7 +341,7 @@ class ClassesPrettierVisitor {
   }
 
   unannTypeVariable(ctx) {
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   methodDeclaration(ctx) {
@@ -371,7 +368,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   methodHeader(ctx) {
@@ -404,11 +401,11 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.unannType);
     }
     // void
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   methodDeclarator(ctx) {
-    const identifier = getImageWithComments(ctx.Identifier[0]);
+    const identifier = printTokenWithComments(ctx.Identifier[0]);
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
@@ -480,7 +477,7 @@ class ClassesPrettierVisitor {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   throws(ctx) {
@@ -503,7 +500,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.block);
     }
 
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   instanceInitializer(ctx) {
@@ -550,7 +547,7 @@ class ClassesPrettierVisitor {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   constructorDeclarator(ctx) {
@@ -572,7 +569,7 @@ class ClassesPrettierVisitor {
   }
 
   simpleTypeName(ctx) {
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   constructorBody(ctx) {
@@ -712,9 +709,9 @@ class ClassesPrettierVisitor {
     }
 
     return concat([
-      getLeadingComments(ctx.Semicolon[0]),
+      ...getTokenLeadingComments(ctx.Semicolon[0]),
       "",
-      getTrailingComments(ctx.Semicolon[0])
+      ...getTokenTrailingComments(ctx.Semicolon[0])
     ]);
   }
 

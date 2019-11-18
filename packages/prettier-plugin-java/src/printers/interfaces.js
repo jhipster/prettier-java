@@ -2,12 +2,8 @@
 /* eslint-disable no-unused-vars */
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const {
-  concat,
-  group,
-  indent,
-  getImageWithComments
-} = require("./prettier-builder");
+const { concat, group, indent } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   rejectAndConcat,
   rejectAndJoin,
@@ -65,7 +61,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   extendsInterfaces(ctx) {
@@ -133,7 +129,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   interfaceMethodDeclaration(ctx) {
@@ -158,7 +154,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   annotationTypeDeclaration(ctx) {
@@ -190,7 +186,7 @@ class InterfacesPrettierVisitor {
 
   annotationTypeMemberDeclaration(ctx) {
     if (ctx.Semicolon) {
-      return getImageWithComments(this.getSingle(ctx));
+      return printTokenWithComments(this.getSingle(ctx));
     }
     return this.visitSingle(ctx);
   }
@@ -227,7 +223,7 @@ class InterfacesPrettierVisitor {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   defaultValue(ctx) {

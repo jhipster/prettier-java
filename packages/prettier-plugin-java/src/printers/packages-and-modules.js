@@ -2,7 +2,8 @@
 /* eslint-disable no-unused-vars */
 
 const { line, hardline, indent, group } = require("prettier").doc.builders;
-const { concat, join, getImageWithComments } = require("./prettier-builder");
+const { concat, join } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   buildFqn,
   rejectAndJoin,
@@ -223,7 +224,7 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   requiresModifier(ctx) {
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   isModuleCompilationUnit(ctx) {

@@ -1,11 +1,7 @@
 "use strict";
 const _ = require("lodash");
-const {
-  join,
-  concat,
-  group,
-  getImageWithComments
-} = require("./prettier-builder");
+const { join, concat, group } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
@@ -177,7 +173,7 @@ function findDeepElementInPartsArray(item, elt) {
 
 function displaySemicolon(token, params) {
   if (params !== undefined && params.allowEmptyStatement) {
-    return getImageWithComments(token);
+    return printTokenWithComments(token);
   }
 
   if (!hasComments(token)) {
@@ -185,7 +181,7 @@ function displaySemicolon(token, params) {
   }
 
   token.image = "";
-  return getImageWithComments(token);
+  return printTokenWithComments(token);
 }
 
 function hasLeadingComments(token) {

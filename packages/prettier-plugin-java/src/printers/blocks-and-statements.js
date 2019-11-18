@@ -2,13 +2,8 @@
 /* eslint-disable no-unused-vars */
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const {
-  group,
-  indent,
-  concat,
-  join,
-  getImageWithComments
-} = require("./prettier-builder");
+const { group, indent, concat, join } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   displaySemicolon,
   rejectAndConcat,
@@ -78,7 +73,7 @@ class BlocksAndStatementPrettierVisitor {
       return this.visitSingle(ctx);
     }
 
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   statement(ctx, params) {
@@ -308,7 +303,7 @@ class BlocksAndStatementPrettierVisitor {
     const statementExpressions = this.mapVisit(ctx.statementExpression);
     const commas = ctx.Comma
       ? ctx.Comma.map(elt => {
-          return concat([getImageWithComments(elt), " "]);
+          return concat([printTokenWithComments(elt), " "]);
         })
       : [];
     return rejectAndJoinSeps(commas, statementExpressions);
