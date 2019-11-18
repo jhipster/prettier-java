@@ -24,8 +24,8 @@ function parse(inputText, entryPoint = "compilationUnit") {
   }
 
   parser.input = lexResult.tokens;
-  parser.leadingComments = {};
-  parser.trailingComments = {};
+  parser.mostEnclosiveCstNodeByStartOffset = {};
+  parser.mostEnclosiveCstNodeByEndOffset = {};
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
@@ -44,7 +44,12 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  attachComments(lexResult.tokens, lexResult.groups.comments, parser);
+  attachComments(
+    lexResult.tokens,
+    lexResult.groups.comments,
+    parser.mostEnclosiveCstNodeByStartOffset,
+    parser.mostEnclosiveCstNodeByEndOffset
+  );
 
   return cst;
 }

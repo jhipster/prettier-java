@@ -45,8 +45,8 @@ class JavaParser extends Parser {
 
     const $ = this;
 
-    this.leadingComments = {};
-    this.trailingComments = {};
+    this.mostEnclosiveCstNodeByStartOffset = {};
+    this.mostEnclosiveCstNodeByEndOffset = {};
 
     // ---------------------
     // Productions from §3 (Lexical Structure)
@@ -78,8 +78,12 @@ class JavaParser extends Parser {
   cstPostNonTerminal(ruleCstResult, ruleName) {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
-      this.leadingComments[ruleCstResult.location.startOffset] = ruleCstResult;
-      this.trailingComments[ruleCstResult.location.endOffset] = ruleCstResult;
+      this.mostEnclosiveCstNodeByStartOffset[
+        ruleCstResult.location.startOffset
+      ] = ruleCstResult;
+      this.mostEnclosiveCstNodeByEndOffset[
+        ruleCstResult.location.endOffset
+      ] = ruleCstResult;
     }
   }
 
