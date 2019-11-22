@@ -11,6 +11,7 @@ const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
 const { shouldIgnore } = require("./comments");
+const { getSkipValidations } = require("./utils");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -38,10 +39,12 @@ const { shouldIgnore } = require("./comments");
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
-      // TODO: performance: maxLookahead = 1 may be faster, but could we refactor the grammar to it?
-      //       and more importantly, do we want to?
+      // TODO: Try to Specify max lookahead 2 only where needed
+      //       and use `1` by default
       maxLookahead: 2,
-      nodeLocationTracking: "full"
+      nodeLocationTracking: "full",
+      // traceInitPerf: 2,
+      skipValidations: getSkipValidations()
     });
 
     const $ = this;
