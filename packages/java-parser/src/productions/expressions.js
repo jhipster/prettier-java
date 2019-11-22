@@ -233,31 +233,35 @@ function defineRules($, t) {
   });
 
   $.RULE("primarySuffix", () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(t.Dot);
-          $.OR2([
-            { ALT: () => $.CONSUME(t.This) },
-            {
-              ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
-            },
-            {
-              ALT: () => {
-                $.OPTION(() => {
-                  $.SUBRULE($.typeArguments);
-                });
-                $.CONSUME(t.Identifier);
+    $.OR({
+      DEF: [
+        {
+          ALT: () => {
+            $.CONSUME(t.Dot);
+            $.OR2([
+              { ALT: () => $.CONSUME(t.This) },
+              {
+                ALT: () =>
+                  $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
+              },
+              {
+                ALT: () => {
+                  $.OPTION(() => {
+                    $.SUBRULE($.typeArguments);
+                  });
+                  $.CONSUME(t.Identifier);
+                }
               }
-            }
-          ]);
-        }
-      },
-      { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
-      { ALT: () => $.SUBRULE($.classLiteralSuffix) },
-      { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
-      { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
-    ]);
+            ]);
+          }
+        },
+        { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
+        { ALT: () => $.SUBRULE($.classLiteralSuffix) },
+        { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
+        { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   $.RULE("fqnOrRefType", () => {
@@ -431,10 +435,13 @@ function defineRules($, t) {
   });
 
   $.RULE("typeArgumentsOrDiamond", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.diamond) },
-      { ALT: () => $.SUBRULE($.typeArguments) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.diamond) },
+        { ALT: () => $.SUBRULE($.typeArguments) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   $.RULE("diamond", () => {

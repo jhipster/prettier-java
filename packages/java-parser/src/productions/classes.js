@@ -216,12 +216,15 @@ function defineRules($, t) {
 
   // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannType
   $.RULE("unannType", () => {
-    $.OR([
-      // The "unannReferenceType" must appear before the "unannPrimitiveType" type
-      // due to common prefix
-      { ALT: () => $.SUBRULE($.unannReferenceType) },
-      { ALT: () => $.SUBRULE($.unannPrimitiveType) }
-    ]);
+    $.OR({
+      DEF: [
+        // The "unannReferenceType" must appear before the "unannPrimitiveType" type
+        // due to common prefix
+        { ALT: () => $.SUBRULE($.unannReferenceType) },
+        { ALT: () => $.SUBRULE($.unannPrimitiveType) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannPrimitiveType
