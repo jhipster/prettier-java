@@ -147,8 +147,22 @@ function defineRules($, t) {
   $.RULE("requiresModuleDirective", () => {
     // Spec Deviation: extracted from "moduleDirective"
     $.CONSUME(t.Requires);
-    $.MANY(() => {
-      $.SUBRULE($.requiresModifier);
+    $.MANY({
+      GATE: () => {
+        /**
+         * https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9 -
+         *   There is one exception: immediately to the right of the character sequence `requires` in the ModuleDirective production,
+         *   the character sequence `transitive` is tokenized as a keyword unless it is followed by a separator,
+         *   in which case it is tokenized as an identifier.
+         */
+        return (
+          (tokenMatcher($.LA(1).tokenType, t.Transitive) &&
+            tokenMatcher($.LA(2).tokenType, t.Separators)) === false
+        );
+      },
+      DEF: () => {
+        $.SUBRULE($.requiresModifier);
+      }
     });
     $.SUBRULE($.moduleName);
     $.CONSUME(t.Semicolon);
