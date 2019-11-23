@@ -3,10 +3,25 @@
 const { expect } = require("chai");
 const javaParser = require("../src/index");
 
+// TODO: we don't need to copy the describe section so many times in this file...
+//   `IT` should be nested under describe...
 describe("The Java Parser fixed bugs", () => {
   it("issue #129 - this.<bar>.baz()", () => {
     const input = "this.<Number>anyIterableType()";
     expect(() => javaParser.parse(input, "expression")).to.not.throw();
+  });
+
+  it("issue #112 - Special handling of transitive keyword in module requires statement", () => {
+    const input = `module foo {
+      // Regular requires statement (without modifier)
+      requires java.base;
+      // "transitive" as keyword
+      requires transitive java.compiler;
+      // "transitive" as Identifier
+      requires transitive.foo;
+    }
+    `;
+    expect(() => javaParser.parse(input)).to.not.throw();
   });
 });
 

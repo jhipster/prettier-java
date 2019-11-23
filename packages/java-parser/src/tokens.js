@@ -168,6 +168,12 @@ const UnarySuffixOperator = createToken({
   pattern: Lexer.NA
 });
 
+// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.11
+const Separators = createToken({
+  name: "Separators",
+  pattern: Lexer.NA
+});
+
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.6
 // Note [\\x09\\x20\\x0C] is equivalent to [\\t\\x20\\f] and that \\x20 represents
 // space character
@@ -342,21 +348,21 @@ createKeywordLikeToken({ name: "False", pattern: "false" });
 createKeywordLikeToken({ name: "Null", pattern: "null" });
 
 // punctuation and symbols
-createToken({ name: "At", pattern: "@" });
+createToken({ name: "At", pattern: "@", categories: [Separators] });
 createToken({ name: "Arrow", pattern: "->" });
-createToken({ name: "DotDotDot", pattern: "..." });
-createToken({ name: "Dot", pattern: "." });
-createToken({ name: "Comma", pattern: "," });
-createToken({ name: "Semicolon", pattern: ";" });
-createToken({ name: "ColonColon", pattern: "::" });
+createToken({ name: "DotDotDot", pattern: "...", categories: [Separators] });
+createToken({ name: "Dot", pattern: ".", categories: [Separators] });
+createToken({ name: "Comma", pattern: ",", categories: [Separators] });
+createToken({ name: "Semicolon", pattern: ";", categories: [Separators] });
+createToken({ name: "ColonColon", pattern: "::", categories: [Separators] });
 createToken({ name: "Colon", pattern: ":" });
 createToken({ name: "QuestionMark", pattern: "?" });
-createToken({ name: "LBrace", pattern: "(" });
-createToken({ name: "RBrace", pattern: ")" });
-createToken({ name: "LCurly", pattern: "{" });
-createToken({ name: "RCurly", pattern: "}" });
-createToken({ name: "LSquare", pattern: "[" });
-createToken({ name: "RSquare", pattern: "]" });
+createToken({ name: "LBrace", pattern: "(", categories: [Separators] });
+createToken({ name: "RBrace", pattern: ")", categories: [Separators] });
+createToken({ name: "LCurly", pattern: "{", categories: [Separators] });
+createToken({ name: "RCurly", pattern: "}", categories: [Separators] });
+createToken({ name: "LSquare", pattern: "[", categories: [Separators] });
+createToken({ name: "RSquare", pattern: "]", categories: [Separators] });
 
 // prefix and suffix operators
 // must be defined before "-"
