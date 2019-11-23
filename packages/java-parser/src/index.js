@@ -8,6 +8,7 @@ const {
 } = require("./comments");
 
 const parser = new JavaParser();
+
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
 
