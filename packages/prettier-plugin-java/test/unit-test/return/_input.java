@@ -36,4 +36,8 @@ public abstract class Return {
     );
   }
 
+  // Bug fix #290
+  public boolean shouldBreakInOneLine(Example that) {
+    return oneVeryLongPrimaryExpression && andYetAnotherVeryVeryLongPrimaryExpression;
+  }
 }

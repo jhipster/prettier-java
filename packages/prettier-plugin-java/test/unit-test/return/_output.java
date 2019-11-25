@@ -43,4 +43,11 @@ public abstract class Return {
       seventhVariable
     );
   }
+
+  // Bug fix #290
+  public boolean shouldBreakInOneLine(Example that) {
+    return (
+      oneVeryLongPrimaryExpression && andYetAnotherVeryVeryLongPrimaryExpression
+    );
+  }
 }
