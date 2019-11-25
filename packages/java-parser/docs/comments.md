@@ -2,7 +2,7 @@
 
 ## Objective
 
-Attach each comment to a CST node or token as either leading or trainling comment.
+Attach each comment to a CST node or token as either leading or trailing comment.
 
 ### Attach comment to the highest node possible
 
