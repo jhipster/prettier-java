@@ -2,11 +2,11 @@
 /* eslint-disable no-unused-vars */
 
 const { buildFqn } = require("./printer-utils");
-const { getImageWithComments } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 
 class NamesPrettierVisitor {
   typeIdentifier(ctx) {
-    return getImageWithComments(ctx.Identifier[0]);
+    return printTokenWithComments(ctx.Identifier[0]);
   }
 
   moduleName(ctx) {
@@ -26,7 +26,7 @@ class NamesPrettierVisitor {
   }
 
   methodName(ctx) {
-    return getImageWithComments(ctx.Identifier[0]);
+    return printTokenWithComments(ctx.Identifier[0]);
   }
 
   packageOrTypeName(ctx) {

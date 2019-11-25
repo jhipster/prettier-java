@@ -3,12 +3,8 @@
 
 const _ = require("lodash");
 const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
-const {
-  concat,
-  group,
-  indent,
-  getImageWithComments
-} = require("./prettier-builder");
+const { concat, group, indent } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   matchCategory,
   rejectAndJoin,
@@ -44,7 +40,7 @@ class ExpressionsPrettierVisitor {
       return this.visitSingle(ctx);
     }
 
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   lambdaParametersWithBraces(ctx) {
@@ -122,7 +118,7 @@ class ExpressionsPrettierVisitor {
     if (ctx.unannType) {
       return this.visitSingle(ctx);
     }
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   lambdaBody(ctx) {
@@ -330,7 +326,7 @@ class ExpressionsPrettierVisitor {
 
   primaryPrefix(ctx, params) {
     if (ctx.This || ctx.Void || ctx.Boolean) {
-      return getImageWithComments(this.getSingle(ctx));
+      return printTokenWithComments(this.getSingle(ctx));
     }
 
     return this.visitSingle(ctx, params);

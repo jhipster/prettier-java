@@ -10,7 +10,6 @@ const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
-const { shouldIgnore } = require("./comments");
 const { getSkipValidations } = require("./utils");
 
 /**
@@ -48,8 +47,9 @@ class JavaParser extends Parser {
     });
 
     const $ = this;
-    this.ignoreNodes = {};
-    this.ignoreComments = [];
+
+    this.mostEnclosiveCstNodeByStartOffset = {};
+    this.mostEnclosiveCstNodeByEndOffset = {};
 
     // ---------------------
     // Productions from §3 (Lexical Structure)
@@ -81,7 +81,12 @@ class JavaParser extends Parser {
   cstPostNonTerminal(ruleCstResult, ruleName) {
     super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
-      shouldIgnore(ruleCstResult, this.ignoredComments, this.ignoredNodes);
+      this.mostEnclosiveCstNodeByStartOffset[
+        ruleCstResult.location.startOffset
+      ] = ruleCstResult;
+      this.mostEnclosiveCstNodeByEndOffset[
+        ruleCstResult.location.endOffset
+      ] = ruleCstResult;
     }
   }
 
@@ -105,11 +110,6 @@ class JavaParser extends Parser {
         this.isBackTrackingStack.pop();
       }
     });
-  }
-
-  setIgnoredComments(comments) {
-    this.ignoredNodes = {};
-    this.ignoredComments = [...comments];
   }
 }
 

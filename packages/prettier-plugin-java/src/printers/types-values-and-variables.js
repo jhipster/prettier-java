@@ -3,7 +3,8 @@
 
 const _ = require("lodash");
 
-const { concat, join, getImageWithComments } = require("./prettier-builder");
+const { concat, join } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   rejectAndJoin,
   rejectAndConcat,
@@ -26,11 +27,11 @@ class TypesValuesAndVariablesPrettierVisitor {
   }
 
   integralType(ctx) {
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   floatingPointType(ctx) {
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   referenceType(ctx) {

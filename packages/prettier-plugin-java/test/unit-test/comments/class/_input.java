@@ -795,4 +795,21 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
     // See https://jira.spring.io/browse/DATACMNS-1231
     return Optional.of(Constants.SYSTEM_ACCOUNT);
   }
+
+  // Bug Fix: #262
+  @Test
+  @Transactional
+  public void getAllCountries() throws Exception {
+    // Initialize the database
+    countryRepository.saveAndFlush(country);
+
+    // Get all the countryList
+    restCountryMockMvc.perform(get("/api/countries?sort=id,desc")).andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .andExpect(jsonPath("$.[*].id").value(hasItem(country.getId().intValue())))
+        .andExpect(jsonPath("$.[*].isoCode").value(hasItem(DEFAULT_ISO_CODE.toString())))
+        .andExpect(jsonPath("$.[*].label").value(hasItem(DEFAULT_LABEL.toString())))
+        .andExpect(jsonPath("$.[*].display").value(hasItem(DEFAULT_DISPLAY.booleanValue()))).andExpect(
+            jsonPath("$.[*].internationalDialingCode").value(hasItem(DEFAULT_INTERNATIONAL_DIALING_CODE.toString())));
+  }
 }

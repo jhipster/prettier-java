@@ -2,13 +2,8 @@
 /* eslint-disable no-unused-vars */
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const {
-  group,
-  indent,
-  concat,
-  join,
-  getImageWithComments
-} = require("./prettier-builder");
+const { group, indent, concat, join } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const {
   displaySemicolon,
   rejectAndConcat,
@@ -19,7 +14,9 @@ const {
   putIntoBraces,
   putIntoCurlyBraces,
   isStatementEmptyStatement,
-  sortModifiers
+  sortModifiers,
+  hasTrailingLineComments,
+  hasLeadingLineComments
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {
@@ -76,10 +73,35 @@ class BlocksAndStatementPrettierVisitor {
       return this.visitSingle(ctx);
     }
 
-    return getImageWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   statement(ctx, params) {
+    // handling Labeled statements comments
+    if (ctx.labeledStatement !== undefined) {
+      const newLabelStatement = { ...ctx.labeledStatement[0] };
+      const newColon = { ...ctx.labeledStatement[0].children.Colon[0] };
+      const newStatement = { ...ctx.labeledStatement[0].children.statement[0] };
+
+      const labeledStatementLeadingComments = [];
+
+      if (newColon.trailingComments !== undefined) {
+        labeledStatementLeadingComments.push(...newColon.trailingComments);
+        delete newColon.trailingComments;
+      }
+
+      if (newStatement.leadingComments !== undefined) {
+        labeledStatementLeadingComments.push(...newStatement.leadingComments);
+        delete newStatement.leadingComments;
+      }
+
+      newLabelStatement.leadingComments = labeledStatementLeadingComments;
+      newLabelStatement.children.Colon[0] = newColon;
+      newLabelStatement.children.statement[0] = newStatement;
+
+      return this.visit([newLabelStatement]);
+    }
+
     return this.visitSingle(ctx, params);
   }
 
@@ -122,8 +144,14 @@ class BlocksAndStatementPrettierVisitor {
       });
       const elseSeparator = isStatementEmptyStatement(elseStatement) ? "" : " ";
 
+      const elseOnSameLine =
+        hasTrailingLineComments(ctx.statement[0]) ||
+        hasLeadingLineComments(ctx.Else[0])
+          ? hardline
+          : " ";
+
       elsePart = rejectAndJoin(elseSeparator, [
-        concat([" ", ctx.Else[0]]),
+        concat([elseOnSameLine, ctx.Else[0]]),
         elseStatement
       ]);
     }
@@ -245,11 +273,20 @@ class BlocksAndStatementPrettierVisitor {
     const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
     return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
-      forInit,
-      rejectAndJoin(" ", [ctx.Semicolon[0], expression]),
-      rejectAndJoin(" ", [ctx.Semicolon[1], forUpdate]),
-      concat([ctx.RBrace[0], statementSeparator]),
+      rejectAndJoin(" ", [
+        ctx.For[0],
+        putIntoBraces(
+          rejectAndConcat([
+            forInit,
+            rejectAndJoin(line, [ctx.Semicolon[0], expression]),
+            rejectAndJoin(line, [ctx.Semicolon[1], forUpdate])
+          ]),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        )
+      ]),
+      statementSeparator,
       statement
     ]);
   }
@@ -266,7 +303,7 @@ class BlocksAndStatementPrettierVisitor {
     const statementExpressions = this.mapVisit(ctx.statementExpression);
     const commas = ctx.Comma
       ? ctx.Comma.map(elt => {
-          return concat([getImageWithComments(elt), " "]);
+          return concat([printTokenWithComments(elt), " "]);
         })
       : [];
     return rejectAndJoinSeps(commas, statementExpressions);

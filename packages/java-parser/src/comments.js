@@ -1,89 +1,4 @@
 "use strict";
-const _ = require("lodash");
-
-function attachComments(tokens, comments) {
-  const attachComments = [...comments];
-
-  // edge case: when the file contains only one token (;/if no token then EOF)
-  if (tokens.length === 1) {
-    attachComments.forEach(comment => {
-      if (comment.endOffset < tokens[0].startOffset) {
-        if (!tokens[0].leadingComments) {
-          tokens[0].leadingComments = [];
-        }
-        tokens[0].leadingComments.push(comment);
-      } else {
-        if (!tokens[0].trailingComments) {
-          tokens[0].trailingComments = [];
-        }
-        tokens[0].trailingComments.push(comment);
-      }
-    });
-    return tokens;
-  }
-
-  // edge case: when the file start with comments, it attaches as leadingComments to the first token
-  const firstToken = tokens[0];
-  const headComments = [];
-  while (
-    attachComments.length > 0 &&
-    attachComments[0].endOffset < firstToken.startOffset
-  ) {
-    headComments.push(attachComments[0]);
-    attachComments.splice(0, 1);
-  }
-
-  if (headComments.length > 0) {
-    firstToken.leadingComments = headComments;
-  }
-
-  // edge case: when the file end with comments, it attaches as trailingComments to the last token
-  const lastToken = tokens[tokens.length - 1];
-  const tailComments = [];
-  while (
-    attachComments.length > 0 &&
-    attachComments[attachComments.length - 1].startOffset > lastToken.endOffset
-  ) {
-    tailComments.push(attachComments[attachComments.length - 1]);
-    attachComments.splice(attachComments.length - 1, 1);
-  }
-
-  if (tailComments.length > 0) {
-    lastToken.trailingComments = tailComments.reverse();
-  }
-
-  let currentToken = 0;
-  attachComments.forEach(element => {
-    // find the correct position to place the comment
-    while (
-      !(
-        element.startOffset > tokens[currentToken].endOffset &&
-        element.endOffset < tokens[currentToken + 1].startOffset
-      )
-    ) {
-      currentToken++;
-    }
-
-    // attach comment to the next token by default,
-    // it attaches to the current one when the comment and token is on the same line
-    if (
-      element.startLine === tokens[currentToken].endLine &&
-      element.startLine !== tokens[currentToken + 1].startLine
-    ) {
-      if (!tokens[currentToken].trailingComments) {
-        tokens[currentToken].trailingComments = [];
-      }
-      tokens[currentToken].trailingComments.push(element);
-    } else {
-      if (!tokens[currentToken + 1].leadingComments) {
-        tokens[currentToken + 1].leadingComments = [];
-      }
-      tokens[currentToken + 1].leadingComments.push(element);
-    }
-  });
-
-  return tokens;
-}
 
 /**
  * Search where is the position of the comment in the token array by
@@ -113,63 +28,211 @@ function findUpperBoundToken(tokens, comment) {
   return i;
 }
 
+function isPrettierIgnoreComment(comment) {
+  return comment.image.match(
+    /(\/\/(\s*)prettier-ignore(\s*))|(\/\*(\s*)prettier-ignore(\s*)\*\/)/gm
+  );
+}
+
 /**
- * Extends each comments offsets to the left and the right in order to match the
- * previous and next token offset. This allow to directly match the prettier-ignore
- * comment to the correct CSTNode.
- * @param {*} tokens ordered array of tokens
- * @param {*} comments array of prettier-ignore comments
- * @return prettier-ignore comment array with extended location
+ * Pre-processing of tokens in order to
+ * complete the parser's mostEnclosiveCstNodeByStartOffset and mostEnclosiveCstNodeByEndOffset structures.
+ *
+ * @param {ITokens[]} tokens - array of tokens
+ * @param {{[startOffset: number]: CSTNode}} mostEnclosiveCstNodeByStartOffset
+ * @param {{[endOffset: number]: CSTNode}} mostEnclosiveCstNodeByEndOffset
  */
-function extendCommentRange(tokens, comments) {
-  const ignoreComments = [...comments];
-  let position;
-  ignoreComments.forEach(comment => {
-    position = findUpperBoundToken(tokens, comment);
-    comment.extendedRange = {};
-    comment.extendedRange.startOffset =
-      position - 1 < 0 ? comment.startOffset : tokens[position - 1].endOffset;
-    comment.extendedRange.endOffset =
-      position == tokens.length
-        ? comment.endOffset
-        : tokens[position].startOffset;
-  });
-  return ignoreComments;
-}
+function completeMostEnclosiveCSTNodeByOffset(
+  tokens,
+  mostEnclosiveCstNodeByStartOffset,
+  mostEnclosiveCstNodeByEndOffset
+) {
+  tokens.forEach(token => {
+    if (mostEnclosiveCstNodeByStartOffset[token.startOffset] === undefined) {
+      mostEnclosiveCstNodeByStartOffset[token.startOffset] = token;
+    }
 
-function filterPrettierIgnore(comments) {
-  return [...comments].filter(comment =>
-    comment.image.match(
-      /(\/\/(\s*)prettier-ignore(\s*))|(\/\*(\s*)prettier-ignore(\s*)\*\/)/gm
-    )
-  );
-}
-
-function shouldIgnore(node, comments, ignoredNodes) {
-  const matchingComment = _.find(
-    comments,
-    comment => comment.extendedRange.endOffset === node.location.startOffset
-  );
-  if (matchingComment) {
-    ignoredNodes[matchingComment.startOffset] = node;
-  }
-}
-
-function attachIgnoreNodes(ignoreComments, ignoredNodes) {
-  ignoreComments.forEach(comment => {
-    if (ignoredNodes[comment.startOffset]) {
-      ignoredNodes[comment.startOffset].ignore = true;
+    if (mostEnclosiveCstNodeByEndOffset[token.endOffset] === undefined) {
+      mostEnclosiveCstNodeByEndOffset[token.endOffset] = token;
     }
   });
 }
 
-function ignoredComments(tokens, comments) {
-  return extendCommentRange(tokens, filterPrettierIgnore(comments));
+/**
+ * Create two data structures we use to know at which offset a comment can be attached.
+ * - commentsByExtendedStartOffset: map a comment by the endOffset of the previous token.
+ * - commentsByExtendedEndOffset: map a comment by the startOffset of the next token
+ *
+ * @param {ITokens[]} tokens - array of tokens
+ * @param {[]} comments - array of comments
+ *
+ * @return {{commentsByExtendedStartOffset: {[extendedStartOffset: number]: Comment[]}, commentsByExtendedEndOffset: {[extendedEndOffset: number]: Comment[]}}}
+ */
+function mapCommentsByExtendedRange(tokens, comments) {
+  const commentsByExtendedEndOffset = {};
+  const commentsByExtendedStartOffset = {};
+
+  let position;
+  comments.forEach(comment => {
+    position = findUpperBoundToken(tokens, comment);
+
+    const extendedStartOffset =
+      position - 1 < 0 ? comment.startOffset : tokens[position - 1].endOffset;
+    const extendedEndOffset =
+      position == tokens.length
+        ? comment.endOffset
+        : tokens[position].startOffset;
+    comment.extendedOffset = {
+      endOffset: extendedEndOffset
+    };
+
+    if (commentsByExtendedEndOffset[extendedEndOffset] === undefined) {
+      commentsByExtendedEndOffset[extendedEndOffset] = [comment];
+    } else {
+      commentsByExtendedEndOffset[extendedEndOffset].push(comment);
+    }
+
+    if (commentsByExtendedStartOffset[extendedStartOffset] === undefined) {
+      commentsByExtendedStartOffset[extendedStartOffset] = [comment];
+    } else {
+      commentsByExtendedStartOffset[extendedStartOffset].push(comment);
+    }
+  });
+
+  return { commentsByExtendedEndOffset, commentsByExtendedStartOffset };
+}
+
+/**
+ * Determine if a comment should be attached as a trailing comment to a specific node.
+ * A comment should be trailing if it is on the same line than the previous token and
+ * not on the same line than the next token
+ *
+ * @param {*} comment
+ * @param {CSTNode} node
+ * @param {{[startOffset: number]: CSTNode}} mostEnclosiveCstNodeByStartOffset
+ */
+function shouldAttachTrailingComments(
+  comment,
+  node,
+  mostEnclosiveCstNodeByStartOffset
+) {
+  if (isPrettierIgnoreComment(comment)) {
+    return false;
+  }
+
+  const nextNode =
+    mostEnclosiveCstNodeByStartOffset[comment.extendedOffset.endOffset];
+
+  // Last node of the file
+  if (nextNode === undefined) {
+    return true;
+  }
+
+  const nodeEndLine =
+    node.location !== undefined ? node.location.endLine : node.endLine;
+
+  if (comment.startLine !== nodeEndLine) {
+    return false;
+  }
+
+  const nextNodeStartLine =
+    nextNode.location !== undefined
+      ? nextNode.location.startLine
+      : nextNode.startLine;
+  return comment.endLine !== nextNodeStartLine;
+}
+
+/**
+ * Attach comments to the most enclosive CSTNode (node or token)
+ *
+ * @param {ITokens[]} tokens
+ * @param {*} comments
+ * @param {{[startOffset: number]: CSTNode}} mostEnclosiveCstNodeByStartOffset
+ * @param {{[endOffset: number]: CSTNode}} mostEnclosiveCstNodeByEndOffset
+ */
+function attachComments(
+  tokens,
+  comments,
+  mostEnclosiveCstNodeByStartOffset,
+  mostEnclosiveCstNodeByEndOffset
+) {
+  // Edge case: only comments in the file
+  if (tokens.length === 0) {
+    mostEnclosiveCstNodeByStartOffset[NaN].leadingComments = comments;
+    return;
+  }
+
+  // Pre-processing phase to complete the data structures we need to attach
+  // a comment to the right place
+  completeMostEnclosiveCSTNodeByOffset(
+    tokens,
+    mostEnclosiveCstNodeByStartOffset,
+    mostEnclosiveCstNodeByEndOffset
+  );
+  const {
+    commentsByExtendedStartOffset,
+    commentsByExtendedEndOffset
+  } = mapCommentsByExtendedRange(tokens, comments);
+
+  /*
+    This set is here to ensure that we attach comments only once
+    If a comment is attached to a node or token, we remove it from this set
+  */
+  const commentsToAttach = new Set(comments);
+
+  // Attach comments as trailing comments if desirable
+  Object.keys(mostEnclosiveCstNodeByEndOffset).forEach(endOffset => {
+    // We look if some comments is directly following this node/token
+    if (commentsByExtendedStartOffset[endOffset] !== undefined) {
+      const nodeTrailingComments = commentsByExtendedStartOffset[
+        endOffset
+      ].filter(comment => {
+        return (
+          shouldAttachTrailingComments(
+            comment,
+            mostEnclosiveCstNodeByEndOffset[endOffset],
+            mostEnclosiveCstNodeByStartOffset
+          ) && commentsToAttach.has(comment)
+        );
+      });
+
+      if (nodeTrailingComments.length > 0) {
+        mostEnclosiveCstNodeByEndOffset[
+          endOffset
+        ].trailingComments = nodeTrailingComments;
+      }
+
+      nodeTrailingComments.forEach(comment => {
+        commentsToAttach.delete(comment);
+      });
+    }
+  });
+
+  // Attach rest of comments as leading comments
+  Object.keys(mostEnclosiveCstNodeByStartOffset).forEach(startOffset => {
+    // We look if some comments is directly preceding this node/token
+    if (commentsByExtendedEndOffset[startOffset] !== undefined) {
+      const nodeLeadingComments = commentsByExtendedEndOffset[
+        startOffset
+      ].filter(comment => commentsToAttach.has(comment));
+
+      if (nodeLeadingComments.length > 0) {
+        mostEnclosiveCstNodeByStartOffset[
+          startOffset
+        ].leadingComments = nodeLeadingComments;
+      }
+
+      // prettier ignore support
+      for (let i = 0; i < nodeLeadingComments.length; i++) {
+        if (isPrettierIgnoreComment(nodeLeadingComments[i])) {
+          mostEnclosiveCstNodeByStartOffset[startOffset].ignore = true;
+          break;
+        }
+      }
+    }
+  });
 }
 
 module.exports = {
-  attachComments,
-  shouldIgnore,
-  ignoredComments,
-  attachIgnoreNodes
+  attachComments
 };

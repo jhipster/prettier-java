@@ -1,11 +1,7 @@
 "use strict";
 const _ = require("lodash");
-const {
-  join,
-  concat,
-  group,
-  getImageWithComments
-} = require("./prettier-builder");
+const { join, concat, group } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
 function buildFqn(tokens, dots) {
@@ -31,6 +27,9 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
 
 function reject(elems) {
   return elems.filter(item => {
+    if (typeof item === "string") {
+      return item !== "";
+    }
     // eslint-ignore next - We want the conversion to boolean!
     return item != false && item !== undefined;
   });
@@ -174,7 +173,7 @@ function findDeepElementInPartsArray(item, elt) {
 
 function displaySemicolon(token, params) {
   if (params !== undefined && params.allowEmptyStatement) {
-    return getImageWithComments(token);
+    return printTokenWithComments(token);
   }
 
   if (!hasComments(token)) {
@@ -182,7 +181,7 @@ function displaySemicolon(token, params) {
   }
 
   token.image = "";
-  return getImageWithComments(token);
+  return printTokenWithComments(token);
 }
 
 function hasLeadingComments(token) {
@@ -191,6 +190,24 @@ function hasLeadingComments(token) {
 
 function hasTrailingComments(token) {
   return token.trailingComments !== undefined;
+}
+
+function hasLeadingLineComments(token) {
+  return (
+    token.leadingComments !== undefined &&
+    token.leadingComments.length !== 0 &&
+    token.leadingComments[token.leadingComments.length - 1].tokenType.name ===
+      "LineComment"
+  );
+}
+
+function hasTrailingLineComments(token) {
+  return (
+    token.trailingComments !== undefined &&
+    token.trailingComments.length !== 0 &&
+    token.trailingComments[token.trailingComments.length - 1].tokenType.name ===
+      "LineComment"
+  );
 }
 
 function hasComments(token) {
@@ -475,59 +492,10 @@ function retrieveNodesTokenRec(ctx) {
   return tokens;
 }
 
-function buildOriginalText(firstToken, lastToken, originalText) {
-  let startOffset = firstToken.startOffset;
-  let endOffset = lastToken.endOffset;
-  if (firstToken.leadingComments) {
-    startOffset = firstToken.leadingComments[0].startOffset;
-  }
-  if (lastToken.trailingComments) {
-    endOffset =
-      lastToken.trailingComments[lastToken.trailingComments.length - 1]
-        .endOffset;
-  }
-  return originalText.substring(startOffset, endOffset + 1);
-}
-
-function getCSTNodeStartEndToken(ctx) {
-  const tokens = [];
-  if (
-    ctx &&
-    Object.prototype.hasOwnProperty.call(ctx, "image") &&
-    ctx.tokenType
-  ) {
-    return [ctx, ctx];
-  }
-  Object.keys(ctx.children).forEach(child => {
-    ctx.children[child].forEach(subctx => {
-      const subStartEndToken = getCSTNodeStartEndToken(subctx);
-      if (subStartEndToken) {
-        tokens.push(subStartEndToken);
-      }
-    });
-  });
-  if (tokens.length === 0) {
-    return;
-  }
-  const startEndTokens = tokens.reduce((tokenArr1, tokenArr2) => {
-    const ftoken =
-      tokenArr1[0].startOffset - tokenArr2[0].startOffset < 0
-        ? tokenArr1[0]
-        : tokenArr2[0];
-    const ltoken =
-      tokenArr2[1].startOffset - tokenArr1[1].startOffset < 0
-        ? tokenArr1[1]
-        : tokenArr2[1];
-    return [ftoken, ltoken];
-  });
-  return startEndTokens;
-}
-
 function isStatementEmptyStatement(statement) {
   return (
-    statement.type === "concat" &&
-    statement.parts[0] === "" &&
-    statement.parts[1] === ";"
+    statement === ";" ||
+    (statement.type === "concat" && statement.parts[0] === ";")
   );
 }
 
@@ -614,6 +582,8 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
+  hasLeadingLineComments,
+  hasTrailingLineComments,
   isExplicitLambdaParameter,
   getBlankLinesSeparator,
   displaySemicolon,
@@ -625,8 +595,6 @@ module.exports = {
   separateTokensIntoGroups,
   isShiftOperator,
   retrieveNodesToken,
-  buildOriginalText,
-  getCSTNodeStartEndToken,
   isStatementEmptyStatement,
   sortImports,
   isUniqueMethodInvocation
