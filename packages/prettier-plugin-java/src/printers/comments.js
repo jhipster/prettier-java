@@ -77,18 +77,34 @@ function getNodeLeadingComments(node) {
 function getLeadingComments(nodeOrToken, location) {
   const arr = [];
   if (Object.prototype.hasOwnProperty.call(nodeOrToken, "leadingComments")) {
-    nodeOrToken.leadingComments.forEach(comment => {
+    let previousEndLine = nodeOrToken.leadingComments[0].endLine;
+    let step;
+    arr.push(concat(formatComment(nodeOrToken.leadingComments[0])));
+    for (let i = 1; i < nodeOrToken.leadingComments.length; i++) {
+      step = nodeOrToken.leadingComments[i].startLine - previousEndLine;
       if (
-        comment.tokenType.name === "LineComment" ||
-        comment.endLine !== location.startLine ||
-        comment.startOffset > location.startOffset
+        step === 1 ||
+        nodeOrToken.leadingComments[i].startOffset > location.startOffset
       ) {
-        arr.push(concat(formatComment(comment)));
         arr.push(hardline);
-      } else {
-        arr.push(concat(formatComment(comment)));
+      } else if (step > 1) {
+        arr.push(hardline, hardline);
       }
-    });
+
+      arr.push(concat(formatComment(nodeOrToken.leadingComments[i])));
+      previousEndLine = nodeOrToken.leadingComments[i].endLine;
+    }
+
+    step = location.startLine - previousEndLine;
+    if (
+      step === 1 ||
+      nodeOrToken.leadingComments[nodeOrToken.leadingComments.length - 1]
+        .startOffset > location.startOffset
+    ) {
+      arr.push(hardline);
+    } else if (step > 1) {
+      arr.push(hardline, hardline);
+    }
   }
 
   return arr;
