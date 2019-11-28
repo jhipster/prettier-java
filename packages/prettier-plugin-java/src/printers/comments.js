@@ -204,26 +204,10 @@ function processComments(docs) {
   });
 }
 
-function processCommentsOnNode(ctx, value) {
-  if (!Array.isArray(ctx)) {
-    return printNodeWithComments(ctx, value);
-  }
-
-  if (ctx.length === 1) {
-    return printNodeWithComments(ctx[0], value);
-  }
-
-  return concat(
-    ctx.map(elt => {
-      return printNodeWithComments(elt, value);
-    })
-  );
-}
-
 module.exports = {
   processComments,
   printTokenWithComments,
   getTokenLeadingComments,
   getTokenTrailingComments,
-  processCommentsOnNode
+  printNodeWithComments
 };
