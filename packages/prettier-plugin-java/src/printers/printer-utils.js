@@ -160,6 +160,15 @@ function sortModifiers(modifiers) {
   });
 
   otherModifiers.sort((a, b) => {
+    // sort annotations after modifiers
+    if (a.children.annotation && b.children.annotation) {
+      return 0;
+    } else if (a.children.annotation) {
+      return 1;
+    } else if (b.children.annotation) {
+      return -1;
+    }
+
     const modifierIndexA = orderedModifiers.indexOf(Object.keys(a.children)[0]);
     const modifierIndexB = orderedModifiers.indexOf(Object.keys(b.children)[0]);
 
