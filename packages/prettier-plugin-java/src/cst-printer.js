@@ -18,7 +18,7 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
-const { processCommentsOnNode } = require("./printers/comments");
+const { printNodeWithComments } = require("./printers/comments");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
@@ -72,16 +72,19 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         return "";
       }
 
-      if (ctx.ignore) {
+      const node = Array.isArray(ctx) ? ctx[0] : ctx;
+
+      if (node.ignore) {
         try {
           const startOffset =
-            ctx.leadingComments !== undefined
-              ? ctx.leadingComments[0].startOffset
-              : ctx.location.startOffset;
+            node.leadingComments !== undefined
+              ? node.leadingComments[0].startOffset
+              : node.location.startOffset;
           const endOffset =
-            ctx.trailingComments !== undefined
-              ? ctx.trailingComments[ctx.trailingComments.length - 1].endOffset
-              : ctx.location.endOffset;
+            node.trailingComments !== undefined
+              ? node.trailingComments[node.trailingComments.length - 1]
+                  .endOffset
+              : node.location.endOffset;
 
           return this.originalText.substring(startOffset, endOffset + 1);
         } catch (e) {
@@ -92,7 +95,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         }
       }
 
-      return processCommentsOnNode(ctx, orgVisit.call(this, ctx, inParam));
+      return printNodeWithComments(node, orgVisit.call(this, node, inParam));
     };
   }
 }
