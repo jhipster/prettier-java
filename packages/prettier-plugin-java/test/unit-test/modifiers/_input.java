@@ -1,25 +1,25 @@
-static public interface InterfaceWithModifiers {
-  static final public String INTERFACE_CONSTANT = "abc";
+@Annotation(annotationAttribute = CONSTANT_STRING) static public interface InterfaceWithModifiers {
+  static final @Annotation(annotationAttribute = CONSTANT_STRING) public String INTERFACE_CONSTANT = "abc";
 
-  default public String interfaceDefaultMethod() {
+  @Annotation(annotationAttribute = CONSTANT_STRING) default public String interfaceDefaultMethod() {
     return INTERFACE_CONSTANT;
   }
 
-  static public String interfaceStaticMethod() {
+  static @Annotation(annotationAttribute = CONSTANT_STRING) public String interfaceStaticMethod() {
     return INTERFACE_CONSTANT;
   }
 }
 
-abstract public class AbstractClassWithModifiers {
-  volatile private static String field;
+@Annotation(annotationAttribute = CONSTANT_STRING) abstract public class AbstractClassWithModifiers {
+  volatile private @Annotation(annotationAttribute = CONSTANT_STRING) static String field;
 
-  abstract synchronized protected String method();
+  @Annotation(annotationAttribute = CONSTANT_STRING) abstract synchronized protected String method();
 }
 
-final static public class ClassWithModifiers {
-  transient final private static String CONSTANT = "abc";
+final static public @Annotation(annotationAttribute = CONSTANT_STRING) class ClassWithModifiers {
+  transient @Annotation(annotationAttribute = CONSTANT_STRING) final private static String CONSTANT = "abc";
 
-  final static synchronized protected String method() {
+  final static synchronized protected @Annotation(annotationAttribute = CONSTANT_STRING) String method() {
     return CONSTANT;
   }
 }
