@@ -16,7 +16,7 @@ const orderedModifiers = [
   "Volatile",
   "Synchronized",
   "Native",
-  "Strictfp",
+  "Strictfp"
 ];
 
 function buildFqn(tokens, dots) {
@@ -160,10 +160,8 @@ function sortModifiers(modifiers) {
   });
 
   otherModifiers.sort((a, b) => {
-    const modifierIndexA =
-        orderedModifiers.indexOf(Object.keys(a.children)[0]);
-    const modifierIndexB =
-        orderedModifiers.indexOf(Object.keys(b.children)[0]);
+    const modifierIndexA = orderedModifiers.indexOf(Object.keys(a.children)[0]);
+    const modifierIndexB = orderedModifiers.indexOf(Object.keys(b.children)[0]);
 
     return modifierIndexA - modifierIndexB;
   });
