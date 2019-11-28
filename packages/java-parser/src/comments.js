@@ -234,7 +234,7 @@ function matchFormatterOffOnPair(comments) {
 function shouldNotFormat(node, commentPairs) {
   const matchingPair = _.findLast(
     commentPairs,
-    comment => comment.off.extendedRange.endOffset < node.location.startOffset
+    comment => comment.off.extendedRange.endOffset <= node.location.startOffset
   );
   if (
     matchingPair !== undefined &&
