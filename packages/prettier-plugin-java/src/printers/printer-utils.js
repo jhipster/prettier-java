@@ -4,6 +4,21 @@ const { join, concat, group } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
+const orderedModifiers = [
+  "Public",
+  "Protected",
+  "Private",
+  "Abstract",
+  "Default",
+  "Static",
+  "Final",
+  "Transient",
+  "Volatile",
+  "Synchronized",
+  "Native",
+  "Strictfp",
+];
+
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
@@ -142,6 +157,15 @@ function sortModifiers(modifiers) {
       otherModifiers.push(modifier);
       hasOtherModifier = true;
     }
+  });
+
+  otherModifiers.sort((a, b) => {
+    const modifierIndexA =
+        orderedModifiers.indexOf(Object.keys(a.children)[0]);
+    const modifierIndexB =
+        orderedModifiers.indexOf(Object.keys(b.children)[0]);
+
+    return modifierIndexA - modifierIndexB;
   });
 
   return [firstAnnotations, otherModifiers];
