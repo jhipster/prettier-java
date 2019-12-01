@@ -378,11 +378,6 @@ class ClassesPrettierVisitor {
     const declarator = this.visit(ctx.methodDeclarator);
     const throws = this.visit(ctx.throws);
 
-    let throwsPart = "";
-    if (throws) {
-      throwsPart = indent(rejectAndConcat([softline, throws]));
-    }
-
     return group(
       concat([
         rejectAndJoin(" ", [
@@ -390,7 +385,7 @@ class ClassesPrettierVisitor {
           rejectAndJoin(line, annotations),
           result,
           declarator,
-          throwsPart
+          throws
         ])
       ])
     );
@@ -482,12 +477,12 @@ class ClassesPrettierVisitor {
 
   throws(ctx) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
-    return join(" ", [ctx.Throws[0], exceptionTypeList]);
+    return group(indent(join(line, [ctx.Throws[0], exceptionTypeList])));
   }
 
   exceptionTypeList(ctx) {
     const exceptionTypes = this.mapVisit(ctx.exceptionType);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
     return rejectAndJoinSeps(commas, exceptionTypes);
   }
 
@@ -522,11 +517,6 @@ class ClassesPrettierVisitor {
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
 
-    let throwsPart = "";
-    if (throws) {
-      throwsPart = indent(rejectAndConcat([softline, throws]));
-    }
-
     return rejectAndJoin(" ", [
       group(
         rejectAndJoin(hardline, [
@@ -534,7 +524,7 @@ class ClassesPrettierVisitor {
           rejectAndJoin(" ", [
             join(" ", otherModifiers),
             constructorDeclarator,
-            throwsPart
+            throws
           ])
         ])
       ),
