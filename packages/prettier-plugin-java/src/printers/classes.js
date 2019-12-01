@@ -461,14 +461,22 @@ class ClassesPrettierVisitor {
   variableArityParameter(ctx) {
     const variableModifier = this.mapVisit(ctx.variableModifier);
     const unannType = this.visit(ctx.unannType);
-    const annotation = this.mapVisit(ctx.annotation);
+    const annotations = this.mapVisit(ctx.annotation);
     const identifier = ctx.Identifier[0];
 
-    return rejectAndConcat([
+    const unannTypePrinted =
+      ctx.annotation === undefined
+        ? concat([unannType, ctx.DotDotDot[0]])
+        : unannType;
+    const annotationsPrinted =
+      ctx.annotation === undefined
+        ? annotations
+        : concat([rejectAndJoin(" ", annotations), ctx.DotDotDot[0]]);
+
+    return rejectAndJoin(" ", [
       join(" ", variableModifier),
-      unannType,
-      join(" ", annotation),
-      concat([ctx.DotDotDot[0], " "]),
+      unannTypePrinted,
+      annotationsPrinted,
       identifier
     ]);
   }
