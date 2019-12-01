@@ -13,4 +13,12 @@ public class Args {
 
   void lastParameterDotDotDot(String str1, String... str2) {
   }
+
+  // TODO: uncomment when the parser variable arity bug is fixed (see #139)
+  // void variableArityParameters(Object @Nullable... errorMessageArgs) {}
+
+  void variableArityParameters(final String... strings) {
+
+  }
+
 }
