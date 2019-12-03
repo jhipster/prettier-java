@@ -39,13 +39,13 @@ private static final String S = "abc";
 Input:
 
 ```java
-abstract protected class C {}
+final public class C {...}
 ```
 
 Output:
 
 ```java
-protected abstract class C {}
+public final class C {...}
 ```
 
 Input:
