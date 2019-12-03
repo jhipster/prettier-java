@@ -7,17 +7,19 @@ public static interface InterfaceWithModifiers {
 
   @AnnotationOne
   @AnnotationTwo
-  public default @AnnotationThree String interfaceDefaultMethod() {
+  public default @AnnotationThree String defaultMethod() {
     return INTERFACE_CONSTANT;
   }
 
   @AnnotationOne
-  public static @AnnotationTwo String interfaceStaticMethod() {
+  public static @AnnotationTwo String staticMethod() {
     return INTERFACE_CONSTANT;
   }
 
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations();
+
   @AnnotationOne
-  void interfaceMethodOnlyAnnotations();
+  void onlyAnnotations();
 }
 
 @AnnotationOne
@@ -29,6 +31,8 @@ public abstract class AbstractClassWithModifiers {
   @AnnotationOne
   @AnnotationTwo
   protected abstract synchronized @AnnotationThree String method();
+
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations() {}
 
   @AnnotationOne
   void onlyAnnotations() {}
@@ -46,6 +50,8 @@ public static final class ClassWithModifiers {
   protected static final synchronized @AnnotationThree String method() {
     return CONSTANT;
   }
+
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations() {}
 
   @AnnotationOne
   void onlyAnnotations() {}

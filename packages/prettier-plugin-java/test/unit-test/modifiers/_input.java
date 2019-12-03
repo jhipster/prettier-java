@@ -4,15 +4,17 @@
   static final @AnnotationOne public String INTERFACE_CONSTANT = "abc";
 
     @AnnotationOne
-  @AnnotationTwo default public @AnnotationThree String interfaceDefaultMethod() {
+  @AnnotationTwo default public @AnnotationThree String defaultMethod() {
     return INTERFACE_CONSTANT;
   }
 
-  static @AnnotationOne public @AnnotationTwo String interfaceStaticMethod() {
+  static @AnnotationOne public @AnnotationTwo String staticMethod() {
     return INTERFACE_CONSTANT;
   }
 
-  @AnnotationOne void interfaceMethodOnlyAnnotations();
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations();
+
+  @AnnotationOne void onlyAnnotations();
 }
 
 @AnnotationOne abstract public @AnnotationTwo class AbstractClassWithModifiers {
@@ -20,6 +22,8 @@
 
   @AnnotationOne
   @AnnotationTwo abstract synchronized protected @AnnotationThree String method();
+
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations() {}
 
   @AnnotationOne void onlyAnnotations() {}
 }
@@ -30,6 +34,8 @@ final @AnnotationOne static public @AnnotationTwo class ClassWithModifiers {
   final @AnnotationOne static @AnnotationTwo synchronized protected @AnnotationThree String method() {
     return CONSTANT;
   }
+
+  public @AnnotationOne @AnnotationTwo void twoTrailingAnnotations() {}
 
   @AnnotationOne void onlyAnnotations() {}
 }
