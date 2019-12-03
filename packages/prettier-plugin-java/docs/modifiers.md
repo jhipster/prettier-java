@@ -39,7 +39,7 @@ private static final String S = "abc";
 Input:
 
 ```java
-protected abstract class C {}
+abstract protected class C {}
 ```
 
 Output:
