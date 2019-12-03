@@ -1,41 +1,52 @@
-@Annotation(annotationAttribute = CONSTANT_STRING)
+@AnnotationOne
+@AnnotationTwo
+@AnnotationThree
 public static interface InterfaceWithModifiers {
-  public static final @Annotation(
-    annotationAttribute = CONSTANT_STRING
-  ) String INTERFACE_CONSTANT = "abc";
+  @AnnotationOne
+  public static final String INTERFACE_CONSTANT = "abc";
 
-  @Annotation(annotationAttribute = CONSTANT_STRING)
-  public default String interfaceDefaultMethod() {
+  @AnnotationOne
+  @AnnotationTwo
+  public default @AnnotationThree String interfaceDefaultMethod() {
     return INTERFACE_CONSTANT;
   }
 
-  public static @Annotation(
-    annotationAttribute = CONSTANT_STRING
-  ) String interfaceStaticMethod() {
+  @AnnotationOne
+  public static @AnnotationTwo String interfaceStaticMethod() {
     return INTERFACE_CONSTANT;
   }
+
+  @AnnotationOne
+  void interfaceMethodOnlyAnnotations();
 }
 
-@Annotation(annotationAttribute = CONSTANT_STRING)
+@AnnotationOne
+@AnnotationTwo
 public abstract class AbstractClassWithModifiers {
-  private static volatile @Annotation(
-    annotationAttribute = CONSTANT_STRING
-  ) String field;
+  @Annotation
+  private static volatile String field;
 
-  @Annotation(annotationAttribute = CONSTANT_STRING)
-  protected abstract synchronized String method();
+  @AnnotationOne
+  @AnnotationTwo
+  protected abstract synchronized @AnnotationThree String method();
+
+  @AnnotationOne
+  void onlyAnnotations() {}
 }
 
-public static final @Annotation(
-  annotationAttribute = CONSTANT_STRING
-) class ClassWithModifiers {
-  private static final transient @Annotation(
-    annotationAttribute = CONSTANT_STRING
-  ) String CONSTANT = "abc";
+@AnnotationOne
+@AnnotationTwo
+public static final class ClassWithModifiers {
+  @AnnotationOne
+  @AnnotationTwo
+  private static final transient String CONSTANT = "abc";
 
-  protected static final synchronized @Annotation(
-    annotationAttribute = CONSTANT_STRING
-  ) String method() {
+  @AnnotationOne
+  @AnnotationTwo
+  protected static final synchronized @AnnotationThree String method() {
     return CONSTANT;
   }
+
+  @AnnotationOne
+  void onlyAnnotations() {}
 }
