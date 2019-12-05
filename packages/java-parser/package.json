@@ -1,6 +1,6 @@
 {
   "name": "java-parser",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Java Parser in JavaScript",
   "main": "src/index.js",
   "repository": "https://github.com/jhipster/prettier-java/tree/master/packages/java-parser",
