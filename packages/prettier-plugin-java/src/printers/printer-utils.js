@@ -4,6 +4,21 @@ const { join, concat, group } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
+const orderedModifiers = [
+  "Public",
+  "Protected",
+  "Private",
+  "Abstract",
+  "Default",
+  "Static",
+  "Final",
+  "Transient",
+  "Volatile",
+  "Synchronized",
+  "Native",
+  "Strictfp"
+];
+
 function buildFqn(tokens, dots) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
@@ -129,22 +144,52 @@ function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
 }
 
 function sortModifiers(modifiers) {
-  const firstAnnotations = [];
+  let firstAnnotations = [];
   const otherModifiers = [];
+  let lastAnnotations = [];
   let hasOtherModifier = false;
 
-  _.forEach(modifiers, modifier => {
-    if (hasOtherModifier) {
-      otherModifiers.push(modifier);
-    } else if (modifier.children.annotation) {
-      firstAnnotations.push(modifier);
+  /**
+   * iterate in reverse order because we special-case
+   * method annotations which come after all other
+   * modifiers
+   */
+  _.forEachRight(modifiers, modifier => {
+    const isAnnotation = modifier.children.annotation !== undefined;
+    const isMethodAnnotation =
+      isAnnotation &&
+      (modifier.name === "methodModifier" ||
+        modifier.name === "interfaceMethodModifier");
+
+    if (isAnnotation) {
+      if (isMethodAnnotation && !hasOtherModifier) {
+        lastAnnotations.unshift(modifier);
+      } else {
+        firstAnnotations.unshift(modifier);
+      }
     } else {
-      otherModifiers.push(modifier);
+      otherModifiers.unshift(modifier);
       hasOtherModifier = true;
     }
   });
 
-  return [firstAnnotations, otherModifiers];
+  /**
+   * if there are only annotations, move everything from
+   * lastAnnotations to firstAnnotations
+   */
+  if (!hasOtherModifier) {
+    firstAnnotations = firstAnnotations.concat(lastAnnotations);
+    lastAnnotations = [];
+  }
+
+  otherModifiers.sort((a, b) => {
+    const modifierIndexA = orderedModifiers.indexOf(Object.keys(a.children)[0]);
+    const modifierIndexB = orderedModifiers.indexOf(Object.keys(b.children)[0]);
+
+    return modifierIndexA - modifierIndexB;
+  });
+
+  return [firstAnnotations, otherModifiers.concat(lastAnnotations)];
 }
 
 function findDeepElementInPartsArray(item, elt) {
