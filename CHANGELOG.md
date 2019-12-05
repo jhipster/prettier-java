@@ -1,4 +1,42 @@
-# Latest v0.4.0
+# Latest v0.5.0
+
+## Enhancements
+
+### Parser
+
+- Optimize parser initialisation ([#295](https://github.com/jhipster/prettier-java/pull/295))
+
+### Re-Writer
+
+- Sort class, method and field modifiers ([#302](https://github.com/jhipster/prettier-java/pull/302)). See this [doc](https://github.com/jhipster/prettier-java/blob/0767022f20e99dffdaf957192d84b161422dafbf/packages/prettier-plugin-java/docs/modifiers.md) for more information
+
+  ```java
+  // Input
+  final private static @Annotation String S = "abc";
+
+  // Output
+  @Annotation
+  private static final String S = "abc";
+  ```
+
+## Fixes
+
+### Parser
+
+- Fix lexer gap: align use of `transitive` keyword with the specs ([#297](https://github.com/jhipster/prettier-java/pull/297))
+
+### Re-Writer
+
+- Fix enforcement of printWidth for nodes with leading comments ([#278](https://github.com/jhipster/prettier-java/pull/278))
+- Fix switch statements indentation with comments ([#278](https://github.com/jhipster/prettier-java/pull/278))
+- Fix unstable formating when wrapping in return statements ([#294](https://github.com/jhipster/prettier-java/pull/294))
+- Fix variable arity parameters formating ([#304](https://github.com/jhipster/prettier-java/pull/304))
+
+## Miscellaneous
+
+- Drop testing on Node 8 and add testing on Node 13
+
+# v0.4.0
 
 ## Enhancements
 
@@ -9,7 +47,7 @@
 ```java
 public enum EnumWhichBreak {
 
-  ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGTH_VALUE, NINE_VALUE,
+  ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGHT_VALUE, NINE_VALUE,
   TEN_VALUE
 
 }
@@ -26,7 +64,7 @@ public enum EnumWhichBreak {
   FIVE_VALUE,
   SIX_VALUE,
   SEVEN_VALUE,
-  EIGTH_VALUE,
+  EIGHT_VALUE,
   NINE_VALUE,
   TEN_VALUE
 }
@@ -147,7 +185,7 @@ public boolean localVariableDeclarationWhichDoNotBreak() {
 }
 ```
 
-is tranformed in:
+is transformed in:
 
 ```java
 public boolean localVariableDeclarationWhichBreak() {
