@@ -6,7 +6,7 @@
 const javaParserChev = require("../src/index");
 
 const input = `
-public @interface ConfigurationProperties {}
+@Anno byte @Nullable ... test
 `;
 
-javaParserChev.parse(input, "typeDeclaration");
+javaParserChev.parse(input, "variableArityParameter");

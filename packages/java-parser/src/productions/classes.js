@@ -217,10 +217,18 @@ function defineRules($, t) {
   // // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannType
   $.RULE("unannType", () => {
     $.OR([
-      // The "unannReferenceType" must appear before the "unannPrimitiveType" type
-      // due to common prefix
-      { ALT: () => $.SUBRULE($.unannReferenceType) },
-      { ALT: () => $.SUBRULE($.unannPrimitiveType) }
+      // Spec Deviation: The array type "dims" suffix was extracted to this rule
+      // to avoid backtracking for performance reasons.
+      {
+        ALT: () => {
+          $.SUBRULE($.unannPrimitiveType);
+          $.OPTION({
+            GATE: () => this.BACKTRACK_LOOKAHEAD($.isDims),
+            DEF: () => $.SUBRULE2($.dims)
+          });
+        }
+      },
+      { ALT: () => $.SUBRULE($.unannReferenceType) }
     ]);
   });
 
@@ -234,24 +242,11 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannReferenceType
   $.RULE("unannReferenceType", () => {
-    // Spec Deviation: The array type "dims" suffix was extracted to this rule
-    // to avoid backtracking for performance reasons.
-    $.OR([
-      {
-        ALT: () => {
-          $.SUBRULE($.unannPrimitiveType);
-          $.SUBRULE($.dims);
-        }
-      },
-      {
-        ALT: () => {
-          $.SUBRULE($.unannClassOrInterfaceType);
-          $.OPTION(() => {
-            $.SUBRULE2($.dims);
-          });
-        }
-      }
-    ]);
+    $.SUBRULE($.unannClassOrInterfaceType);
+    $.OPTION({
+      GATE: () => this.BACKTRACK_LOOKAHEAD($.isDims),
+      DEF: () => $.SUBRULE2($.dims)
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannClassType
@@ -817,6 +812,14 @@ function defineRules($, t) {
       // TODO: add info from the original error
       throw Error("Cannot Identify the type of a <classBodyDeclaration>");
     }
+  });
+
+  $.RULE("isDims", () => {
+    $.MANY($.annotation);
+    return (
+      tokenMatcher(this.LA(1).tokenType, t.LSquare) &&
+      tokenMatcher(this.LA(2).tokenType, t.RSquare)
+    );
   });
 }
 

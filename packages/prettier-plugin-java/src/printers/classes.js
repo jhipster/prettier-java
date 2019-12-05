@@ -730,6 +730,10 @@ class ClassesPrettierVisitor {
   identifyClassBodyDeclarationType(ctx) {
     return "identifyClassBodyDeclarationType";
   }
+
+  isDims(ctx) {
+    return "isDims";
+  }
 }
 
 module.exports = {
