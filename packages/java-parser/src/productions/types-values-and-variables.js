@@ -136,12 +136,15 @@ function defineRules($, t) {
     });
     $.CONSUME(t.LSquare);
     $.CONSUME(t.RSquare);
-    $.MANY2(() => {
-      $.MANY3(() => {
-        $.SUBRULE2($.annotation);
-      });
-      $.CONSUME2(t.LSquare);
-      $.CONSUME2(t.RSquare);
+    $.MANY2({
+      GATE: () => $.BACKTRACK_LOOKAHEAD($.isDims),
+      DEF: () => {
+        $.MANY3(() => {
+          $.SUBRULE2($.annotation);
+        });
+        $.CONSUME2(t.LSquare);
+        $.CONSUME2(t.RSquare);
+      }
     });
   });
 

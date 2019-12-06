@@ -280,7 +280,14 @@ class ClassesPrettierVisitor {
   }
 
   unannType(ctx) {
-    return this.visitSingle(ctx);
+    if (ctx.unannReferenceType !== undefined) {
+      return this.visit(ctx.unannReferenceType);
+    }
+
+    const unannPrimitiveType = this.visit(ctx.unannPrimitiveType);
+    const dims = this.visit(ctx.dims);
+
+    return rejectAndConcat([unannPrimitiveType, dims]);
   }
 
   unannPrimitiveType(ctx) {
@@ -291,13 +298,10 @@ class ClassesPrettierVisitor {
   }
 
   unannReferenceType(ctx) {
-    const type = ctx.unannPrimitiveType
-      ? this.visit(ctx.unannPrimitiveType)
-      : this.visit(ctx.unannClassOrInterfaceType);
-
+    const unannClassOrInterfaceType = this.visit(ctx.unannClassOrInterfaceType);
     const dims = this.visit(ctx.dims);
 
-    return rejectAndConcat([type, dims]);
+    return rejectAndConcat([unannClassOrInterfaceType, dims]);
   }
 
   unannClassOrInterfaceType(ctx) {
@@ -729,6 +733,10 @@ class ClassesPrettierVisitor {
 
   identifyClassBodyDeclarationType(ctx) {
     return "identifyClassBodyDeclarationType";
+  }
+
+  isDims(ctx) {
+    return "isDims";
   }
 }
 
