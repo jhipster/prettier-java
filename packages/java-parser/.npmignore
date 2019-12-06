@@ -1,1 +1,7 @@
-packages/java-parser/resources/Unicode/*
+resources/Unicode/*
+docs
+samples
+scripts
+test
+.mocharc.js
+diagrams.html
