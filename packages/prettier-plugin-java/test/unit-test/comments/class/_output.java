@@ -452,7 +452,8 @@ public final class ArrayTable<R, C, V>
   public V get(@Nullable Object rowKey, @Nullable Object columnKey) {
     Integer rowIndex = rowKeyToIndex.get(rowKey);
     Integer columnIndex = columnKeyToIndex.get(columnKey);
-    return (rowIndex == null || columnIndex == null) ? null
+    return (rowIndex == null || columnIndex == null)
+      ? null
       : at(rowIndex, columnIndex);
   }
 
@@ -627,7 +628,8 @@ public final class ArrayTable<R, C, V>
   public Map<R, V> column(C columnKey) {
     checkNotNull(columnKey);
     Integer columnIndex = columnKeyToIndex.get(columnKey);
-    return (columnIndex == null) ? ImmutableMap.<R, V>of()
+    return (columnIndex == null)
+      ? ImmutableMap.<R, V>of()
       : new Column(columnIndex);
   }
 

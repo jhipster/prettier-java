@@ -131,20 +131,16 @@ class ExpressionsPrettierVisitor {
       const expression1 = this.visit(ctx.expression[0]);
       const expression2 = this.visit(ctx.expression[1]);
 
-      return group(
-        rejectAndConcat([
-          group(
-            rejectAndConcat([
+      return indent(
+        group(
+          rejectAndConcat([
+            rejectAndJoin(line, [
               binaryExpression,
-              indent(line),
-              concat([ctx.QuestionMark[0], " "]),
-              expression1
+              rejectAndJoin(" ", [ctx.QuestionMark[0], expression1]),
+              rejectAndJoin(" ", [ctx.Colon[0], expression2])
             ])
-          ),
-          indent(line),
-          concat([ctx.Colon[0], " "]),
-          expression2
-        ])
+          ])
+        )
       );
     }
     return binaryExpression;

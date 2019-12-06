@@ -15,6 +15,9 @@ public class BinaryOperations {
     int shortInteger = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
       ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
       : thisIsAShortInteger;
+    int shortInteger2 = thisIsAVeryLongInteger
+      ? thisIsAnotherVeryLongOne
+      : thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
   }
 
   public void ternaryOperationThatShouldNotBreak() {
