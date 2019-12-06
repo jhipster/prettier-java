@@ -1,4 +1,11 @@
-# Latest v0.5.0
+# Latest v0.5.1
+
+## Fixes
+
+- Fix parsing and printing of variable arity parameters with dims ([#310](https://github.com/jhipster/prettier-java/pull/310))
+- Fix package size ([#317](https://github.com/jhipster/prettier-java/pull/317))
+
+# v0.5.0
 
 ## Enhancements
 
