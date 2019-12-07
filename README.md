@@ -91,3 +91,5 @@ And the [Help Wanted](https://github.com/jhipster/prettier-java/labels/help%20wa
 
 Special thanks to [@thorbenvh8](https://github.com/thorbenvh8) for creating the original `prettier-java`
 plugin and the associated Java Parser implemented in JavaScript.
+
+We would also like to thank the [Chevrotain](https://github.com/SAP/chevrotain/graphs/contributors) and [Prettier](https://github.com/prettier/prettier/graphs/contributors) contributors which made this possible.
