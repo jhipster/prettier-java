@@ -5,8 +5,11 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
     // Spec Deviation: extracted the common "interfaceModifier" prefix to avoid backtracking.
-    $.MANY(() => {
-      $.SUBRULE($.interfaceModifier);
+    $.MANY({
+      DEF: () => {
+        $.SUBRULE($.interfaceModifier);
+      },
+      MAX_LOOKAHEAD: 2
     });
 
     $.OR([
@@ -255,7 +258,8 @@ function defineRules($, t) {
             }
           }
         ],
-        IGNORE_AMBIGUITIES: true
+        IGNORE_AMBIGUITIES: true,
+        MAX_LOOKAHEAD: 2
       });
       $.CONSUME(t.RBrace);
     });
