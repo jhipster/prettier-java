@@ -10,6 +10,7 @@ public class BinaryOperations {
 
   public void ternaryOperationThatShouldBreak() {
     int shortInteger = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne : thisIsAShortInteger;
+    int shortInteger2 = thisIsAVeryLongInteger ? thisIsAnotherVeryLongOne : thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
   }
 
   public void ternaryOperationThatShouldNotBreak() {
