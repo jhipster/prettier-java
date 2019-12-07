@@ -1,10 +1,10 @@
-public enum EnumWhichNotBreak {
+public enum Enum {
 
   SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
 
 }
 
-public enum EnumWhichNotBreakWithExtraSemicolon {
+public enum EnumWithExtraSemicolon {
 
   SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
 

@@ -674,7 +674,9 @@ class ClassesPrettierVisitor {
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+    const commas = ctx.Comma
+      ? ctx.Comma.map(elt => concat([elt, hardline]))
+      : [];
 
     return group(rejectAndJoinSeps(commas, enumConstants));
   }
