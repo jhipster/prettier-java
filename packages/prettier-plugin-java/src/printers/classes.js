@@ -16,11 +16,7 @@ const {
   isStatementEmptyStatement
 } = require("./printer-utils");
 const { concat, join, group, indent } = require("./prettier-builder");
-const {
-  printTokenWithComments,
-  getTokenLeadingComments,
-  getTokenTrailingComments
-} = require("./comments");
+const { printTokenWithComments } = require("./comments");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
@@ -657,15 +653,10 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
-    const optionnalComma = ctx.Comma
-      ? ctx.Comma.map(elt => concat([elt, " "]))
-      : [];
+    const optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
 
     return putIntoCurlyBraces(
-      rejectAndJoinSeps(optionnalComma, [
-        enumConstantList,
-        enumBodyDeclarations
-      ]),
+      rejectAndConcat([enumConstantList, optionalComma, enumBodyDeclarations]),
       hardline,
       ctx.LCurly[0],
       ctx.RCurly[0]
@@ -674,7 +665,9 @@ class ClassesPrettierVisitor {
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+    const commas = ctx.Comma
+      ? ctx.Comma.map(elt => concat([elt, hardline]))
+      : [];
 
     return group(rejectAndJoinSeps(commas, enumConstants));
   }
@@ -720,11 +713,7 @@ class ClassesPrettierVisitor {
       ]);
     }
 
-    return concat([
-      ...getTokenLeadingComments(ctx.Semicolon[0]),
-      "",
-      ...getTokenTrailingComments(ctx.Semicolon[0])
-    ]);
+    return { ...ctx.Semicolon[0], image: "" };
   }
 
   isClassDeclaration(ctx) {
