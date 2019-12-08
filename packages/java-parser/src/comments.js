@@ -1,5 +1,7 @@
 "use strict";
 
+const _ = require("lodash");
+
 /**
  * Search where is the position of the comment in the token array by
  * using dichotomic search.
@@ -58,20 +60,7 @@ function completeMostEnclosiveCSTNodeByOffset(
   });
 }
 
-/**
- * Create two data structures we use to know at which offset a comment can be attached.
- * - commentsByExtendedStartOffset: map a comment by the endOffset of the previous token.
- * - commentsByExtendedEndOffset: map a comment by the startOffset of the next token
- *
- * @param {ITokens[]} tokens - array of tokens
- * @param {[]} comments - array of comments
- *
- * @return {{commentsByExtendedStartOffset: {[extendedStartOffset: number]: Comment[]}, commentsByExtendedEndOffset: {[extendedEndOffset: number]: Comment[]}}}
- */
-function mapCommentsByExtendedRange(tokens, comments) {
-  const commentsByExtendedEndOffset = {};
-  const commentsByExtendedStartOffset = {};
-
+function extendRangeOffset(comments, tokens) {
   let position;
   comments.forEach(comment => {
     position = findUpperBoundToken(tokens, comment);
@@ -83,8 +72,28 @@ function mapCommentsByExtendedRange(tokens, comments) {
         ? comment.endOffset
         : tokens[position].startOffset;
     comment.extendedOffset = {
+      startOffset: extendedStartOffset,
       endOffset: extendedEndOffset
     };
+  });
+}
+
+/**
+ * Create two data structures we use to know at which offset a comment can be attached.
+ * - commentsByExtendedStartOffset: map a comment by the endOffset of the previous token.
+ * - commentsByExtendedEndOffset: map a comment by the startOffset of the next token
+ *
+ * @param {ITokens[]} tokens - array of tokens
+ *
+ * @return {{commentsByExtendedStartOffset: {[extendedStartOffset: number]: Comment[]}, commentsByExtendedEndOffset: {[extendedEndOffset: number]: Comment[]}}}
+ */
+function mapCommentsByExtendedRange(comments) {
+  const commentsByExtendedEndOffset = {};
+  const commentsByExtendedStartOffset = {};
+
+  comments.forEach(comment => {
+    const extendedStartOffset = comment.extendedOffset.startOffset;
+    const extendedEndOffset = comment.extendedOffset.endOffset;
 
     if (commentsByExtendedEndOffset[extendedEndOffset] === undefined) {
       commentsByExtendedEndOffset[extendedEndOffset] = [comment];
@@ -172,7 +181,7 @@ function attachComments(
   const {
     commentsByExtendedStartOffset,
     commentsByExtendedEndOffset
-  } = mapCommentsByExtendedRange(tokens, comments);
+  } = mapCommentsByExtendedRange(comments);
 
   /*
     This set is here to ensure that we attach comments only once
@@ -233,6 +242,81 @@ function attachComments(
   });
 }
 
+/**
+ * Filter comments to find formatter:off and formatter:on.
+ * @param comments
+ * @returns formatter:off and formatter:on comments
+ */
+function filterFormatterOffOn(comments) {
+  return [...comments].filter(comment =>
+    comment.image.match(
+      /(\/\/(\s*)@formatter:(off|on)(\s*))|(\/\*(\s*)@formatter:(off|on)(\s*)\*\/)/gm
+    )
+  );
+}
+
+/**
+ * Create pairs of formatter:off and formatter:on
+ * @param comments
+ * @returns pairs of formatter:off and formatter:on
+ */
+function matchFormatterOffOnPair(comments) {
+  let isPreviousCommentOff = false;
+  let isCurrentCommentOff = true;
+  const pairs = [];
+  let paired = {};
+  comments.forEach(comment => {
+    isCurrentCommentOff = comment.image.slice(-3) === "off";
+
+    if (!isPreviousCommentOff) {
+      if (isCurrentCommentOff) {
+        paired.off = comment;
+      }
+    } else {
+      if (!isCurrentCommentOff) {
+        paired.on = comment;
+        pairs.push(paired);
+        paired = {};
+      }
+    }
+    isPreviousCommentOff = isCurrentCommentOff;
+  });
+
+  if (comments.length > 0 && isCurrentCommentOff) {
+    paired.on = undefined;
+    pairs.push(paired);
+  }
+
+  return pairs;
+}
+
+/**
+ * Check if the node is between formatter:off and formatter:on and change his ignore state
+ * @param node
+ * @param commentPairs
+ */
+function shouldNotFormat(node, commentPairs) {
+  const matchingPair = _.findLast(
+    commentPairs,
+    comment => comment.off.extendedOffset.endOffset <= node.location.startOffset
+  );
+  if (
+    matchingPair !== undefined &&
+    (matchingPair.on === undefined ||
+      matchingPair.on.startOffset > node.location.endOffset)
+  ) {
+    node.ignore = true;
+  }
+}
+
+function formatterOffOnComments(comments) {
+  const offOn = filterFormatterOffOn(comments);
+  return matchFormatterOffOnPair(offOn);
+}
+
 module.exports = {
+  extendRangeOffset,
+  formatterOffOnComments,
+  shouldNotFormat,
   attachComments
 };
