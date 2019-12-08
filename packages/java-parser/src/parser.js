@@ -38,9 +38,7 @@ const { getSkipValidations } = require("./utils");
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
-      // TODO: Try to Specify max lookahead 2 only where needed
-      //       and use `1` by default
-      maxLookahead: 2,
+      maxLookahead: 1,
       nodeLocationTracking: "full",
       // traceInitPerf: 2,
       skipValidations: getSkipValidations()

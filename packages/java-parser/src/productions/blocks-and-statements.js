@@ -72,14 +72,17 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Statement
   $.RULE("statement", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
-      { ALT: () => $.SUBRULE($.labeledStatement) },
-      // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
-      { ALT: () => $.SUBRULE($.ifStatement) },
-      { ALT: () => $.SUBRULE($.whileStatement) },
-      { ALT: () => $.SUBRULE($.forStatement) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
+        { ALT: () => $.SUBRULE($.labeledStatement) },
+        // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
+        { ALT: () => $.SUBRULE($.ifStatement) },
+        { ALT: () => $.SUBRULE($.whileStatement) },
+        { ALT: () => $.SUBRULE($.forStatement) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
@@ -342,26 +345,29 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-TryStatement
   $.RULE("tryStatement", () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(t.Try);
-          $.SUBRULE($.block);
-          $.OR2([
-            {
-              ALT: () => {
-                $.SUBRULE($.catches);
-                $.OPTION(() => {
-                  $.SUBRULE($.finally);
-                });
-              }
-            },
-            { ALT: () => $.SUBRULE2($.finally) }
-          ]);
-        }
-      },
-      { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
-    ]);
+    $.OR({
+      DEF: [
+        {
+          ALT: () => {
+            $.CONSUME(t.Try);
+            $.SUBRULE($.block);
+            $.OR2([
+              {
+                ALT: () => {
+                  $.SUBRULE($.catches);
+                  $.OPTION(() => {
+                    $.SUBRULE($.finally);
+                  });
+                }
+              },
+              { ALT: () => $.SUBRULE2($.finally) }
+            ]);
+          }
+        },
+        { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Catches
