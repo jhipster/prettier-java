@@ -1,11 +1,7 @@
 "use strict";
 const JavaLexer = require("./lexer");
 const JavaParser = require("./parser");
-const {
-  attachComments,
-  extendRangeOffset,
-  formatterOffOnComments
-} = require("./comments");
+const { attachComments, matchFormatterOffOnPairs } = require("./comments");
 
 const parser = new JavaParser();
 
@@ -32,9 +28,9 @@ function parse(inputText, entryPoint = "compilationUnit") {
   parser.mostEnclosiveCstNodeByStartOffset = {};
   parser.mostEnclosiveCstNodeByEndOffset = {};
 
-  extendRangeOffset(lexResult.groups.comments, lexResult.tokens);
-  const offOnComments = formatterOffOnComments(lexResult.groups.comments);
-  parser.setOnOffCommentPairs(offOnComments);
+  parser.setOnOffCommentPairs(
+    matchFormatterOffOnPairs(lexResult.groups.comments)
+  );
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();

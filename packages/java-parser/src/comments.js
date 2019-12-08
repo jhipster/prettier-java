@@ -36,6 +36,12 @@ function isPrettierIgnoreComment(comment) {
   );
 }
 
+function isFormatterOffOnComment(comment) {
+  return comment.image.match(
+    /(\/\/(\s*)@formatter:(off|on)(\s*))|(\/\*(\s*)@formatter:(off|on)(\s*)\*\/)/gm
+  );
+}
+
 /**
  * Pre-processing of tokens in order to
  * complete the parser's mostEnclosiveCstNodeByStartOffset and mostEnclosiveCstNodeByEndOffset structures.
@@ -178,6 +184,8 @@ function attachComments(
     mostEnclosiveCstNodeByStartOffset,
     mostEnclosiveCstNodeByEndOffset
   );
+
+  extendRangeOffset(comments, tokens);
   const {
     commentsByExtendedStartOffset,
     commentsByExtendedEndOffset
@@ -243,29 +251,20 @@ function attachComments(
 }
 
 /**
- * Filter comments to find formatter:off and formatter:on.
- * @param comments
- * @returns formatter:off and formatter:on comments
- */
-function filterFormatterOffOn(comments) {
-  return [...comments].filter(comment =>
-    comment.image.match(
-      /(\/\/(\s*)@formatter:(off|on)(\s*))|(\/\*(\s*)@formatter:(off|on)(\s*)\*\/)/gm
-    )
-  );
-}
-
-/**
  * Create pairs of formatter:off and formatter:on
  * @param comments
  * @returns pairs of formatter:off and formatter:on
  */
-function matchFormatterOffOnPair(comments) {
+function matchFormatterOffOnPairs(comments) {
+  const onOffComments = comments.filter(comment =>
+    isFormatterOffOnComment(comment)
+  );
+
   let isPreviousCommentOff = false;
   let isCurrentCommentOff = true;
   const pairs = [];
   let paired = {};
-  comments.forEach(comment => {
+  onOffComments.forEach(comment => {
     isCurrentCommentOff = comment.image.slice(-3) === "off";
 
     if (!isPreviousCommentOff) {
@@ -282,7 +281,7 @@ function matchFormatterOffOnPair(comments) {
     isPreviousCommentOff = isCurrentCommentOff;
   });
 
-  if (comments.length > 0 && isCurrentCommentOff) {
+  if (onOffComments.length > 0 && isCurrentCommentOff) {
     paired.on = undefined;
     pairs.push(paired);
   }
@@ -298,7 +297,7 @@ function matchFormatterOffOnPair(comments) {
 function shouldNotFormat(node, commentPairs) {
   const matchingPair = _.findLast(
     commentPairs,
-    comment => comment.off.extendedOffset.endOffset <= node.location.startOffset
+    comment => comment.off.endOffset < node.location.startOffset
   );
   if (
     matchingPair !== undefined &&
@@ -309,14 +308,8 @@ function shouldNotFormat(node, commentPairs) {
   }
 }
 
-function formatterOffOnComments(comments) {
-  const offOn = filterFormatterOffOn(comments);
-  return matchFormatterOffOnPair(offOn);
-}
-
 module.exports = {
-  extendRangeOffset,
-  formatterOffOnComments,
+  matchFormatterOffOnPairs,
   shouldNotFormat,
   attachComments
 };
