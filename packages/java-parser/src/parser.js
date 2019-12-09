@@ -11,6 +11,7 @@ const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
 const { getSkipValidations } = require("./utils");
+const { shouldNotFormat } = require("./comments");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -85,6 +86,8 @@ class JavaParser extends Parser {
       this.mostEnclosiveCstNodeByEndOffset[
         ruleCstResult.location.endOffset
       ] = ruleCstResult;
+
+      shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
     }
   }
 
@@ -108,6 +111,10 @@ class JavaParser extends Parser {
         this.isBackTrackingStack.pop();
       }
     });
+  }
+
+  setOnOffCommentPairs(onOffCommentPairs) {
+    this.onOffCommentPairs = onOffCommentPairs;
   }
 }
 
