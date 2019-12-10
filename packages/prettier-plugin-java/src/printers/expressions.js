@@ -1,8 +1,7 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
+const { ifBreak, line, softline } = require("prettier").doc.builders;
 const { concat, group, indent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments");
 const {
@@ -583,27 +582,27 @@ class ExpressionsPrettierVisitor {
     return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
   }
 
-  identifyNewExpressionType(ctx) {
+  identifyNewExpressionType() {
     return "identifyNewExpressionType";
   }
 
-  isLambdaExpression(ctx) {
+  isLambdaExpression() {
     return "isLambdaExpression";
   }
 
-  isCastExpression(ctx) {
+  isCastExpression() {
     return "isCastExpression";
   }
 
-  isPrimitiveCastExpression(ctx) {
+  isPrimitiveCastExpression() {
     return "isPrimitiveCastExpression";
   }
 
-  isReferenceTypeCastExpression(ctx) {
+  isReferenceTypeCastExpression() {
     return "isReferenceTypeCastExpression";
   }
 
-  isRefTypeInMethodRef(ctx) {
+  isRefTypeInMethodRef() {
     return "isRefTypeInMethodRef";
   }
 }

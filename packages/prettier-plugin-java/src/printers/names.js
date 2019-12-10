@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const { buildFqn } = require("./printer-utils");
 const { printTokenWithComments } = require("./comments");

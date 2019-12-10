@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const { line, softline, hardline } = require("prettier").doc.builders;
 const { concat, group, indent } = require("./prettier-builder");
@@ -296,15 +295,15 @@ class InterfacesPrettierVisitor {
     return group(rejectAndConcat([rejectAndJoinSeps(commas, elementValues)]));
   }
 
-  identifyInterfaceBodyDeclarationType(ctx) {
+  identifyInterfaceBodyDeclarationType() {
     return "identifyInterfaceBodyDeclarationType";
   }
 
-  identifyAnnotationBodyDeclarationType(ctx) {
+  identifyAnnotationBodyDeclarationType() {
     return "identifyAnnotationBodyDeclarationType";
   }
 
-  isSimpleElementValueAnnotation(ctx) {
+  isSimpleElementValueAnnotation() {
     return "isSimpleElementValueAnnotation";
   }
 }

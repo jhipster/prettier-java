@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const { line, softline, hardline } = require("prettier").doc.builders;
 const { group, indent, concat, join } = require("./prettier-builder");
@@ -523,11 +522,11 @@ class BlocksAndStatementPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  isBasicForStatement(ctx) {
+  isBasicForStatement() {
     return "isBasicForStatement";
   }
 
-  isLocalVariableDeclaration(ctx) {
+  isLocalVariableDeclaration() {
     return "isLocalVariableDeclaration";
   }
 }

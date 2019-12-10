@@ -1,4 +1,4 @@
-/* eslint no-console: 0 */
+/* eslint-disable no-console */
 "use strict";
 const cp = require("child_process");
 const path = require("path");
