@@ -1,5 +1,10 @@
 public class BinaryOperations {
 
+  public void binaryOperation() {
+    int alpha = (left) << right;
+    boolean beta = (left) < right;
+  }
+
   public void binaryOperationThatShouldBreak() {
     System.out.println(
       "This operation with two very long string should break" +
