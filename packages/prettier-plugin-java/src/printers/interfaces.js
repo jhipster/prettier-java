@@ -1,108 +1,299 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
+const { line, softline, hardline } = require("prettier").doc.builders;
+const { concat, group, indent } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
+const {
+  rejectAndConcat,
+  rejectAndJoin,
+  sortModifiers,
+  rejectAndJoinSeps,
+  getInterfaceBodyDeclarationsSeparator,
+  putIntoBraces,
+  putIntoCurlyBraces,
+  displaySemicolon,
+  isStatementEmptyStatement
+} = require("./printer-utils");
 
 class InterfacesPrettierVisitor {
   interfaceDeclaration(ctx) {
-    return "interfaceDeclaration";
+    const modifiers = sortModifiers(ctx.interfaceModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
+    const declaration = ctx.normalInterfaceDeclaration
+      ? this.visit(ctx.normalInterfaceDeclaration)
+      : this.visit(ctx.annotationTypeDeclaration);
+
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [rejectAndJoin(" ", otherModifiers), declaration])
+    ]);
   }
 
   normalInterfaceDeclaration(ctx) {
-    return "normalInterfaceDeclaration";
+    const typeIdentifier = this.visit(ctx.typeIdentifier);
+    const typeParameters = this.visit(ctx.typeParameters);
+    const extendsInterfaces = this.visit(ctx.extendsInterfaces);
+    const interfaceBody = this.visit(ctx.interfaceBody);
+
+    let extendsInterfacesPart = "";
+    if (extendsInterfaces) {
+      extendsInterfacesPart = indent(
+        rejectAndConcat([softline, extendsInterfaces])
+      );
+    }
+
+    return rejectAndJoin(" ", [
+      group(
+        rejectAndJoin(" ", [
+          ctx.Interface[0],
+          concat([typeIdentifier, typeParameters]),
+          extendsInterfacesPart
+        ])
+      ),
+      interfaceBody
+    ]);
   }
 
   interfaceModifier(ctx) {
-    return "interfaceModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   extendsInterfaces(ctx) {
-    return "extendsInterfaces";
+    const interfaceTypeList = this.visit(ctx.interfaceTypeList);
+
+    return group(
+      rejectAndConcat([
+        ctx.Extends[0],
+        indent(rejectAndConcat([line, interfaceTypeList]))
+      ])
+    );
   }
 
   interfaceBody(ctx) {
-    return "interfaceBody";
+    let joinedInterfaceMemberDeclaration = "";
+
+    if (ctx.interfaceMemberDeclaration !== undefined) {
+      const interfaceMemberDeclaration = this.mapVisit(
+        ctx.interfaceMemberDeclaration
+      );
+
+      const separators = getInterfaceBodyDeclarationsSeparator(
+        ctx.interfaceMemberDeclaration
+      );
+
+      joinedInterfaceMemberDeclaration = rejectAndJoinSeps(
+        separators,
+        interfaceMemberDeclaration
+      );
+    }
+    return putIntoCurlyBraces(
+      joinedInterfaceMemberDeclaration,
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
   }
 
   interfaceMemberDeclaration(ctx) {
-    return "interfaceMemberDeclaration";
+    if (ctx.Semicolon) {
+      return displaySemicolon(ctx.Semicolon[0]);
+    }
+    return this.visitSingle(ctx);
   }
 
   constantDeclaration(ctx) {
-    return "constantDeclaration";
+    const modifiers = sortModifiers(ctx.constantModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
+    const unannType = this.visit(ctx.unannType);
+    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
+
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        unannType,
+        rejectAndConcat([variableDeclaratorList, ctx.Semicolon[0]])
+      ])
+    ]);
   }
 
   constantModifier(ctx) {
-    return "constantModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   interfaceMethodDeclaration(ctx) {
-    return "interfaceMethodDeclaration";
+    const modifiers = sortModifiers(ctx.interfaceMethodModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
+    const methodHeader = this.visit(ctx.methodHeader);
+    const methodBody = this.visit(ctx.methodBody);
+    const separator = isStatementEmptyStatement(methodBody) ? "" : " ";
+
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        rejectAndJoin(separator, [methodHeader, methodBody])
+      ])
+    ]);
   }
 
   interfaceMethodModifier(ctx) {
-    return "interfaceMethodModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   annotationTypeDeclaration(ctx) {
-    return "annotationTypeDeclaration";
+    const typeIdentifier = this.visit(ctx.typeIdentifier);
+    const annotationTypeBody = this.visit(ctx.annotationTypeBody);
+
+    return rejectAndJoin(" ", [
+      concat([ctx.At[0], ctx.Interface[0]]),
+      typeIdentifier,
+      annotationTypeBody
+    ]);
   }
 
   annotationTypeBody(ctx) {
-    return "annotationTypeBody";
+    const annotationTypeMemberDeclaration = this.mapVisit(
+      ctx.annotationTypeMemberDeclaration
+    );
+
+    return rejectAndJoin(line, [
+      indent(
+        rejectAndJoin(line, [
+          ctx.LCurly[0],
+          rejectAndJoin(concat([line, line]), annotationTypeMemberDeclaration)
+        ])
+      ),
+      ctx.RCurly[0]
+    ]);
   }
 
   annotationTypeMemberDeclaration(ctx) {
-    return "annotationTypeMemberDeclaration";
+    if (ctx.Semicolon) {
+      return printTokenWithComments(this.getSingle(ctx));
+    }
+    return this.visitSingle(ctx);
   }
 
   annotationTypeElementDeclaration(ctx) {
-    return "annotationTypeElementDeclaration";
+    const modifiers = sortModifiers(ctx.annotationTypeElementModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
+    const unannType = this.visit(ctx.unannType);
+    const identifier = ctx.Identifier[0];
+    const dims = this.visit(ctx.dims);
+    const defaultValue = ctx.defaultValue
+      ? concat([" ", this.visit(ctx.defaultValue)])
+      : "";
+
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, firstAnnotations),
+      rejectAndJoin(" ", [
+        rejectAndJoin(" ", otherModifiers),
+        unannType,
+        rejectAndConcat([
+          identifier,
+          concat([ctx.LBrace[0], ctx.RBrace[0]]),
+          dims,
+          defaultValue,
+          ctx.Semicolon[0]
+        ])
+      ])
+    ]);
   }
 
   annotationTypeElementModifier(ctx) {
-    return "annotationTypeElementModifier";
+    if (ctx.annotation) {
+      return this.visitSingle(ctx);
+    }
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   defaultValue(ctx) {
-    return "defaultValue";
+    const elementValue = this.visit(ctx.elementValue);
+
+    return rejectAndJoin(" ", [ctx.Default[0], elementValue]);
   }
 
   annotation(ctx) {
     const fqn = this.visit(ctx.typeName);
 
-    const annoArgs = [];
+    let annoArgs = "";
     if (ctx.LBrace) {
-      annoArgs.push("(");
-      if (ctx.elementValuePair) {
-        annoArgs.push(this.visit(ctx.elementValuePair));
+      if (ctx.elementValuePairList) {
+        annoArgs = putIntoBraces(
+          this.visit(ctx.elementValuePairList),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        );
       } else if (ctx.elementValue) {
-        annoArgs.push(this.visit(ctx.elementValue));
+        annoArgs = putIntoBraces(
+          this.visit(ctx.elementValue),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        );
       }
-      annoArgs.push(")");
     }
 
-    return concat(["@", fqn, concat(annoArgs), line]);
+    return group(rejectAndConcat([ctx.At[0], fqn, annoArgs]));
   }
 
   elementValuePairList(ctx) {
-    return "elementValuePairList";
+    const elementValuePairs = this.mapVisit(ctx.elementValuePair);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+
+    return rejectAndJoinSeps(commas, elementValuePairs);
   }
 
   elementValuePair(ctx) {
-    return "TBD";
+    const identifier = ctx.Identifier[0];
+    const elementValue = this.visit(ctx.elementValue);
+
+    return rejectAndJoin(" ", [identifier, ctx.Equals[0], elementValue]);
   }
 
   elementValue(ctx) {
-    return "TBD";
+    return this.visitSingle(ctx);
   }
 
   elementValueArrayInitializer(ctx) {
-    return "elementValueArrayInitializer";
+    const elementValueList = this.visit(ctx.elementValueList);
+    const comma = ctx.Comma ? ctx.Comma[0] : "";
+
+    return group(
+      rejectAndConcat([
+        ctx.LCurly[0],
+        indent(rejectAndConcat([line, elementValueList, comma])),
+        line,
+        ctx.RCurly[0]
+      ])
+    );
   }
 
   elementValueList(ctx) {
-    return "elementValueList";
+    const elementValues = this.mapVisit(ctx.elementValue);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+
+    return group(rejectAndConcat([rejectAndJoinSeps(commas, elementValues)]));
   }
 
   identifyInterfaceBodyDeclarationType(ctx) {

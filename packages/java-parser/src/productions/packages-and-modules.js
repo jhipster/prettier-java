@@ -1,11 +1,12 @@
 "use strict";
-const { isRecognitionException, tokenMatcher } = require("chevrotain");
+const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
     const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
+
     $.OR([
       {
         GATE: () => isModule === false,
@@ -15,15 +16,20 @@ function defineRules($, t) {
         ALT: () => $.SUBRULE($.modularCompilationUnit)
       }
     ]);
+    // https://github.com/jhipster/prettier-java/pull/217
+    $.CONSUME(EOF);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-OrdinaryCompilationUnit
   $.RULE("ordinaryCompilationUnit", () => {
-    $.OPTION(() => {
-      $.SUBRULE($.packageDeclaration);
+    $.OPTION({
+      GATE: $.BACKTRACK($.packageDeclaration),
+      DEF: () => {
+        $.SUBRULE($.packageDeclaration);
+      }
     });
     $.MANY(() => {
-      $.SUBRULE($.importDeclaration);
+      $.SUBRULE3($.importDeclaration);
     });
     $.MANY2(() => {
       $.SUBRULE($.typeDeclaration);
@@ -93,6 +99,7 @@ function defineRules($, t) {
   $.RULE("typeDeclaration", () => {
     // TODO: consider extracting the prefix modifiers here to avoid backtracking
     const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
+
     $.OR([
       {
         GATE: () => isClassDeclaration,
@@ -140,8 +147,22 @@ function defineRules($, t) {
   $.RULE("requiresModuleDirective", () => {
     // Spec Deviation: extracted from "moduleDirective"
     $.CONSUME(t.Requires);
-    $.MANY(() => {
-      $.SUBRULE($.requiresModifier);
+    $.MANY({
+      GATE: () => {
+        /**
+         * https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9 -
+         *   There is one exception: immediately to the right of the character sequence `requires` in the ModuleDirective production,
+         *   the character sequence `transitive` is tokenized as a keyword unless it is followed by a separator,
+         *   in which case it is tokenized as an identifier.
+         */
+        return (
+          (tokenMatcher($.LA(1).tokenType, t.Transitive) &&
+            tokenMatcher($.LA(2).tokenType, t.Separators)) === false
+        );
+      },
+      DEF: () => {
+        $.SUBRULE($.requiresModifier);
+      }
     });
     $.SUBRULE($.moduleName);
     $.CONSUME(t.Semicolon);
@@ -187,11 +208,12 @@ function defineRules($, t) {
   $.RULE("providesModuleDirective", () => {
     // Spec Deviation: extracted from "moduleDirective"
     $.CONSUME(t.Provides);
-    $.CONSUME(t.With);
     $.SUBRULE($.typeName);
+    $.CONSUME(t.With);
+    $.SUBRULE2($.typeName);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE2($.typeName);
+      $.SUBRULE3($.typeName);
     });
     $.CONSUME(t.Semicolon);
   });
@@ -237,6 +259,7 @@ function defineRules($, t) {
         throw e;
       }
     }
+
     const nextTokenType = this.LA(1).tokenType;
     return (
       tokenMatcher(nextTokenType, t.Open) ||

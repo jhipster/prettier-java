@@ -18,6 +18,7 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
+const { printNodeWithComments } = require("./printers/comments");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {
@@ -28,13 +29,13 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
     // TODO: this methods should be defined on the prototype
     // defining as instance members **after** the validations to avoid
     // false positive errors on redundant methods
-    this.mapVisit = elements => {
+    this.mapVisit = (elements, params) => {
       if (elements === undefined) {
         // TODO: can optimize this by returning an immutable empty array singleton.
         return [];
       }
 
-      return elements.map(this.visit, this);
+      return elements.map(element => this.visit(element, params), this);
     };
 
     this.getSingle = function(ctx) {
@@ -49,18 +50,16 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
 
       if (singleElementValues.length !== 1) {
         throw Error(
-          `Expecting single item in CST ctx key but found: <${
-            singleElementValues.length
-          }> items`
+          `Expecting single item in CST ctx key but found: <${singleElementValues.length}> items`
         );
       }
 
       return singleElementValues[0];
     };
 
-    this.visitSingle = function(ctx) {
+    this.visitSingle = function(ctx, params) {
       const singleElement = this.getSingle(ctx);
-      return this.visit(singleElement);
+      return this.visit(singleElement, params);
     };
 
     // hack to get a reference to the inherited visit method from
@@ -73,7 +72,30 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
         return "";
       }
 
-      return orgVisit.call(this, ctx, inParam);
+      const node = Array.isArray(ctx) ? ctx[0] : ctx;
+
+      if (node.ignore) {
+        try {
+          const startOffset =
+            node.leadingComments !== undefined
+              ? node.leadingComments[0].startOffset
+              : node.location.startOffset;
+          const endOffset =
+            node.trailingComments !== undefined
+              ? node.trailingComments[node.trailingComments.length - 1]
+                  .endOffset
+              : node.location.endOffset;
+
+          return this.originalText.substring(startOffset, endOffset + 1);
+        } catch (e) {
+          throw Error(
+            e +
+              "\nThere might be a problem with prettier-ignore, please report an issue on https://github.com/jhipster/prettier-java/issues"
+          );
+        }
+      }
+
+      return printNodeWithComments(node, orgVisit.call(this, node, inParam));
     };
   }
 }
@@ -107,7 +129,8 @@ const prettyPrinter = new CstPrettierPrinter();
 
 // TODO: do we need the "path" and "print" arguments passed by prettier
 // see https://github.com/prettier/prettier/issues/5747
-function createPrettierDoc(cstNode) {
+function createPrettierDoc(cstNode, originalText) {
+  prettyPrinter.originalText = originalText;
   return prettyPrinter.visit(cstNode);
 }
 

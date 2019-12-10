@@ -2,7 +2,12 @@
     :construction: Work in Progress! :construction:
 </p>
 
-[![Build Status](https://travis-ci.org/jhipster/prettier-java.svg?branch=master)](https://travis-ci.org/jhipster/prettier-java)
+[![Azure DevOps Build Status][azure-devops-image]][azure-devops-url-main] [![Build Status][travis-image]][travis-url]
+
+[azure-devops-image]: https://dev.azure.com/jhipster/prettier-java/_apis/build/status/jhipster.prettier-java?branchName=master
+[azure-devops-url-main]: https://dev.azure.com/jhipster/prettier-java/_build
+[travis-image]: https://travis-ci.org/jhipster/prettier-java.svg?branch=master
+[travis-url]: https://travis-ci.org/jhipster/prettier-java
 
 # Prettier Java
 
@@ -16,30 +21,65 @@ and then print out that data structure in a "pretty" style.
 
 Prettier-Java uses a [Java-Parser](./packages/java-parser) implemented in JavaScript using the
 [Chevrotain Parser Building Toolkit for JavaScript](https://github.com/SAP/chevrotain).
-What this means is that unlike many other prettier plugins,
-prettier-java has **no additional runtime pre-requisites** (e.g: Python executable).
+What this means is that unlike many other Prettier plugins,
+`prettier-java` has **no additional runtime pre-requisites** (e.g: Python executable).
 It could even be used inside a browser.
+
+## Subpackages
+
+This project contains 2 packages:
+
+- [prettier-plugin-java](./packages/prettier-plugin-java) A plugin for
+  [Prettier](https://prettier.io/) to format Java code
+
+  [![npm-prettier-plugin-java][npm-prettier-plugin-java-image]][npm-prettier-plugin-java-url]
+
+* [java-parser](./packages/java-parser) A Java Parser using [Chevrotain](https://github.com/SAP/chevrotain) which output a **C**oncrete **S**yntax **T**ree
+
+  [![npm-java-parser][npm-java-parser-image]][npm-java-parser-url]
+
+[npm-prettier-plugin-java-image]: https://img.shields.io/npm/v/prettier-plugin-java.svg?color=blue&label=prettier-plugin-java&logo=prettier-plugin-java
+[npm-prettier-plugin-java-url]: https://www.npmjs.com/package/prettier-plugin-java
+[npm-java-parser-image]: https://img.shields.io/npm/v/java-parser.svg?color=blue&label=java-parser&logo=java-parser
+[npm-java-parser-url]: https://www.npmjs.com/package/java-parser
 
 ## Status
 
-- Parser package alpha version done.
-- Now Investigating the re-printer (actually prettier-java package)
+- Parser package alpha version done, it can parse most of Java code. However, we still need to make some tweaks and improvements.
+- The printer (actually `prettier-java` package) is mostly done, it can output formatted code but needs to be improved on some cases.
 
-## Road map to Alpha
+## Install
 
-- Parser Package
+### Pre-requirements
 
-  - [x] POC: optimized backtracking to handle Java Grammar non LL(k) nature.
-  - [x] Milestone 1 - Success parsing ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
-  - [x] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
-  - [x] Investigate performance optimizations.
-  - [x] Release Alpha version to npm. - https://www.npmjs.com/package/java-parser
+Since the plugin is meant to be used with Prettier, you need to install it:
 
-- prettier-java package
+`npm install -g prettier`
 
-  - [ ] POC: Prettier "Re-writer" based on a Chevrotain CST instead of an AST.
-  - [ ] Milestone 1 - Success cyclic rewriting ["Java Design Patterns"](https://github.com/iluwatar/java-design-patterns) repo.
-  - [ ] Milestone 2 - Success parsing ["spring-boot"](https://github.com/spring-projects/spring-boot) repo.
+or
+
+`yarn global add prettier`
+
+### Install plugin
+
+`npm install -g prettier-plugin-java`
+
+or
+
+`yarn global add prettier-plugin-java`
+
+## Usage
+
+```bash
+prettier --write MyJavaFile.java
+```
+
+If the plugin is not automatically loaded:
+
+```bash
+# Example where the plugin is locate in node_modules
+prettier --write MyJavaFile.java --plugin=./node_modules/prettier-plugin-java
+```
 
 ## Contributing
 
@@ -49,5 +89,7 @@ And the [Help Wanted](https://github.com/jhipster/prettier-java/labels/help%20wa
 
 ## Credits
 
-Special thanks to @thorbenvh8 for creating the original prettier-java
+Special thanks to [@thorbenvh8](https://github.com/thorbenvh8) for creating the original `prettier-java`
 plugin and the associated Java Parser implemented in JavaScript.
+
+We would also like to thank the [Chevrotain](https://github.com/SAP/chevrotain/graphs/contributors) and [Prettier](https://github.com/prettier/prettier/graphs/contributors) contributors which made this possible.

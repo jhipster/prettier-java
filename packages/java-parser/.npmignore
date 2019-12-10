@@ -1,0 +1,7 @@
+resources/Unicode/*
+docs
+samples
+scripts
+test
+.mocharc.js
+diagrams.html

@@ -1,46 +1,76 @@
 "use strict";
 /* eslint-disable no-unused-vars */
 
-const { concat, join, line, ifBreak, group } = require("prettier").doc.builders;
-const { buildFqn, rejectAndJoin, rejectAndConcat } = require("./printer-utils");
+const { line, hardline, indent, group } = require("prettier").doc.builders;
+const { concat, join } = require("./prettier-builder");
+const { printTokenWithComments } = require("./comments");
+const {
+  buildFqn,
+  rejectAndJoin,
+  rejectAndConcat,
+  rejectAndJoinSeps,
+  displaySemicolon,
+  putIntoCurlyBraces,
+  getBlankLinesSeparator,
+  sortImports
+} = require("./printer-utils");
 
 class PackagesAndModulesPrettierVisitor {
   compilationUnit(ctx) {
-    return this.visitSingle(ctx);
+    const compilationUnit =
+      ctx.ordinaryCompilationUnit || ctx.modularCompilationUnit;
+
+    // Do not add additional line if only comments in file
+    const additionalLine = isNaN(compilationUnit[0].location.startOffset)
+      ? ""
+      : line;
+
+    return concat([this.visit(compilationUnit[0]), additionalLine]);
   }
 
   ordinaryCompilationUnit(ctx) {
     const packageDecl = this.visit(ctx.packageDeclaration);
-    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
-    // TODO2: should the imports be grouped in some manner?
-    const importsDecl = this.mapVisit(ctx.importDeclaration);
-    const typesDecl = this.mapVisit(ctx.typeDeclaration);
 
+    const sortedImportsDecl = sortImports(ctx.importDeclaration);
+    const nonStaticImports = this.mapVisit(sortedImportsDecl.nonStaticImports);
+    const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
+
+    const typesDecl = this.mapVisit(ctx.typeDeclaration);
     // TODO: utility to add item+line (or multiple lines) but only if an item exists
-    return concat([
-      packageDecl,
-      line,
-      line,
-      join(line, importsDecl),
-      join(line, typesDecl),
-      line
+    return rejectAndConcat([
+      rejectAndJoin(concat([hardline, hardline]), [
+        packageDecl,
+        rejectAndJoin(hardline, staticImports),
+        rejectAndJoin(hardline, nonStaticImports),
+        rejectAndJoin(concat([hardline, hardline]), typesDecl)
+      ])
     ]);
   }
 
   modularCompilationUnit(ctx) {
-    // TODO: Should imports be sorted? Can imports in Java be safely sorted?
-    // TODO2: should the imports be grouped in some manner?
-    const importsDecl = this.mapVisit(ctx.importDeclaration);
+    const sortedImportsDecl = sortImports(ctx.importDeclaration);
+    const nonStaticImports = this.mapVisit(sortedImportsDecl.nonStaticImports);
+    const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
+
     const moduleDeclaration = this.visit(ctx.moduleDeclaration);
 
-    return join(concat(line, line), [importsDecl, moduleDeclaration]);
+    return rejectAndConcat([
+      rejectAndJoin(concat([hardline, hardline]), [
+        rejectAndJoin(hardline, staticImports),
+        rejectAndJoin(hardline, nonStaticImports),
+        moduleDeclaration
+      ])
+    ]);
   }
 
   packageDeclaration(ctx) {
     const modifiers = this.mapVisit(ctx.packageModifier);
-    const name = buildFqn(ctx.Identifier);
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
 
-    return concat([join(" ", modifiers), "package", " ", name, ";"]);
+    return rejectAndJoin(hardline, [
+      rejectAndJoin(hardline, modifiers),
+      concat([ctx.Package[0], " ", name, ctx.Semicolon[0]])
+    ]);
   }
 
   packageModifier(ctx) {
@@ -48,34 +78,46 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   importDeclaration(ctx) {
-    const optionalStatic = ctx.Static ? "static" : "";
+    if (ctx.emptyStatement !== undefined) {
+      return this.visit(ctx.emptyStatement);
+    }
+
+    const optionalStatic = ctx.Static ? ctx.Static[0] : "";
     const packageOrTypeName = this.visit(ctx.packageOrTypeName);
 
-    const optionalDotStar = ctx.Dot ? ".*" : "";
+    const optionalDotStar = ctx.Dot ? concat([ctx.Dot[0], ctx.Star[0]]) : "";
 
     return rejectAndJoin(" ", [
-      "import",
+      ctx.Import[0],
       optionalStatic,
-      rejectAndConcat([packageOrTypeName, optionalDotStar])
+      rejectAndConcat([packageOrTypeName, optionalDotStar, ctx.Semicolon[0]])
     ]);
   }
 
   typeDeclaration(ctx) {
+    if (ctx.Semicolon) {
+      return displaySemicolon(ctx.Semicolon[0]);
+    }
     return this.visitSingle(ctx);
   }
 
   moduleDeclaration(ctx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const optionalOpen = ctx.Open ? "open" : "";
-    const name = buildFqn(ctx.Identifier);
+    const optionalOpen = ctx.Open ? ctx.Open[0] : "";
+    const name = buildFqn(ctx.Identifier, ctx.Dot);
     const moduleDirectives = this.mapVisit(ctx.moduleDirective);
+
+    const content = rejectAndJoinSeps(
+      getBlankLinesSeparator(ctx.moduleDirective),
+      moduleDirectives
+    );
+
     return rejectAndJoin(" ", [
       join(" ", annotations),
       optionalOpen,
-      "module",
+      ctx.Module[0],
       name,
-      // TODO: fix indentation
-      rejectAndJoin(line, ["{", join(line, moduleDirectives), "}"])
+      putIntoCurlyBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0])
     ]);
   }
 
@@ -84,61 +126,105 @@ class PackagesAndModulesPrettierVisitor {
   }
 
   requiresModuleDirective(ctx) {
-    const modifiers = this.mapVisit(ctx.methodModifier);
+    const modifiers = this.mapVisit(ctx.requiresModifier);
     const moduleName = this.visit(ctx.moduleName);
 
     return rejectAndJoin(" ", [
-      "requires",
+      ctx.Requires[0],
       join(" ", modifiers),
-      concat([moduleName, ";"])
+      concat([moduleName, ctx.Semicolon[0]])
     ]);
   }
 
   exportsModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      rejectAndJoin(" ", ["exports", packageName, to, join(", ", moduleNames)]),
-      ";"
-    ]);
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Exports[0], packageName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  to,
+                  rejectAndJoinSeps(commas, moduleNames)
+                ])
+              )
+            )
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   opensModuleDirective(ctx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? "to" : "";
+    const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      rejectAndJoin(" ", ["opens", packageName, to, join(", ", moduleNames)]),
-      ";"
-    ]);
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Opens[0], packageName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  to,
+                  rejectAndJoinSeps(commas, moduleNames)
+                ])
+              )
+            )
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   usesModuleDirective(ctx) {
     const typeName = this.visit(ctx.typeName);
 
-    return rejectAndConcat(["uses ", typeName, ";"]);
+    return rejectAndConcat([
+      concat([ctx.Uses[0], " "]),
+      typeName,
+      ctx.Semicolon[0]
+    ]);
   }
 
   providesModuleDirective(ctx) {
     const firstTypeName = this.visit(ctx.typeName[0]);
     const otherTypeNames = this.mapVisit(ctx.typeName.slice(1));
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        "provides",
-        firstTypeName,
-        "with",
-        join(", ", otherTypeNames)
-      ]),
-      ";"
-    ]);
+    return group(
+      rejectAndConcat([
+        indent(
+          rejectAndJoin(line, [
+            rejectAndJoin(" ", [ctx.Provides[0], firstTypeName]),
+            group(
+              indent(
+                rejectAndJoin(line, [
+                  ctx.With[0],
+                  rejectAndJoinSeps(commas, otherTypeNames)
+                ])
+              )
+            )
+          ])
+        ),
+        ctx.Semicolon[0]
+      ])
+    );
   }
 
   requiresModifier(ctx) {
-    return this.getSingle(ctx).image;
+    return printTokenWithComments(this.getSingle(ctx));
   }
 
   isModuleCompilationUnit(ctx) {

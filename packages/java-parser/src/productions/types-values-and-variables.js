@@ -56,24 +56,27 @@ function defineRules($, t) {
     });
     // Spec Deviation: The array type "dims" suffix was extracted to this rule
     // to avoid backtracking for performance reasons.
-    $.OR([
-      {
-        ALT: () => {
-          $.SUBRULE($.primitiveType);
-          $.SUBRULE($.dims);
+    $.OR({
+      DEF: [
+        {
+          ALT: () => {
+            $.SUBRULE($.primitiveType);
+            $.SUBRULE($.dims);
+          }
+        },
+        {
+          // Spec Deviation: "typeVariable" alternative is missing because
+          //                 it is included in "classOrInterfaceType"
+          ALT: () => {
+            $.SUBRULE($.classOrInterfaceType);
+            $.OPTION(() => {
+              $.SUBRULE2($.dims);
+            });
+          }
         }
-      },
-      {
-        // Spec Deviation: "typeVariable" alternative is missing because
-        //                 it is included in "classOrInterfaceType"
-        ALT: () => {
-          $.SUBRULE($.classOrInterfaceType);
-          $.OPTION(() => {
-            $.SUBRULE2($.dims);
-          });
-        }
-      }
-    ]);
+      ],
+      IGNORE_AMBIGUITIES: true // annotation prefix was extracted to remove ambiguities
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-4.html#jls-ClassOrInterfaceType
@@ -133,12 +136,15 @@ function defineRules($, t) {
     });
     $.CONSUME(t.LSquare);
     $.CONSUME(t.RSquare);
-    $.MANY2(() => {
-      $.MANY3(() => {
-        $.SUBRULE2($.annotation);
-      });
-      $.CONSUME2(t.LSquare);
-      $.CONSUME2(t.RSquare);
+    $.MANY2({
+      GATE: () => $.BACKTRACK_LOOKAHEAD($.isDims),
+      DEF: () => {
+        $.MANY3(() => {
+          $.SUBRULE2($.annotation);
+        });
+        $.CONSUME2(t.LSquare);
+        $.CONSUME2(t.RSquare);
+      }
     });
   });
 

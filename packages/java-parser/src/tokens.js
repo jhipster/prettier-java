@@ -1,9 +1,16 @@
 /* eslint-disable no-unused-vars */
 "use strict";
 const { createToken: createTokenOrg, Lexer } = require("chevrotain");
-
+let chars;
 // A little mini DSL for easier lexer definition.
 const fragments = {};
+try {
+  chars = require("./unicodesets");
+} catch (e) {
+  throw Error(
+    "unicodesets.js file could not be found. Did you try to run the command: yarn run build ?"
+  );
+}
 
 function inlineFragments(def) {
   let inlinedDef = def;
@@ -31,18 +38,73 @@ FRAGMENT("HexDigit", "[0-9a-fA-F]");
 FRAGMENT("HexDigits", "{{HexDigit}}(({{HexDigit}}|'_')*{{HexDigit}})?");
 FRAGMENT("FloatTypeSuffix", "[fFdD]");
 FRAGMENT("LineTerminator", "(\\x0A|(\\x0D(\\x0A)?))");
+FRAGMENT("UnicodeMarker", "uu*");
+FRAGMENT("UnicodeEscape", "\\\\{{UnicodeMarker}}{{HexDigit}}{4}");
+FRAGMENT("RawInputCharacter", "\\\\{{UnicodeMarker}}[0-9a-fA-F]{4}");
+FRAGMENT("UnicodeInputCharacter", "({{UnicodeEscape}}|{{RawInputCharacter}})");
+FRAGMENT("OctalDigit", "[0-7]");
+FRAGMENT("ZeroToThree", "[0-3]");
+FRAGMENT(
+  "OctalEscape",
+  "\\\\({{OctalDigit}}|{{ZeroToThree}}?{{OctalDigit}}{2})"
+);
+FRAGMENT("EscapeSequence", "\\\\[btnfr\"'\\\\]|{{OctalEscape}}");
+// Not using InputCharacter terminology there because CR and LF are already captured in EscapeSequence
+FRAGMENT(
+  "StringCharacter",
+  "(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}})"
+);
+
+function matchJavaIdentifier(text, startOffset) {
+  let endOffset = startOffset;
+  let charCode = text.codePointAt(endOffset);
+
+  // We verifiy if the first character is from one of these categories
+  // Corresponds to the isJavaIdentifierStart function from Java
+  if (chars.firstIdentChar.has(charCode)) {
+    endOffset++;
+    // If we encounter a surrogate pair (something that is beyond 65535/FFFF)
+    // We skip another offset because a surrogate pair is of length 2.
+    if (charCode > 65535) {
+      endOffset++;
+    }
+    charCode = text.codePointAt(endOffset);
+  }
+
+  // We verify if the remaining characters is from one of these categories
+  // Corresponds to the isJavaIdentifierPart function from Java
+  while (chars.restIdentChar.has(charCode)) {
+    endOffset++;
+    // See above.
+    if (charCode > 65535) {
+      endOffset++;
+    }
+    charCode = text.codePointAt(endOffset);
+  }
+
+  // No match, must return null to conform with the RegExp.prototype.exec signature
+  if (endOffset === startOffset) {
+    return null;
+  }
+  const matchedString = text.substring(startOffset, endOffset);
+  // according to the RegExp.prototype.exec API the first item in the returned array must be the whole matched string.
+  return [matchedString];
+}
 
 const Identifier = createTokenOrg({
   name: "Identifier",
-  // TODO: Align with the spec, Consider generating the regExp for Identifier
-  //       as done in Esprima / Acorn
-  pattern: /[a-zA-Z_\\$][a-zA-Z_\\$0-9]*/
+  pattern: { exec: matchJavaIdentifier },
+  line_breaks: false,
+  start_chars_hint: Array.from(chars.firstIdentChar, x =>
+    String.fromCharCode(x)
+  )
 });
 
 const allTokens = [];
 const tokenDictionary = {};
+
 function createToken(options) {
-  // TODO: create a test to check all the tokens have a label defined
+  // TODO create a test to check all the tokenbs have a label defined
   if (!options.label) {
     // simple token (e.g operator)
     if (typeof options.pattern === "string") {
@@ -106,6 +168,12 @@ const UnarySuffixOperator = createToken({
   pattern: Lexer.NA
 });
 
+// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.11
+const Separators = createToken({
+  name: "Separators",
+  pattern: Lexer.NA
+});
+
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.6
 // Note [\\x09\\x20\\x0C] is equivalent to [\\t\\x20\\f] and that \\x20 represents
 // space character
@@ -114,7 +182,6 @@ createToken({
   pattern: MAKE_PATTERN("[\\x09\\x20\\x0C]|{{LineTerminator}}"),
   group: Lexer.SKIPPED
 });
-
 createToken({
   name: "LineComment",
   pattern: /\/\/[^\n\r]*/,
@@ -153,12 +220,14 @@ createToken({
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.4
 createToken({
   name: "CharLiteral",
-  pattern: /'(?:[^\\']|\\(?:(?:[btnfr"'\\/]|[0-7]|[0-7]{2}|[0-3][0-7]{2})|u[0-9a-fA-F]{4}))'/
+  // Not using SingleCharacter Terminology because ' and \ are captured in EscapeSequence
+  pattern: MAKE_PATTERN(
+    "'(?:[^\\\\']|(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}}))'"
+  )
 });
 createToken({
   name: "StringLiteral",
-  // TODO: align with the spec, the pattern below is incorrect
-  pattern: /"[^"\\]*(\\.[^"\\]*)*"/
+  pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
 });
 
 // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
@@ -279,21 +348,21 @@ createKeywordLikeToken({ name: "False", pattern: "false" });
 createKeywordLikeToken({ name: "Null", pattern: "null" });
 
 // punctuation and symbols
-createToken({ name: "At", pattern: "@" });
+createToken({ name: "At", pattern: "@", categories: [Separators] });
 createToken({ name: "Arrow", pattern: "->" });
-createToken({ name: "DotDotDot", pattern: "..." });
-createToken({ name: "Dot", pattern: "." });
-createToken({ name: "Comma", pattern: "," });
-createToken({ name: "Semicolon", pattern: ";" });
-createToken({ name: "ColonColon", pattern: "::" });
+createToken({ name: "DotDotDot", pattern: "...", categories: [Separators] });
+createToken({ name: "Dot", pattern: ".", categories: [Separators] });
+createToken({ name: "Comma", pattern: ",", categories: [Separators] });
+createToken({ name: "Semicolon", pattern: ";", categories: [Separators] });
+createToken({ name: "ColonColon", pattern: "::", categories: [Separators] });
 createToken({ name: "Colon", pattern: ":" });
 createToken({ name: "QuestionMark", pattern: "?" });
-createToken({ name: "LBrace", pattern: "(" });
-createToken({ name: "RBrace", pattern: ")" });
-createToken({ name: "LCurly", pattern: "{" });
-createToken({ name: "RCurly", pattern: "}" });
-createToken({ name: "LSquare", pattern: "[" });
-createToken({ name: "RSquare", pattern: "]" });
+createToken({ name: "LBrace", pattern: "(", categories: [Separators] });
+createToken({ name: "RBrace", pattern: ")", categories: [Separators] });
+createToken({ name: "LCurly", pattern: "{", categories: [Separators] });
+createToken({ name: "RCurly", pattern: "}", categories: [Separators] });
+createToken({ name: "LSquare", pattern: "[", categories: [Separators] });
+createToken({ name: "RSquare", pattern: "]", categories: [Separators] });
 
 // prefix and suffix operators
 // must be defined before "-"
@@ -437,7 +506,6 @@ function sortDescLength(arr) {
     return b.length - a.length;
   });
 }
-
 module.exports = {
   allTokens,
   tokens: tokenDictionary

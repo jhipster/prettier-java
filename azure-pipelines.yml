@@ -1,0 +1,85 @@
+#
+# Copyright 2013-2019 the original author or authors from the JHipster project.
+#
+# This file is part of the JHipster project, see https://www.jhipster.tech/
+# for more information.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+jobs:
+- job: Test
+  strategy:
+    matrix:
+      node_13:
+        node_version: '13.0.1'
+      node_12:
+        node_version: '12.13.0'
+      node_10:
+        node_version: '10.17.0'
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(node_version)
+      displayName: 'Install Node.js'
+    - script: |
+        yarn
+      displayName: 'Install dependencies'
+    - script: |
+        yarn run ci
+      displayName: 'Run CI'
+
+- job: e2e_tests
+  strategy:
+    matrix:
+      jhipster-1:
+        TEST_REPOSITORY: 'e2e-jhipster1'
+      jhipster-2:
+        TEST_REPOSITORY: 'e2e-jhipster1'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.13.0'
+      displayName: 'Install Node.js'
+    - script: |
+        yarn
+      displayName: 'Install dependencies'
+    - script: |
+        node --version
+        npm --version
+        yarn --version
+        yarn run test:prettier-plugin-java test:$(TEST_REPOSITORY)
+      displayName: 'Run e2e tests'
+
+- job: publish
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
+  dependsOn:
+    - Test
+    - e2e_tests
+  displayName: Publish on NPM
+  pool:
+    vmImage: Ubuntu-16.04
+  steps:
+  - script : |
+      echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" >> ~/.npmrc
+  - script: |
+      yarn
+    displayName: 'Install dependencies'
+  - script: |
+      git status
+      git reset --hard
+      yarn run lerna:publish

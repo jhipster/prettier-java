@@ -10,6 +10,8 @@ const interfaces = require("./productions/interfaces");
 const arrays = require("./productions/arrays");
 const blocksStatements = require("./productions/blocks-and-statements");
 const expressions = require("./productions/expressions");
+const { getSkipValidations } = require("./utils");
+const { shouldNotFormat } = require("./comments");
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -37,91 +39,16 @@ const expressions = require("./productions/expressions");
 class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
-      // TODO: performance: maxLookahead = 1 may be faster, but could we refactor the grammar to it?
-      //       and more importantly, do we want to?
-      maxLookahead: 2,
-      // ambiguities resolved by backtracking
-      ignoredIssues: {
-        annotationTypeMemberDeclaration: {
-          OR: true
-        },
-        typeDeclaration: {
-          OR: true
-        },
-        typeArgument: {
-          OR: true
-        },
-        type: {
-          OR: true
-        },
-        referenceType: {
-          OR: true
-        },
-        compilationUnit: {
-          OR: true
-        },
-        classBodyDeclaration: {
-          OR: true
-        },
-        classMemberDeclaration: {
-          OR: true
-        },
-        unannReferenceType: {
-          OR: true
-        },
-        formalParameter: {
-          OR: true
-        },
-        interfaceMemberDeclaration: {
-          OR: true
-        },
-        blockStatement: {
-          OR: true
-        },
-        forStatement: {
-          OR: true
-        },
-        newExpression: {
-          OR: true
-        },
-        arrayCreationExpression: {
-          OR: true,
-          OR2: true
-        },
-        expression: {
-          OR: true
-        },
-        lambdaParameterList: {
-          OR: true
-        },
-        lambdaParameter: {
-          OR: true
-        },
-        primaryPrefix: {
-          OR: true
-        },
-        castExpression: {
-          OR: true
-        },
-        referenceTypeCastExpression: {
-          OR: true
-        },
-        elementValue: {
-          OR: true
-        },
-        resource: {
-          OR: true
-        },
-        forInit: {
-          OR: true
-        },
-        interfaceDeclaration: {
-          OR: true
-        }
-      }
+      maxLookahead: 1,
+      nodeLocationTracking: "full",
+      // traceInitPerf: 2,
+      skipValidations: getSkipValidations()
     });
 
     const $ = this;
+
+    this.mostEnclosiveCstNodeByStartOffset = {};
+    this.mostEnclosiveCstNodeByEndOffset = {};
 
     // ---------------------
     // Productions from §3 (Lexical Structure)
@@ -143,35 +70,51 @@ class JavaParser extends Parser {
     blocksStatements.defineRules.call(this, $, t);
     expressions.defineRules.call(this, $, t);
 
+    this.firstForUnaryExpressionNotPlusMinus = [];
     this.performSelfAnalysis();
+    this.firstForUnaryExpressionNotPlusMinus = expressions.computeFirstForUnaryExpressionNotPlusMinus.call(
+      this
+    );
   }
 
-  // hack to turn off CST building side effects during backtracking
-  // TODO: should be patched in Chevrotain
   cstPostNonTerminal(ruleCstResult, ruleName) {
+    super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
-      super.cstPostNonTerminal(ruleCstResult, ruleName);
+      this.mostEnclosiveCstNodeByStartOffset[
+        ruleCstResult.location.startOffset
+      ] = ruleCstResult;
+      this.mostEnclosiveCstNodeByEndOffset[
+        ruleCstResult.location.endOffset
+      ] = ruleCstResult;
+
+      shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
     }
   }
 
   BACKTRACK_LOOKAHEAD(production, errValue = false) {
-    this.isBackTrackingStack.push(1);
-    // TODO: "saveRecogState" does not handle the occurrence stack
-    const orgState = this.saveRecogState();
-    try {
-      // hack to enable outputting none CST values from grammar rules.
-      this.outputCst = false;
-      return production.call(this);
-    } catch (e) {
-      if (isRecognitionException(e)) {
-        return errValue;
+    return this.ACTION(() => {
+      this.isBackTrackingStack.push(1);
+      // TODO: "saveRecogState" does not handle the occurrence stack
+      const orgState = this.saveRecogState();
+      try {
+        // hack to enable outputting none CST values from grammar rules.
+        this.outputCst = false;
+        return production.call(this);
+      } catch (e) {
+        if (isRecognitionException(e)) {
+          return errValue;
+        }
+        throw e;
+      } finally {
+        this.outputCst = true;
+        this.reloadRecogState(orgState);
+        this.isBackTrackingStack.pop();
       }
-      throw e;
-    } finally {
-      this.outputCst = true;
-      this.reloadRecogState(orgState);
-      this.isBackTrackingStack.pop();
-    }
+    });
+  }
+
+  setOnOffCommentPairs(onOffCommentPairs) {
+    this.onOffCommentPairs = onOffCommentPairs;
   }
 }
 

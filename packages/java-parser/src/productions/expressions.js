@@ -92,10 +92,13 @@ function defineRules($, t) {
   });
 
   $.RULE("lambdaParameterType", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.unannType) },
-      { ALT: () => $.CONSUME(t.Var) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.unannType) },
+        { ALT: () => $.CONSUME(t.Var) }
+      ],
+      IGNORE_AMBIGUITIES: true
+    });
   });
 
   $.RULE("lambdaBody", () => {
@@ -119,56 +122,63 @@ function defineRules($, t) {
   $.RULE("binaryExpression", () => {
     $.SUBRULE($.unaryExpression);
     $.MANY(() => {
-      $.OR([
-        {
-          ALT: () => {
-            $.CONSUME(t.Instanceof);
-            $.SUBRULE($.referenceType);
-          }
-        },
-        {
-          ALT: () => {
-            $.CONSUME(t.AssignmentOperator);
-            $.SUBRULE2($.expression);
-          }
-        },
-        // This is an example of why Java does not have a well designed grammar
-        // See: https://manas.tech/blog/2008/10/12/why-java-generics-dont-have-problems-with-right-shift-operator.html
-        // TODO: ensure the LT/GT sequences have no whitespace between each other.
-        {
-          // TODO: this is a bug in Chevrotain lookahead calculation. the "BinaryOperator" token can match "Less" or "Greater"
-          //   as well, but because it is a **token Category** Chevrotain does not understand it need to looks two tokens ahead.
-          GATE: () =>
-            tokenMatcher($.LA(2).tokenType, t.Less) ||
-            tokenMatcher($.LA(2).tokenType, t.Greater),
-          ALT: () => {
-            $.OR2([
-              {
-                ALT: () => {
-                  $.CONSUME(t.Less);
-                  $.CONSUME2(t.Less);
+      $.OR({
+        DEF: [
+          {
+            ALT: () => {
+              $.CONSUME(t.Instanceof);
+              $.SUBRULE($.referenceType);
+            }
+          },
+          {
+            ALT: () => {
+              $.CONSUME(t.AssignmentOperator);
+              $.SUBRULE2($.expression);
+            }
+          },
+          // This is an example of why Java does not have a well designed grammar
+          // See: https://manas.tech/blog/2008/10/12/why-java-generics-dont-have-problems-with-right-shift-operator.html
+          // TODO: ensure the LT/GT sequences have no whitespace between each other.
+          {
+            // TODO: this is a bug in Chevrotain lookahead calculation. the "BinaryOperator" token can match "Less" or "Greater"
+            //   as well, but because it is a **token Category** Chevrotain does not understand it need to looks two tokens ahead.
+            GATE: () =>
+              tokenMatcher($.LA(2).tokenType, t.Less) ||
+              tokenMatcher($.LA(2).tokenType, t.Greater),
+            ALT: () => {
+              $.OR2([
+                {
+                  GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+                  ALT: () => {
+                    $.CONSUME(t.Less);
+                    $.CONSUME2(t.Less);
+                  }
+                },
+                {
+                  GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+                  ALT: () => {
+                    $.CONSUME(t.Greater);
+                    $.CONSUME2(t.Greater);
+                    $.OPTION({
+                      GATE: () =>
+                        $.LA(0).startOffset + 1 === $.LA(1).startOffset,
+                      DEF: () => $.CONSUME3(t.Greater)
+                    });
+                  }
                 }
-              },
-              {
-                ALT: () => {
-                  $.CONSUME(t.Greater);
-                  $.CONSUME2(t.Greater);
-                  $.OPTION(() => {
-                    $.CONSUME3(t.Greater);
-                  });
-                }
-              }
-            ]);
-            $.SUBRULE2($.unaryExpression);
+              ]);
+              $.SUBRULE2($.unaryExpression);
+            }
+          },
+          {
+            ALT: () => {
+              $.CONSUME(t.BinaryOperator);
+              $.SUBRULE3($.unaryExpression);
+            }
           }
-        },
-        {
-          ALT: () => {
-            $.CONSUME(t.BinaryOperator);
-            $.SUBRULE3($.unaryExpression);
-          }
-        }
-      ]);
+        ],
+        IGNORE_AMBIGUITIES: true // the ambiguity between 1 and 4 options is resolved by the order (instanceOf is first)
+      });
     });
   });
 
@@ -223,31 +233,35 @@ function defineRules($, t) {
   });
 
   $.RULE("primarySuffix", () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(t.Dot);
-          $.OR2([
-            { ALT: () => $.CONSUME(t.This) },
-            {
-              ALT: () => $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
-            },
-            {
-              ALT: () => {
-                $.OPTION(() => {
-                  $.SUBRULE($.typeArguments);
-                });
-                $.CONSUME(t.Identifier);
+    $.OR({
+      DEF: [
+        {
+          ALT: () => {
+            $.CONSUME(t.Dot);
+            $.OR2([
+              { ALT: () => $.CONSUME(t.This) },
+              {
+                ALT: () =>
+                  $.SUBRULE($.unqualifiedClassInstanceCreationExpression)
+              },
+              {
+                ALT: () => {
+                  $.OPTION(() => {
+                    $.SUBRULE($.typeArguments);
+                  });
+                  $.CONSUME(t.Identifier);
+                }
               }
-            }
-          ]);
-        }
-      },
-      { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
-      { ALT: () => $.SUBRULE($.classLiteralSuffix) },
-      { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
-      { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
-    ]);
+            ]);
+          }
+        },
+        { ALT: () => $.SUBRULE($.methodInvocationSuffix) },
+        { ALT: () => $.SUBRULE($.classLiteralSuffix) },
+        { ALT: () => $.SUBRULE($.arrayAccessSuffix) },
+        { ALT: () => $.SUBRULE($.methodReferenceSuffix) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // See https://github.com/jhipster/prettier-java/pull/154 to understand
@@ -435,10 +449,13 @@ function defineRules($, t) {
   });
 
   $.RULE("typeArgumentsOrDiamond", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.diamond) },
-      { ALT: () => $.SUBRULE($.typeArguments) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.diamond) },
+        { ALT: () => $.SUBRULE($.typeArguments) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   $.RULE("diamond", () => {
@@ -615,21 +632,7 @@ function defineRules($, t) {
     return true;
   });
 
-  let firstForUnaryExpressionNotPlusMinus = undefined;
   $.RULE("isReferenceTypeCastExpression", () => {
-    if (firstForUnaryExpressionNotPlusMinus === undefined) {
-      const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
-        "unaryExpressionNotPlusMinus",
-        []
-      );
-      const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
-        x => x.nextTokenType
-      );
-      // uniq
-      firstForUnaryExpressionNotPlusMinus = nextTokTypes.filter(
-        (v, i, a) => a.indexOf(v) === i
-      );
-    }
     $.CONSUME(t.LBrace);
     $.SUBRULE($.referenceType);
     $.MANY(() => {
@@ -639,13 +642,14 @@ function defineRules($, t) {
     const firstTokTypeAfterRBrace = this.LA(1).tokenType;
 
     return (
-      firstForUnaryExpressionNotPlusMinus.find(tokType =>
+      this.firstForUnaryExpressionNotPlusMinus.find(tokType =>
         tokenMatcher(firstTokTypeAfterRBrace, tokType)
       ) !== undefined
     );
   });
 
   $.RULE("isRefTypeInMethodRef", () => {
+    let result = undefined;
     $.SUBRULE($.typeArguments);
 
     // arrayType
@@ -655,12 +659,12 @@ function defineRules($, t) {
 
     const firstTokTypeAfterTypeArgs = this.LA(1).tokenType;
     if (tokenMatcher(firstTokTypeAfterTypeArgs, t.ColonColon)) {
-      return true;
+      result = true;
     }
     // we must be at the end of a "referenceType" if "dims" were encountered
     // So there is not point to check farther
     else if (hasDims) {
-      return false;
+      result = false;
     }
 
     // in the middle of a "classReferenceType"
@@ -669,11 +673,28 @@ function defineRules($, t) {
       $.SUBRULE($.classOrInterfaceType);
     });
 
+    if (result !== undefined) {
+      return result;
+    }
+
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
     return tokenMatcher(firstTokTypeAfterRefType, t.ColonColon);
   });
 }
 
+function computeFirstForUnaryExpressionNotPlusMinus() {
+  const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
+    "unaryExpressionNotPlusMinus",
+    []
+  );
+  const nextTokTypes = firstUnaryExpressionNotPlusMinus.map(
+    x => x.nextTokenType
+  );
+  // uniq
+  return nextTokTypes.filter((v, i, a) => a.indexOf(v) === i);
+}
+
 module.exports = {
-  defineRules
+  defineRules,
+  computeFirstForUnaryExpressionNotPlusMinus
 };

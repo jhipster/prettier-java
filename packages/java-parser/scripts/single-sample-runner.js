@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies, no-console */
 /**
  * This Script is used to debug the parsing of **small** code snippets.
  */
@@ -7,7 +6,7 @@
 const javaParserChev = require("../src/index");
 
 const input = `
-public @interface ConfigurationProperties {}
+@Anno byte @Nullable ... test
 `;
 
-javaParserChev.parse(input, "typeDeclaration");
+javaParserChev.parse(input, "variableArityParameter");

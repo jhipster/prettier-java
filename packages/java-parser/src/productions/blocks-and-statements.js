@@ -28,12 +28,16 @@ function defineRules($, t) {
     const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(
       $.isLocalVariableDeclaration
     );
+
+    const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
+
     $.OR([
       {
         GATE: () => isLocalVariableDeclaration,
         ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
       },
       {
+        GATE: () => isClassDeclaration,
         ALT: () => $.SUBRULE($.classDeclaration)
       },
       { ALT: () => $.SUBRULE($.statement) }
@@ -57,22 +61,28 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-LocalVariableType
   $.RULE("localVariableType", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.unannType) },
-      { ALT: () => $.CONSUME(t.Var) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.unannType) },
+        { ALT: () => $.CONSUME(t.Var) }
+      ],
+      IGNORE_AMBIGUITIES: true
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Statement
   $.RULE("statement", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
-      { ALT: () => $.SUBRULE($.labeledStatement) },
-      // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
-      { ALT: () => $.SUBRULE($.ifStatement) },
-      { ALT: () => $.SUBRULE($.whileStatement) },
-      { ALT: () => $.SUBRULE($.forStatement) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
+        { ALT: () => $.SUBRULE($.labeledStatement) },
+        // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
+        { ALT: () => $.SUBRULE($.ifStatement) },
+        { ALT: () => $.SUBRULE($.whileStatement) },
+        { ALT: () => $.SUBRULE($.forStatement) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
@@ -335,26 +345,29 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-TryStatement
   $.RULE("tryStatement", () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(t.Try);
-          $.SUBRULE($.block);
-          $.OR2([
-            {
-              ALT: () => {
-                $.SUBRULE($.catches);
-                $.OPTION(() => {
-                  $.SUBRULE($.finally);
-                });
-              }
-            },
-            { ALT: () => $.SUBRULE2($.finally) }
-          ]);
-        }
-      },
-      { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
-    ]);
+    $.OR({
+      DEF: [
+        {
+          ALT: () => {
+            $.CONSUME(t.Try);
+            $.SUBRULE($.block);
+            $.OR2([
+              {
+                ALT: () => {
+                  $.SUBRULE($.catches);
+                  $.OPTION(() => {
+                    $.SUBRULE($.finally);
+                  });
+                }
+              },
+              { ALT: () => $.SUBRULE2($.finally) }
+            ]);
+          }
+        },
+        { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
+      ],
+      MAX_LOOKAHEAD: 2
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Catches
