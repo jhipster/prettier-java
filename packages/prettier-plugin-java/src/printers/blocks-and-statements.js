@@ -362,8 +362,7 @@ class BlocksAndStatementPrettierVisitor {
   returnStatement(ctx) {
     if (ctx.expression) {
       const expression = this.visit(ctx.expression, {
-        addParenthesisToWrapStatement: true,
-        shouldIndentBinaryOperationInExpression: false
+        addParenthesisToWrapStatement: true
       });
 
       return rejectAndConcat([

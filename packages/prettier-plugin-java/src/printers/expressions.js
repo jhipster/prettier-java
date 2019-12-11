@@ -194,18 +194,9 @@ class ExpressionsPrettierVisitor {
           );
           i += 2;
         } else if (matchCategory(token, "'BinaryOperator'")) {
-          const binaryOperation = rejectAndJoin(line, [
-            token,
-            unaryExpression.shift()
-          ]);
-          if (
-            params !== undefined &&
-            !params.shouldIndentBinaryOperationInExpression
-          ) {
-            currentSegment.push(binaryOperation);
-          } else {
-            currentSegment.push(indent(binaryOperation));
-          }
+          currentSegment.push(
+            rejectAndJoin(line, [token, unaryExpression.shift()])
+          );
         }
       }
       segmentsSplittedByBinaryOperator.push(
@@ -418,9 +409,7 @@ class ExpressionsPrettierVisitor {
   }
 
   parenthesisExpression(ctx) {
-    const expression = this.visit(ctx.expression, {
-      shouldIndentBinaryOperationInExpression: false
-    });
+    const expression = this.visit(ctx.expression);
     return putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
