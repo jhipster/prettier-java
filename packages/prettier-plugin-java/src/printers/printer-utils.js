@@ -579,11 +579,10 @@ function compareFqn(packageOrTypeNameFirst, packageOrTypeNameSecond) {
 
   const minParts = Math.min(identifiersFirst.length, identifiersSecond.length);
   for (let i = 0; i < minParts; i++) {
-    const identifierComparison = identifiersFirst[i].image.localeCompare(
-      identifiersSecond[i].image
-    );
-    if (identifierComparison !== 0) {
-      return identifierComparison;
+    if (identifiersFirst[i].image < identifiersSecond[i].image) {
+      return -1;
+    } else if (identifiersFirst[i].image > identifiersSecond[i].image) {
+      return 1;
     }
   }
 
