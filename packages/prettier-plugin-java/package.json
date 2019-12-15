@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "npm-run-all test:unit test:e2e-core",
-    "test:unit": "mocha \"test/unit-test/**/*-spec.js\"",
+    "test:unit": "mocha \"test/unit-test/**/*.spec.js\" \"test/unit-test/**/*-spec.js\"",
+    "test:unit:coverage": "nyc mocha \"test/unit-test/**/*.spec.js\" \"test/unit-test/**/*-spec.js\"",
     "test:e2e-core": "node scripts/clone-samples e2e-core && mocha \"test/repository-test/core-test.js\"",
     "test:e2e-jhipster1": "node scripts/clone-samples e2e-jhipster1 && mocha \"test/repository-test/jhipster-1-test.js\"",
     "test:e2e-jhipster2": "node scripts/clone-samples e2e-jhipster2 && mocha \"test/repository-test/jhipster-2-test.js\"",
