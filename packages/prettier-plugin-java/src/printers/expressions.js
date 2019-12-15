@@ -1,8 +1,7 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const _ = require("lodash");
-const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
+const { ifBreak, line, softline } = require("prettier").doc.builders;
 const { concat, group, indent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments");
 const {
@@ -195,18 +194,9 @@ class ExpressionsPrettierVisitor {
           );
           i += 2;
         } else if (matchCategory(token, "'BinaryOperator'")) {
-          const binaryOperation = rejectAndJoin(line, [
-            token,
-            unaryExpression.shift()
-          ]);
-          if (
-            params !== undefined &&
-            !params.shouldIndentBinaryOperationInExpression
-          ) {
-            currentSegment.push(binaryOperation);
-          } else {
-            currentSegment.push(indent(binaryOperation));
-          }
+          currentSegment.push(
+            rejectAndJoin(line, [token, unaryExpression.shift()])
+          );
         }
       }
       segmentsSplittedByBinaryOperator.push(
@@ -438,9 +428,7 @@ class ExpressionsPrettierVisitor {
   }
 
   parenthesisExpression(ctx) {
-    const expression = this.visit(ctx.expression, {
-      shouldIndentBinaryOperationInExpression: false
-    });
+    const expression = this.visit(ctx.expression);
     return putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
@@ -602,27 +590,27 @@ class ExpressionsPrettierVisitor {
     return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
   }
 
-  identifyNewExpressionType(ctx) {
+  identifyNewExpressionType() {
     return "identifyNewExpressionType";
   }
 
-  isLambdaExpression(ctx) {
+  isLambdaExpression() {
     return "isLambdaExpression";
   }
 
-  isCastExpression(ctx) {
+  isCastExpression() {
     return "isCastExpression";
   }
 
-  isPrimitiveCastExpression(ctx) {
+  isPrimitiveCastExpression() {
     return "isPrimitiveCastExpression";
   }
 
-  isReferenceTypeCastExpression(ctx) {
+  isReferenceTypeCastExpression() {
     return "isReferenceTypeCastExpression";
   }
 
-  isRefTypeInMethodRef(ctx) {
+  isRefTypeInMethodRef() {
     return "isRefTypeInMethodRef";
   }
 }

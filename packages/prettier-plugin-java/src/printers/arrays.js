@@ -1,7 +1,5 @@
 "use strict";
-/* eslint-disable no-unused-vars */
-
-const { line, softline } = require("prettier").doc.builders;
+const { line } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
   rejectAndJoinSeps,

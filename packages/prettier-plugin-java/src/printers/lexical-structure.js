@@ -1,6 +1,6 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 const { printTokenWithComments } = require("./comments");
+
 class LexicalStructurePrettierVisitor {
   literal(ctx) {
     if (ctx.CharLiteral || ctx.StringLiteral || ctx.Null) {
