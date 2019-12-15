@@ -146,4 +146,19 @@ public class Variables {
       .attributeOne.attributeTwo.invocationTwo(argument1, argument2)
       .attributeThree.invocationThree();
   }
+
+  public void breakMultipleMethods() {
+    boolean willDrop =
+      predictDropResponse.getSendResult().isIgnorableFailure() ||
+      predictDropResponse.getSendResult().isFatalError();
+    boolean willDrop =
+      predictDropResponse.getSendResult().isIgnorableFailure ||
+      predictDropResponse.getSendResult().isFatalError;
+    boolean willDrop =
+      predictDropResponsegetSendResultisIgnorableFailure ||
+      predictDropResponsegetSendResultisFatalError;
+    boolean willDrop =
+      predictDropResponse.getSendResult().isIgnorableFailure() ||
+      predictDropResponsegetSendResultisFatalError;
+  }
 }
