@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 const _ = require("lodash");
 const { line, softline, hardline } = require("prettier").doc.builders;
 const {
@@ -716,15 +715,15 @@ class ClassesPrettierVisitor {
     return { ...ctx.Semicolon[0], image: "" };
   }
 
-  isClassDeclaration(ctx) {
+  isClassDeclaration() {
     return "isClassDeclaration";
   }
 
-  identifyClassBodyDeclarationType(ctx) {
+  identifyClassBodyDeclarationType() {
     return "identifyClassBodyDeclarationType";
   }
 
-  isDims(ctx) {
+  isDims() {
     return "isDims";
   }
 }

@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 const { line, hardline, indent, group } = require("prettier").doc.builders;
 const { concat, join } = require("./prettier-builder");
@@ -227,7 +226,7 @@ class PackagesAndModulesPrettierVisitor {
     return printTokenWithComments(this.getSingle(ctx));
   }
 
-  isModuleCompilationUnit(ctx) {
+  isModuleCompilationUnit() {
     return "isModuleCompilationUnit";
   }
 }
