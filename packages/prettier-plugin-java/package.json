@@ -11,6 +11,7 @@
     "prettier": "1.18.2"
   },
   "scripts": {
+    "unit": "mocha \"test/unit/**/*.spec.js\"",
     "test": "npm-run-all test:unit test:e2e-core",
     "test:unit": "mocha \"test/unit-test/**/*-spec.js\"",
     "test:e2e-core": "node scripts/clone-samples e2e-core && mocha \"test/repository-test/core-test.js\"",

@@ -8,6 +8,10 @@ const { resolve, relative, basename } = require("path");
 const klawSync = require("klaw-sync");
 const { spawnSync } = require("child_process");
 
+const { createPrettierDoc } = require("../src/cst-printer");
+const javaParser = require("java-parser");
+const { printDocToString } = require("prettier").doc.printer;
+
 const pluginPath = resolve(__dirname, "../");
 function testSample(testFolder, exclusive) {
   const itOrItOnly = exclusive ? it.only : it;
@@ -97,7 +101,19 @@ function testRepositorySample(testFolder, command, args) {
     });
   });
 }
+
+function formatJavaSnippet(snippet, entryPoint) {
+  const node = javaParser.parse(snippet, entryPoint);
+  const doc = createPrettierDoc(node);
+
+  return printDocToString(doc, {
+    printWidth: 80,
+    tabWidth: 2
+  }).formatted;
+}
+
 module.exports = {
+  formatJavaSnippet,
   testSample,
   testRepositorySample
 };
