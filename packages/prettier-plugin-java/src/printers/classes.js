@@ -238,11 +238,18 @@ class ClassesPrettierVisitor {
         }
 
         // Method Invocation
-        if (
+        const isMethodInvocation =
           firstPrimary.children.primarySuffix !== undefined &&
           firstPrimary.children.primarySuffix[0].children
-            .methodInvocationSuffix !== undefined
-        ) {
+            .methodInvocationSuffix !== undefined;
+        const isUniqueUnaryExpression =
+          ctx.variableInitializer[0].children.expression[0].children
+            .ternaryExpression[0].children.binaryExpression[0].children
+            .unaryExpression.length === 1;
+
+        const isUniqueMethodInvocation =
+          isMethodInvocation && isUniqueUnaryExpression;
+        if (isUniqueMethodInvocation) {
           return rejectAndJoin(" ", [
             variableDeclaratorId,
             ctx.Equals[0],
