@@ -3,13 +3,7 @@
 
 const prettier = require("prettier");
 const { expect } = require("chai");
-const {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  removeSync,
-  copySync
-} = require("fs-extra");
+const { readFileSync, existsSync, removeSync, copySync } = require("fs-extra");
 const { resolve, relative, basename } = require("path");
 const klawSync = require("klaw-sync");
 const { spawnSync } = require("child_process");
@@ -69,22 +63,22 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`prettify ${relative(samplesDir, fileDesc.path)}`, function() {
+      it(`Performs a stable formatting for <${relative(
+        samplesDir,
+        fileDesc.path
+      )}>`, function() {
         this.timeout(5000);
         const javaFileText = readFileSync(fileDesc.path, "utf8");
-        expect(() => {
-          try {
-            const newExpectedText = prettier.format(javaFileText, {
-              parser: "java",
-              plugins: [resolve(__dirname, "../")],
-              tabWidth: 2
-            });
-            writeFileSync(fileDesc.path, newExpectedText);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        }).to.not.throw();
+
+        const onePass = prettier.format(javaFileText, {
+          parser: "java",
+          plugins: [pluginPath]
+        });
+        const secondPass = prettier.format(onePass, {
+          parser: "java",
+          plugins: [pluginPath]
+        });
+        expect(onePass).to.equal(secondPass);
       });
     });
 
