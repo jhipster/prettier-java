@@ -1,7 +1,7 @@
 "use strict";
 
 const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../test-utils");
+const { formatJavaSnippet } = require("../../../../test-utils");
 
 describe("PackageOrTypeName", () => {
   it("can format a PackageOrTypeName without dots", () => {
