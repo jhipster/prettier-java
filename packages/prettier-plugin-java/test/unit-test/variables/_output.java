@@ -161,4 +161,13 @@ public class Variables {
       predictDropResponse.getSendResult().isIgnorableFailure() ||
       predictDropResponsegetSendResultisFatalError;
   }
+
+  public methodWithVariableInitializationWithComments() {
+    Map<String, String> map =
+      // there is a random comment on this line up here
+      // and then there is a separate comment on this line down here
+      new HashMap<>(
+        someRandomMethodThatReturnsTheInitialMapThatWeWantToMutate()
+      );
+  }
 }

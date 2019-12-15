@@ -70,4 +70,21 @@ describe("VariableDeclarator", () => {
       "value = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  : thisIsAShortInteger";
     expect(formattedText).to.equal(expectedContents);
   });
+  it("should format comment on its own line between equal and variable initializer", () => {
+    const snippet = "value = \n// comment2\n 1";
+    const entryPoint = "variableDeclarator";
+
+    const formattedText = formatJavaSnippet(snippet, entryPoint);
+    const expectedContents = "value =\n  // comment2\n  1";
+    expect(formattedText).to.equal(expectedContents);
+  });
+
+  it("should format comments on several lines between equal and variable initializer", () => {
+    const snippet = "value = // comment1\n// comment2\n 1";
+    const entryPoint = "variableDeclarator";
+
+    const formattedText = formatJavaSnippet(snippet, entryPoint);
+    const expectedContents = "value = // comment1\n  // comment2\n  1";
+    expect(formattedText).to.equal(expectedContents);
+  });
 });
