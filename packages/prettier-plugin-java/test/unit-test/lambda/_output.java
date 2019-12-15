@@ -56,4 +56,12 @@ public class Lambda {
   public void onlyOneMethodInBody() {
     call(x -> System.out.println(x));
   }
+
+  public void lambdaWithoutBracesWhichBreak() {
+    call(
+      x ->
+        foo.isVeryVeryVeryLongConditionTrue() &&
+        foo.isAnotherVeryVeryLongConditionTrue()
+    );
+  }
 }
