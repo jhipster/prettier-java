@@ -135,5 +135,6 @@ function createPrettierDoc(cstNode, originalText) {
 }
 
 module.exports = {
+  CstPrettierPrinter,
   createPrettierDoc
 };
