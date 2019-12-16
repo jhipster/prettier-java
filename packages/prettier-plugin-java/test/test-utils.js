@@ -70,8 +70,7 @@ function testRepositorySample(testFolder, command, args) {
       it(`Performs a stable formatting for <${relative(
         samplesDir,
         fileDesc.path
-      )}>`, function() {
-        this.timeout(5000);
+      )}>`, () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
 
         const onePass = prettier.format(javaFileText, {
