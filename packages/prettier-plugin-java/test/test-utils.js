@@ -111,7 +111,16 @@ function formatJavaSnippet(snippet, entryPoint) {
   }).formatted;
 }
 
+function expectSnippetToBeFormatted({ input, expectedOutput, entryPoint }) {
+  const onePass = formatJavaSnippet(input, entryPoint);
+  const secondPass = formatJavaSnippet(onePass, entryPoint);
+
+  expect(onePass).to.equal(expectedOutput);
+  expect(secondPass).to.equal(expectedOutput);
+}
+
 module.exports = {
+  expectSnippetToBeFormatted,
   formatJavaSnippet,
   testSample,
   testRepositorySample

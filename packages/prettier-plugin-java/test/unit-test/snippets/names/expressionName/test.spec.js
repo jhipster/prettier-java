@@ -1,24 +1,29 @@
 "use strict";
 
-const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("expressionName", () => {
   it("can format a ExpressionName without dots", () => {
-    const snippet = "myExpression";
+    const input = "myExpression";
     const entryPoint = "expressionName";
+    const expectedOutput = "myExpression";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "myExpression";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 
   it("can format a ExpressionName with dots", () => {
-    const snippet = "myExpression.with.lot.of.dots";
+    const input = "myExpression.with.lot.of.dots";
     const entryPoint = "expressionName";
+    const expectedOutput = "myExpression.with.lot.of.dots";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "myExpression.with.lot.of.dots";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 });

@@ -1,24 +1,29 @@
 "use strict";
 
-const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("floatingPointType", () => {
   it("can format float keyword", () => {
-    const snippet = "float";
+    const input = "float";
     const entryPoint = "floatingPointType";
+    const expectedOutput = "float";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "float";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 
   it("can format double keyword", () => {
-    const snippet = "double";
+    const input = "double";
     const entryPoint = "floatingPointType";
+    const expectedOutput = "double";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "double";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 });

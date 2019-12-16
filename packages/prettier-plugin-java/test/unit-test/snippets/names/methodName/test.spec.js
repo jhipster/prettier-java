@@ -1,15 +1,17 @@
 "use strict";
 
-const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("MethodName", () => {
   it("can format a MethodName", () => {
-    const snippet = "test";
+    const input = "test";
     const entryPoint = "methodName";
+    const expectedOutput = "test";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "test";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 });

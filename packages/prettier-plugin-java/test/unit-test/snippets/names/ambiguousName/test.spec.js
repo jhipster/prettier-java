@@ -1,24 +1,29 @@
 "use strict";
 
-const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("AmbiguousName", () => {
   it("can format a AmbiguousName without dots", () => {
-    const snippet = "myAmbiguousName";
+    const input = "myAmbiguousName";
     const entryPoint = "ambiguousName";
+    const expectedOutput = "myAmbiguousName";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "myAmbiguousName";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 
   it("can format a AmbiguousName with dots", () => {
-    const snippet = "myAmbiguousName.with.lot.of.dots";
+    const input = "myAmbiguousName.with.lot.of.dots";
     const entryPoint = "ambiguousName";
+    const expectedOutput = "myAmbiguousName.with.lot.of.dots";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "myAmbiguousName.with.lot.of.dots";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 });

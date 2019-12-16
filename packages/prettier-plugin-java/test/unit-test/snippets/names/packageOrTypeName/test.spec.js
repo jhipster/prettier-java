@@ -1,24 +1,29 @@
 "use strict";
 
-const { expect } = require("chai");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("PackageOrTypeName", () => {
   it("can format a PackageOrTypeName without dots", () => {
-    const snippet = "com";
+    const input = "com";
     const entryPoint = "packageOrTypeName";
+    const expectedOutput = "com";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "com";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 
   it("can format a PackageOrTypeName with dots", () => {
-    const snippet = "com.iluwatar.abstractdocument";
+    const input = "com.iluwatar.abstractdocument";
     const entryPoint = "packageOrTypeName";
+    const expectedOutput = "com.iluwatar.abstractdocument";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "com.iluwatar.abstractdocument";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint
+    });
   });
 });
