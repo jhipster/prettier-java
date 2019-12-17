@@ -4,62 +4,42 @@ const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 
 describe("integralType", () => {
   it("can format byte keyword", () => {
-    const input = "byte";
-    const entryPoint = "integralType";
-    const expectedOutput = "byte";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "byte",
+      expectedOutput: "byte",
+      entryPoint: "integralType"
     });
   });
 
   it("can format short keyword", () => {
-    const input = "short";
-    const entryPoint = "integralType";
-    const expectedOutput = "short";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "short",
+      expectedOutput: "short",
+      entryPoint: "integralType"
     });
   });
 
   it("can format int keyword", () => {
-    const input = "int";
-    const entryPoint = "integralType";
-    const expectedOutput = "int";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "int",
+      expectedOutput: "int",
+      entryPoint: "integralType"
     });
   });
 
   it("can format long keyword", () => {
-    const input = "long";
-    const entryPoint = "integralType";
-    const expectedOutput = "long";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "long",
+      expectedOutput: "long",
+      entryPoint: "integralType"
     });
   });
 
   it("can format char keyword", () => {
-    const input = "char";
-    const entryPoint = "integralType";
-    const expectedOutput = "char";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "char",
+      expectedOutput: "char",
+      entryPoint: "integralType"
     });
   });
 });

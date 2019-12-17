@@ -16,52 +16,39 @@ describe("Wildcard", () => {
   });
 
   it("can format a wildcard", () => {
-    const input = "?";
-    const entryPoint = "wildcard";
-    const expectedOutput = "?";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "?",
+      expectedOutput: "?",
+      entryPoint: "wildcard"
     });
   });
 
   it("can format a wildcard with one annotations", () => {
-    const input = "@Anno ?";
-    const entryPoint = "wildcard";
-    const expectedOutput = "@Anno ?";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "@Anno ?",
+      expectedOutput: "@Anno ?",
+      entryPoint: "wildcard"
     });
   });
 
   it("can format a wildcard with annotations that exceed printWidth ", () => {
     const input =
       "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
-    const entryPoint = "wildcard";
     const expectedOutput =
       "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
 
     expectSnippetToBeFormatted({
       input,
       expectedOutput,
-      entryPoint
+      entryPoint: "wildcard"
     });
   });
 
   it("can format a wildcard with wildcardBound", () => {
-    const input = "? extends int[]";
-    const entryPoint = "wildcard";
-    const expectedOutput = "? extends int[]";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "? extends int[]",
+      expectedOutput: "? extends int[]",
+      entryPoint: "wildcard"
     });
     assert.calledTwice(wildcardBoundsSpy);
   });

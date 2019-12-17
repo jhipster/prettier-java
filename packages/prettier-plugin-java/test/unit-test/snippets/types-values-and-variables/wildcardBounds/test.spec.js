@@ -16,27 +16,19 @@ describe("Wildcard Bounds", () => {
   });
 
   it("can format a wildcardBounds with extends", () => {
-    const input = "extends int[]";
-    const entryPoint = "wildcardBounds";
-    const expectedOutput = "extends int[]";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "extends int[]",
+      expectedOutput: "extends int[]",
+      entryPoint: "wildcardBounds"
     });
     assert.callCount(referenceTypeSpy, 2);
   });
 
   it("can format a wildcardBounds with super", () => {
-    const input = "super int[]";
-    const entryPoint = "wildcardBounds";
-    const expectedOutput = "super int[]";
-
     expectSnippetToBeFormatted({
-      input,
-      expectedOutput,
-      entryPoint
+      input: "super int[]",
+      expectedOutput: "super int[]",
+      entryPoint: "wildcardBounds"
     });
     assert.callCount(referenceTypeSpy, 2);
   });
