@@ -26,18 +26,19 @@ describe("numericType", () => {
   });
 
   it("can format byte keyword", () => {
-    const snippet = "byte";
+    const input = "byte";
     const entryPoint = "numericType";
 
-    formatJavaSnippet(snippet, entryPoint);
+    formatJavaSnippet(input, entryPoint);
     assert.callCount(integralTypeSpy, 1);
     assert.callCount(floatingPointTypeSpy, 0);
   });
 
   it("can format double keyword", () => {
-    const snippet = "double";
+    const input = "double";
     const entryPoint = "numericType";
-    formatJavaSnippet(snippet, entryPoint);
+
+    formatJavaSnippet(input, entryPoint);
     assert.callCount(integralTypeSpy, 0);
     assert.callCount(floatingPointTypeSpy, 1);
   });

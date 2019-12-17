@@ -1,8 +1,7 @@
 "use strict";
 
-const { expect } = require("chai");
 const { assert, spy } = require("sinon");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 const { CstPrettierPrinter } = require("../../../../../src/cst-printer");
 
 describe("Wildcard Bounds", () => {
@@ -17,22 +16,20 @@ describe("Wildcard Bounds", () => {
   });
 
   it("can format a wildcardBounds with extends", () => {
-    const snippet = "extends int[]";
-    const entryPoint = "wildcardBounds";
-
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "extends int[]";
-    expect(formattedText).to.equal(expectedContents);
-    assert.callCount(referenceTypeSpy, 1);
+    expectSnippetToBeFormatted({
+      input: "extends int[]",
+      expectedOutput: "extends int[]",
+      entryPoint: "wildcardBounds"
+    });
+    assert.callCount(referenceTypeSpy, 2);
   });
 
   it("can format a wildcardBounds with super", () => {
-    const snippet = "super int[]";
-    const entryPoint = "wildcardBounds";
-
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "super int[]";
-    expect(formattedText).to.equal(expectedContents);
-    assert.callCount(referenceTypeSpy, 1);
+    expectSnippetToBeFormatted({
+      input: "super int[]",
+      expectedOutput: "super int[]",
+      entryPoint: "wildcardBounds"
+    });
+    assert.callCount(referenceTypeSpy, 2);
   });
 });

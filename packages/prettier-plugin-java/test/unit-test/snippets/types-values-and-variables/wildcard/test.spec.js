@@ -1,8 +1,7 @@
 "use strict";
 
-const { expect } = require("chai");
 const { assert, spy } = require("sinon");
-const { formatJavaSnippet } = require("../../../../test-utils");
+const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 const { CstPrettierPrinter } = require("../../../../../src/cst-printer");
 
 describe("Wildcard", () => {
@@ -17,41 +16,40 @@ describe("Wildcard", () => {
   });
 
   it("can format a wildcard", () => {
-    const snippet = "?";
-    const entryPoint = "wildcard";
-
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "?";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input: "?",
+      expectedOutput: "?",
+      entryPoint: "wildcard"
+    });
   });
 
   it("can format a wildcard with one annotations", () => {
-    const snippet = "@Anno ?";
-    const entryPoint = "wildcard";
-
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "@Anno ?";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input: "@Anno ?",
+      expectedOutput: "@Anno ?",
+      entryPoint: "wildcard"
+    });
   });
 
   it("can format a wildcard with annotations that exceed printWidth ", () => {
-    const snippet =
+    const input =
       "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
-    const entryPoint = "wildcard";
+    const expectedOutput =
+      "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
 
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents =
-      "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
-    expect(formattedText).to.equal(expectedContents);
+    expectSnippetToBeFormatted({
+      input,
+      expectedOutput,
+      entryPoint: "wildcard"
+    });
   });
 
   it("can format a wildcard with wildcardBound", () => {
-    const snippet = "? extends int[]";
-    const entryPoint = "wildcard";
-
-    const formattedText = formatJavaSnippet(snippet, entryPoint);
-    const expectedContents = "? extends int[]";
-    expect(formattedText).to.equal(expectedContents);
-    assert.calledOnce(wildcardBoundsSpy);
+    expectSnippetToBeFormatted({
+      input: "? extends int[]",
+      expectedOutput: "? extends int[]",
+      entryPoint: "wildcard"
+    });
+    assert.calledTwice(wildcardBoundsSpy);
   });
 });
