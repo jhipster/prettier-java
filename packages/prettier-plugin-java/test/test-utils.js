@@ -51,7 +51,8 @@ function testSample(testFolder, exclusive) {
 }
 
 function testRepositorySample(testFolder, command, args) {
-  describe(`Prettify the repository <${testFolder}>`, () => {
+  describe(`Prettify the repository <${testFolder}>`, function() {
+    this.timeout(0);
     const testsamples = resolve(__dirname, "../test-samples");
     const samplesDir = resolve(testsamples, basename(testFolder));
     if (existsSync(samplesDir)) {
@@ -85,8 +86,7 @@ function testRepositorySample(testFolder, command, args) {
       });
     });
 
-    it(`verify semantic validity ${testFolder}`, function(done) {
-      this.timeout(0);
+    it(`verify semantic validity ${testFolder}`, () => {
       const code = spawnSync(command, args, {
         cwd: samplesDir,
         maxBuffer: Infinity
@@ -96,7 +96,6 @@ function testRepositorySample(testFolder, command, args) {
           `Cannot build ${testFolder}, please check the output below:\n ${code.stdout.toString()}`
         );
       }
-      done();
     });
   });
 }
