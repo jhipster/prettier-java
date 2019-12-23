@@ -1,4 +1,206 @@
-# Latest v0.5.1
+# Latest v0.6.0
+
+## Enhancements
+
+### Parser
+
+- Optimize parser performance by reducing the global maxLookahead to 1 ([#321](https://github.com/jhipster/prettier-java/pull/321))
+
+### Re-Writer
+
+- Support `// formater-off` and `// formater-on` comments to disable formating on some parts of the code ([#323](https://github.com/jhipster/prettier-java/pull/323))
+
+  ```java
+  // Input
+  // @formatter:off
+  public class PrettierIgnoreClass {
+    public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
+
+    }
+  }
+  // @formatter:on
+  public class PrettierIgnoreClass {
+    public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
+
+    }
+  }
+  ```
+  ```java
+  // Output
+  // @formatter:off
+  public class PrettierIgnoreClass {
+    public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
+
+    }
+  }
+
+  // @formatter:on
+  public class PrettierIgnoreClass {
+
+    public void myMethod(
+      int param1,
+      int param2,
+      int param3,
+      int param4,
+      int param5,
+      int param6,
+      int param7,
+      int param8,
+      int param9,
+      int param10
+    ) {}
+  }
+  ```
+
+- Print enums' values on their own line ([#319](https://github.com/jhipster/prettier-java/pull/319))
+
+  ```java
+  // Input
+  public enum Enum {
+    SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+  }
+
+  // Output
+  public enum Enum {
+    SOME_ENUM,
+    ANOTHER_ENUM,
+    LAST_ENUM
+  }
+  ```
+
+- Remove extra comma in enums ([#319](https://github.com/jhipster/prettier-java/pull/319))
+
+  ```java
+  // Input
+  public enum EnumWithExtraComma {
+    SOME_ENUM, ANOTHER_ENUM, LAST_ENUM,
+  }
+
+  // Output
+  public enum Enum {
+    SOME_ENUM,
+    ANOTHER_ENUM,
+    LAST_ENUM
+  }
+  ```
+
+- Respect case when sorting imports ([#330](https://github.com/jhipster/prettier-java/pull/330))
+
+  ```java
+  // Input
+  import java.util.ArrayList;
+  import java.util.function.Consumer;
+  import java.util.functioN.Consumer;
+  import java.util.function.ConsumerTwo;
+  import java.util.List;
+  import java.util.concurrent.Semaphore;
+  import java.util.concurrent.*;
+  import java.util.Map;
+
+  // Output
+  import java.util.ArrayList;
+  import java.util.List;
+  import java.util.Map;
+  import java.util.concurrent.*;
+  import java.util.concurrent.Semaphore;
+  import java.util.functioN.Consumer;
+  import java.util.function.Consumer;
+  import java.util.function.ConsumerTwo;
+  ```
+
+- Improve formatting of lambda expressions when they break ([#333](https://github.com/jhipster/prettier-java/pull/333))
+
+  ```java
+  // Input && v0.5.1
+  public void lambdaWithoutBracesWhichBreak() {
+    call(x -> foo.isVeryVeryVeryLongConditionTrue() &&
+    foo.isAnotherVeryVeryLongConditionTrue());
+  }
+
+  // Output
+  public void lambdaWithoutBracesWhichBreak() {
+    call(
+      x ->
+        foo.isVeryVeryVeryLongConditionTrue() &&
+        foo.isAnotherVeryVeryLongConditionTrue()
+    );
+  }
+  ```
+
+- Don't indent binary operators ([#329](https://github.com/jhipster/prettier-java/pull/329))
+  ```java
+  // Input && v0.5.1
+  @Annotation(
+    "This operation with two very long string should break" +
+      "in a very nice way"
+  )
+  public void method() {}
+
+  // Output
+  @Annotation(
+    "This operation with two very long string should break" +
+    "in a very nice way"
+  )
+  public void method() {}
+  ```
+
+- Improve ternary expression line wrapping ([#318](https://github.com/jhipster/prettier-java/pull/318))
+  ```java
+  // Input && v0.5.1
+  return (columnIndex == null) ? ImmutableMap.<R, V>of()
+    : new Column(columnIndex);
+
+  // Output
+  return (columnIndex == null)
+    ? ImmutableMap.<R, V>of()
+    : new Column(columnIndex);
+  ```
+
+- Improve formatting of variable initialization with methods ([#332](https://github.com/jhipster/prettier-java/pull/332))
+
+  ```java
+  // Input && v0.5.1
+  boolean willDrop = predictDropResponse.getSendResult().isIgnorableFailure() || predictDropResponse.getSendResult().isFatalError();
+
+  // Output
+  boolean willDrop =
+    predictDropResponse.getSendResult().isIgnorableFailure() ||
+    predictDropResponse.getSendResult().isFatalError();
+  ```
+
+## Fixes
+
+### Parser
+
+- Fix brackets considered as a cast with byte shifting or comparison
+  (e.g. `(left) << right` or `(left) < right`). The parser is now able to parse completely the ElasticSearch Repository ([#325](https://github.com/jhipster/prettier-java/pull/325))
+
+### Re-Writer
+
+- Fix stable reformating of variable declaration with comments ([#336](https://github.com/jhipster/prettier-java/pull/336))
+
+  ```java
+  // Input && v0.5.1
+  Map<String, String> map =
+    // there is a random comment on this line up here
+    // and then there is a separate comment on this line down here
+    new HashMap<>(someMethodThatReturnsAMap());
+
+  // Output
+  Map<String, String> map =
+    // there is a random comment on this line up here
+    // and then there is a separate comment on this line down here
+    new HashMap<>(someMethodThatReturnsAMap());
+
+  ```
+
+## Miscellaneous
+
+- Check stable reformating for repositories in tests ([#335](https://github.com/jhipster/prettier-java/pull/335))
+- Add template for submitting an issue ([#340](https://github.com/jhipster/prettier-java/pull/340))
+
+
+# v0.5.1
 
 ## Fixes
 
