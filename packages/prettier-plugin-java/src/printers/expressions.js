@@ -31,7 +31,19 @@ class ExpressionsPrettierVisitor {
     const lambdaParameters = this.visit(ctx.lambdaParameters);
     const lambdaBody = this.visit(ctx.lambdaBody);
 
-    return rejectAndJoin(" ", [lambdaParameters, ctx.Arrow[0], lambdaBody]);
+    const isLambdaBodyABlock = ctx.lambdaBody[0].children.block !== undefined;
+    if (isLambdaBodyABlock) {
+      return rejectAndJoin(" ", [lambdaParameters, ctx.Arrow[0], lambdaBody]);
+    }
+
+    return group(
+      indent(
+        rejectAndJoin(line, [
+          rejectAndJoin(" ", [lambdaParameters, ctx.Arrow[0]]),
+          lambdaBody
+        ])
+      )
+    );
   }
 
   lambdaParameters(ctx) {

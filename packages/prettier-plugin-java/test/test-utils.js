@@ -3,16 +3,14 @@
 
 const prettier = require("prettier");
 const { expect } = require("chai");
-const {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  removeSync,
-  copySync
-} = require("fs-extra");
+const { readFileSync, existsSync, removeSync, copySync } = require("fs-extra");
 const { resolve, relative, basename } = require("path");
 const klawSync = require("klaw-sync");
 const { spawnSync } = require("child_process");
+
+const { createPrettierDoc } = require("../src/cst-printer");
+const javaParser = require("java-parser");
+const { printDocToString } = require("prettier").doc.printer;
 
 const pluginPath = resolve(__dirname, "../");
 function testSample(testFolder, exclusive) {
@@ -53,7 +51,8 @@ function testSample(testFolder, exclusive) {
 }
 
 function testRepositorySample(testFolder, command, args) {
-  describe(`Prettify the repository <${testFolder}>`, () => {
+  describe(`Prettify the repository <${testFolder}>`, function() {
+    this.timeout(0);
     const testsamples = resolve(__dirname, "../test-samples");
     const samplesDir = resolve(testsamples, basename(testFolder));
     if (existsSync(samplesDir)) {
@@ -69,27 +68,25 @@ function testRepositorySample(testFolder, command, args) {
     );
 
     javaSampleFiles.forEach(fileDesc => {
-      it(`prettify ${relative(samplesDir, fileDesc.path)}`, function() {
-        this.timeout(5000);
+      it(`Performs a stable formatting for <${relative(
+        samplesDir,
+        fileDesc.path
+      )}>`, () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
-        expect(() => {
-          try {
-            const newExpectedText = prettier.format(javaFileText, {
-              parser: "java",
-              plugins: [resolve(__dirname, "../")],
-              tabWidth: 2
-            });
-            writeFileSync(fileDesc.path, newExpectedText);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        }).to.not.throw();
+
+        const onePass = prettier.format(javaFileText, {
+          parser: "java",
+          plugins: [pluginPath]
+        });
+        const secondPass = prettier.format(onePass, {
+          parser: "java",
+          plugins: [pluginPath]
+        });
+        expect(onePass).to.equal(secondPass);
       });
     });
 
-    it(`verify semantic validity ${testFolder}`, function(done) {
-      this.timeout(0);
+    it(`verify semantic validity ${testFolder}`, () => {
       const code = spawnSync(command, args, {
         cwd: samplesDir,
         maxBuffer: Infinity
@@ -99,11 +96,31 @@ function testRepositorySample(testFolder, command, args) {
           `Cannot build ${testFolder}, please check the output below:\n ${code.stdout.toString()}`
         );
       }
-      done();
     });
   });
 }
+
+function formatJavaSnippet(snippet, entryPoint) {
+  const node = javaParser.parse(snippet, entryPoint);
+  const doc = createPrettierDoc(node);
+
+  return printDocToString(doc, {
+    printWidth: 80,
+    tabWidth: 2
+  }).formatted;
+}
+
+function expectSnippetToBeFormatted({ input, expectedOutput, entryPoint }) {
+  const onePass = formatJavaSnippet(input, entryPoint);
+  const secondPass = formatJavaSnippet(onePass, entryPoint);
+
+  expect(onePass).to.equal(expectedOutput);
+  expect(secondPass).to.equal(expectedOutput);
+}
+
 module.exports = {
+  expectSnippetToBeFormatted,
+  formatJavaSnippet,
   testSample,
   testRepositorySample
 };

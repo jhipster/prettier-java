@@ -6,7 +6,7 @@ public class Lambda {
       System.out.println(x);
     });
   }
-  
+
   public void singleArgumentWithoutParens() {
     call(x -> {
       System.out.println(x);
@@ -43,6 +43,11 @@ public class Lambda {
 
   public void onlyOneMethodInBody() {
     call(x -> System.out.println(x));
+  }
+
+  public void lambdaWithoutBracesWhichBreak() {
+    call(x -> foo.isVeryVeryVeryLongConditionTrue() &&
+    foo.isAnotherVeryVeryLongConditionTrue());
   }
 
 }
