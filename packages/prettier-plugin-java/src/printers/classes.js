@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const { line, softline, hardline } = require("prettier").doc.builders;
 const {
+  hasLeadingLineComments,
   reject,
   rejectAndConcat,
   rejectAndJoin,
@@ -188,9 +189,23 @@ class ClassesPrettierVisitor {
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
 
+      if (hasLeadingLineComments(ctx.variableInitializer[0])) {
+        return group(
+          indent(
+            rejectAndJoin(hardline, [
+              rejectAndJoin(" ", [variableDeclaratorId, ctx.Equals[0]]),
+              variableInitializer
+            ])
+          )
+        );
+      }
+
       if (
         // Array Initialisation
         ctx.variableInitializer[0].children.arrayInitializer !== undefined ||
+        // Lambda expression
+        ctx.variableInitializer[0].children.expression[0].children
+          .lambdaExpression !== undefined ||
         // Ternary Expression
         (ctx.variableInitializer[0].children.expression[0].children
           .ternaryExpression !== undefined &&
