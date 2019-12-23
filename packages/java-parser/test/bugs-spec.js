@@ -77,4 +77,14 @@ describe("The Java Parser fixed bugs", () => {
     const input = "@Test public class Foo{}";
     expect(() => javaParser.parse(input)).to.not.throw();
   });
+
+  it("cast expression, parenthesis and binary shift", () => {
+    const input = "(left) << right";
+    expect(() => javaParser.parse(input, "expression")).to.not.throw();
+  });
+
+  it("cast expression, parenthesis and lessThan", () => {
+    const input = "(left) < right";
+    expect(() => javaParser.parse(input, "expression")).to.not.throw();
+  });
 });

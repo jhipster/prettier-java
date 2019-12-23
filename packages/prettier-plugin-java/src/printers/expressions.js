@@ -351,7 +351,8 @@ class ExpressionsPrettierVisitor {
   }
 
   fqnOrRefType(ctx, params) {
-    const fqnOrRefTypePart = this.mapVisit(ctx.fqnOrRefTypePart);
+    const fqnOrRefTypePartFirst = this.visit(ctx.fqnOrRefTypePartFirst);
+    const fqnOrRefTypePartRest = this.mapVisit(ctx.fqnOrRefTypePartRest);
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
 
@@ -362,18 +363,33 @@ class ExpressionsPrettierVisitor {
       return rejectAndConcat([
         indent(
           rejectAndJoin(concat([softline, dots[0]]), [
-            fqnOrRefTypePart[0],
-            rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePart.slice(1)),
+            fqnOrRefTypePartFirst,
+            rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
             dims
           ])
         )
       ]);
     }
-    return rejectAndConcat([rejectAndJoinSeps(dots, fqnOrRefTypePart), dims]);
+
+    return rejectAndConcat([
+      rejectAndJoinSeps(dots, [fqnOrRefTypePartFirst, ...fqnOrRefTypePartRest]),
+      dims
+    ]);
   }
 
-  fqnOrRefTypePart(ctx) {
+  fqnOrRefTypePartFirst(ctx) {
     const annotation = this.mapVisit(ctx.annotation);
+    const fqnOrRefTypeCommon = this.visit(ctx.fqnOrRefTypePartCommon);
+
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", annotation),
+      fqnOrRefTypeCommon
+    ]);
+  }
+
+  fqnOrRefTypePartRest(ctx) {
+    const annotation = this.mapVisit(ctx.annotation);
+    const fqnOrRefTypeCommon = this.visit(ctx.fqnOrRefTypePartCommon);
 
     let fqnOrRefTypePart$methodTypeArguments = "";
     if (
@@ -386,6 +402,16 @@ class ExpressionsPrettierVisitor {
       );
     }
 
+    return rejectAndJoin(" ", [
+      rejectAndJoin(" ", annotation),
+      rejectAndConcat([
+        fqnOrRefTypePart$methodTypeArguments,
+        fqnOrRefTypeCommon
+      ])
+    ]);
+  }
+
+  fqnOrRefTypePartCommon(ctx) {
     let keyWord = null;
     if (ctx.Identifier) {
       keyWord = ctx.Identifier[0];
@@ -402,21 +428,14 @@ class ExpressionsPrettierVisitor {
       fqnOrRefTypePart$classTypeArguments = this.visit(ctx.$classTypeArguments);
     }
 
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", annotation),
-      rejectAndConcat([
-        fqnOrRefTypePart$methodTypeArguments,
-        keyWord,
-        fqnOrRefTypePart$classTypeArguments
-      ])
-    ]);
+    return rejectAndConcat([keyWord, fqnOrRefTypePart$classTypeArguments]);
   }
 
-  fqnOrRefTypePart$methodTypeArguments(ctx) {
+  fqnOrRefTypePartRest$methodTypeArguments(ctx) {
     return this.visitSingle(ctx);
   }
 
-  fqnOrRefTypePart$classTypeArguments(ctx) {
+  fqnOrRefTypePartCommon$classTypeArguments(ctx) {
     return this.visitSingle(ctx);
   }
 

@@ -264,8 +264,10 @@ function defineRules($, t) {
     });
   });
 
+  // See https://github.com/jhipster/prettier-java/pull/154 to understand
+  // why fqnOrRefTypePart is split in two rules (First and Rest)
   $.RULE("fqnOrRefType", () => {
-    $.SUBRULE($.fqnOrRefTypePart);
+    $.SUBRULE($.fqnOrRefTypePartFirst);
 
     $.MANY2({
       // ".class" is a classLiteralSuffix
@@ -276,7 +278,7 @@ function defineRules($, t) {
         tokenMatcher(this.LA(2).tokenType, t.New) === false,
       DEF: () => {
         $.CONSUME(t.Dot);
-        $.SUBRULE2($.fqnOrRefTypePart);
+        $.SUBRULE2($.fqnOrRefTypePartRest);
       }
     });
 
@@ -299,7 +301,7 @@ function defineRules($, t) {
   //       3. "Super" cannot be mixed with "classTypeArguments" or "annotation".
   //       4. At most one "Super" may be used.
   //       5. "Super" may be last or one before last (last may also be first if there is only a single part).
-  $.RULE("fqnOrRefTypePart", () => {
+  $.RULE("fqnOrRefTypePartRest", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
     });
@@ -311,6 +313,10 @@ function defineRules($, t) {
       }
     });
 
+    $.SUBRULE($.fqnOrRefTypePartCommon);
+  });
+
+  $.RULE("fqnOrRefTypePartCommon", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.Identifier) },
       { ALT: () => $.CONSUME(t.Super) }
@@ -336,6 +342,14 @@ function defineRules($, t) {
         $.SUBRULE3($.typeArguments);
       }
     });
+  });
+
+  $.RULE("fqnOrRefTypePartFirst", () => {
+    $.MANY(() => {
+      $.SUBRULE($.annotation);
+    });
+
+    $.SUBRULE($.fqnOrRefTypePartCommon);
   });
 
   $.RULE("parenthesisExpression", () => {
