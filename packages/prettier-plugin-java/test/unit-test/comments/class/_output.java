@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -113,6 +114,7 @@ public final class ArrayTable<R, C, V>
    * custom serialization logic is needed to support different enum sizes during
    * serialization and deserialization.
    */
+
   /**
    * Creates an {@code ArrayTable} with the mappings in the provided table.
    *
@@ -174,7 +176,6 @@ public final class ArrayTable<R, C, V>
     )
     V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];
     array = tmpArray;
-
     // Necessary because in GWT the arrays are initialized with "undefined" instead of null.
     eraseAll();
   }
@@ -272,6 +273,7 @@ public final class ArrayTable<R, C, V>
     }
 
     // TODO(lowasser): consider an optimized values() implementation
+
     @Override
     public boolean containsKey(@Nullable Object key) {
       return keyIndex.containsKey(key);
@@ -492,6 +494,7 @@ public final class ArrayTable<R, C, V>
    * TODO(jlevy): Consider creating a merge() method, similar to putAll() but
    * copying non-null values only.
    */
+
   /**
    * {@inheritDoc}
    *
@@ -544,6 +547,7 @@ public final class ArrayTable<R, C, V>
   }
 
   // TODO(jlevy): Add eraseRow and eraseColumn methods?
+
   @Override
   public int size() {
     return rowList.size() * columnList.size();
