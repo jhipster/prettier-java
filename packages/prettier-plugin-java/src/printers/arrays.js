@@ -3,7 +3,7 @@ const { line } = require("prettier").doc.builders;
 const {
   rejectAndConcat,
   rejectAndJoinSeps,
-  putIntoCurlyBraces
+  putIntoBraces
 } = require("./printer-utils");
 
 class ArraysPrettierVisitor {
@@ -13,7 +13,7 @@ class ArraysPrettierVisitor {
     );
     const optionalComma = ctx.Comma ? ctx.Comma[0] : "";
 
-    return putIntoCurlyBraces(
+    return putIntoBraces(
       rejectAndConcat([optionalVariableInitializerList, optionalComma]),
       line,
       ctx.LCurly[0],

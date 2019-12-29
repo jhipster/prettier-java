@@ -450,9 +450,6 @@ function putIntoBraces(argument, separator, LBrace, RBrace) {
   );
 }
 
-function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
-  return putIntoBraces(argument, separator, LBrace, RBrace);
-}
 const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
 function separateTokensIntoGroups(ctx) {
   /**
@@ -649,7 +646,6 @@ module.exports = {
   displaySemicolon,
   rejectSeparators,
   putIntoBraces,
-  putIntoCurlyBraces,
   getInterfaceBodyDeclarationsSeparator,
   getClassBodyDeclarationsSeparator,
   separateTokensIntoGroups,

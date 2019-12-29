@@ -10,7 +10,6 @@ const {
   rejectAndJoinSeps,
   getInterfaceBodyDeclarationsSeparator,
   putIntoBraces,
-  putIntoCurlyBraces,
   displaySemicolon,
   isStatementEmptyStatement
 } = require("./printer-utils");
@@ -91,7 +90,7 @@ class InterfacesPrettierVisitor {
         interfaceMemberDeclaration
       );
     }
-    return putIntoCurlyBraces(
+    return putIntoBraces(
       joinedInterfaceMemberDeclaration,
       hardline,
       ctx.LCurly[0],
