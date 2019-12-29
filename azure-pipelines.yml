@@ -18,49 +18,49 @@
 #
 
 jobs:
-- job: Test
-  strategy:
-    matrix:
-      node_13:
-        node_version: '13.0.1'
-      node_12:
-        node_version: '12.13.0'
-      node_10:
-        node_version: '10.17.0'
-  pool:
-    vmImage: 'Ubuntu 16.04'
-  steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: $(node_version)
-      displayName: 'Install Node.js'
-    - script: |
-        yarn
-      displayName: 'Install dependencies'
-    - script: |
-        yarn run ci
-      displayName: 'Run CI'
+  - job: Test
+    strategy:
+      matrix:
+        node_13:
+          node_version: "13.0.1"
+        node_12:
+          node_version: "12.13.0"
+        node_10:
+          node_version: "10.17.0"
+    pool:
+      vmImage: "Ubuntu 16.04"
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(node_version)
+        displayName: "Install Node.js"
+      - script: |
+          yarn
+        displayName: "Install dependencies"
+      - script: |
+          yarn run ci
+        displayName: "Run CI"
 
-- job: e2e_tests
-  strategy:
-    matrix:
-      jhipster-1:
-        TEST_REPOSITORY: 'e2e-jhipster1'
-      jhipster-2:
-        TEST_REPOSITORY: 'e2e-jhipster1'
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '12.13.0'
-      displayName: 'Install Node.js'
-    - script: |
-        yarn
-      displayName: 'Install dependencies'
-    - script: |
-        node --version
-        npm --version
-        yarn --version
-        yarn run test:prettier-plugin-java test:$(TEST_REPOSITORY)
-      displayName: 'Run e2e tests'
+  - job: e2e_tests
+    strategy:
+      matrix:
+        jhipster-1:
+          TEST_REPOSITORY: "e2e-jhipster1"
+        jhipster-2:
+          TEST_REPOSITORY: "e2e-jhipster1"
+    pool:
+      vmImage: "ubuntu-latest"
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "12.13.0"
+        displayName: "Install Node.js"
+      - script: |
+          yarn
+        displayName: "Install dependencies"
+      - script: |
+          node --version
+          npm --version
+          yarn --version
+          yarn run test:prettier-plugin-java test:$(TEST_REPOSITORY)
+        displayName: "Run e2e tests"
