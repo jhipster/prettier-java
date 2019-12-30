@@ -11,7 +11,6 @@ const {
   rejectAndJoinSeps,
   displaySemicolon,
   putIntoBraces,
-  putIntoCurlyBraces,
   getClassBodyDeclarationsSeparator,
   isStatementEmptyStatement
 } = require("./printer-utils");
@@ -137,7 +136,7 @@ class ClassesPrettierVisitor {
       }
     }
 
-    return putIntoCurlyBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0]);
+    return putIntoBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0]);
   }
 
   classBodyDeclaration(ctx) {
@@ -608,7 +607,7 @@ class ClassesPrettierVisitor {
 
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return putIntoCurlyBraces(
+    return putIntoBraces(
       rejectAndJoin(hardline, [explicitConstructorInvocation, blockStatements]),
       hardline,
       ctx.LCurly[0],
@@ -676,7 +675,7 @@ class ClassesPrettierVisitor {
 
     const optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
 
-    return putIntoCurlyBraces(
+    return putIntoBraces(
       rejectAndConcat([enumConstantList, optionalComma, enumBodyDeclarations]),
       hardline,
       ctx.LCurly[0],

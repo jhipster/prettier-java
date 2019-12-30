@@ -9,7 +9,7 @@ const {
   rejectAndConcat,
   rejectAndJoinSeps,
   displaySemicolon,
-  putIntoCurlyBraces,
+  putIntoBraces,
   getBlankLinesSeparator,
   sortImports
 } = require("./printer-utils");
@@ -116,7 +116,7 @@ class PackagesAndModulesPrettierVisitor {
       optionalOpen,
       ctx.Module[0],
       name,
-      putIntoCurlyBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0])
+      putIntoBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0])
     ]);
   }
 

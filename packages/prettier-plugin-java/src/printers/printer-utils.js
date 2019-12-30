@@ -1,7 +1,10 @@
 "use strict";
 const _ = require("lodash");
 const { join, concat, group } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const {
+  getTokenLeadingComments,
+  printTokenWithComments
+} = require("./comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
 const orderedModifiers = [
@@ -411,30 +414,40 @@ function getInterfaceBodyDeclarationsSeparator(
 }
 
 function putIntoBraces(argument, separator, LBrace, RBrace) {
+  const rightBraceLeadingComments = getTokenLeadingComments(RBrace);
+  const lastBreakLine =
+    // check if last element of the array is a line
+    rightBraceLeadingComments.length !== 0 &&
+    rightBraceLeadingComments[rightBraceLeadingComments.length - 1] === hardline
+      ? rightBraceLeadingComments.pop()
+      : separator;
+  delete RBrace.leadingComments;
+
+  let contentInsideBraces;
   if (argument === undefined || argument === "") {
-    return concat([LBrace, RBrace]);
+    if (rightBraceLeadingComments.length === 0) {
+      return concat([LBrace, RBrace]);
+    }
+    contentInsideBraces = [separator, ...rightBraceLeadingComments];
+  } else if (rightBraceLeadingComments.length !== 0) {
+    contentInsideBraces = [
+      separator,
+      argument,
+      separator,
+      ...rightBraceLeadingComments
+    ];
+  } else {
+    contentInsideBraces = [separator, argument];
   }
 
   return group(
     rejectAndConcat([
       LBrace,
-      indent(concat([separator, argument])),
-      separator,
+      indent(concat(contentInsideBraces)),
+      lastBreakLine,
       RBrace
     ])
   );
-}
-
-function putIntoCurlyBraces(argument, separator, LBrace, RBrace) {
-  if (argument !== undefined && argument !== "") {
-    return putIntoBraces(argument, separator, LBrace, RBrace);
-  }
-
-  if (hasTrailingComments(LBrace) || hasLeadingComments(RBrace)) {
-    return concat([LBrace, indent(hardline), RBrace]);
-  }
-
-  return concat([LBrace, RBrace]);
 }
 
 const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
@@ -633,7 +646,6 @@ module.exports = {
   displaySemicolon,
   rejectSeparators,
   putIntoBraces,
-  putIntoCurlyBraces,
   getInterfaceBodyDeclarationsSeparator,
   getClassBodyDeclarationsSeparator,
   separateTokensIntoGroups,

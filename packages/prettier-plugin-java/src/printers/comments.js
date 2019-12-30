@@ -205,6 +205,7 @@ function processComments(docs) {
 }
 
 module.exports = {
+  getTokenLeadingComments,
   processComments,
   printTokenWithComments,
   printNodeWithComments

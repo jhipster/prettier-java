@@ -11,7 +11,6 @@ const {
   getBlankLinesSeparator,
   rejectSeparators,
   putIntoBraces,
-  putIntoCurlyBraces,
   isStatementEmptyStatement,
   sortModifiers,
   hasTrailingLineComments,
@@ -22,7 +21,7 @@ class BlocksAndStatementPrettierVisitor {
   block(ctx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return putIntoCurlyBraces(
+    return putIntoBraces(
       blockStatements,
       hardline,
       ctx.LCurly[0],
