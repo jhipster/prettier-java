@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const { line, softline, hardline } = require("prettier").doc.builders;
 const {
+  getBlankLinesSeparator,
   hasLeadingLineComments,
   reject,
   rejectAndConcat,
@@ -685,8 +686,10 @@ class ClassesPrettierVisitor {
 
   enumConstantList(ctx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
+
+    const blankLineSeparators = getBlankLinesSeparator(ctx.enumConstant);
     const commas = ctx.Comma
-      ? ctx.Comma.map(elt => concat([elt, hardline]))
+      ? ctx.Comma.map((elt, index) => concat([elt, blankLineSeparators[index]]))
       : [];
 
     return group(rejectAndJoinSeps(commas, enumConstants));

@@ -115,3 +115,17 @@ class CLassWithEnum {
     SECOND
   }
 }
+
+public enum OtherEnum {
+  ONE,
+  TWO,
+
+  THREE,
+
+  FOUR,
+  /* Five */
+  FIVE,
+
+  /* Six */
+  SIX
+}
