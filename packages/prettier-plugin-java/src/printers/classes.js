@@ -727,7 +727,7 @@ class ClassesPrettierVisitor {
         ctx.classBodyDeclaration
       );
 
-      return rejectAndJoin(line, [
+      return rejectAndJoin(concat([hardline, hardline]), [
         ctx.Semicolon[0],
         rejectAndJoinSeps(separators, classBodyDeclaration)
       ]);
