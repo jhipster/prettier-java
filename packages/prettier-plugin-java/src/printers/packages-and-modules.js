@@ -19,12 +19,7 @@ class PackagesAndModulesPrettierVisitor {
     const compilationUnit =
       ctx.ordinaryCompilationUnit || ctx.modularCompilationUnit;
 
-    // Do not add additional line if only comments in file
-    const additionalLine = isNaN(compilationUnit[0].location.startOffset)
-      ? ""
-      : line;
-
-    return concat([this.visit(compilationUnit[0]), additionalLine]);
+    return concat([this.visit(compilationUnit[0]), line]);
   }
 
   ordinaryCompilationUnit(ctx) {

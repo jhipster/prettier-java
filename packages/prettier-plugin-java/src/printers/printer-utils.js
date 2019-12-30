@@ -279,10 +279,17 @@ function getBlankLinesSeparator(ctx) {
 
   const separators = [];
   for (let i = 0; i < ctx.length - 1; i++) {
-    const previousRuleEndLine = ctx[i].location.endLine;
-    const nextRuleStartLine = ctx[i + 1].location.startLine;
+    const previousRuleEndLineWithComment =
+      ctx[i].trailingComments !== undefined
+        ? ctx[i].trailingComments[ctx[i].trailingComments.length - 1].endLine
+        : ctx[i].location.endLine;
 
-    if (nextRuleStartLine > previousRuleEndLine + 1) {
+    const nextRuleStartLineWithComment =
+      ctx[i + 1].leadingComments !== undefined
+        ? ctx[i + 1].leadingComments[0].startLine
+        : ctx[i + 1].location.startLine;
+
+    if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
       separators.push(concat([hardline, hardline]));
     } else {
       separators.push(hardline);

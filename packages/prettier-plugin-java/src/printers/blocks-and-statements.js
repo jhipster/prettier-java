@@ -93,7 +93,9 @@ class BlocksAndStatementPrettierVisitor {
         delete newStatement.leadingComments;
       }
 
-      newLabelStatement.leadingComments = labeledStatementLeadingComments;
+      if (labeledStatementLeadingComments.length !== 0) {
+        newLabelStatement.leadingComments = labeledStatementLeadingComments;
+      }
       newLabelStatement.children.Colon[0] = newColon;
       newLabelStatement.children.statement[0] = newStatement;
 

@@ -38,7 +38,6 @@ public class BlankLines {
     int l = 4;
 
     int m = 4;
-
     // Add a line before comment
     int n = 4;
     for (int p = 0; p < 3; p++);
