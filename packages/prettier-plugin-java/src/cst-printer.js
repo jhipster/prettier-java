@@ -18,7 +18,9 @@ const {
 const {
   PackagesAndModulesPrettierVisitor
 } = require("./printers/packages-and-modules");
-const { printNodeWithComments } = require("./printers/comments");
+const {
+  printNodeWithComments
+} = require("./printers/comments/format-comments");
 
 class CstPrettierPrinter extends BaseJavaCstVisitor {
   constructor() {

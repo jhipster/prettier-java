@@ -3,7 +3,7 @@
 const _ = require("lodash");
 
 const { concat, join } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 const {
   rejectAndJoin,
   rejectAndConcat,

@@ -2,7 +2,7 @@
 
 const { line, softline, hardline } = require("prettier").doc.builders;
 const { group, indent, concat, join } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 const {
   displaySemicolon,
   rejectAndConcat,

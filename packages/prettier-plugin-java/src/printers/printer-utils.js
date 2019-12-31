@@ -4,7 +4,7 @@ const { join, concat, group } = require("./prettier-builder");
 const {
   getTokenLeadingComments,
   printTokenWithComments
-} = require("./comments");
+} = require("./comments/format-comments");
 const { indent, hardline } = require("prettier").doc.builders;
 
 const orderedModifiers = [

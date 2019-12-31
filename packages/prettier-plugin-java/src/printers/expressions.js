@@ -3,7 +3,7 @@
 const _ = require("lodash");
 const { ifBreak, line, softline } = require("prettier").doc.builders;
 const { concat, group, indent } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 const {
   matchCategory,
   rejectAndJoin,

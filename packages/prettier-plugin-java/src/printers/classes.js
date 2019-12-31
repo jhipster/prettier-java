@@ -16,7 +16,7 @@ const {
   isStatementEmptyStatement
 } = require("./printer-utils");
 const { concat, join, group, indent } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {

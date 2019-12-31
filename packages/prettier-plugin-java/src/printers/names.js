@@ -1,7 +1,7 @@
 "use strict";
 
 const { buildFqn } = require("./printer-utils");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 
 class NamesPrettierVisitor {
   typeIdentifier(ctx) {
