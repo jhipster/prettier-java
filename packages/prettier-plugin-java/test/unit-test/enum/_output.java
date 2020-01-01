@@ -89,12 +89,14 @@ public enum EnumWithManyValuesWithExtraCommaAndExtraSemicolon {
 public enum EnumWithExtraCommaAndEnumBodyDeclarations {
   THIS_IS_GOOD("abc"),
   THIS_IS_FINE("abc");
+
   public static final String thisWillBeDeleted = "DELETED";
 }
 
 public enum Enum {
   THIS_IS_GOOD("abc"),
   THIS_IS_FINE("abc");
+
   public static final String thisWillBeDeleted = "DELETED";
 
   private final String value;
