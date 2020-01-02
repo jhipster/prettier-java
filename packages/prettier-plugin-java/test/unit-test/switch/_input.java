@@ -43,4 +43,9 @@ class Switch {
       }
   }
 
+  // Bug fix: #357
+  public String shouldWrapEvenForSmallSwitchCases() {
+    switch (answer) { case "YES": return "YES"; default: return "NO"; }
+  }
+
 }
