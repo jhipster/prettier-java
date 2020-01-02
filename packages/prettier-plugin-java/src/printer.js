@@ -26,7 +26,7 @@ function genericPrint(path, options, print) {
   //   }
   // ];
 
-  return createPrettierDoc(node, options.originalText);
+  return createPrettierDoc(node, options);
 }
 
 module.exports = genericPrint;

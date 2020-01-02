@@ -88,7 +88,10 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
                   .endOffset
               : node.location.endOffset;
 
-          return this.originalText.substring(startOffset, endOffset + 1);
+          return this.prettierOptions.originalText.substring(
+            startOffset,
+            endOffset + 1
+          );
         } catch (e) {
           throw Error(
             e +
@@ -131,8 +134,8 @@ const prettyPrinter = new CstPrettierPrinter();
 
 // TODO: do we need the "path" and "print" arguments passed by prettier
 // see https://github.com/prettier/prettier/issues/5747
-function createPrettierDoc(cstNode, originalText) {
-  prettyPrinter.originalText = originalText;
+function createPrettierDoc(cstNode, options) {
+  prettyPrinter.prettierOptions = options;
   return prettyPrinter.visit(cstNode);
 }
 
