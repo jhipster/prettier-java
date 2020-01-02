@@ -1,12 +1,12 @@
 "use strict";
 const _ = require("lodash");
-const { join, concat, group } = require("./prettier-builder");
+const { ifBreak, join, concat, group } = require("./prettier-builder");
 const {
   getTokenLeadingComments,
   printTokenWithComments
 } = require("./comments/format-comments");
 const { hasComments } = require("./comments/comments-utils");
-const { indent, hardline } = require("prettier").doc.builders;
+const { indent, hardline, line } = require("prettier").doc.builders;
 
 const orderedModifiers = [
   "Public",
@@ -605,6 +605,24 @@ function isUniqueMethodInvocation(primarySuffixes) {
   return count;
 }
 
+function printArrayList({ list, extraComma, LCurly, RCurly, trailingComma }) {
+  let optionalComma;
+  if (trailingComma !== "none") {
+    optionalComma = extraComma
+      ? ifBreak(extraComma[0], { ...extraComma[0], image: "" })
+      : ifBreak(",", "");
+  } else {
+    optionalComma = extraComma ? { ...extraComma[0], image: "" } : "";
+  }
+
+  return putIntoBraces(
+    rejectAndConcat([list, optionalComma]),
+    line,
+    LCurly,
+    RCurly
+  );
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -629,5 +647,6 @@ module.exports = {
   retrieveNodesToken,
   isStatementEmptyStatement,
   sortImports,
-  isUniqueMethodInvocation
+  isUniqueMethodInvocation,
+  printArrayList
 };
