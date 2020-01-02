@@ -5,7 +5,7 @@ const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 describe("floatingPointType", () => {
   it("can format float keyword", () => {
     expectSnippetToBeFormatted({
-      input: "float",
+      snippet: "float",
       expectedOutput: "float",
       entryPoint: "floatingPointType"
     });
@@ -13,7 +13,7 @@ describe("floatingPointType", () => {
 
   it("can format double keyword", () => {
     expectSnippetToBeFormatted({
-      input: "double",
+      snippet: "double",
       expectedOutput: "double",
       entryPoint: "floatingPointType"
     });

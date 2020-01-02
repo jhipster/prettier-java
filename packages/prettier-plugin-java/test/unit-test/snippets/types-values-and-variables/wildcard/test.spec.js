@@ -17,7 +17,7 @@ describe("Wildcard", () => {
 
   it("can format a wildcard", () => {
     expectSnippetToBeFormatted({
-      input: "?",
+      snippet: "?",
       expectedOutput: "?",
       entryPoint: "wildcard"
     });
@@ -25,20 +25,20 @@ describe("Wildcard", () => {
 
   it("can format a wildcard with one annotations", () => {
     expectSnippetToBeFormatted({
-      input: "@Anno ?",
+      snippet: "@Anno ?",
       expectedOutput: "@Anno ?",
       entryPoint: "wildcard"
     });
   });
 
   it("can format a wildcard with annotations that exceed printWidth ", () => {
-    const input =
+    const snippet =
       "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
     const expectedOutput =
       "@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?";
 
     expectSnippetToBeFormatted({
-      input,
+      snippet,
       expectedOutput,
       entryPoint: "wildcard"
     });
@@ -46,7 +46,7 @@ describe("Wildcard", () => {
 
   it("can format a wildcard with wildcardBound", () => {
     expectSnippetToBeFormatted({
-      input: "? extends int[]",
+      snippet: "? extends int[]",
       expectedOutput: "? extends int[]",
       entryPoint: "wildcard"
     });

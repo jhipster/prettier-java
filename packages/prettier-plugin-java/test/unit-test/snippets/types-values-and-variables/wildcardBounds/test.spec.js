@@ -17,7 +17,7 @@ describe("Wildcard Bounds", () => {
 
   it("can format a wildcardBounds with extends", () => {
     expectSnippetToBeFormatted({
-      input: "extends int[]",
+      snippet: "extends int[]",
       expectedOutput: "extends int[]",
       entryPoint: "wildcardBounds"
     });
@@ -26,7 +26,7 @@ describe("Wildcard Bounds", () => {
 
   it("can format a wildcardBounds with super", () => {
     expectSnippetToBeFormatted({
-      input: "super int[]",
+      snippet: "super int[]",
       expectedOutput: "super int[]",
       entryPoint: "wildcardBounds"
     });

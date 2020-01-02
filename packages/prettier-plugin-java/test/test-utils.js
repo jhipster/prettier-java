@@ -100,19 +100,29 @@ function testRepositorySample(testFolder, command, args) {
   });
 }
 
-function formatJavaSnippet(snippet, entryPoint) {
+function formatJavaSnippet({ snippet, entryPoint, prettierOptions = {} }) {
   const node = javaParser.parse(snippet, entryPoint);
-  const doc = createPrettierDoc(node);
-
-  return printDocToString(doc, {
+  const options = {
     printWidth: 80,
-    tabWidth: 2
-  }).formatted;
+    tabWidth: 2,
+    ...prettierOptions
+  };
+  const doc = createPrettierDoc(node, options);
+  return printDocToString(doc, options).formatted;
 }
 
-function expectSnippetToBeFormatted({ input, expectedOutput, entryPoint }) {
-  const onePass = formatJavaSnippet(input, entryPoint);
-  const secondPass = formatJavaSnippet(onePass, entryPoint);
+function expectSnippetToBeFormatted({
+  snippet,
+  expectedOutput,
+  entryPoint,
+  prettierOptions = {}
+}) {
+  const onePass = formatJavaSnippet({ snippet, entryPoint, prettierOptions });
+  const secondPass = formatJavaSnippet({
+    snippet: onePass,
+    entryPoint,
+    prettierOptions
+  });
 
   expect(onePass).to.equal(expectedOutput);
   expect(secondPass).to.equal(expectedOutput);
