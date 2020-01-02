@@ -196,8 +196,8 @@ class BlocksAndStatementPrettierVisitor {
     const switchCases = this.mapVisit(ctx.switchCase);
 
     return putIntoBraces(
-      rejectAndJoin(line, switchCases),
-      line,
+      rejectAndJoin(hardline, switchCases),
+      hardline,
       ctx.LCurly[0],
       ctx.RCurly[0]
     );
@@ -207,7 +207,7 @@ class BlocksAndStatementPrettierVisitor {
     const switchLabel = this.visit(ctx.switchLabel);
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return indent(rejectAndJoin(line, [switchLabel, blockStatements]));
+    return indent(rejectAndJoin(hardline, [switchLabel, blockStatements]));
   }
 
   switchLabel(ctx) {
