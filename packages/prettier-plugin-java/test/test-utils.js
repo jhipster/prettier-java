@@ -105,6 +105,7 @@ function formatJavaSnippet({ snippet, entryPoint, prettierOptions = {} }) {
   const options = {
     printWidth: 80,
     tabWidth: 2,
+    trailingComma: "none",
     ...prettierOptions
   };
   const doc = createPrettierDoc(node, options);
