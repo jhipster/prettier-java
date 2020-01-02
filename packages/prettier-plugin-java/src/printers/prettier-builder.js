@@ -42,11 +42,19 @@ function dedent(doc) {
   return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
+function ifBreak(breakContents, flatContents) {
+  return prettier.ifBreak(
+    processComments(breakContents),
+    processComments(flatContents)
+  );
+}
+
 module.exports = {
   concat,
   join,
   group,
   fill,
   indent,
-  dedent
+  dedent,
+  ifBreak
 };

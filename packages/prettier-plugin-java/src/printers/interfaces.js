@@ -1,7 +1,7 @@
 "use strict";
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const { concat, group, indent } = require("./prettier-builder");
+const { concat, group, ifBreak, indent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
 const {
   rejectAndConcat,
@@ -275,15 +275,21 @@ class InterfacesPrettierVisitor {
 
   elementValueArrayInitializer(ctx) {
     const elementValueList = this.visit(ctx.elementValueList);
-    const comma = ctx.Comma ? ctx.Comma[0] : "";
 
-    return group(
-      rejectAndConcat([
-        ctx.LCurly[0],
-        indent(rejectAndConcat([line, elementValueList, comma])),
-        line,
-        ctx.RCurly[0]
-      ])
+    let optionalComma;
+    if (this.prettierOptions.trailingComma !== "none") {
+      optionalComma = ctx.Comma
+        ? ifBreak(ctx.Comma[0], { ...ctx.Comma[0], image: "" })
+        : ifBreak(",", "");
+    } else {
+      optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
+    }
+
+    return putIntoBraces(
+      rejectAndConcat([elementValueList, optionalComma]),
+      line,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
     );
   }
 
