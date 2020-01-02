@@ -1,5 +1,6 @@
 "use strict";
 const { line } = require("prettier").doc.builders;
+const { ifBreak } = require("./prettier-builder");
 const {
   rejectAndConcat,
   rejectAndJoinSeps,
@@ -11,7 +12,15 @@ class ArraysPrettierVisitor {
     const optionalVariableInitializerList = this.visit(
       ctx.variableInitializerList
     );
-    const optionalComma = ctx.Comma ? ctx.Comma[0] : "";
+
+    let optionalComma;
+    if (this.prettierOptions.trailingComma !== "none") {
+      optionalComma = ctx.Comma
+        ? ifBreak(ctx.Comma[0], { ...ctx.Comma[0], image: "" })
+        : ifBreak(",", "");
+    } else {
+      optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
+    }
 
     return putIntoBraces(
       rejectAndConcat([optionalVariableInitializerList, optionalComma]),
