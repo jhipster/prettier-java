@@ -5,7 +5,7 @@ const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 describe("AmbiguousName", () => {
   it("can format a AmbiguousName without dots", () => {
     expectSnippetToBeFormatted({
-      input: "myAmbiguousName",
+      snippet: "myAmbiguousName",
       expectedOutput: "myAmbiguousName",
       entryPoint: "ambiguousName"
     });
@@ -13,7 +13,7 @@ describe("AmbiguousName", () => {
 
   it("can format a AmbiguousName with dots", () => {
     expectSnippetToBeFormatted({
-      input: "myAmbiguousName.with.lot.of.dots",
+      snippet: "myAmbiguousName.with.lot.of.dots",
       expectedOutput: "myAmbiguousName.with.lot.of.dots",
       entryPoint: "ambiguousName"
     });

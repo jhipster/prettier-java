@@ -5,7 +5,7 @@ const { expectSnippetToBeFormatted } = require("../../../../test-utils");
 describe("integralType", () => {
   it("can format byte keyword", () => {
     expectSnippetToBeFormatted({
-      input: "byte",
+      snippet: "byte",
       expectedOutput: "byte",
       entryPoint: "integralType"
     });
@@ -13,7 +13,7 @@ describe("integralType", () => {
 
   it("can format short keyword", () => {
     expectSnippetToBeFormatted({
-      input: "short",
+      snippet: "short",
       expectedOutput: "short",
       entryPoint: "integralType"
     });
@@ -21,7 +21,7 @@ describe("integralType", () => {
 
   it("can format int keyword", () => {
     expectSnippetToBeFormatted({
-      input: "int",
+      snippet: "int",
       expectedOutput: "int",
       entryPoint: "integralType"
     });
@@ -29,7 +29,7 @@ describe("integralType", () => {
 
   it("can format long keyword", () => {
     expectSnippetToBeFormatted({
-      input: "long",
+      snippet: "long",
       expectedOutput: "long",
       entryPoint: "integralType"
     });
@@ -37,7 +37,7 @@ describe("integralType", () => {
 
   it("can format char keyword", () => {
     expectSnippetToBeFormatted({
-      input: "char",
+      snippet: "char",
       expectedOutput: "char",
       entryPoint: "integralType"
     });
