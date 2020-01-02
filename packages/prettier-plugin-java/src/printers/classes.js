@@ -674,7 +674,12 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
-    const optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
+    let optionalComma;
+    if (this.prettierOptions.trailingComma !== "none") {
+      optionalComma = ctx.Comma ? ctx.Comma[0] : ",";
+    } else {
+      optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";
+    }
 
     return putIntoBraces(
       rejectAndConcat([enumConstantList, optionalComma, enumBodyDeclarations]),
