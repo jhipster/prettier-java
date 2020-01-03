@@ -84,3 +84,11 @@ public class EmptyStament {
     do; /*test*/while (one);
   }
 }
+
+// Bug Fix: #356
+public class Test {
+  public TestField testField;
+
+  @Override
+  public void someMethod() {}
+}
