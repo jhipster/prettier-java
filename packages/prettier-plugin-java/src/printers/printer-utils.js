@@ -275,29 +275,47 @@ function getDeclarationsSeparator(
   needLineDeclaration,
   isSemicolon
 ) {
+  const declarationsWithoutEmptyStatements = declarations.filter(
+    declaration => !isSemicolon(declaration)
+  );
+
+  const userBlankLinesSeparators = getBlankLinesSeparator(
+    declarationsWithoutEmptyStatements
+  );
+  const additionalBlankLines = declarationsWithoutEmptyStatements.map(
+    needLineDeclaration
+  );
+
   const separators = [];
-  const additionalBlankLines = [];
-
-  declarations.forEach(declaration => {
-    if (needLineDeclaration(declaration)) {
-      additionalBlankLines.push(hardline);
-    } else {
-      additionalBlankLines.push("");
-    }
-  });
-
-  const userBlankLinesSeparators = getBlankLinesSeparator(declarations);
-
+  let indexNextNotEmptyDeclaration = 0;
   for (let i = 0; i < declarations.length - 1; i++) {
-    if (!isSemicolon(declarations[i])) {
+    // if the empty statement has comments
+    // we want to print them on their own line
+    if (isSemicolon(declarations[i])) {
+      if (hasComments(declarations[i])) {
+        separators.push(hardline);
+      }
+    } else if (
+      indexNextNotEmptyDeclaration <
+      declarationsWithoutEmptyStatements.length - 1
+    ) {
       const isTwoHardLines =
-        userBlankLinesSeparators[i].parts[0].type === "concat";
+        userBlankLinesSeparators[indexNextNotEmptyDeclaration].parts[0].type ===
+        "concat";
       const additionalSep =
         !isTwoHardLines &&
-        (additionalBlankLines[i + 1] !== "" || additionalBlankLines[i] !== "")
+        (additionalBlankLines[indexNextNotEmptyDeclaration + 1] ||
+          additionalBlankLines[indexNextNotEmptyDeclaration])
           ? hardline
           : "";
-      separators.push(concat([userBlankLinesSeparators[i], additionalSep]));
+      separators.push(
+        concat([
+          userBlankLinesSeparators[indexNextNotEmptyDeclaration],
+          additionalSep
+        ])
+      );
+
+      indexNextNotEmptyDeclaration += 1;
     }
   }
 
