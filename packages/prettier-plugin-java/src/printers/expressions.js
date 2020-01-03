@@ -15,7 +15,8 @@ const {
   putIntoBraces,
   separateTokensIntoGroups,
   isShiftOperator,
-  isUniqueMethodInvocation
+  isUniqueMethodInvocation,
+  handleComments
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -158,6 +159,8 @@ class ExpressionsPrettierVisitor {
   }
 
   binaryExpression(ctx, params) {
+    handleComments(ctx);
+
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);

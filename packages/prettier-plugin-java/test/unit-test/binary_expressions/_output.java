@@ -48,4 +48,31 @@ public class BinaryOperations {
     int a = b ? b : c;
     return b ? b : c;
   }
+
+  public boolean binaryOperationWithComments() {
+    boolean a =
+      one ||
+      two >> 1 || // one
+      // five
+      // two
+      // three
+      // four
+      three;
+
+    boolean b =
+      one ||
+      two >> 1 || // one
+      // two
+      // three
+      three;
+
+    boolean c =
+      one ||
+      two >> 1 || // one
+      // two
+      // three
+      three;
+
+    return a || b || c;
+  }
 }
