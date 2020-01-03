@@ -3,7 +3,6 @@ const _ = require("lodash");
 const { line, softline, hardline } = require("prettier").doc.builders;
 const {
   getBlankLinesSeparator,
-  hasLeadingLineComments,
   reject,
   rejectAndConcat,
   rejectAndJoin,
@@ -17,6 +16,7 @@ const {
 } = require("./printer-utils");
 const { concat, join, group, indent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
+const { hasLeadingLineComments } = require("./comments/comments-utils");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
