@@ -634,6 +634,27 @@ function isUniqueMethodInvocation(primarySuffixes) {
   return count;
 }
 
+function handleComments(ctx) {
+  let unaryExpressionIndex = 1;
+  ctx.BinaryOperator.forEach(binaryOperator => {
+    if (hasLeadingComments(binaryOperator)) {
+      while (
+        ctx.unaryExpression[unaryExpressionIndex].location.startOffset <
+        binaryOperator.endOffset
+      ) {
+        unaryExpressionIndex++;
+      }
+
+      ctx.unaryExpression[unaryExpressionIndex].leadingComments =
+        ctx.unaryExpression[unaryExpressionIndex].leadingComments || [];
+      ctx.unaryExpression[unaryExpressionIndex].leadingComments.unshift(
+        ...binaryOperator.leadingComments
+      );
+      delete binaryOperator.leadingComments;
+    }
+  });
+}
+
 module.exports = {
   buildFqn,
   reject,
@@ -660,5 +681,6 @@ module.exports = {
   retrieveNodesToken,
   isStatementEmptyStatement,
   sortImports,
-  isUniqueMethodInvocation
+  isUniqueMethodInvocation,
+  handleComments
 };
