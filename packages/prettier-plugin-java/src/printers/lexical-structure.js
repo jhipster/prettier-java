@@ -1,5 +1,5 @@
 "use strict";
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
 
 class LexicalStructurePrettierVisitor {
   literal(ctx) {

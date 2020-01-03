@@ -2,7 +2,11 @@
 
 const { line, softline, hardline } = require("prettier").doc.builders;
 const { group, indent, concat, join } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
+const {
+  hasLeadingLineComments,
+  hasTrailingLineComments
+} = require("./comments/comments-utils");
 const {
   displaySemicolon,
   rejectAndConcat,
@@ -12,9 +16,7 @@ const {
   rejectSeparators,
   putIntoBraces,
   isStatementEmptyStatement,
-  sortModifiers,
-  hasTrailingLineComments,
-  hasLeadingLineComments
+  sortModifiers
 } = require("./printer-utils");
 
 class BlocksAndStatementPrettierVisitor {

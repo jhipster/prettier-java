@@ -3,7 +3,10 @@
 const _ = require("lodash");
 const { ifBreak, line, softline } = require("prettier").doc.builders;
 const { concat, group, indent } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments");
+const { printTokenWithComments } = require("./comments/format-comments");
+const {
+  handleCommentsBinaryExpression
+} = require("./comments/handle-comments");
 const {
   matchCategory,
   rejectAndJoin,
@@ -15,8 +18,7 @@ const {
   putIntoBraces,
   separateTokensIntoGroups,
   isShiftOperator,
-  isUniqueMethodInvocation,
-  handleComments
+  isUniqueMethodInvocation
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
@@ -159,7 +161,7 @@ class ExpressionsPrettierVisitor {
   }
 
   binaryExpression(ctx, params) {
-    handleComments(ctx);
+    handleCommentsBinaryExpression(ctx);
 
     const referenceType = this.mapVisit(ctx.referenceType);
     const expression = this.mapVisit(ctx.expression);

@@ -1,7 +1,7 @@
 "use strict";
 const prettier = require("prettier").doc.builders;
 
-const { processComments } = require("./comments");
+const { processComments } = require("./comments/format-comments");
 
 /*
  * ------------------------------------------------------------------

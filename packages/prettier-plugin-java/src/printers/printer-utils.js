@@ -4,7 +4,8 @@ const { join, concat, group } = require("./prettier-builder");
 const {
   getTokenLeadingComments,
   printTokenWithComments
-} = require("./comments");
+} = require("./comments/format-comments");
+const { hasComments } = require("./comments/comments-utils");
 const { indent, hardline } = require("prettier").doc.builders;
 
 const orderedModifiers = [
@@ -230,36 +231,6 @@ function displaySemicolon(token, params) {
 
   token.image = "";
   return printTokenWithComments(token);
-}
-
-function hasLeadingComments(token) {
-  return token.leadingComments !== undefined;
-}
-
-function hasTrailingComments(token) {
-  return token.trailingComments !== undefined;
-}
-
-function hasLeadingLineComments(token) {
-  return (
-    token.leadingComments !== undefined &&
-    token.leadingComments.length !== 0 &&
-    token.leadingComments[token.leadingComments.length - 1].tokenType.name ===
-      "LineComment"
-  );
-}
-
-function hasTrailingLineComments(token) {
-  return (
-    token.trailingComments !== undefined &&
-    token.trailingComments.length !== 0 &&
-    token.trailingComments[token.trailingComments.length - 1].tokenType.name ===
-      "LineComment"
-  );
-}
-
-function hasComments(token) {
-  return hasLeadingComments(token) || hasTrailingComments(token);
 }
 
 function isExplicitLambdaParameter(ctx) {
@@ -634,49 +605,6 @@ function isUniqueMethodInvocation(primarySuffixes) {
   return count;
 }
 
-function handleComments(ctx) {
-  let unaryExpressionIndex = 1;
-  if (ctx.BinaryOperator !== undefined) {
-    ctx.BinaryOperator.forEach(binaryOperator => {
-      if (hasLeadingComments(binaryOperator)) {
-        while (
-          ctx.unaryExpression[unaryExpressionIndex].location.startOffset <
-          binaryOperator.endOffset
-        ) {
-          unaryExpressionIndex++;
-        }
-
-        // Adapt the position of the operator and its leading comments
-        const shiftUp =
-          binaryOperator.leadingComments[0].startLine -
-          1 -
-          ctx.BinaryOperator.startLine;
-
-        if (
-          binaryOperator.startLine !==
-          ctx.unaryExpression[unaryExpressionIndex].location.startLine
-        ) {
-          binaryOperator.leadingComments.forEach(comment => {
-            comment.startLine += 1;
-            comment.endLine += 1;
-          });
-        }
-        binaryOperator.startLine += shiftUp;
-        binaryOperator.endLine += shiftUp;
-
-        // Assign the leading comments & trailing comments of the binaryOperator
-        // to the following unaryExpression as leading comments
-        ctx.unaryExpression[unaryExpressionIndex].leadingComments =
-          ctx.unaryExpression[unaryExpressionIndex].leadingComments || [];
-        ctx.unaryExpression[unaryExpressionIndex].leadingComments.unshift(
-          ...binaryOperator.leadingComments
-        );
-        delete binaryOperator.leadingComments;
-      }
-    });
-  }
-}
-
 module.exports = {
   buildFqn,
   reject,
@@ -689,8 +617,6 @@ module.exports = {
   sortModifiers,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
-  hasLeadingLineComments,
-  hasTrailingLineComments,
   isExplicitLambdaParameter,
   getBlankLinesSeparator,
   displaySemicolon,
@@ -703,6 +629,5 @@ module.exports = {
   retrieveNodesToken,
   isStatementEmptyStatement,
   sortImports,
-  isUniqueMethodInvocation,
-  handleComments
+  isUniqueMethodInvocation
 };
