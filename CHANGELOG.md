@@ -1,4 +1,306 @@
-# Latest v0.6.0
+# Latest v0.7.0
+
+## Enhancements
+
+### Re-Writer
+
+- Add support for trailing commas option ([#354](https://github.com/jhipster/prettier-java/pull/354))
+
+  For enumerations:
+  ```java
+  // Input
+  public enum Enum {
+    ONE, TWO, THREE
+  }
+
+  // Output
+  public enum Enum {
+    ONE,
+    TWO,
+    THREE,
+  }
+  ```
+
+  For arrays:
+  ```java
+  // Input
+  public class T {
+    void t() {
+      int[] ints = { 1, 2, 3, };
+      int[] ints = { aVeryLongArrayValue, anotherVeryLongArrayValue, andYetAnotherVeryLongArrayValue };
+    }
+  }
+
+  // Output
+  public class T {
+    void t() {
+      int[] ints = { 1, 2, 3 };
+      int[] ints = {
+        aVeryLongArrayValue,
+        anotherVeryLongArrayValue,
+        andYetAnotherVeryLongArrayValue,
+      };
+    }
+  }
+  ```
+- By default, remove trailing comma in arrays ([#354](https://github.com/jhipster/prettier-java/pull/354))
+
+  ```java
+  // Input
+  public class T {
+    void t() {
+      int[] ints = { 1, 2, 3, };
+    }
+  }
+
+  // Output
+  public class T {
+    void t() {
+      int[] ints = { 1, 2, 3 };
+    }
+  }
+  ```
+
+- Allow blank lines in enumerations' constant list ([#350](https://github.com/jhipster/prettier-java/pull/350))
+
+  ```java
+  // Input
+  public enum OtherEnum {
+    ONE, TWO,
+
+    THREE,
+
+
+
+    FOUR,
+    /* Five */
+    FIVE,
+
+    /* Six */
+    SIX
+
+
+  }
+
+  // Output
+  public enum OtherEnum {
+    ONE,
+    TWO,
+
+    THREE,
+
+    FOUR,
+    /* Five */
+    FIVE,
+
+    /* Six */
+    SIX
+  }
+  ```
+
+- Always add a blank line between an enumeration's constants and declarations ([#351](https://github.com/jhipster/prettier-java/pull/351))
+
+  ```java
+  // This input
+  public enum EnumWithExtraCommaAndEnumBodyDeclarations {
+    THIS_IS_GOOD("abc"),
+    THIS_IS_FINE("abc");
+    public static final String thisWillBeDeleted = "DELETED";
+  }
+
+  // will be formatted to this output
+  public enum EnumWithExtraCommaAndEnumBodyDeclarations {
+    THIS_IS_GOOD("abc"),
+    THIS_IS_FINE("abc");
+
+    public static final String thisWillBeDeleted = "DELETED";
+  }
+  ```
+
+## Fixes
+
+### Re-Writer
+
+- Fix blank lines with empty statements ([#360](https://github.com/jhipster/prettier-java/pull/360))
+
+  ```java
+  // Input
+  public class Test {
+    public TestField testField;;
+
+    @Override
+    public void someMethod() {}
+  }
+
+  // Output (v0.6.0)
+  public class Test {
+    public TestField testField;
+    @Override
+    public void someMethod() {}
+  }
+
+  // Output (v0.7.0)
+  public class Test {
+    public TestField testField;
+
+    @Override
+    public void someMethod() {}
+  }
+  ```
+
+- Fix line wrapping in switch statements ([#359](https://github.com/jhipster/prettier-java/pull/359))
+
+  ```java
+  // Input
+  public String shouldWrapEvenForSmallSwitchCases() {
+    switch (answer) { case "YES": return "YES"; default: return "NO"; }
+  }
+  // Output (v0.6.0)
+  public String shouldWrapEvenForSmallSwitchCases() {
+    switch (answer) { case "YES": return "YES"; default: return "NO"; }
+  }
+
+  // Output (v0.7.0)
+  public String shouldWrapEvenForSmallSwitchCases() {
+    switch (answer) {
+      case "YES":
+        return "YES";
+      default:
+        return "NO";
+    }
+  }
+  ```
+
+- Fix stable reformating of comments in binary expression ([#353](https://github.com/jhipster/prettier-java/pull/353))
+
+  ```java
+  // Input
+  public boolean binaryOperationWithComments() {
+    boolean a = one || two >> 1 // one
+      // two
+      // three
+      || // five
+      // four
+      three;
+
+    boolean b = one || two >> 1 // one
+      // two
+      // three
+      ||
+      three;
+
+    boolean c = one || two >> 1 // one
+      // two
+      // three
+      || three;
+
+    return a || b || c;
+  }
+
+  // Output (v0.6.0)
+  public boolean binaryOperationWithComments() {
+    boolean a =
+      one ||
+      two >> 1 // two // one
+      // three
+      || // five
+      // four
+      three;
+
+    boolean b =
+      one ||
+      two >> 1 // two // one
+      // three
+      ||
+      three;
+
+    boolean c =
+      one ||
+      two >> 1 // two // one
+      // three
+      ||
+      three;
+
+    return a || b || c;
+  }
+
+  // Output (v0.7.0)
+  public boolean binaryOperationWithComments() {
+    boolean a =
+      one ||
+      two >> 1 || // one
+      // five
+      // two
+      // three
+      // four
+      three;
+
+    boolean b =
+      one ||
+      two >> 1 || // one
+      // two
+      // three
+      three;
+
+    boolean c =
+      one ||
+      two >> 1 || // one
+      // two
+      // three
+      three;
+
+    return a || b || c;
+  }
+  ```
+- Fix comments indentation when they are at the end of a block: indent the comments based on the block they are in ([#345](https://github.com/jhipster/prettier-java/pull/345))
+
+  ```java
+  // Input
+  public class T {
+    int i;
+    // comment
+  }
+
+  // Output (v0.6.0)
+  public class T {
+    int i;
+  // comment
+  }
+
+  // Output (v0.7.0)
+  public class T {
+    int i;
+    // comment
+  }
+  ```
+
+- Fix respect of blank lines with comments ([#348](https://github.com/jhipster/prettier-java/pull/348))
+
+  ```java
+  // Input
+  void t() {
+    int i;
+    // comment
+    int j;
+  }
+
+  // Output (v0.6.0)
+  void t() {
+    int i;
+
+    // comment
+    int j;
+  }
+
+  // Output (v0.7.0)
+  void t() {
+    int i;
+    // comment
+    int j;
+  }
+  ```
+
+# v0.6.0
 
 ## Enhancements
 
