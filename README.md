@@ -1,7 +1,3 @@
-<p align="center">
-    :construction: Work in Progress! :construction:
-</p>
-
 [![Azure DevOps Build Status][azure-devops-image]][azure-devops-url-main] [![Build Status][travis-image]][travis-url]
 
 [azure-devops-image]: https://dev.azure.com/jhipster/prettier-java/_apis/build/status/jhipster.prettier-java?branchName=master
@@ -12,6 +8,10 @@
 # Prettier Java
 
 ![Prettier Banner](https://raw.githubusercontent.com/prettier/prettier-logo/master/images/prettier-banner-light.png)
+
+## Intro
+
+Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
 
 ## How it works
 
@@ -43,43 +43,47 @@ This project contains 2 packages:
 [npm-java-parser-image]: https://img.shields.io/npm/v/java-parser.svg?color=blue&label=java-parser&logo=java-parser
 [npm-java-parser-url]: https://www.npmjs.com/package/java-parser
 
-## Status
-
-- Parser package alpha version done, it can parse most of Java code. However, we still need to make some tweaks and improvements.
-- The printer (actually `prettier-java` package) is mostly done, it can output formatted code but needs to be improved on some cases.
-
 ## Install
 
 ### Pre-requirements
 
-Since the plugin is meant to be used with Prettier, you need to install it:
+- Node version 10+
 
-`npm install -g prettier`
-
-or
-
-`yarn global add prettier`
-
-### Install plugin
-
-`npm install -g prettier-plugin-java`
-
-or
-
-`yarn global add prettier-plugin-java`
-
-## Usage
+### Install Prettier and Prettier-Java plugin
 
 ```bash
-prettier --write MyJavaFile.java
+# Local installation
+npm install prettier-plugin-java --save-dev
+
+# Or globally
+npm install -g prettier prettier-plugin-java
 ```
 
-If the plugin is not automatically loaded:
+or with yarn:
 
 ```bash
-# Example where the plugin is locate in node_modules
-prettier --write MyJavaFile.java --plugin=./node_modules/prettier-plugin-java
+# Local installation
+yarn add prettier-plugin-java --dev
+
+# Or globally
+yarn global add prettier prettier-plugin-java
 ```
+
+Note: If you want to install the prettier-plugin-java globally, you should also install the prettier package globally.
+
+### Usage
+
+To reformat all your Java files, run:
+
+```bash
+# If you have installed the package locally
+npx prettier --write "**/*.java"
+
+# Or globally
+prettier --write "**/*.java"
+```
+
+To see an advanced usage: please go to the [Advanced Usage](./docs/advanced_usage.md) section
 
 ## Contributing
 
