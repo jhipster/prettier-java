@@ -81,7 +81,9 @@ class BlocksAndStatementPrettierVisitor {
     if (ctx.labeledStatement !== undefined) {
       const newLabelStatement = { ...ctx.labeledStatement[0] };
       const newColon = { ...ctx.labeledStatement[0].children.Colon[0] };
-      const newStatement = { ...ctx.labeledStatement[0].children.statement[0] };
+      const newStatement = {
+        ...ctx.labeledStatement[0].children.statement[0]
+      };
 
       const labeledStatementLeadingComments = [];
 
