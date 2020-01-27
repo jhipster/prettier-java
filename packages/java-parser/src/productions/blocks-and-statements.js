@@ -74,7 +74,9 @@ function defineRules($, t) {
   $.RULE("statement", () => {
     $.OR({
       DEF: [
-        { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
+        {
+          ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement)
+        },
         { ALT: () => $.SUBRULE($.labeledStatement) },
         // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
         { ALT: () => $.SUBRULE($.ifStatement) },

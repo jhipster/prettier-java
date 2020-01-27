@@ -117,7 +117,10 @@ function defineRules($, t) {
         GATE: () =>
           nextRuleType >= classBodyTypes.fieldDeclaration &&
           nextRuleType <= classBodyTypes.semiColon,
-        ALT: () => $.SUBRULE($.classMemberDeclaration, { ARGS: [nextRuleType] })
+        ALT: () =>
+          $.SUBRULE($.classMemberDeclaration, {
+            ARGS: [nextRuleType]
+          })
       },
       // no gate needed for the initializers because these are LL(1) rules.
       { ALT: () => $.SUBRULE($.instanceInitializer) },
@@ -523,7 +526,9 @@ function defineRules($, t) {
   $.RULE("explicitConstructorInvocation", () => {
     // Spec Deviation: split into two separate sub rules.
     $.OR([
-      { ALT: () => $.SUBRULE($.unqualifiedExplicitConstructorInvocation) },
+      {
+        ALT: () => $.SUBRULE($.unqualifiedExplicitConstructorInvocation)
+      },
       { ALT: () => $.SUBRULE($.qualifiedExplicitConstructorInvocation) }
     ]);
   });
