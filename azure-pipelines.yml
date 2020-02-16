@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         node_13:
-          node_version: "13.5.0"
+          node_version: "13.8.0"
         node_12:
           node_version: "12.16.0"
         node_10:
