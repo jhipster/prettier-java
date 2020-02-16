@@ -35,9 +35,11 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     { doc: "install", label: "Usage" },
-    // { blog: true, label: "Blog" },
+    { blog: true, label: "Blog & Changelog" },
     { href: "https://github.com/jhipster/prettier-java", label: "GitHub" }
   ],
+
+  blogSidebarTitle: "Changelog",
 
   // If you have users set above, you add it here:
   users,
@@ -55,7 +57,7 @@ const siteConfig = {
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: "default"
+    theme: "atom-one-light"
   },
 
   // Add custom scripts here that would be placed in <script> tags.
