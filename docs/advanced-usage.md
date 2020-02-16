@@ -1,4 +1,8 @@
-# Advanced Usage
+---
+id: advanced-usage
+title: Advanced Usage
+sidebar_label: Advanced Usage
+---
 
 ## Configuration
 
