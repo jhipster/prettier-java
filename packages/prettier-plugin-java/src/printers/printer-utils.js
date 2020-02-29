@@ -334,8 +334,7 @@ function needLineClassBodyDeclaration(declaration) {
       classMemberDeclaration.children.fieldDeclaration[0];
     if (
       fieldDeclaration.children.fieldModifier !== undefined &&
-      fieldDeclaration.children.fieldModifier[0].children.annotation !==
-        undefined
+      hasAnnotation(fieldDeclaration.children.fieldModifier)
     ) {
       return true;
     }
@@ -352,8 +351,7 @@ function needLineInterfaceMemberDeclaration(declaration) {
     const constantDeclaration = declaration.children.constantDeclaration[0];
     if (
       constantDeclaration.children.constantModifier !== undefined &&
-      constantDeclaration.children.constantModifier[0].children.annotation !==
-        undefined
+      hasAnnotation(constantDeclaration.children.constantModifier)
     ) {
       return true;
     }
@@ -364,8 +362,9 @@ function needLineInterfaceMemberDeclaration(declaration) {
     if (
       interfaceMethodDeclaration.children.interfaceMethodModifier !==
         undefined &&
-      interfaceMethodDeclaration.children.interfaceMethodModifier[0].children
-        .annotation !== undefined
+      hasNonTrailingAnnotation(
+        interfaceMethodDeclaration.children.interfaceMethodModifier
+      )
     ) {
       return true;
     }
@@ -389,6 +388,32 @@ function isClassBodyDeclarationASemicolon(classBodyDeclaration) {
 
 function isInterfaceMemberASemicolon(interfaceMemberDeclaration) {
   return interfaceMemberDeclaration.children.Semicolon !== undefined;
+}
+
+function hasAnnotation(modifiers) {
+  return modifiers.some(modifier => modifier.children.annotation !== undefined);
+}
+
+/**
+ * Return true if there is a method modifier that does not come after all other modifiers
+ * It is useful to know if sortModifiers will add an annotation before other modifiers
+ *
+ * @param methodModifiers
+ * @returns {boolean}
+ */
+function hasNonTrailingAnnotation(methodModifiers) {
+  const firstAnnotationIndex = methodModifiers.findIndex(
+    modifier => modifier.children.annotation !== undefined
+  );
+  const lastNonAnnotationIndex = _.findLastIndex(
+    methodModifiers,
+    modifier => modifier.children.annotation === undefined
+  );
+
+  return (
+    firstAnnotationIndex < lastNonAnnotationIndex ||
+    lastNonAnnotationIndex === -1
+  );
 }
 
 function getClassBodyDeclarationsSeparator(classBodyDeclarationContext) {
