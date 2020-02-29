@@ -14,10 +14,13 @@
     "babel-loader": "8.0.6",
     "concurrently": "5.0.2",
     "docusaurus": "1.14.4",
-    "react-ace": "8.0.0",
-    "webpack": "4.41.5",
-    "webpack-cli": "3.3.10",
     "react": "16.12.0",
-    "react-dom": "16.12.0"
+    "react-ace": "8.0.0",
+    "react-dom": "16.12.0",
+    "webpack": "4.41.5",
+    "webpack-cli": "3.3.10"
+  },
+  "dependencies": {
+    "prettier-plugin-java": "0.7.0"
   }
 }

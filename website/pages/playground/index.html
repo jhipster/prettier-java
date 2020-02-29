@@ -2,23 +2,26 @@
   <meta charset="utf-8" />
   <title>Prettier</title>
 
-  <link rel="icon" href="/icon.png" />
+  <link rel="icon" href="/img/icon.png" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.3.1/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/prettier@1.19.1/standalone.js"></script>
+
+  <link rel="stylesheet" href="/css/playground.css" />
 </head>
 
 <body>
   <header>
     <a href="/" class="logo-wrapper">
-      <img class="logo" src="/icon.png" alt="" />
+      <img class="logo" src="/img/icon.png" alt="prettier-logo" />
       <h1>Prettier <span id="version"></span></h1>
     </a>
 
     <span class="links">
       <a
         class="github-button"
-        href="https://github.com/prettier/prettier"
+        href="https://github.com/jhipster/prettier-java"
         data-show-count="true"
         aria-label="Star prettier on GitHub"
       >
@@ -30,4 +33,6 @@
   <div id="root" class="playground-container"></div>
 
   <script src="/playground.js"></script>
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>

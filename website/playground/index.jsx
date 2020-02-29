@@ -1,14 +1,12 @@
 const React = require("react");
 import ReactDOM from "react-dom";
 
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/theme-github";
+import CodeEditor from "./CodeEditor.jsx";
 
-class Playground extends React.Component {
+class PlaygroundContainer extends React.Component {
   render() {
-    return <AceEditor mode="java" theme="github" name="UNIQUE_ID_OF_DIV" />;
+    return <CodeEditor />;
   }
 }
 
-ReactDOM.render(<Playground />, document.getElementById("root"));
+ReactDOM.render(<PlaygroundContainer />, document.getElementById("root"));

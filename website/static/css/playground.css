@@ -1,0 +1,36 @@
+body {
+  margin: 0px;
+}
+
+header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  height: 30px;
+  padding: 11px 27px;
+  background-color: #1a2b34;
+  color: #e0e0e0;
+  position: relative;
+  z-index: 20;
+}
+
+.logo-wrapper {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  font-size: small;
+  font-weight: lighter;
+}
+
+.logo {
+  padding-right: 0.5em;
+  width: 2.4em;
+  height: 2.4em;
+}
+
+.code-editor-container {
+  display: flex;
+}

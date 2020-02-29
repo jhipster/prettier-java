@@ -1,5 +1,7 @@
 "use strict";
 
+const webpack = require("webpack");
+
 module.exports = {
   entry: {
     playground: "./playground/index.jsx"
@@ -20,10 +22,18 @@ module.exports = {
       }
     ]
   },
+  target: "node",
   externals: {
     clipboard: "ClipboardJS",
-    codemirror: "CodeMirror",
     react: "React",
     "react-dom": "ReactDOM"
+  },
+  node: {
+    global: true,
+    crypto: "empty",
+    process: true,
+    module: false,
+    clearImmediate: false,
+    setImmediate: false
   }
 };
