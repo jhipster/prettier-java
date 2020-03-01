@@ -55,6 +55,7 @@ const siteConfig = {
     primaryColor: "#1A2B33",
     secondaryColor: "#808080"
   },
+  separateCss: ["static/playground-css"],
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
