@@ -14,6 +14,7 @@
       }
     },
     "links": {
+      "Playground": "Playground",
       "Usage": "Usage",
       "Blog & Changelog": "Blog & Changelog",
       "GitHub": "GitHub"

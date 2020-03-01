@@ -1,6 +1,11 @@
 "use strict";
 
 const webpack = require("webpack");
+const path = require("path");
+
+function resolve(dir) {
+  return path.join(__dirname, "..", dir);
+}
 
 module.exports = {
   entry: {
@@ -22,18 +27,27 @@ module.exports = {
       }
     ]
   },
-  target: "node",
   externals: {
     clipboard: "ClipboardJS",
     react: "React",
     "react-dom": "ReactDOM"
   },
+  resolve: {
+    extensions: [".js"],
+    alias: {
+      prettier: "prettier/standalone"
+    }
+  },
   node: {
-    global: true,
-    crypto: "empty",
-    process: true,
-    module: false,
-    clearImmediate: false,
-    setImmediate: false
+    // prevent webpack from injecting useless setImmediate polyfill because Vue
+    // source contains it (although only uses it if it's native).
+    setImmediate: false,
+    // prevent webpack from injecting mocks to Node native modules
+    // that does not make sense for the client
+    dgram: "empty",
+    fs: "empty",
+    net: "empty",
+    tls: "empty",
+    child_process: "empty"
   }
 };

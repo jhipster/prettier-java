@@ -34,6 +34,7 @@ const siteConfig = {
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
+    { page: "playground", label: "Playground" },
     { doc: "install", label: "Usage" },
     { blog: true, label: "Blog & Changelog" },
     { href: "https://github.com/jhipster/prettier-java", label: "GitHub" }
