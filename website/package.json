@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "concurrently \"docusaurus-start\" \"webpack -d -w\"",

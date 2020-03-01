@@ -52,3 +52,12 @@
 .pluginRowBlock .buttonWrapper:nth-of-type(1) .button {
   background: #f8bc45;
 }
+
+.blogSocialSection {
+  padding: 0;
+}
+
+.postContainer,
+.docsContainer {
+  padding-bottom: 40px;
+}
