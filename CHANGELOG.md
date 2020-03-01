@@ -1,4 +1,16 @@
-# Latest v0.7.0
+# Latest v0.7.1
+
+## Fixes
+
+### Re-Writer
+
+- Fix stable formatting for fields and methods with annotations ([#369](https://github.com/jhipster/prettier-java/pull/369))
+
+## Miscellaneous
+
+- Update prettier dependency to [1.19.1](https://github.com/prettier/prettier/blob/master/CHANGELOG.md#1191) ([#370](https://github.com/jhipster/prettier-java/pull/370))
+
+# v0.7.0
 
 ## Enhancements
 
