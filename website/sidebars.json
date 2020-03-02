@@ -1,5 +1,19 @@
 {
   "docs": {
     "Usage": ["install", "advanced-usage"]
+  },
+  "contributing": {
+    "Contributing": [
+      {
+        "type": "subcategory",
+        "label": "Parser",
+        "ids": ["development/parser/design", "development/parser/comments"]
+      },
+      {
+        "type": "subcategory",
+        "label": "Re-writer",
+        "ids": ["development/printer/modifiers"]
+      }
+    ]
   }
 }

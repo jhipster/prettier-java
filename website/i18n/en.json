@@ -9,6 +9,18 @@
         "title": "Advanced Usage",
         "sidebar_label": "Advanced Usage"
       },
+      "development/parser/comments": {
+        "title": "Handling comments",
+        "sidebar_label": "Comments"
+      },
+      "development/parser/design": {
+        "title": "Parser Design",
+        "sidebar_label": "Design"
+      },
+      "development/printer/modifiers": {
+        "title": "Modifiers formatting",
+        "sidebar_label": "Modifiers formatting"
+      },
       "install": {
         "title": "Install"
       }
@@ -16,11 +28,13 @@
     "links": {
       "Playground": "Playground",
       "Usage": "Usage",
+      "Contributing": "Contributing",
       "Blog & Changelog": "Blog & Changelog",
       "GitHub": "GitHub"
     },
     "categories": {
-      "Usage": "Usage"
+      "Usage": "Usage",
+      "Contributing": "Contributing"
     }
   },
   "pages-strings": {

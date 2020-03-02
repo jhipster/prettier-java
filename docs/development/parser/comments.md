@@ -1,4 +1,8 @@
-# Handling comments
+---
+id: comments
+title: Handling comments
+sidebar_label: Comments
+---
 
 ## Objective
 

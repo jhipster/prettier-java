@@ -1,6 +1,10 @@
-# Modifier formatting
+---
+id: modifiers
+title: Modifiers formatting
+sidebar_label: Modifiers formatting
+---
 
-### Modifier sorting
+## Modifier sorting
 
 Class, method, and field modifiers will be sorted according to the order in the
 JLS (sections [8.1.1](https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1),
@@ -22,7 +26,7 @@ The overall ordering is:
 - native
 - strictfp
 
-#### Examples
+### Examples
 
 Input:
 
@@ -60,7 +64,7 @@ Output:
 private static void foo() {}
 ```
 
-### Interaction with annotations
+## Interaction with annotations
 
 Class, field, and method annotations will be moved ahead of modifier keywords
 and placed on a separate line. The exception is method annotations that come
@@ -68,7 +72,7 @@ after all modifier keywords, in which case the annotation will maintain the
 same position. This is to support annotations whose intent is to qualify the
 method's return type, rather than the method itself (for example: `public @Nullable String myMethod()`).
 
-#### Examples
+### Examples
 
 Input:
 

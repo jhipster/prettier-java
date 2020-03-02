@@ -37,6 +37,7 @@ const siteConfig = {
     { page: "playground", label: "Playground" },
     { doc: "install", label: "Usage" },
     { blog: true, label: "Blog & Changelog" },
+    { doc: "development/parser/design", label: "Contributing" },
     { href: "https://github.com/jhipster/prettier-java", label: "GitHub" }
   ],
 
@@ -67,6 +68,7 @@ const siteConfig = {
 
   // On page navigation for the current documentation page.
   onPageNav: "separate",
+  docsSideNavCollapsible: true,
   // No .html extensions for paths.
   cleanUrl: true,
 

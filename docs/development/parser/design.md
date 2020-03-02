@@ -1,4 +1,8 @@
-# Parser Design
+---
+id: design
+title: Parser Design
+sidebar_label: Design
+---
 
 ## Objective
 
