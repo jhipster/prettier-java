@@ -24,7 +24,7 @@ jobs:
         node_13:
           node_version: "13.8.0"
         node_12:
-          node_version: "12.16.0"
+          node_version: "12.16.1"
         node_10:
           node_version: "10.19.0"
     pool:
@@ -53,7 +53,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: "12.16.0"
+          versionSpec: "12.16.1"
         displayName: "Install Node.js"
       - script: |
           yarn
