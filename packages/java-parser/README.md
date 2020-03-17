@@ -2,8 +2,6 @@
 
 # java-parser
 
-** This Project is in Alpha Status **
-
 A Java Parser implemented in JavaScript using the [Chevrotain Parsing ToolKit](https://github.com/SAP/chevrotain).
 It outputs a **C**oncrete **S**yntax **T**ree, rather than an **A**bstract **S**yntax **T**ree.
 
@@ -56,7 +54,7 @@ const {
 class LambdaArrowsPositionCollector extends BaseJavaCstVisitorWithDefaults {
   constructor() {
     super();
-    this.result = [];
+    this.customResult = [];
     this.validateVisitor();
   }
 
@@ -65,8 +63,8 @@ class LambdaArrowsPositionCollector extends BaseJavaCstVisitorWithDefaults {
     // single argument lists: e.g:
     // - n -> n*n (will be collected)
     // - (n) -> n*n (not collected)
-    if (ctx.lambdaParameters.children.Identifier.length > 0) {
-      this.result.push(ctx.Arrow[0].startOffset);
+    if (ctx.lambdaParameters[0].children.Identifier) {
+      this.customResult.push(ctx.Arrow[0].startOffset);
     }
   }
 }
@@ -74,7 +72,7 @@ class LambdaArrowsPositionCollector extends BaseJavaCstVisitorWithDefaults {
 const lambdaArrowsCollector = new LambdaArrowsPositionCollector();
 // The CST result from the previous code snippet
 lambdaArrowsCollector.visit(cst);
-lambdaArrowsCollector.result.forEach(arrowOffset => {
+lambdaArrowsCollector.customResult.forEach(arrowOffset => {
   console.log(arrowOffset);
 });
 ```
