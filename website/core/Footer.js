@@ -38,12 +38,29 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a href={this.docUrl("install.html")}>Usage</a>
+            <a href={this.docUrl("development/contributing.html")}>
+              Contributing
+            </a>
+          </div>
+          <div>
+            <h5>Credits</h5>
+            <a
+              href="https://github.com/SAP/chevrotain"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Chevrotain
+            </a>
+            <a
+              href="https://github.com/prettier/prettier"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Prettier
+            </a>
           </div>
           <div>
             <h5>Community</h5>
-            {/* <a href={this.pageUrl("users.html", this.props.language)}>
-              User Showcase
-            </a> */}
             <a
               href="https://twitter.com/jhipster"
               target="_blank"

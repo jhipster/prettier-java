@@ -37,7 +37,7 @@ const siteConfig = {
     { page: "playground", label: "Playground" },
     { doc: "install", label: "Usage" },
     { blog: true, label: "Blog & Changelog" },
-    { doc: "development/parser/design", label: "Contributing" },
+    { doc: "development/contributing", label: "Contributing" },
     { href: "https://github.com/jhipster/prettier-java", label: "GitHub" }
   ],
 

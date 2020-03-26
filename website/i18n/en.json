@@ -9,6 +9,10 @@
         "title": "Advanced Usage",
         "sidebar_label": "Advanced Usage"
       },
+      "development/contributing": {
+        "title": "Contributing Guide",
+        "sidebar_label": "Contributing Guide"
+      },
       "development/parser/comments": {
         "title": "Handling comments",
         "sidebar_label": "Comments"
@@ -28,8 +32,8 @@
     "links": {
       "Playground": "Playground",
       "Usage": "Usage",
-      "Contributing": "Contributing",
       "Blog & Changelog": "Blog & Changelog",
+      "Contributing": "Contributing",
       "GitHub": "GitHub"
     },
     "categories": {

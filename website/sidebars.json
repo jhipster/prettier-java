@@ -4,6 +4,7 @@
   },
   "contributing": {
     "Contributing": [
+      "development/contributing",
       {
         "type": "subcategory",
         "label": "Parser",

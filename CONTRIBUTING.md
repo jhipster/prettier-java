@@ -42,7 +42,15 @@ When working on the parser, you can test the java-parser inside scripts/single-s
 You can then print the CST with this code:
 
 ```javascript
-console.log(JSON.stringify(resultingCST, 2));
+console.log(
+  JSON.stringify(
+    resultingCST,
+    (key, value) => {
+      if (key !== "START_CHARS_HINT" && key !== "location") return value;
+    },
+    2
+  )
+);
 ```
 
 You can also run the parser tests with the following command:
@@ -68,7 +76,7 @@ The prettified code will be output in scripts/single-printer-run/\_output.java.
 It is also possible to prettify an entire repository by running the following command:
 
 ```bash
-node scripts/update-test-ouput.js -repository relative/path/to/the/repository
+node scripts/update-test-output.js -repository relative/path/to/the/repository
 ```
 
 It will then be output inside test-samples/repository-name.
@@ -82,7 +90,7 @@ node scripts/update-test-output.js -single -times 5
 If you run:
 
 ```bash
-node scripts/update-test-ouput.js
+node scripts/update-test-output.js
 ```
 
 It will simply update all the tests located in test/unit-test folder.
