@@ -17,7 +17,7 @@
     "format:validate": "prettier --list-different \"**/*.@(js|json|md)\"",
     "build": "node packages/java-parser/scripts/unicode.js packages/java-parser/resources/Unicode/UnicodeData.txt && prettier --write packages/java-parser/src/unicodesets.js && node packages/java-parser/scripts/gen-diagrams.js",
     "prettier": "prettier --plugin=./packages/prettier-plugin-java --parser=java",
-    "update-test-outputs": "node packages/prettier-plugin-java/scripts/update-test-outputs.js"
+    "update-test-outputs": "node packages/prettier-plugin-java/scripts/update-test-output.js"
   },
   "husky": {
     "hooks": {

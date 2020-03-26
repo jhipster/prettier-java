@@ -36,7 +36,7 @@ public class MarkerAnnotations {
       "something",
       "something2",
       "something3",
-      "something4"
+      "something4",
     }
   )
   public void elementValueArrayInitializer() {

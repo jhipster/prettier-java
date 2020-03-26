@@ -171,7 +171,7 @@ public final class ArrayTable<R, C, V>
         "fallthrough",
         "path",
         "serial",
-        "finally"
+        "finally",
       }
     )
     V[][] tmpArray = (V[][]) new Object[rowList.size()][columnList.size()];

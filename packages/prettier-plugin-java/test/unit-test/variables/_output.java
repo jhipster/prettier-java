@@ -31,7 +31,7 @@ public class Variables {
     "def",
     "ghi",
     "jkl",
-    "mno"
+    "mno",
   };
   private Object[] arrayVariable6 = { "abc", "def", "ghi" };
 
