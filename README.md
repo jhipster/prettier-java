@@ -13,6 +13,10 @@
 
 Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
 
+Full documentation and information is available on our website at [prettier-java.tech](https://prettier-java.tech)
+
+Playground available here: [prettier-java.tech/playground](https://prettier-java.tech/playground)
+
 ## How it works
 
 A Prettier plugin must first parse the source code of the target language
