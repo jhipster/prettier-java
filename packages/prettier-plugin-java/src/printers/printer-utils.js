@@ -650,7 +650,7 @@ function isUniqueMethodInvocation(primarySuffixes) {
 
 function printArrayList({ list, extraComma, LCurly, RCurly, trailingComma }) {
   let optionalComma;
-  if (trailingComma !== "none") {
+  if (trailingComma !== "none" && list !== "") {
     optionalComma = extraComma
       ? ifBreak(extraComma[0], { ...extraComma[0], image: "" })
       : ifBreak(",", "");

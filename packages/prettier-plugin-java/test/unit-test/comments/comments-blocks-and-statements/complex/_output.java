@@ -37,7 +37,7 @@ public class PrettierTest {
         /*One again*/1,
         -1/*Minus One*/,
         0,
-        2
+        2,
       };
 
       // Label statement
@@ -82,5 +82,5 @@ public class PrettierTest {
 enum Cards {
   //The Heart and the Spade
   HEART/*the heart*/,
-  SPADES/*and the spade*/
+  SPADES,/*and the spade*/
 }

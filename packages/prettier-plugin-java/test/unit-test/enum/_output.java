@@ -1,37 +1,37 @@
 public enum Enum {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM
+  LAST_ENUM,
 }
 
 public enum EnumWithExtraSemicolon {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM
+  LAST_ENUM,
 }
 
 public enum EnumWithExtraComma {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM
+  LAST_ENUM,
 }
 
 public enum EnumWithExtraCommaAndExtraSemicolon {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM
+  LAST_ENUM,
 }
 
 public enum EnumWithExtraCommaAndComment {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM/* comment */
+  LAST_ENUM/* comment */,
 }
 
 public enum EnumWithExtraSemicolonAndComment {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM/* comment */
+  LAST_ENUM,/* comment */
 }
 
 public enum EnumWithManyValues {
@@ -44,7 +44,7 @@ public enum EnumWithManyValues {
   SEVEN_VALUE,
   EIGTH_VALUE,
   NINE_VALUE,
-  TEN_VALUE
+  TEN_VALUE,
 }
 
 public enum EnumWithManyValuesWithExtraSemicolon {
@@ -57,7 +57,7 @@ public enum EnumWithManyValuesWithExtraSemicolon {
   SEVEN_VALUE,
   EIGTH_VALUE,
   NINE_VALUE,
-  TEN_VALUE
+  TEN_VALUE,
 }
 
 public enum EnumWithManyValuesWithExtraComma {
@@ -70,7 +70,7 @@ public enum EnumWithManyValuesWithExtraComma {
   SEVEN_VALUE,
   EIGTH_VALUE,
   NINE_VALUE,
-  TEN_VALUE
+  TEN_VALUE,
 }
 
 public enum EnumWithManyValuesWithExtraCommaAndExtraSemicolon {
@@ -83,7 +83,7 @@ public enum EnumWithManyValuesWithExtraCommaAndExtraSemicolon {
   SEVEN_VALUE,
   EIGTH_VALUE,
   NINE_VALUE,
-  TEN_VALUE
+  TEN_VALUE,
 }
 
 public enum EnumWithExtraCommaAndEnumBodyDeclarations {
@@ -114,7 +114,7 @@ class CLassWithEnum {
 
   public static enum VALID_THINGS {
     FIRST,
-    SECOND
+    SECOND,
   }
 }
 
@@ -129,5 +129,5 @@ public enum OtherEnum {
   FIVE,
 
   /* Six */
-  SIX
+  SIX,
 }

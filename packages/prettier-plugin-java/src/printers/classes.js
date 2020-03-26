@@ -674,8 +674,15 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
+    const hasNoClassBodyDeclarations =
+      ctx.enumBodyDeclarations === undefined ||
+      ctx.enumBodyDeclarations[0].children.classBodyDeclaration === undefined;
+
     let optionalComma;
-    if (this.prettierOptions.trailingComma !== "none") {
+    if (
+      hasNoClassBodyDeclarations &&
+      this.prettierOptions.trailingComma !== "none"
+    ) {
       optionalComma = ctx.Comma ? ctx.Comma[0] : ",";
     } else {
       optionalComma = ctx.Comma ? { ...ctx.Comma[0], image: "" } : "";

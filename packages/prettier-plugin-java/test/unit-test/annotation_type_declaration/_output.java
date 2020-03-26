@@ -24,7 +24,7 @@ public @interface AnnotationTypeDeclaration {
       "Seven",
       "Eight",
       "Nine",
-      "Ten"
+      "Ten",
     }
   )
   V[][] annotatedArray = (V[][]) new Object[rowList.size()][columnList.size()];
