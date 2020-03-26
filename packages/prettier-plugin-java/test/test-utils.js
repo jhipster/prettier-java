@@ -51,7 +51,7 @@ function testSample(testFolder, exclusive) {
 }
 
 function testRepositorySample(testFolder, command, args) {
-  describe(`Prettify the repository <${testFolder}>`, function() {
+  describe(`Prettify the repository <${testFolder}>`, function () {
     this.timeout(0);
     const testsamples = resolve(__dirname, "../test-samples");
     const samplesDir = resolve(testsamples, basename(testFolder));

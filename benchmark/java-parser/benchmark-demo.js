@@ -47,7 +47,7 @@ function benchmarkParser(parser) {
 new benchmark.Suite("Java parser benchmark demo", {
   onStart: () => console.log(`Java parser benchmark`),
   onCycle: event => console.log(String(event.target)),
-  onComplete: function() {
+  onComplete: function () {
     console.log("Fastest is " + this.filter("fastest").map("name"));
   }
 })

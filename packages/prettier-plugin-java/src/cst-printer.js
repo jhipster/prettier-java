@@ -40,7 +40,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
       return elements.map(element => this.visit(element, params), this);
     };
 
-    this.getSingle = function(ctx) {
+    this.getSingle = function (ctx) {
       const ctxKeys = Object.keys(ctx);
       if (ctxKeys.length !== 1) {
         throw Error(
@@ -59,7 +59,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
       return singleElementValues[0];
     };
 
-    this.visitSingle = function(ctx, params) {
+    this.visitSingle = function (ctx, params) {
       const singleElement = this.getSingle(ctx);
       return this.visit(singleElement, params);
     };
@@ -68,7 +68,7 @@ class CstPrettierPrinter extends BaseJavaCstVisitor {
     // the prototype because we cannot user "super.visit" inside the function
     // below
     const orgVisit = this.visit;
-    this.visit = function(ctx, inParam) {
+    this.visit = function (ctx, inParam) {
       if (ctx === undefined) {
         // empty Doc
         return "";
