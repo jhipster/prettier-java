@@ -77,7 +77,7 @@ function constructCategories() {
 
   // Merging all the accepted characters.
   categories = new Set(
-    (function*() {
+    (function* () {
       yield* firstIdentCharCategories;
       yield* restIdentCharCategories;
     })()

@@ -2252,7 +2252,7 @@ const mac_a = [
 ];
 addRanges(ricd, mac_a);
 const ric = new Set(
-  (function*() {
+  (function* () {
     yield* fic;
     yield* ricd;
   })()
