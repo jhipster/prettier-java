@@ -21,7 +21,7 @@ name: CI
 on: [push, pull_request]
 jobs:
   tests:
-    name: node version ${{ matrix.node_version }}
+    name: unit tests (node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,8 +40,10 @@ jobs:
         run: yarn run ci
 
   e2e-tests:
-    name: ${{ matrix.test_repository }}
+    name: ${{ matrix.test_repository }} (node ${{ env.node_version }})
     runs-on: ubuntu-latest
+    env:
+      node_version: 12.x
     strategy:
       matrix:
         test_repository:
@@ -51,7 +53,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: ${{ env.node_version }}
       - name: Install dependencies
         run: yarn
       - name: Run e2e tests
