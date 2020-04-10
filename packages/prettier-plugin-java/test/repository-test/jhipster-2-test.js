@@ -15,7 +15,7 @@ describe("prettier-java", () => {
   testRepositorySample(
     resolve(__dirname, "../../samples/jhipster-sample-app-gradle"),
     "./gradlew",
-    ["build"]
+    ["build", "-x", "checkstyleMain"]
   );
 
   jhipsterRepository.forEach(repository => {
