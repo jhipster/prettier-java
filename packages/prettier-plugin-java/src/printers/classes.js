@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
+const { line, softline, hardline } = require("prettier").doc.builders;
 const {
   getBlankLinesSeparator,
   reject,
@@ -519,12 +519,7 @@ class ClassesPrettierVisitor {
   throws(ctx) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
     const throwsDeclaration = join(" ", [ctx.Throws[0], exceptionTypeList]);
-    return group(
-      ifBreak(
-        indent(rejectAndConcat([softline, throwsDeclaration])),
-        throwsDeclaration
-      )
-    );
+    return group(indent(rejectAndConcat([softline, throwsDeclaration])));
   }
 
   exceptionTypeList(ctx) {
