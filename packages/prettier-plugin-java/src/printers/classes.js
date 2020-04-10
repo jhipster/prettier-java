@@ -1,6 +1,6 @@
 "use strict";
 const _ = require("lodash");
-const { line, softline, hardline } = require("prettier").doc.builders;
+const { ifBreak, line, softline, hardline } = require("prettier").doc.builders;
 const {
   getBlankLinesSeparator,
   reject,
@@ -411,11 +411,6 @@ class ClassesPrettierVisitor {
     const declarator = this.visit(ctx.methodDeclarator);
     const throws = this.visit(ctx.throws);
 
-    let throwsPart = "";
-    if (throws) {
-      throwsPart = indent(rejectAndConcat([softline, throws]));
-    }
-
     return group(
       concat([
         rejectAndJoin(" ", [
@@ -423,7 +418,7 @@ class ClassesPrettierVisitor {
           rejectAndJoin(line, annotations),
           result,
           declarator,
-          throwsPart
+          throws
         ])
       ])
     );
@@ -523,7 +518,13 @@ class ClassesPrettierVisitor {
 
   throws(ctx) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
-    return join(" ", [ctx.Throws[0], exceptionTypeList]);
+    const throwsDeclaration = join(" ", [ctx.Throws[0], exceptionTypeList]);
+    return group(
+      ifBreak(
+        indent(rejectAndConcat([softline, throwsDeclaration])),
+        throwsDeclaration
+      )
+    );
   }
 
   exceptionTypeList(ctx) {
@@ -563,11 +564,6 @@ class ClassesPrettierVisitor {
     const throws = this.visit(ctx.throws);
     const constructorBody = this.visit(ctx.constructorBody);
 
-    let throwsPart = "";
-    if (throws) {
-      throwsPart = indent(rejectAndConcat([softline, throws]));
-    }
-
     return rejectAndJoin(" ", [
       group(
         rejectAndJoin(hardline, [
@@ -575,7 +571,7 @@ class ClassesPrettierVisitor {
           rejectAndJoin(" ", [
             join(" ", otherModifiers),
             constructorDeclarator,
-            throwsPart
+            throws
           ])
         ])
       ),
