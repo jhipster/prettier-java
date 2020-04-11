@@ -51,7 +51,8 @@ public abstract class Throws {
     String string2,
     String string3,
     String string4
-  ) throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+  )
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
     throw new RuntimeException();
   }
 
@@ -98,7 +99,8 @@ public abstract class Throws {
     String string2,
     String string3,
     String string4
-  ) throws RuntimeException, RuntimeException, RuntimeException, RuntimeException;
+  )
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException;
 
   public Throws(String string1) throws RuntimeException {
     System.out.println("Constructor with throws that should not wrap");
@@ -125,7 +127,8 @@ public abstract class Throws {
     String string3,
     String string4,
     String string5
-  ) throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+  )
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
     System.out.println("Constructor with throws that should wrap");
   }
 }
