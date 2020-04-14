@@ -674,12 +674,14 @@ class ClassesPrettierVisitor {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
+    const hasEnumConstants = ctx.enumConstantList !== undefined;
     const hasNoClassBodyDeclarations =
       ctx.enumBodyDeclarations === undefined ||
       ctx.enumBodyDeclarations[0].children.classBodyDeclaration === undefined;
 
     let optionalComma;
     if (
+      hasEnumConstants &&
       hasNoClassBodyDeclarations &&
       this.prettierOptions.trailingComma !== "none"
     ) {

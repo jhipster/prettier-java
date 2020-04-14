@@ -131,3 +131,9 @@ public enum OtherEnum {
   /* Six */
   SIX,
 }
+
+public enum EmptyEnum {}
+
+public enum EmptyEnumWithComment {
+  // comment
+}

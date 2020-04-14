@@ -115,3 +115,9 @@ public enum OtherEnum {
 
 }
 
+public enum EmptyEnum {
+}
+
+public enum EmptyEnumWithComment {
+  // comment
+}
