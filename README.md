@@ -1,9 +1,7 @@
-[![Azure DevOps Build Status][azure-devops-image]][azure-devops-url-main] [![Build Status][travis-image]][travis-url]
+[![Github Actions Build Status][github-actions-image]][gitub-actions-main]
 
-[azure-devops-image]: https://dev.azure.com/jhipster/prettier-java/_apis/build/status/jhipster.prettier-java?branchName=master
-[azure-devops-url-main]: https://dev.azure.com/jhipster/prettier-java/_build
-[travis-image]: https://travis-ci.org/jhipster/prettier-java.svg?branch=master
-[travis-url]: https://travis-ci.org/jhipster/prettier-java
+[github-actions-image]: https://github.com/jhipster/prettier-java/workflows/CI/badge.svg
+[gitub-actions-main]: https://github.com/jhipster/prettier-java/actions
 
 # Prettier Java
 
