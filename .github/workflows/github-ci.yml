@@ -1,0 +1,60 @@
+#
+# Copyright 2013-2020 the original author or authors from the JHipster project.
+#
+# This file is part of the JHipster project, see https://www.jhipster.tech/
+# for more information.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: CI
+on: [push, pull_request]
+jobs:
+  tests:
+    name: unit tests (node ${{ matrix.node_version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version:
+          - 10.x
+          - 12.x
+          - 13.x
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install dependencies
+        run: yarn
+      - name: Run CI
+        run: yarn run ci
+
+  e2e-tests:
+    name: ${{ matrix.test_repository }} (node ${{ matrix.node_version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_repository:
+          - e2e-jhipster1
+          - e2e-jhipster2
+        node_version: [12.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install dependencies
+        run: yarn
+      - name: Run e2e tests
+        run: yarn run test:prettier-plugin-java test:${{ matrix.test_repository }}
+        
