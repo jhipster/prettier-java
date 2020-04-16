@@ -16,7 +16,10 @@ const {
 } = require("./printer-utils");
 const { concat, join, group, indent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
-const { hasLeadingLineComments } = require("./comments/comments-utils");
+const {
+  hasLeadingLineComments,
+  hasLeadingComments
+} = require("./comments/comments-utils");
 
 class ClassesPrettierVisitor {
   classDeclaration(ctx) {
@@ -679,6 +682,13 @@ class ClassesPrettierVisitor {
       ctx.enumBodyDeclarations === undefined ||
       ctx.enumBodyDeclarations[0].children.classBodyDeclaration === undefined;
 
+    // edge case: https://github.com/jhipster/prettier-java/issues/383
+    const handleEnumBodyDeclarationsLeadingComments =
+      !hasNoClassBodyDeclarations &&
+      hasLeadingComments(ctx.enumBodyDeclarations[0])
+        ? hardline
+        : "";
+
     let optionalComma;
     if (
       hasEnumConstants &&
@@ -691,7 +701,12 @@ class ClassesPrettierVisitor {
     }
 
     return putIntoBraces(
-      rejectAndConcat([enumConstantList, optionalComma, enumBodyDeclarations]),
+      rejectAndConcat([
+        enumConstantList,
+        optionalComma,
+        handleEnumBodyDeclarationsLeadingComments,
+        enumBodyDeclarations
+      ]),
       hardline,
       ctx.LCurly[0],
       ctx.RCurly[0]
