@@ -24,25 +24,29 @@ cd ../prettier-plugin-java
 yarn link java-parser
 ```
 
-To unlink the java-parser, run
+To unlink the java-parser, run the following command inside packages/prettier-plugin-java.
 
 ```bash
 yarn unlink java-parser
 ```
 
-inside packages/prettier-plugin-java.
-
 ## Testing your changes
 
 ### java-parser
 
-In this section, We suppose you are in the packages/java-parser folder
+In this section, we suppose you are in the packages/java-parser folder.
 
 When working on the parser, you can test the java-parser inside scripts/single-sample-runner.js. This is a simple way to check the impact of your changes on the built CST.
 You can then print the CST with this code:
 
 ```javascript
-console.log(JSON.stringify(resultingCST, 2));
+console.log(
+  JSON.stringify(
+    resultingCST,
+    (key, value) => (key !== "START_CHARS_HINT" ? value : undefined),
+    2
+  )
+);
 ```
 
 You can also run the parser tests with the following command:
