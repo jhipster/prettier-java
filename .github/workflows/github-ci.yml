@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-name: CI
+name: prettier-java
 on: [push, pull_request]
 jobs:
   tests:
