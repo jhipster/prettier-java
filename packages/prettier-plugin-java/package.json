@@ -8,7 +8,7 @@
   "dependencies": {
     "java-parser": "^0.7.1",
     "lodash": "4.17.15",
-    "prettier": "2.0.2"
+    "prettier": "2.0.4"
   },
   "scripts": {
     "test": "npm-run-all test:unit test:e2e-core",
