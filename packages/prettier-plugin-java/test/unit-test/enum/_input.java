@@ -121,3 +121,29 @@ public enum EmptyEnum {
 public enum EmptyEnumWithComment {
   // comment
 }
+
+enum PrettierErrors {
+  WE_LOVE_PRETTIER,
+  // And I can't believe
+  // it is free
+  // why are people
+  // so damn generous
+  ;
+
+  void printTest() {
+    System.out.println("Hey there");
+  }
+}
+
+
+enum PrettierErrors {
+  WE_LOVE_PRETTIER;
+  // And I can't believe
+  // it is free
+  // why are people
+  // so damn generous
+
+  void printTest() {
+    System.out.println("Hey there");
+  }
+}
