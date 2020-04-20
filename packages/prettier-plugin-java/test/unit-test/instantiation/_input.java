@@ -8,6 +8,8 @@ public class Instantiation {
       new Nested("that", "have", "nested", new Nested("instantiation"), "everywhere", "!"),
       "should", "wrap"
     );
+
+    new MethodWrappingFollowingContstructor().aLongEnoughMethodNameToForceThingsToWrap();
   }
 
 }
