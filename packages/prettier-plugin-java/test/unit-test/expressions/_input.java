@@ -174,5 +174,13 @@ public class Expressions {
     }
   }
 
+  public void longFullyQualifiedName() {
+    com
+      .me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName.builder()
+      .build();
+    
+    com.FullyQualifiedName.builder();
+  }
+
 }
 
