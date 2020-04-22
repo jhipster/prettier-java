@@ -69,7 +69,7 @@ yarn global add prettier prettier-plugin-java
 
 Note: If you want to install the prettier-plugin-java globally, you should also install the prettier package globally.
 
-### Usage
+## Usage
 
 To reformat all your Java files, run:
 
@@ -82,6 +82,22 @@ prettier --write "**/*.java"
 ```
 
 To see an advanced usage: please go to the [Advanced Usage](./docs/advanced_usage.md) section
+
+## Maven plugin
+
+A neat maven plugin for prettier-java was made by developers from HubSpot. \
+It is currently available at:
+
+```xml
+<plugin>
+    <groupId>com.hubspot.maven.plugins</groupId>
+    <artifactId>prettier-maven-plugin</artifactId>
+    <!-- Find the latest version -->
+    <version>0.8</version>
+</plugin>
+```
+
+If you would like to use this plugin, we recommend you to check their [project](https://github.com/HubSpot/prettier-maven-plugin) as is it well documented.
 
 ## Contributing
 
