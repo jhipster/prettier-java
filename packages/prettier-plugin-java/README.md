@@ -115,3 +115,45 @@ public class HelloWorld {
   }
 }
 ```
+
+## Options
+We added a custom option ```entrypoint``` in order to run prettier on code snippet.
+
+### Usage
+```prettier --write MyJava.java --entrypoint compilationUnit``` \
+[Here](https://github.com/jhipster/prettier-java/blob/master/packages/prettier-plugin-java/src/options.js) is the exhaustive list of all entrypoints.
+
+### Example
+MyJavaCode.java content:
+```java
+public void myfunction() {
+    mymethod.is().very().very().very().very().very().very().very().very().very().very().very().very().very().very().big();
+}
+```
+
+Run: \
+```prettier --write MyJavaCode.java --entrypoint classBodyDeclaration```
+
+Result:
+```java
+public void myfunction() {
+  mymethod
+    .is()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .very()
+    .big();
+}
+```
+
