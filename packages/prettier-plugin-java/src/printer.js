@@ -25,7 +25,6 @@ function genericPrint(path, options, print) {
   //     printed: false
   //   }
   // ];
-
   return createPrettierDoc(node, options);
 }
 

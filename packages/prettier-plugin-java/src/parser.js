@@ -2,8 +2,8 @@
 
 const javaParser = require("java-parser");
 
-function parse(text) {
-  const cst = javaParser.parse(text);
+function parse(text, parsers, opts) {
+  const cst = javaParser.parse(text, opts.entrypoint);
   return cst;
 }
 
