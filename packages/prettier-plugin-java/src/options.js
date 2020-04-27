@@ -233,6 +233,7 @@ module.exports = {
       { value: "wildcard" },
       { value: "wildcardBounds" }
     ],
-    description: "Move open brace for code blocks onto new line."
+    description:
+      "Prettify from the entrypoint, allowing to use prettier on snippet."
   }
 };
