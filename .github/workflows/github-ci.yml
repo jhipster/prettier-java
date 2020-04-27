@@ -23,6 +23,7 @@ jobs:
   tests:
     name: unit tests (node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.pull_request.title, '[skip ci]') && !contains(github.event.pull_request.title, '[ci skip]')"
     strategy:
       matrix:
         node_version:
@@ -42,6 +43,7 @@ jobs:
   e2e-tests:
     name: ${{ matrix.test_repository }} (node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.pull_request.title, '[skip ci]') && !contains(github.event.pull_request.title, '[ci skip]')"
     strategy:
       matrix:
         test_repository:
@@ -57,4 +59,3 @@ jobs:
         run: yarn
       - name: Run e2e tests
         run: yarn run test:prettier-plugin-java test:${{ matrix.test_repository }}
-        
