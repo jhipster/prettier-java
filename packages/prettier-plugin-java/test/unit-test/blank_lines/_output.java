@@ -1,4 +1,5 @@
 public class BlankLines {
+
   public int i = 1;
   public int j = 2;
 

@@ -87,6 +87,7 @@ public class EmptyStament {
 
 // Bug Fix: #356
 public class Test {
+
   public TestField testField;
 
   @Override

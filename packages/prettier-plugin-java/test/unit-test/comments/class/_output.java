@@ -200,6 +200,7 @@ public final class ArrayTable<R, C, V>
 
   private abstract static class ArrayMap<K, V>
     extends IteratorBasedAbstractMap<K, V> {
+
     private final ImmutableMap<K, Integer> keyIndex;
 
     private ArrayMap(ImmutableMap<K, Integer> keyIndex) {
@@ -591,6 +592,7 @@ public final class ArrayTable<R, C, V>
 
   private Cell<R, C, V> getCell(final int index) {
     return new Tables.AbstractCell<R, C, V>() {
+
       final int rowIndex = index / columnList.size();
       final int columnIndex = index % columnList.size();
 
@@ -638,6 +640,7 @@ public final class ArrayTable<R, C, V>
   }
 
   private class Column extends ArrayMap<R, V> {
+
     final int columnIndex;
 
     Column(int columnIndex) {
@@ -728,6 +731,7 @@ public final class ArrayTable<R, C, V>
   }
 
   private class Row extends ArrayMap<C, V> {
+
     final int rowIndex;
 
     Row(int rowIndex) {

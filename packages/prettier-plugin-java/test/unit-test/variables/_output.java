@@ -1,4 +1,5 @@
 public class Variables {
+
   public static int STATIC_VARIABLE = 123;
   private static final Logger LOGGER = LoggerFactory.getLogger(
     ComplexFilterTest.class

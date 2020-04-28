@@ -130,10 +130,8 @@ class ClassesPrettierVisitor {
         !(
           ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
             undefined &&
-          (ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined ||
-            ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-              .children.Semicolon !== undefined)
+          ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
+            .children.Semicolon !== undefined
         )
       ) {
         content = rejectAndConcat([hardline, content]);

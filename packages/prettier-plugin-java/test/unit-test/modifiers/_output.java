@@ -25,6 +25,7 @@ public static interface InterfaceWithModifiers {
 @AnnotationOne
 @AnnotationTwo
 public abstract class AbstractClassWithModifiers {
+
   @Annotation
   private static volatile String field;
 
@@ -41,6 +42,7 @@ public abstract class AbstractClassWithModifiers {
 @AnnotationOne
 @AnnotationTwo
 public static final class ClassWithModifiers {
+
   @AnnotationOne
   @AnnotationTwo
   private static final transient String CONSTANT = "abc";

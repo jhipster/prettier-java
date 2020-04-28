@@ -1,4 +1,5 @@
 public class GenericClass<BEAN extends Comparable<BEAN>> {
+
   private BEAN bean;
 
   public GenericClass(BEAN bean) {
