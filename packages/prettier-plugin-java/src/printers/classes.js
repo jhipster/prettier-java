@@ -126,13 +126,22 @@ class ClassesPrettierVisitor {
 
       content = rejectAndJoinSeps(separators, classBodyDeclsVisited);
 
+      // edge case when we have SemiColons
+      let shouldHardline = false;
+      ctx.classBodyDeclaration.forEach(elt => {
+        if (
+          (elt.children.classMemberDeclaration &&
+            !elt.children.classMemberDeclaration[0].children.Semicolon) ||
+          elt.children.constructorDeclaration
+        ) {
+          shouldHardline = true;
+        }
+      });
+
       if (
-        !(
-          ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
-            undefined &&
-          ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-            .children.Semicolon !== undefined
-        )
+        (ctx.classBodyDeclaration[0].children.classMemberDeclaration ||
+          ctx.classBodyDeclaration[0].children.constructorDeclaration) &&
+        shouldHardline
       ) {
         content = rejectAndConcat([hardline, content]);
       }
