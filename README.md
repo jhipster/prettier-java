@@ -45,7 +45,8 @@ This project contains 2 packages:
 
 ### Pre-requirements
 
-- Node version 10+
+- [Node version](https://nodejs.org/en/download/releases/) 10+
+- [Prettier](https://github.com/prettier/prettier)
 
 ### Install Prettier and Prettier-Java plugin
 
