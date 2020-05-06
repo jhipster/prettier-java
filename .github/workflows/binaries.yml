@@ -6,7 +6,7 @@ jobs:
   generate:
     env:
       # The version needs to match with the one used in the printer
-      PRETTIER_API: 2.0.0
+      PRETTIER_CORE_LIB_VERSION: 2.0.0
     name: Create release artifacts
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: prettier/prettier
-          ref: refs/tags/${{ env.PRETTIER_API }}
+          ref: refs/tags/${{ env.PRETTIER_CORE_LIB_VERSION }}
           path: prettier
       - name: Link Prettier-java to Prettier
         run: |
