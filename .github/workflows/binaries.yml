@@ -37,6 +37,7 @@ jobs:
           ref: refs/tags/${{ env.PRETTIER_CORE_LIB_VERSION }}
           path: prettier
       - name: Link Prettier-java to Prettier
+        # We need to give the path to the plugin for pkg
         run: |
           cd $GITHUB_WORKSPACE/prettier
           npm i
