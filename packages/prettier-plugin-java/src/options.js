@@ -5,7 +5,7 @@ module.exports = {
     type: "choice",
     category: "Global",
     default: "compilationUnit",
-    // sed -nr 's/.*\.RULE\(([^,]+),.*/\1/p' $(ls path/to/java-parser/rules/folder)
+    // sed -nr 's/.*\.RULE\(([^,]+),.*/\1/p' $(ls path/to/java-parser/rules/folder/*)
     choices: [
       { value: "arrayInitializer" },
       { value: "variableInitializerList" },
