@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-name: prettier-java
+name: Prettier-java
 on: [push, pull_request]
 jobs:
   tests:
