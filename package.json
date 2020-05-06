@@ -19,11 +19,6 @@
     "prettier": "prettier --plugin=./packages/prettier-plugin-java --parser=java",
     "update-test-outputs": "node packages/prettier-plugin-java/scripts/update-test-output.js"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,md,json}": [
       "prettier --write"
