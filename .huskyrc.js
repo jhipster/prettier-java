@@ -7,7 +7,7 @@ const tasks = arr => arr.join(" && ");
 function checkEntrypointOptions() {
   const missingRules = [];
   const rules = execSync(
-    `sed -nr 's/.*RULE\\("([^"]+)".*/\\1/p' $(ls packages/java-parser/src/productions/*)`
+    `sed -nE 's/.*RULE\\("([^"]+)".*/\\1/p' $(ls packages/java-parser/src/productions/*)`
   )
     .toString()
     .split("\n");
