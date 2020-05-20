@@ -5,7 +5,7 @@
 
 # Prettier Java
 
-![Prettier Banner](https://raw.githubusercontent.com/prettier/prettier-logo/master/images/prettier-banner-light.png)
+![Prettier-java Banner](./logo/prettier-java-logo-light.bmp)
 
 ## Intro
 
