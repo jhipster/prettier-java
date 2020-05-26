@@ -2,7 +2,7 @@
 
 const _ = require("lodash");
 const { ifBreak, line, softline } = require("prettier").doc.builders;
-const { concat, group, indent } = require("./prettier-builder");
+const { concat, group, indent, dedent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
 const {
   handleCommentsBinaryExpression
@@ -288,7 +288,6 @@ class ExpressionsPrettierVisitor {
     const primaryPrefix = this.visit(ctx.primaryPrefix, {
       shouldBreakBeforeFirstMethodInvocation: countMethodInvocation > 1
     });
-    const primarySuffixes = this.mapVisit(ctx.primarySuffix);
 
     const suffixes = [];
 
@@ -299,16 +298,38 @@ class ExpressionsPrettierVisitor {
       ) {
         suffixes.push(softline);
       }
-      suffixes.push(primarySuffixes[0]);
+      suffixes.push(
+        this.visit(ctx.primarySuffix[0], {
+          shouldDedent:
+            // dedent when simple method invocation
+            countMethodInvocation !== 1 &&
+            // dedent when (chain) method invocation
+            ctx.primaryPrefix[0] &&
+            ctx.primaryPrefix[0].children.fqnOrRefType &&
+            !(
+              ctx.primaryPrefix[0].children.fqnOrRefType[0].children.Dot !==
+              undefined
+            ) &&
+            // indent when lambdaExpression
+            ctx.primarySuffix[0].children.methodInvocationSuffix &&
+            ctx.primarySuffix[0].children.methodInvocationSuffix[0].children
+              .argumentList &&
+            ctx.primarySuffix[0].children.methodInvocationSuffix[0].children
+              .argumentList[0].children.expression &&
+            ctx.primarySuffix[0].children.methodInvocationSuffix[0].children
+              .argumentList[0].children.expression[0].children
+              .lambdaExpression === undefined
+        })
+      );
 
-      for (let i = 1; i < primarySuffixes.length; i++) {
+      for (let i = 1; i < ctx.primarySuffix.length; i++) {
         if (
           ctx.primarySuffix[i].children.Dot !== undefined &&
           ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
         ) {
           suffixes.push(softline);
         }
-        suffixes.push(primarySuffixes[i]);
+        suffixes.push(this.visit(ctx.primarySuffix[i]));
       }
 
       if (countMethodInvocation === 1) {
@@ -335,7 +356,7 @@ class ExpressionsPrettierVisitor {
     return this.visitSingle(ctx, params);
   }
 
-  primarySuffix(ctx) {
+  primarySuffix(ctx, params) {
     if (ctx.Dot) {
       if (ctx.This) {
         return rejectAndConcat([ctx.Dot[0], ctx.This[0]]);
@@ -352,7 +373,7 @@ class ExpressionsPrettierVisitor {
         unqualifiedClassInstanceCreationExpression
       ]);
     }
-    return this.visitSingle(ctx);
+    return this.visitSingle(ctx, params);
   }
 
   fqnOrRefType(ctx, params) {
@@ -532,12 +553,17 @@ class ExpressionsPrettierVisitor {
     return concat([ctx.Less[0], ctx.Greater[0]]);
   }
 
-  methodInvocationSuffix(ctx) {
+  methodInvocationSuffix(ctx, params) {
     if (ctx.argumentList === undefined) {
       return rejectAndConcat([ctx.LBrace[0], ctx.RBrace[0]]);
     }
 
     const argumentList = this.visit(ctx.argumentList);
+    if (params && params.shouldDedent) {
+      return dedent(
+        putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
+      );
+    }
     return putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
