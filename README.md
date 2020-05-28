@@ -104,10 +104,10 @@ If you would like to use this plugin, we recommend you to check their [project](
 
 Prettier-java is currently sorting imports according to the [Google Java Style guide](https://google.github.io/styleguide/javaguide.html#s3.3-import-statements).
 
-If you are using an IDE such as Intellij, you might want to configure it to match with Prettier-java.
+If you are using an IDE such as IntelliJ, you might want to configure it to match with Prettier-java.
 
-For intellij, you can use this configuration:
-![intellij config](./docs/intellij_imports_config.png)
+For IntelliJ, you can use this configuration:
+![IntelliJ config](./docs/intellij_imports_config.png)
 
 ## Contributing
 
