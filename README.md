@@ -100,6 +100,15 @@ It is currently available at:
 
 If you would like to use this plugin, we recommend you to check their [project](https://github.com/HubSpot/prettier-maven-plugin) as is it well documented.
 
+## Organize imports
+
+Prettier-java is currently sorting imports according to the [Google Java Style guide](https://google.github.io/styleguide/javaguide.html#s3.3-import-statements).
+
+If you are using an IDE such as Intellij, you might want to configure it to match with Prettier-java.
+
+For intellij, you can use this configuration:
+![intellij config](./docs/intellij_imports_config.png)
+
 ## Contributing
 
 Contributions are very welcome.
