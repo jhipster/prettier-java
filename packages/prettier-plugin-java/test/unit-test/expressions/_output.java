@@ -227,4 +227,12 @@ public class Expressions {
       System.out.println("Prettier-java is cool !");
     }
   }
+
+  public void longFullyQualifiedName() {
+    com.me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName
+      .builder()
+      .build();
+
+    com.FullyQualifiedName.builder();
+  }
 }

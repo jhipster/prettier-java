@@ -394,20 +394,40 @@ class ExpressionsPrettierVisitor {
     const fqnOrRefTypePartRest = this.mapVisit(ctx.fqnOrRefTypePartRest);
     const dims = this.visit(ctx.dims);
     const dots = ctx.Dot ? ctx.Dot : [];
+    const isMethodInvocation = ctx.Dot && ctx.Dot.length === 1;
 
     if (
       params !== undefined &&
       params.shouldBreakBeforeFirstMethodInvocation === true
     ) {
-      return rejectAndConcat([
-        indent(
-          rejectAndJoin(concat([softline, dots[0]]), [
-            fqnOrRefTypePartFirst,
-            rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
+      // when fqnOrRefType is a method call from an object
+      if (isMethodInvocation) {
+        return rejectAndConcat([
+          indent(
+            rejectAndJoin(concat([softline, dots[0]]), [
+              fqnOrRefTypePartFirst,
+              rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
+              dims
+            ])
+          )
+        ]);
+        // otherwise it is a fully qualified name but we need to exclude when it is just a method call
+      } else if (ctx.Dot) {
+        return indent(
+          rejectAndConcat([
+            rejectAndJoinSeps(dots.slice(0, dots.length - 1), [
+              fqnOrRefTypePartFirst,
+              ...fqnOrRefTypePartRest.slice(0, fqnOrRefTypePartRest.length - 1)
+            ]),
+            softline,
+            rejectAndConcat([
+              dots[dots.length - 1],
+              fqnOrRefTypePartRest[fqnOrRefTypePartRest.length - 1]
+            ]),
             dims
           ])
-        )
-      ]);
+        );
+      }
     }
 
     return rejectAndConcat([
