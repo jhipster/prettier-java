@@ -87,7 +87,7 @@ To see an advanced usage: please go to the [Advanced Usage](./docs/advanced_usag
 ## Maven plugin
 
 A neat maven plugin for prettier-java was made by developers from HubSpot. \
-It is currently available at:
+Add it to the `plugins` section of your `build` configuration
 
 ```xml
 <build>
@@ -95,7 +95,7 @@ It is currently available at:
     <plugin>
       <groupId>com.hubspot.maven.plugins</groupId>
         <artifactId>prettier-maven-plugin</artifactId>
-        <!-- Find the latest version -->
+        <!-- Find the latest version at https://github.com/jhipster/prettier-java/releases -->
         <version>0.8</version>
     </plugin>
   </plugins>
