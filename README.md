@@ -90,12 +90,16 @@ A neat maven plugin for prettier-java was made by developers from HubSpot. \
 It is currently available at:
 
 ```xml
-<plugin>
-    <groupId>com.hubspot.maven.plugins</groupId>
-    <artifactId>prettier-maven-plugin</artifactId>
-    <!-- Find the latest version -->
-    <version>0.8</version>
-</plugin>
+<build>
+  <plugins>
+    <plugin>
+      <groupId>com.hubspot.maven.plugins</groupId>
+        <artifactId>prettier-maven-plugin</artifactId>
+        <!-- Find the latest version -->
+        <version>0.8</version>
+    </plugin>
+  </plugins>
+</build>
 ```
 
 If you would like to use this plugin, we recommend you to check their [project](https://github.com/HubSpot/prettier-maven-plugin) as is it well documented.
