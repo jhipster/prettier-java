@@ -12,12 +12,6 @@ const jhipsterRepository = [
 ];
 
 describe("prettier-java", () => {
-  testRepositorySample(
-    resolve(__dirname, "../../samples/jhipster-sample-app-gradle"),
-    "./gradlew",
-    ["build", "-x", "checkstyleMain"]
-  );
-
   jhipsterRepository.forEach(repository => {
     testRepositorySample(
       resolve(__dirname, `../../samples/${repository}`),

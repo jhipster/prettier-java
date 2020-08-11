@@ -82,10 +82,6 @@ const jhipster2 = [
     branch: "master"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster-sample-app-gradle",
-    branch: "master"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-react",
     branch: "master"
   }
