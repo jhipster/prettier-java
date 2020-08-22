@@ -74,6 +74,7 @@ module.exports = {
       { value: "variableInitializer" },
       { value: "unannType" },
       { value: "unannPrimitiveType" },
+      { value: "unannPrimitiveTypeWithOptionalDimsSuffix" },
       { value: "unannReferenceType" },
       { value: "unannClassOrInterfaceType" },
       { value: "unannClassType" },
