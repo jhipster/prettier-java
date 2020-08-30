@@ -1,4 +1,103 @@
-# Latest v0.8.0
+# Latest v0.8.1
+
+## Enhancements
+
+- Generated a type definition for the Java parser ([#422](https://github.com/jhipster/prettier-java/pull/422))
+
+## Fixes
+
+- Wrong indent in some chained methods invocation ([#404](https://github.com/jhipster/prettier-java/pull/404))
+
+```java
+// Input
+class Indent {
+
+  void indetMethod() {
+    assertThat(
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    );
+
+    assertThat(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      )
+      .isEqualTo();
+
+    assertThat(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      )
+      .isEqualTo()
+      .anotherInvocation(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      );
+
+    myInstanceObject
+      .assertThat(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      )
+      .isEqualTo();
+
+
+  }
+}
+
+// Output
+class Indent {
+
+  void indetMethod() {
+    assertThat(
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    );
+
+    assertThat(
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    )
+      .isEqualTo();
+
+    assertThat(
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    )
+      .isEqualTo()
+      .anotherInvocation(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      );
+
+    myInstanceObject
+      .assertThat(
+        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+      )
+      .isEqualTo();
+  }
+}
+
+```
+
+- Parsing of unannPrimitiveType in primary ([#421](https://github.com/jhipster/prettier-java/pull/421))
+
+```java
+// Throws in Prettier 0.8.0
+double[][]::new
+
+// Prettier 0.9.0
+double[][]::new
+```
+
+# v0.8.0
 
 ## Enhancements
 
