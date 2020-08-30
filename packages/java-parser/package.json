@@ -8,7 +8,7 @@
   "types": "./api.d.ts",
   "dependencies": {
     "chevrotain": "6.5.0",
-    "lodash": "4.17.19"
+    "lodash": "4.17.20"
   },
   "scripts": {
     "test": "npm-run-all clone-samples test:execute",
