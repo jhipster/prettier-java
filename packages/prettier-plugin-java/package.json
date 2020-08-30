@@ -7,8 +7,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "java-parser": "^0.8.0",
-    "lodash": "4.17.19",
-    "prettier": "2.0.4"
+    "lodash": "4.17.20",
+    "prettier": "2.1.1"
   },
   "scripts": {
     "test": "npm-run-all test:unit test:e2e-core",
