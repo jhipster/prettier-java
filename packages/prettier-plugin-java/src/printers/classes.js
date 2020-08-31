@@ -300,10 +300,10 @@ class ClassesPrettierVisitor {
   }
 
   unannType(ctx) {
-    return this.visitSingle(ctx);
-  }
+    if (ctx.unannReferenceType !== undefined) {
+      return this.visit(ctx.unannReferenceType);
+    }
 
-  unannPrimitiveTypeWithOptionalDimsSuffix(ctx) {
     const unannPrimitiveType = this.visit(ctx.unannPrimitiveType);
     const dims = this.visit(ctx.dims);
 

@@ -89,7 +89,7 @@ public class Expressions {
     }
 
     if(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
-
+      
     }
 
     if(myValue != 42 && myValue == 42) {
@@ -103,11 +103,11 @@ public class Expressions {
     }
 
     switch(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
-
+      
     }
 
     switch(myValue != 42) {
-
+      
     }
 
     switch(myValue != 42 && myValue == 42) {
@@ -117,17 +117,17 @@ public class Expressions {
 
   public void printWhile() {
     while/*infinite*/ (true) /*stop the program*/throw new RuntimeException();
-
+    
     while(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
 
     }
 
     while(myValue != 42 && 42/42 || myValue & 42 && myValue > 42 || myValue < 42 && myValue == 42) {
-
+      
     }
 
     while(myValue != 42) {
-
+      
     }
 
     while(myValue != 42 && myValue == 42) {
@@ -178,12 +178,9 @@ public class Expressions {
     com
       .me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName.builder()
       .build();
-
+    
     com.FullyQualifiedName.builder();
   }
 
-  public void unannTypePrimitiveWithMethodReferenceSuffix(String[] args) {
-    List.of(new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}).toArray(double[][]::new);
-  }
 }
 
