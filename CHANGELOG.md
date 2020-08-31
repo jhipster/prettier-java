@@ -1,4 +1,14 @@
-# Latest v0.8.1
+# Latest v0.8.2
+
+## Fixes
+
+- Revert: Parsing of unannPrimitiveType in primary ([#421](https://github.com/jhipster/prettier-java/pull/421)).
+  It was causing a breaking change in the java-parser
+
+- uses exact dependencies when releasing a new version of java-parser and prettier-plugin-java
+
+
+# v0.8.1
 
 ## Enhancements
 
