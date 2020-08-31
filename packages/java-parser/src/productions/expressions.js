@@ -219,9 +219,7 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.literal) },
       { ALT: () => $.CONSUME(t.This) },
       { ALT: () => $.CONSUME(t.Void) },
-      // should be extracted to primitive type with optional dims suffix?
-      { ALT: () => $.SUBRULE($.numericType) },
-      { ALT: () => $.CONSUME(t.Boolean) },
+      { ALT: () => $.SUBRULE($.unannPrimitiveTypeWithOptionalDimsSuffix) },
       { ALT: () => $.SUBRULE($.fqnOrRefType) },
       {
         GATE: () => isCastExpression,

@@ -362,7 +362,7 @@ class ExpressionsPrettierVisitor {
   }
 
   primaryPrefix(ctx, params) {
-    if (ctx.This || ctx.Void || ctx.Boolean) {
+    if (ctx.This || ctx.Void) {
       return printTokenWithComments(this.getSingle(ctx));
     }
 
