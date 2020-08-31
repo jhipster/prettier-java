@@ -222,17 +222,17 @@ function defineRules($, t) {
     $.OR([
       // Spec Deviation: The array type "dims" suffix was extracted to this rule
       // to avoid backtracking for performance reasons.
-      { ALT: () => $.SUBRULE($.unannPrimitiveTypeWithOptionalDimsSuffix) },
+      {
+        ALT: () => {
+          $.SUBRULE($.unannPrimitiveType);
+          $.OPTION({
+            GATE: () => this.BACKTRACK_LOOKAHEAD($.isDims),
+            DEF: () => $.SUBRULE2($.dims)
+          });
+        }
+      },
       { ALT: () => $.SUBRULE($.unannReferenceType) }
     ]);
-  });
-
-  $.RULE("unannPrimitiveTypeWithOptionalDimsSuffix", () => {
-    $.SUBRULE($.unannPrimitiveType);
-    $.OPTION({
-      GATE: () => this.BACKTRACK_LOOKAHEAD($.isDims),
-      DEF: () => $.SUBRULE2($.dims)
-    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-UnannPrimitiveType

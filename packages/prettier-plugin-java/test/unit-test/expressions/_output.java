@@ -235,14 +235,4 @@ public class Expressions {
 
     com.FullyQualifiedName.builder();
   }
-
-  public void unannTypePrimitiveWithMethodReferenceSuffix(String[] args) {
-    List
-      .of(
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 }
-      )
-      .toArray(double[][]::new);
-  }
 }
