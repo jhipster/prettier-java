@@ -6,7 +6,7 @@
     "benchmark/*"
   ],
   "scripts": {
-    "lerna:version": "lerna version --git-remote upstream",
+    "lerna:version": "lerna version --exact --git-remote upstream",
     "lerna:publish": "lerna publish from-git --yes",
     "ci": "npm-run-all build lint format:validate test",
     "ci:all": "yarn run ci && yarn run test:prettier-plugin-java test:e2e-jhipster1 && yarn run test:prettier-plugin-java test:e2e-jhipster2",
