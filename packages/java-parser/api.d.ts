@@ -2,7 +2,6 @@ import { CstNode, ICstVisitor, IToken } from "chevrotain";
 
 export function parse(text: string, startProduction?: string): CstNode;
 
-
 export const BaseJavaCstVisitor: JavaCstVisitorConstructor<any, any>;
 export const BaseJavaCstVisitorWithDefaults: JavaCstVisitorWithDefaultsConstructor<
   any,
@@ -78,7 +77,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   receiverParameter(ctx: ReceiverParameterCtx, param?: IN): OUT;
   formalParameterList(ctx: FormalParameterListCtx, param?: IN): OUT;
   formalParameter(ctx: FormalParameterCtx, param?: IN): OUT;
-  variableParaRegularParameter(ctx: VariableParaRegularParameterCtx, param?: IN): OUT;
+  variableParaRegularParameter(
+    ctx: VariableParaRegularParameterCtx,
+    param?: IN
+  ): OUT;
   variableArityParameter(ctx: VariableArityParameterCtx, param?: IN): OUT;
   variableModifier(ctx: VariableModifierCtx, param?: IN): OUT;
   throws(ctx: ThrowsCtx, param?: IN): OUT;
@@ -92,9 +94,18 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   constructorDeclarator(ctx: ConstructorDeclaratorCtx, param?: IN): OUT;
   simpleTypeName(ctx: SimpleTypeNameCtx, param?: IN): OUT;
   constructorBody(ctx: ConstructorBodyCtx, param?: IN): OUT;
-  explicitConstructorInvocation(ctx: ExplicitConstructorInvocationCtx, param?: IN): OUT;
-  unqualifiedExplicitConstructorInvocation(ctx: UnqualifiedExplicitConstructorInvocationCtx, param?: IN): OUT;
-  qualifiedExplicitConstructorInvocation(ctx: QualifiedExplicitConstructorInvocationCtx, param?: IN): OUT;
+  explicitConstructorInvocation(
+    ctx: ExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
+  unqualifiedExplicitConstructorInvocation(
+    ctx: UnqualifiedExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
+  qualifiedExplicitConstructorInvocation(
+    ctx: QualifiedExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
   enumDeclaration(ctx: EnumDeclarationCtx, param?: IN): OUT;
   enumBody(ctx: EnumBodyCtx, param?: IN): OUT;
   enumConstantList(ctx: EnumConstantListCtx, param?: IN): OUT;
@@ -102,7 +113,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   enumConstantModifier(ctx: EnumConstantModifierCtx, param?: IN): OUT;
   enumBodyDeclarations(ctx: EnumBodyDeclarationsCtx, param?: IN): OUT;
   isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
-  identifyClassBodyDeclarationType(ctx: IdentifyClassBodyDeclarationTypeCtx, param?: IN): OUT;
+  identifyClassBodyDeclarationType(
+    ctx: IdentifyClassBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
@@ -121,40 +135,76 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   requiresModifier(ctx: RequiresModifierCtx, param?: IN): OUT;
   isModuleCompilationUnit(ctx: IsModuleCompilationUnitCtx, param?: IN): OUT;
   interfaceDeclaration(ctx: InterfaceDeclarationCtx, param?: IN): OUT;
-  normalInterfaceDeclaration(ctx: NormalInterfaceDeclarationCtx, param?: IN): OUT;
+  normalInterfaceDeclaration(
+    ctx: NormalInterfaceDeclarationCtx,
+    param?: IN
+  ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
   extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
-  interfaceMemberDeclaration(ctx: InterfaceMemberDeclarationCtx, param?: IN): OUT;
+  interfaceMemberDeclaration(
+    ctx: InterfaceMemberDeclarationCtx,
+    param?: IN
+  ): OUT;
   constantDeclaration(ctx: ConstantDeclarationCtx, param?: IN): OUT;
   constantModifier(ctx: ConstantModifierCtx, param?: IN): OUT;
-  interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationCtx, param?: IN): OUT;
+  interfaceMethodDeclaration(
+    ctx: InterfaceMethodDeclarationCtx,
+    param?: IN
+  ): OUT;
   interfaceMethodModifier(ctx: InterfaceMethodModifierCtx, param?: IN): OUT;
   annotationTypeDeclaration(ctx: AnnotationTypeDeclarationCtx, param?: IN): OUT;
   annotationTypeBody(ctx: AnnotationTypeBodyCtx, param?: IN): OUT;
-  annotationTypeMemberDeclaration(ctx: AnnotationTypeMemberDeclarationCtx, param?: IN): OUT;
-  annotationTypeElementDeclaration(ctx: AnnotationTypeElementDeclarationCtx, param?: IN): OUT;
-  annotationTypeElementModifier(ctx: AnnotationTypeElementModifierCtx, param?: IN): OUT;
+  annotationTypeMemberDeclaration(
+    ctx: AnnotationTypeMemberDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationTypeElementDeclaration(
+    ctx: AnnotationTypeElementDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationTypeElementModifier(
+    ctx: AnnotationTypeElementModifierCtx,
+    param?: IN
+  ): OUT;
   defaultValue(ctx: DefaultValueCtx, param?: IN): OUT;
   annotation(ctx: AnnotationCtx, param?: IN): OUT;
   elementValuePairList(ctx: ElementValuePairListCtx, param?: IN): OUT;
   elementValuePair(ctx: ElementValuePairCtx, param?: IN): OUT;
   elementValue(ctx: ElementValueCtx, param?: IN): OUT;
-  elementValueArrayInitializer(ctx: ElementValueArrayInitializerCtx, param?: IN): OUT;
+  elementValueArrayInitializer(
+    ctx: ElementValueArrayInitializerCtx,
+    param?: IN
+  ): OUT;
   elementValueList(ctx: ElementValueListCtx, param?: IN): OUT;
-  identifyInterfaceBodyDeclarationType(ctx: IdentifyInterfaceBodyDeclarationTypeCtx, param?: IN): OUT;
-  identifyAnnotationBodyDeclarationType(ctx: IdentifyAnnotationBodyDeclarationTypeCtx, param?: IN): OUT;
-  isSimpleElementValueAnnotation(ctx: IsSimpleElementValueAnnotationCtx, param?: IN): OUT;
+  identifyInterfaceBodyDeclarationType(
+    ctx: IdentifyInterfaceBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
+  identifyAnnotationBodyDeclarationType(
+    ctx: IdentifyAnnotationBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
+  isSimpleElementValueAnnotation(
+    ctx: IsSimpleElementValueAnnotationCtx,
+    param?: IN
+  ): OUT;
   arrayInitializer(ctx: ArrayInitializerCtx, param?: IN): OUT;
   variableInitializerList(ctx: VariableInitializerListCtx, param?: IN): OUT;
   block(ctx: BlockCtx, param?: IN): OUT;
   blockStatements(ctx: BlockStatementsCtx, param?: IN): OUT;
   blockStatement(ctx: BlockStatementCtx, param?: IN): OUT;
-  localVariableDeclarationStatement(ctx: LocalVariableDeclarationStatementCtx, param?: IN): OUT;
+  localVariableDeclarationStatement(
+    ctx: LocalVariableDeclarationStatementCtx,
+    param?: IN
+  ): OUT;
   localVariableDeclaration(ctx: LocalVariableDeclarationCtx, param?: IN): OUT;
   localVariableType(ctx: LocalVariableTypeCtx, param?: IN): OUT;
   statement(ctx: StatementCtx, param?: IN): OUT;
-  statementWithoutTrailingSubstatement(ctx: StatementWithoutTrailingSubstatementCtx, param?: IN): OUT;
+  statementWithoutTrailingSubstatement(
+    ctx: StatementWithoutTrailingSubstatementCtx,
+    param?: IN
+  ): OUT;
   emptyStatement(ctx: EmptyStatementCtx, param?: IN): OUT;
   labeledStatement(ctx: LabeledStatementCtx, param?: IN): OUT;
   expressionStatement(ctx: ExpressionStatementCtx, param?: IN): OUT;
@@ -192,15 +242,27 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
-  isLocalVariableDeclaration(ctx: IsLocalVariableDeclarationCtx, param?: IN): OUT;
+  isLocalVariableDeclaration(
+    ctx: IsLocalVariableDeclarationCtx,
+    param?: IN
+  ): OUT;
   constantExpression(ctx: ConstantExpressionCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
-  lambdaParametersWithBraces(ctx: LambdaParametersWithBracesCtx, param?: IN): OUT;
+  lambdaParametersWithBraces(
+    ctx: LambdaParametersWithBracesCtx,
+    param?: IN
+  ): OUT;
   lambdaParameterList(ctx: LambdaParameterListCtx, param?: IN): OUT;
-  inferredLambdaParameterList(ctx: InferredLambdaParameterListCtx, param?: IN): OUT;
-  explicitLambdaParameterList(ctx: ExplicitLambdaParameterListCtx, param?: IN): OUT;
+  inferredLambdaParameterList(
+    ctx: InferredLambdaParameterListCtx,
+    param?: IN
+  ): OUT;
+  explicitLambdaParameterList(
+    ctx: ExplicitLambdaParameterListCtx,
+    param?: IN
+  ): OUT;
   lambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
@@ -208,7 +270,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   ternaryExpression(ctx: TernaryExpressionCtx, param?: IN): OUT;
   binaryExpression(ctx: BinaryExpressionCtx, param?: IN): OUT;
   unaryExpression(ctx: UnaryExpressionCtx, param?: IN): OUT;
-  unaryExpressionNotPlusMinus(ctx: UnaryExpressionNotPlusMinusCtx, param?: IN): OUT;
+  unaryExpressionNotPlusMinus(
+    ctx: UnaryExpressionNotPlusMinusCtx,
+    param?: IN
+  ): OUT;
   primary(ctx: PrimaryCtx, param?: IN): OUT;
   primaryPrefix(ctx: PrimaryPrefixCtx, param?: IN): OUT;
   primarySuffix(ctx: PrimarySuffixCtx, param?: IN): OUT;
@@ -219,17 +284,32 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   parenthesisExpression(ctx: ParenthesisExpressionCtx, param?: IN): OUT;
   castExpression(ctx: CastExpressionCtx, param?: IN): OUT;
   primitiveCastExpression(ctx: PrimitiveCastExpressionCtx, param?: IN): OUT;
-  referenceTypeCastExpression(ctx: ReferenceTypeCastExpressionCtx, param?: IN): OUT;
+  referenceTypeCastExpression(
+    ctx: ReferenceTypeCastExpressionCtx,
+    param?: IN
+  ): OUT;
   newExpression(ctx: NewExpressionCtx, param?: IN): OUT;
-  unqualifiedClassInstanceCreationExpression(ctx: UnqualifiedClassInstanceCreationExpressionCtx, param?: IN): OUT;
-  classOrInterfaceTypeToInstantiate(ctx: ClassOrInterfaceTypeToInstantiateCtx, param?: IN): OUT;
+  unqualifiedClassInstanceCreationExpression(
+    ctx: UnqualifiedClassInstanceCreationExpressionCtx,
+    param?: IN
+  ): OUT;
+  classOrInterfaceTypeToInstantiate(
+    ctx: ClassOrInterfaceTypeToInstantiateCtx,
+    param?: IN
+  ): OUT;
   typeArgumentsOrDiamond(ctx: TypeArgumentsOrDiamondCtx, param?: IN): OUT;
   diamond(ctx: DiamondCtx, param?: IN): OUT;
   methodInvocationSuffix(ctx: MethodInvocationSuffixCtx, param?: IN): OUT;
   argumentList(ctx: ArgumentListCtx, param?: IN): OUT;
   arrayCreationExpression(ctx: ArrayCreationExpressionCtx, param?: IN): OUT;
-  arrayCreationDefaultInitSuffix(ctx: ArrayCreationDefaultInitSuffixCtx, param?: IN): OUT;
-  arrayCreationExplicitInitSuffix(ctx: ArrayCreationExplicitInitSuffixCtx, param?: IN): OUT;
+  arrayCreationDefaultInitSuffix(
+    ctx: ArrayCreationDefaultInitSuffixCtx,
+    param?: IN
+  ): OUT;
+  arrayCreationExplicitInitSuffix(
+    ctx: ArrayCreationExplicitInitSuffixCtx,
+    param?: IN
+  ): OUT;
   dimExprs(ctx: DimExprsCtx, param?: IN): OUT;
   dimExpr(ctx: DimExprCtx, param?: IN): OUT;
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
@@ -239,7 +319,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
   isPrimitiveCastExpression(ctx: IsPrimitiveCastExpressionCtx, param?: IN): OUT;
-  isReferenceTypeCastExpression(ctx: IsReferenceTypeCastExpressionCtx, param?: IN): OUT;
+  isReferenceTypeCastExpression(
+    ctx: IsReferenceTypeCastExpressionCtx,
+    param?: IN
+  ): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
 
@@ -317,7 +400,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   receiverParameter(ctx: ReceiverParameterCtx, param?: IN): OUT;
   formalParameterList(ctx: FormalParameterListCtx, param?: IN): OUT;
   formalParameter(ctx: FormalParameterCtx, param?: IN): OUT;
-  variableParaRegularParameter(ctx: VariableParaRegularParameterCtx, param?: IN): OUT;
+  variableParaRegularParameter(
+    ctx: VariableParaRegularParameterCtx,
+    param?: IN
+  ): OUT;
   variableArityParameter(ctx: VariableArityParameterCtx, param?: IN): OUT;
   variableModifier(ctx: VariableModifierCtx, param?: IN): OUT;
   throws(ctx: ThrowsCtx, param?: IN): OUT;
@@ -331,9 +417,18 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   constructorDeclarator(ctx: ConstructorDeclaratorCtx, param?: IN): OUT;
   simpleTypeName(ctx: SimpleTypeNameCtx, param?: IN): OUT;
   constructorBody(ctx: ConstructorBodyCtx, param?: IN): OUT;
-  explicitConstructorInvocation(ctx: ExplicitConstructorInvocationCtx, param?: IN): OUT;
-  unqualifiedExplicitConstructorInvocation(ctx: UnqualifiedExplicitConstructorInvocationCtx, param?: IN): OUT;
-  qualifiedExplicitConstructorInvocation(ctx: QualifiedExplicitConstructorInvocationCtx, param?: IN): OUT;
+  explicitConstructorInvocation(
+    ctx: ExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
+  unqualifiedExplicitConstructorInvocation(
+    ctx: UnqualifiedExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
+  qualifiedExplicitConstructorInvocation(
+    ctx: QualifiedExplicitConstructorInvocationCtx,
+    param?: IN
+  ): OUT;
   enumDeclaration(ctx: EnumDeclarationCtx, param?: IN): OUT;
   enumBody(ctx: EnumBodyCtx, param?: IN): OUT;
   enumConstantList(ctx: EnumConstantListCtx, param?: IN): OUT;
@@ -341,7 +436,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   enumConstantModifier(ctx: EnumConstantModifierCtx, param?: IN): OUT;
   enumBodyDeclarations(ctx: EnumBodyDeclarationsCtx, param?: IN): OUT;
   isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
-  identifyClassBodyDeclarationType(ctx: IdentifyClassBodyDeclarationTypeCtx, param?: IN): OUT;
+  identifyClassBodyDeclarationType(
+    ctx: IdentifyClassBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
@@ -360,40 +458,76 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   requiresModifier(ctx: RequiresModifierCtx, param?: IN): OUT;
   isModuleCompilationUnit(ctx: IsModuleCompilationUnitCtx, param?: IN): OUT;
   interfaceDeclaration(ctx: InterfaceDeclarationCtx, param?: IN): OUT;
-  normalInterfaceDeclaration(ctx: NormalInterfaceDeclarationCtx, param?: IN): OUT;
+  normalInterfaceDeclaration(
+    ctx: NormalInterfaceDeclarationCtx,
+    param?: IN
+  ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
   extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
-  interfaceMemberDeclaration(ctx: InterfaceMemberDeclarationCtx, param?: IN): OUT;
+  interfaceMemberDeclaration(
+    ctx: InterfaceMemberDeclarationCtx,
+    param?: IN
+  ): OUT;
   constantDeclaration(ctx: ConstantDeclarationCtx, param?: IN): OUT;
   constantModifier(ctx: ConstantModifierCtx, param?: IN): OUT;
-  interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationCtx, param?: IN): OUT;
+  interfaceMethodDeclaration(
+    ctx: InterfaceMethodDeclarationCtx,
+    param?: IN
+  ): OUT;
   interfaceMethodModifier(ctx: InterfaceMethodModifierCtx, param?: IN): OUT;
   annotationTypeDeclaration(ctx: AnnotationTypeDeclarationCtx, param?: IN): OUT;
   annotationTypeBody(ctx: AnnotationTypeBodyCtx, param?: IN): OUT;
-  annotationTypeMemberDeclaration(ctx: AnnotationTypeMemberDeclarationCtx, param?: IN): OUT;
-  annotationTypeElementDeclaration(ctx: AnnotationTypeElementDeclarationCtx, param?: IN): OUT;
-  annotationTypeElementModifier(ctx: AnnotationTypeElementModifierCtx, param?: IN): OUT;
+  annotationTypeMemberDeclaration(
+    ctx: AnnotationTypeMemberDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationTypeElementDeclaration(
+    ctx: AnnotationTypeElementDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationTypeElementModifier(
+    ctx: AnnotationTypeElementModifierCtx,
+    param?: IN
+  ): OUT;
   defaultValue(ctx: DefaultValueCtx, param?: IN): OUT;
   annotation(ctx: AnnotationCtx, param?: IN): OUT;
   elementValuePairList(ctx: ElementValuePairListCtx, param?: IN): OUT;
   elementValuePair(ctx: ElementValuePairCtx, param?: IN): OUT;
   elementValue(ctx: ElementValueCtx, param?: IN): OUT;
-  elementValueArrayInitializer(ctx: ElementValueArrayInitializerCtx, param?: IN): OUT;
+  elementValueArrayInitializer(
+    ctx: ElementValueArrayInitializerCtx,
+    param?: IN
+  ): OUT;
   elementValueList(ctx: ElementValueListCtx, param?: IN): OUT;
-  identifyInterfaceBodyDeclarationType(ctx: IdentifyInterfaceBodyDeclarationTypeCtx, param?: IN): OUT;
-  identifyAnnotationBodyDeclarationType(ctx: IdentifyAnnotationBodyDeclarationTypeCtx, param?: IN): OUT;
-  isSimpleElementValueAnnotation(ctx: IsSimpleElementValueAnnotationCtx, param?: IN): OUT;
+  identifyInterfaceBodyDeclarationType(
+    ctx: IdentifyInterfaceBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
+  identifyAnnotationBodyDeclarationType(
+    ctx: IdentifyAnnotationBodyDeclarationTypeCtx,
+    param?: IN
+  ): OUT;
+  isSimpleElementValueAnnotation(
+    ctx: IsSimpleElementValueAnnotationCtx,
+    param?: IN
+  ): OUT;
   arrayInitializer(ctx: ArrayInitializerCtx, param?: IN): OUT;
   variableInitializerList(ctx: VariableInitializerListCtx, param?: IN): OUT;
   block(ctx: BlockCtx, param?: IN): OUT;
   blockStatements(ctx: BlockStatementsCtx, param?: IN): OUT;
   blockStatement(ctx: BlockStatementCtx, param?: IN): OUT;
-  localVariableDeclarationStatement(ctx: LocalVariableDeclarationStatementCtx, param?: IN): OUT;
+  localVariableDeclarationStatement(
+    ctx: LocalVariableDeclarationStatementCtx,
+    param?: IN
+  ): OUT;
   localVariableDeclaration(ctx: LocalVariableDeclarationCtx, param?: IN): OUT;
   localVariableType(ctx: LocalVariableTypeCtx, param?: IN): OUT;
   statement(ctx: StatementCtx, param?: IN): OUT;
-  statementWithoutTrailingSubstatement(ctx: StatementWithoutTrailingSubstatementCtx, param?: IN): OUT;
+  statementWithoutTrailingSubstatement(
+    ctx: StatementWithoutTrailingSubstatementCtx,
+    param?: IN
+  ): OUT;
   emptyStatement(ctx: EmptyStatementCtx, param?: IN): OUT;
   labeledStatement(ctx: LabeledStatementCtx, param?: IN): OUT;
   expressionStatement(ctx: ExpressionStatementCtx, param?: IN): OUT;
@@ -431,15 +565,27 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
-  isLocalVariableDeclaration(ctx: IsLocalVariableDeclarationCtx, param?: IN): OUT;
+  isLocalVariableDeclaration(
+    ctx: IsLocalVariableDeclarationCtx,
+    param?: IN
+  ): OUT;
   constantExpression(ctx: ConstantExpressionCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
-  lambdaParametersWithBraces(ctx: LambdaParametersWithBracesCtx, param?: IN): OUT;
+  lambdaParametersWithBraces(
+    ctx: LambdaParametersWithBracesCtx,
+    param?: IN
+  ): OUT;
   lambdaParameterList(ctx: LambdaParameterListCtx, param?: IN): OUT;
-  inferredLambdaParameterList(ctx: InferredLambdaParameterListCtx, param?: IN): OUT;
-  explicitLambdaParameterList(ctx: ExplicitLambdaParameterListCtx, param?: IN): OUT;
+  inferredLambdaParameterList(
+    ctx: InferredLambdaParameterListCtx,
+    param?: IN
+  ): OUT;
+  explicitLambdaParameterList(
+    ctx: ExplicitLambdaParameterListCtx,
+    param?: IN
+  ): OUT;
   lambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
@@ -447,7 +593,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   ternaryExpression(ctx: TernaryExpressionCtx, param?: IN): OUT;
   binaryExpression(ctx: BinaryExpressionCtx, param?: IN): OUT;
   unaryExpression(ctx: UnaryExpressionCtx, param?: IN): OUT;
-  unaryExpressionNotPlusMinus(ctx: UnaryExpressionNotPlusMinusCtx, param?: IN): OUT;
+  unaryExpressionNotPlusMinus(
+    ctx: UnaryExpressionNotPlusMinusCtx,
+    param?: IN
+  ): OUT;
   primary(ctx: PrimaryCtx, param?: IN): OUT;
   primaryPrefix(ctx: PrimaryPrefixCtx, param?: IN): OUT;
   primarySuffix(ctx: PrimarySuffixCtx, param?: IN): OUT;
@@ -458,17 +607,32 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   parenthesisExpression(ctx: ParenthesisExpressionCtx, param?: IN): OUT;
   castExpression(ctx: CastExpressionCtx, param?: IN): OUT;
   primitiveCastExpression(ctx: PrimitiveCastExpressionCtx, param?: IN): OUT;
-  referenceTypeCastExpression(ctx: ReferenceTypeCastExpressionCtx, param?: IN): OUT;
+  referenceTypeCastExpression(
+    ctx: ReferenceTypeCastExpressionCtx,
+    param?: IN
+  ): OUT;
   newExpression(ctx: NewExpressionCtx, param?: IN): OUT;
-  unqualifiedClassInstanceCreationExpression(ctx: UnqualifiedClassInstanceCreationExpressionCtx, param?: IN): OUT;
-  classOrInterfaceTypeToInstantiate(ctx: ClassOrInterfaceTypeToInstantiateCtx, param?: IN): OUT;
+  unqualifiedClassInstanceCreationExpression(
+    ctx: UnqualifiedClassInstanceCreationExpressionCtx,
+    param?: IN
+  ): OUT;
+  classOrInterfaceTypeToInstantiate(
+    ctx: ClassOrInterfaceTypeToInstantiateCtx,
+    param?: IN
+  ): OUT;
   typeArgumentsOrDiamond(ctx: TypeArgumentsOrDiamondCtx, param?: IN): OUT;
   diamond(ctx: DiamondCtx, param?: IN): OUT;
   methodInvocationSuffix(ctx: MethodInvocationSuffixCtx, param?: IN): OUT;
   argumentList(ctx: ArgumentListCtx, param?: IN): OUT;
   arrayCreationExpression(ctx: ArrayCreationExpressionCtx, param?: IN): OUT;
-  arrayCreationDefaultInitSuffix(ctx: ArrayCreationDefaultInitSuffixCtx, param?: IN): OUT;
-  arrayCreationExplicitInitSuffix(ctx: ArrayCreationExplicitInitSuffixCtx, param?: IN): OUT;
+  arrayCreationDefaultInitSuffix(
+    ctx: ArrayCreationDefaultInitSuffixCtx,
+    param?: IN
+  ): OUT;
+  arrayCreationExplicitInitSuffix(
+    ctx: ArrayCreationExplicitInitSuffixCtx,
+    param?: IN
+  ): OUT;
   dimExprs(ctx: DimExprsCtx, param?: IN): OUT;
   dimExpr(ctx: DimExprCtx, param?: IN): OUT;
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
@@ -478,7 +642,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
   isPrimitiveCastExpression(ctx: IsPrimitiveCastExpressionCtx, param?: IN): OUT;
-  isReferenceTypeCastExpression(ctx: IsReferenceTypeCastExpressionCtx, param?: IN): OUT;
+  isReferenceTypeCastExpression(
+    ctx: IsReferenceTypeCastExpressionCtx,
+    param?: IN
+  ): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
 
@@ -1331,7 +1498,8 @@ export type ExplicitConstructorInvocationCtx = {
   qualifiedExplicitConstructorInvocation?: QualifiedExplicitConstructorInvocationCstNode[];
 };
 
-export interface UnqualifiedExplicitConstructorInvocationCstNode extends CstNode {
+export interface UnqualifiedExplicitConstructorInvocationCstNode
+  extends CstNode {
   name: "unqualifiedExplicitConstructorInvocation";
   children: UnqualifiedExplicitConstructorInvocationCtx;
 }
@@ -2816,7 +2984,8 @@ export type NewExpressionCtx = {
   unqualifiedClassInstanceCreationExpression?: UnqualifiedClassInstanceCreationExpressionCstNode[];
 };
 
-export interface UnqualifiedClassInstanceCreationExpressionCstNode extends CstNode {
+export interface UnqualifiedClassInstanceCreationExpressionCstNode
+  extends CstNode {
   name: "unqualifiedClassInstanceCreationExpression";
   children: UnqualifiedClassInstanceCreationExpressionCtx;
 }
@@ -2988,18 +3157,14 @@ export interface IsLambdaExpressionCstNode extends CstNode {
   children: IsLambdaExpressionCtx;
 }
 
-export type IsLambdaExpressionCtx = {
-  
-};
+export type IsLambdaExpressionCtx = {};
 
 export interface IsCastExpressionCstNode extends CstNode {
   name: "isCastExpression";
   children: IsCastExpressionCtx;
 }
 
-export type IsCastExpressionCtx = {
-  
-};
+export type IsCastExpressionCtx = {};
 
 export interface IsPrimitiveCastExpressionCstNode extends CstNode {
   name: "isPrimitiveCastExpression";

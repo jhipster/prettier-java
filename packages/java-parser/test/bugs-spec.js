@@ -87,4 +87,9 @@ describe("The Java Parser fixed bugs", () => {
     const input = "(left) < right";
     expect(() => javaParser.parse(input, "expression")).to.not.throw();
   });
+
+  it("issue #412 - should parse a double[][] as primaryPrefix", () => {
+    const input = "double[][]";
+    expect(() => javaParser.parse(input, "primaryPrefix")).to.not.throw();
+  });
 });
