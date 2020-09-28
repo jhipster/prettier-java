@@ -14,7 +14,7 @@ describe("Class Body", () => {
   it("should handle a class body with one field declaration", () => {
     // prettier-ignore
     const expectedOutput =
-      "{\n\n" +
+      "{\n" +
       "  int i;\n" +
       "}";
 
@@ -37,7 +37,7 @@ describe("Class Body", () => {
 
     // prettier-ignore
     const expectedOutput =
-      "{\n\n" +
+      "{\n" +
       "  int i;\n" +
       "  int j;\n" +
       "\n" +
@@ -64,7 +64,7 @@ describe("Class Body", () => {
 
     // prettier-ignore
     const expectedOutput =
-      "{\n\n" +
+      "{\n" +
       "  int i;\n" +
       "\n" +
       "  int j;\n" +
@@ -90,7 +90,7 @@ describe("Class Body", () => {
       "}";
 
     const expectedOutput =
-      "{\n\n" +
+      "{\n" +
       "  int i;\n" +
       "\n" +
       "  void t() {}\n" +
@@ -128,7 +128,7 @@ describe("Class Body", () => {
         "}";
 
       const expectedOutput =
-        "{\n\n" +
+        "{\n" +
         "  int i;\n" +
         "  int j;\n" +
         "  int k;\n" +
@@ -159,7 +159,7 @@ describe("Class Body", () => {
         "}";
 
       const expectedOutput =
-        "{\n\n" +
+        "{\n" +
         "  int i;\n" +
         "\n" +
         "  void t() {}\n" +
@@ -196,7 +196,7 @@ describe("Class Body", () => {
         "}";
 
       const expectedOutput =
-        "{\n\n" +
+        "{\n" +
         "  int i;\n" +
         "  /* TODO */\n" +
         "  int j;\n" +
