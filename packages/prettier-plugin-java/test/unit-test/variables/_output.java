@@ -1,4 +1,5 @@
 public class Variables {
+
   public static int STATIC_VARIABLE = 123;
   private static final Logger LOGGER = LoggerFactory.getLogger(
     ComplexFilterTest.class
@@ -45,7 +46,6 @@ public class Variables {
   private int octLiteral = 001;
 
   private Interface anonymousClassVariable = new Interface() {
-
     @Override
     void doSomething() {
       System.out.println("do something");

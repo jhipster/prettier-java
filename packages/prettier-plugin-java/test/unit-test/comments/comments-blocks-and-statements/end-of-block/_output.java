@@ -32,6 +32,7 @@ class H {
 }
 
 class I { // alpha
+
   // beta
   int i;
   // one

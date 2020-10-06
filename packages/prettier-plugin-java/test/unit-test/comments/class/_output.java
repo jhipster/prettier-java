@@ -200,6 +200,7 @@ public final class ArrayTable<R, C, V>
 
   private abstract static class ArrayMap<K, V>
     extends IteratorBasedAbstractMap<K, V> {
+
     private final ImmutableMap<K, Integer> keyIndex;
 
     private ArrayMap(ImmutableMap<K, Integer> keyIndex) {
@@ -234,7 +235,6 @@ public final class ArrayTable<R, C, V>
     Entry<K, V> getEntry(final int index) {
       checkElementIndex(index, size());
       return new AbstractMapEntry<K, V>() {
-
         @Override
         public K getKey() {
           return ArrayMap.this.getKey(index);
@@ -255,7 +255,6 @@ public final class ArrayTable<R, C, V>
     @Override
     Iterator<Entry<K, V>> entryIterator() {
       return new AbstractIndexedListIterator<Entry<K, V>>(size()) {
-
         @Override
         protected Entry<K, V> get(final int index) {
           return getEntry(index);
@@ -572,7 +571,6 @@ public final class ArrayTable<R, C, V>
   @Override
   Iterator<Cell<R, C, V>> cellIterator() {
     return new AbstractIndexedListIterator<Cell<R, C, V>>(size()) {
-
       @Override
       protected Cell<R, C, V> get(final int index) {
         return getCell(index);
@@ -638,6 +636,7 @@ public final class ArrayTable<R, C, V>
   }
 
   private class Column extends ArrayMap<R, V> {
+
     final int columnIndex;
 
     Column(int columnIndex) {
@@ -728,6 +727,7 @@ public final class ArrayTable<R, C, V>
   }
 
   private class Row extends ArrayMap<C, V> {
+
     final int rowIndex;
 
     Row(int rowIndex) {
@@ -816,7 +816,6 @@ public final class ArrayTable<R, C, V>
   @Override
   Iterator<V> valuesIterator() {
     return new AbstractIndexedListIterator<V>(size()) {
-
       @Override
       protected V get(int index) {
         return getValue(index);

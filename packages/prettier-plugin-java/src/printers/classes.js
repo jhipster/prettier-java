@@ -43,7 +43,7 @@ class ClassesPrettierVisitor {
     const optionalTypeParams = this.visit(ctx.typeParameters);
     const optionalSuperClasses = this.visit(ctx.superclass);
     const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
-    const body = this.visit(ctx.classBody);
+    const body = this.visit(ctx.classBody, { isNormalClassDeclaration: true });
 
     let superClassesPart = "";
     if (optionalSuperClasses) {
@@ -113,7 +113,7 @@ class ClassesPrettierVisitor {
     return group(rejectAndJoinSeps(commas, interfaceType));
   }
 
-  classBody(ctx) {
+  classBody(ctx, param) {
     let content = "";
     if (ctx.classBodyDeclaration !== undefined) {
       const classBodyDeclsVisited = reject(
@@ -126,15 +126,24 @@ class ClassesPrettierVisitor {
 
       content = rejectAndJoinSeps(separators, classBodyDeclsVisited);
 
+      // edge case when we have SemiColons
+      let shouldHardline = false;
+      ctx.classBodyDeclaration.forEach(elt => {
+        if (
+          (elt.children.classMemberDeclaration &&
+            !elt.children.classMemberDeclaration[0].children.Semicolon) ||
+          elt.children.constructorDeclaration
+        ) {
+          shouldHardline = true;
+        }
+      });
+
       if (
-        !(
-          ctx.classBodyDeclaration[0].children.classMemberDeclaration !==
-            undefined &&
-          (ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-            .children.fieldDeclaration !== undefined ||
-            ctx.classBodyDeclaration[0].children.classMemberDeclaration[0]
-              .children.Semicolon !== undefined)
-        )
+        (ctx.classBodyDeclaration[0].children.classMemberDeclaration ||
+          ctx.classBodyDeclaration[0].children.constructorDeclaration) &&
+        shouldHardline &&
+        param &&
+        param.isNormalClassDeclaration
       ) {
         content = rejectAndConcat([hardline, content]);
       }
