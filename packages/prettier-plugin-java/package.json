@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-java",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Prettier Java Plugin",
   "main": "src/index.js",
   "repository": "https://github.com/jhipster/prettier-java",
