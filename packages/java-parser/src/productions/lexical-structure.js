@@ -7,6 +7,7 @@ function defineRules($, t) {
       { ALT: () => $.SUBRULE($.floatingPointLiteral) },
       { ALT: () => $.SUBRULE($.booleanLiteral) },
       { ALT: () => $.CONSUME(t.CharLiteral) },
+      { ALT: () => $.CONSUME(t.TextBlock) },
       { ALT: () => $.CONSUME(t.StringLiteral) },
       { ALT: () => $.CONSUME(t.Null) }
     ]);
