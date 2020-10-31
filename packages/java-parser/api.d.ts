@@ -671,6 +671,7 @@ export type LiteralCtx = {
   floatingPointLiteral?: FloatingPointLiteralCstNode[];
   booleanLiteral?: BooleanLiteralCstNode[];
   CharLiteral?: IToken[];
+  TextBlock?: IToken[];
   StringLiteral?: IToken[];
   Null?: IToken[];
 };

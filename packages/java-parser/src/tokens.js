@@ -224,6 +224,12 @@ createToken({
     "'(?:[^\\\\']|(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}}))'"
   )
 });
+
+createToken({
+  name: "TextBlock",
+  pattern: /"""\s*\n(\\"|\s|.)*?"""/
+});
+
 createToken({
   name: "StringLiteral",
   pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
