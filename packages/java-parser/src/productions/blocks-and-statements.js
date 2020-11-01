@@ -171,11 +171,15 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchBlock
   $.RULE("switchBlock", () => {
     $.CONSUME(t.LCurly);
-    $.MANY(() => {
-      // Spec Deviation: refactored "switchBlock" for easy post-processing
-      //                 each case and block together in the same rule.
-      $.SUBRULE($.switchCase);
-    });
+    $.OR([
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.switchLabel),
+        ALT: () => $.MANY(() => $.SUBRULE($.switchCase))
+      },
+      {
+        ALT: () => $.MANY2(() => $.SUBRULE($.switchRule))
+      }
+    ]);
     $.CONSUME(t.RCurly);
   });
 
@@ -206,6 +210,28 @@ function defineRules($, t) {
         }
       }
     ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-SwitchRule
+  $.RULE("switchRule", () => {
+    $.SUBRULE($.switchRuleLabel);
+    $.OR([
+      { ALT: () => $.SUBRULE($.throwStatement) },
+      { ALT: () => $.SUBRULE($.block) },
+      {
+        ALT: () => {
+          $.SUBRULE($.expression);
+          $.CONSUME(t.Semicolon);
+        }
+      }
+    ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-SwitchRule
+  $.RULE("switchRuleLabel", () => {
+    $.CONSUME(t.Case);
+    $.SUBRULE($.constantExpression);
+    $.CONSUME(t.Arrow);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EnumConstantName

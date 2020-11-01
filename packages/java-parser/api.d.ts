@@ -215,6 +215,8 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchCase(ctx: SwitchCaseCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
+  switchRuleLabel(ctx: SwitchRuleLabelCtx, param?: IN): OUT;
   enumConstantName(ctx: EnumConstantNameCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
@@ -538,6 +540,8 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchCase(ctx: SwitchCaseCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
+  switchRuleLabel(ctx: SwitchRuleLabelCtx, param?: IN): OUT;
   enumConstantName(ctx: EnumConstantNameCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
@@ -2333,6 +2337,7 @@ export interface SwitchBlockCstNode extends CstNode {
 export type SwitchBlockCtx = {
   LCurly: IToken[];
   switchCase?: SwitchCaseCstNode[];
+  switchRule?: SwitchRuleCstNode[];
   RCurly: IToken[];
 };
 
@@ -2354,6 +2359,29 @@ export interface SwitchLabelCstNode extends CstNode {
 export type SwitchLabelCtx = {
   Case?: IToken[];
   Default?: IToken[];
+};
+
+export interface SwitchRuleCstNode extends CstNode {
+  name: "switchRule";
+  children: SwitchRuleCtx;
+}
+
+export type SwitchRuleCtx = {
+  switchRuleLabel: SwitchRuleLabelCstNode[];
+  throwStatement?: ThrowStatementCstNode[];
+  block?: BlockCstNode[];
+  expression?: ExpressionCstNode[];
+};
+
+export interface SwitchRuleLabelCstNode extends CstNode {
+  name: "switchRuleLabel";
+  children: SwitchRuleLabelCtx;
+}
+
+export type SwitchRuleLabelCtx = {
+  Case: IToken[];
+  constantExpression: ConstantExpressionCstNode[];
+  Arrow: IToken[];
 };
 
 export interface EnumConstantNameCstNode extends CstNode {
