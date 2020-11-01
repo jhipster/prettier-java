@@ -27,6 +27,8 @@ module.exports = {
       { value: "switchBlock" },
       { value: "switchCase" },
       { value: "switchLabel" },
+      { value: "switchRule" },
+      { value: "switchRuleLabel" },
       { value: "enumConstantName" },
       { value: "whileStatement" },
       { value: "doStatement" },

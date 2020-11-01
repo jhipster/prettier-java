@@ -48,4 +48,12 @@ class Switch {
     switch (answer) { case "YES": return "YES"; default: return "NO"; }
   }
 
+  static void howManyAgain(int k) {
+        switch (k) {
+      case 1 -> System.out.println("one");
+      case 2 -> {System.out.println("two");}
+      case 3 -> throw new Exception(e);
+    }
+    }
+
 }

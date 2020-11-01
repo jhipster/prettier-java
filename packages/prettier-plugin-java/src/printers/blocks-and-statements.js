@@ -195,7 +195,10 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   switchBlock(ctx) {
-    const switchCases = this.mapVisit(ctx.switchCase);
+    const switchCases =
+      ctx.switchCase !== undefined
+        ? this.mapVisit(ctx.switchCase)
+        : this.mapVisit(ctx.switchRule);
 
     return putIntoBraces(
       rejectAndJoin(hardline, switchCases),
@@ -223,6 +226,29 @@ class BlocksAndStatementPrettierVisitor {
     }
 
     return concat([ctx.Default[0], ctx.Colon[0]]);
+  }
+
+  switchRule(ctx) {
+    const switchRuleLabel = this.visit(ctx.switchRuleLabel);
+
+    let caseInstruction;
+    if (ctx.throwStatement !== undefined) {
+      caseInstruction = this.visit(ctx.throwStatement);
+    } else if (ctx.block !== undefined) {
+      caseInstruction = this.visit(ctx.block);
+    } else {
+      caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon[0]]);
+    }
+
+    return join(" ", [switchRuleLabel, caseInstruction]);
+  }
+
+  switchRuleLabel(ctx) {
+    return join(" ", [
+      ctx.Case[0],
+      this.visit(ctx.constantExpression),
+      ctx.Arrow[0]
+    ]);
   }
 
   enumConstantName(ctx) {
