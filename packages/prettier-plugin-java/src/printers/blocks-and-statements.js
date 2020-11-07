@@ -196,8 +196,8 @@ class BlocksAndStatementPrettierVisitor {
 
   switchBlock(ctx) {
     const switchCases =
-      ctx.switchCase !== undefined
-        ? this.mapVisit(ctx.switchCase)
+      ctx.switchBlockStatementGroup !== undefined
+        ? this.mapVisit(ctx.switchBlockStatementGroup)
         : this.mapVisit(ctx.switchRule);
 
     return putIntoBraces(
@@ -208,28 +208,36 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  switchCase(ctx) {
-    const switchLabel = this.visit(ctx.switchLabel);
+  switchBlockStatementGroup(ctx) {
+    const switchLabels = this.mapVisit(ctx.classicSwitchLabel);
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return indent(rejectAndJoin(hardline, [switchLabel, blockStatements]));
+    return indent(
+      rejectAndJoin(hardline, [
+        rejectAndJoin(hardline, switchLabels),
+        blockStatements
+      ])
+    );
   }
 
   switchLabel(ctx) {
     if (ctx.Case) {
-      const constantExpression = this.visit(ctx.constantExpression);
+      const caseConstants = this.mapVisit(ctx.caseConstant);
       return rejectAndConcat([
         concat([ctx.Case[0], " "]),
-        constantExpression,
-        ctx.Colon[0]
+        rejectAndJoin(" ,", caseConstants)
       ]);
     }
 
-    return concat([ctx.Default[0], ctx.Colon[0]]);
+    return ctx.Default[0];
+  }
+
+  classicSwitchLabel(ctx) {
+    return concat([this.visit(ctx.switchLabel), ctx.Colon[0]]);
   }
 
   switchRule(ctx) {
-    const switchRuleLabel = this.visit(ctx.switchRuleLabel);
+    const switchLabel = this.visit(ctx.switchLabel);
 
     let caseInstruction;
     if (ctx.throwStatement !== undefined) {
@@ -240,18 +248,10 @@ class BlocksAndStatementPrettierVisitor {
       caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon[0]]);
     }
 
-    return join(" ", [switchRuleLabel, caseInstruction]);
+    return join(" ", [switchLabel, ctx.Arrow[0], caseInstruction]);
   }
 
-  switchRuleLabel(ctx) {
-    return join(" ", [
-      ctx.Case[0],
-      this.visit(ctx.constantExpression),
-      ctx.Arrow[0]
-    ]);
-  }
-
-  enumConstantName(ctx) {
+  caseConstant(ctx) {
     return this.visitSingle(ctx);
   }
 
@@ -546,6 +546,11 @@ class BlocksAndStatementPrettierVisitor {
       ctx.Equals[0],
       expression
     ]);
+  }
+
+  yieldStatement(ctx) {
+    const expression = this.visit(ctx.expression);
+    return join(" ", [ctx.Yield[0], concat([expression, ctx.Semicolon[0]])]);
   }
 
   variableAccess(ctx) {

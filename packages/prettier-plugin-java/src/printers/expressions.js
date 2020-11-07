@@ -22,10 +22,6 @@ const {
 } = require("./printer-utils");
 
 class ExpressionsPrettierVisitor {
-  constantExpression(ctx) {
-    return this.visitSingle(ctx);
-  }
-
   expression(ctx, params) {
     return this.visitSingle(ctx, params);
   }

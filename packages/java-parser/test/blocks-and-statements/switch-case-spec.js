@@ -1,7 +1,7 @@
 "use strict";
 
 const { expect } = require("chai");
-const javaParser = require("../src/index");
+const javaParser = require("../../src/index");
 
 describe("The Java Parser fixed bugs", () => {
   it("should handle Java 13 switch rules", () => {
@@ -32,4 +32,13 @@ describe("The Java Parser fixed bugs", () => {
     }`;
     expect(() => javaParser.parse(input, "switchStatement")).to.throw();
   });
+
+  it("should not handle Java 13 switch blocks with mixed rules and classic statements (2)", () => {
+    const input = `switch (k) {
+      case SATURDAY -> zd.ordinal;
+    }`;
+    expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
+  });
 });
+
+
