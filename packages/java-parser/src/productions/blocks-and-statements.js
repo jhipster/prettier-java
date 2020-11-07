@@ -94,7 +94,10 @@ function defineRules($, t) {
         { ALT: () => $.SUBRULE($.block) },
         { ALT: () => $.SUBRULE($.yieldStatement) },
         { ALT: () => $.SUBRULE($.emptyStatement) },
-        { ALT: () => $.SUBRULE($.expressionStatement) },
+        {
+          GATE: () => !tokenMatcher(this.LA(1).tokenType, t.Switch),
+          ALT: () => $.SUBRULE($.expressionStatement)
+        },
         { ALT: () => $.SUBRULE($.assertStatement) },
         { ALT: () => $.SUBRULE($.switchStatement) },
         { ALT: () => $.SUBRULE($.doStatement) },

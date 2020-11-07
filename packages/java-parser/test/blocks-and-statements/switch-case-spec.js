@@ -40,5 +40,3 @@ describe("The Java Parser fixed bugs", () => {
     expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
   });
 });
-
-

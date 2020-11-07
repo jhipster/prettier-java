@@ -222,7 +222,8 @@ function defineRules($, t) {
         ALT: () => $.SUBRULE($.castExpression)
       },
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
-      { ALT: () => $.SUBRULE($.newExpression) }
+      { ALT: () => $.SUBRULE($.newExpression) },
+      { ALT: () => $.SUBRULE($.switchStatement) }
     ]);
   });
 

@@ -63,6 +63,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   variableDeclaratorId(ctx: VariableDeclaratorIdCtx, param?: IN): OUT;
   variableInitializer(ctx: VariableInitializerCtx, param?: IN): OUT;
   unannType(ctx: UnannTypeCtx, param?: IN): OUT;
+  unannPrimitiveTypeWithOptionalDimsSuffix(
+    ctx: UnannPrimitiveTypeWithOptionalDimsSuffixCtx,
+    param?: IN
+  ): OUT;
   unannPrimitiveType(ctx: UnannPrimitiveTypeCtx, param?: IN): OUT;
   unannReferenceType(ctx: UnannReferenceTypeCtx, param?: IN): OUT;
   unannClassOrInterfaceType(ctx: UnannClassOrInterfaceTypeCtx, param?: IN): OUT;
@@ -213,11 +217,11 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   assertStatement(ctx: AssertStatementCtx, param?: IN): OUT;
   switchStatement(ctx: SwitchStatementCtx, param?: IN): OUT;
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
-  switchCase(ctx: SwitchCaseCtx, param?: IN): OUT;
+  switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  classicSwitchLabel(ctx: ClassicSwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
-  switchRuleLabel(ctx: SwitchRuleLabelCtx, param?: IN): OUT;
-  enumConstantName(ctx: EnumConstantNameCtx, param?: IN): OUT;
+  caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
   forStatement(ctx: ForStatementCtx, param?: IN): OUT;
@@ -242,13 +246,13 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   resourceList(ctx: ResourceListCtx, param?: IN): OUT;
   resource(ctx: ResourceCtx, param?: IN): OUT;
   resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
+  yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
   isLocalVariableDeclaration(
     ctx: IsLocalVariableDeclarationCtx,
     param?: IN
   ): OUT;
-  constantExpression(ctx: ConstantExpressionCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -388,6 +392,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   variableDeclaratorId(ctx: VariableDeclaratorIdCtx, param?: IN): OUT;
   variableInitializer(ctx: VariableInitializerCtx, param?: IN): OUT;
   unannType(ctx: UnannTypeCtx, param?: IN): OUT;
+  unannPrimitiveTypeWithOptionalDimsSuffix(
+    ctx: UnannPrimitiveTypeWithOptionalDimsSuffixCtx,
+    param?: IN
+  ): OUT;
   unannPrimitiveType(ctx: UnannPrimitiveTypeCtx, param?: IN): OUT;
   unannReferenceType(ctx: UnannReferenceTypeCtx, param?: IN): OUT;
   unannClassOrInterfaceType(ctx: UnannClassOrInterfaceTypeCtx, param?: IN): OUT;
@@ -538,11 +546,11 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   assertStatement(ctx: AssertStatementCtx, param?: IN): OUT;
   switchStatement(ctx: SwitchStatementCtx, param?: IN): OUT;
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
-  switchCase(ctx: SwitchCaseCtx, param?: IN): OUT;
+  switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  classicSwitchLabel(ctx: ClassicSwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
-  switchRuleLabel(ctx: SwitchRuleLabelCtx, param?: IN): OUT;
-  enumConstantName(ctx: EnumConstantNameCtx, param?: IN): OUT;
+  caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
   forStatement(ctx: ForStatementCtx, param?: IN): OUT;
@@ -567,13 +575,13 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   resourceList(ctx: ResourceListCtx, param?: IN): OUT;
   resource(ctx: ResourceCtx, param?: IN): OUT;
   resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
+  yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
   isLocalVariableDeclaration(
     ctx: IsLocalVariableDeclarationCtx,
     param?: IN
   ): OUT;
-  constantExpression(ctx: ConstantExpressionCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -1183,8 +1191,19 @@ export interface UnannTypeCstNode extends CstNode {
 }
 
 export type UnannTypeCtx = {
-  unannPrimitiveType?: UnannPrimitiveTypeCstNode[];
+  unannPrimitiveTypeWithOptionalDimsSuffix?: UnannPrimitiveTypeWithOptionalDimsSuffixCstNode[];
   unannReferenceType?: UnannReferenceTypeCstNode[];
+};
+
+export interface UnannPrimitiveTypeWithOptionalDimsSuffixCstNode
+  extends CstNode {
+  name: "unannPrimitiveTypeWithOptionalDimsSuffix";
+  children: UnannPrimitiveTypeWithOptionalDimsSuffixCtx;
+}
+
+export type UnannPrimitiveTypeWithOptionalDimsSuffixCtx = {
+  unannPrimitiveType: UnannPrimitiveTypeCstNode[];
+  dims?: DimsCstNode[];
 };
 
 export interface UnannPrimitiveTypeCstNode extends CstNode {
@@ -2238,6 +2257,7 @@ export interface StatementWithoutTrailingSubstatementCstNode extends CstNode {
 
 export type StatementWithoutTrailingSubstatementCtx = {
   block?: BlockCstNode[];
+  yieldStatement?: YieldStatementCstNode[];
   emptyStatement?: EmptyStatementCstNode[];
   expressionStatement?: ExpressionStatementCstNode[];
   assertStatement?: AssertStatementCstNode[];
@@ -2336,18 +2356,18 @@ export interface SwitchBlockCstNode extends CstNode {
 
 export type SwitchBlockCtx = {
   LCurly: IToken[];
-  switchCase?: SwitchCaseCstNode[];
+  switchBlockStatementGroup?: SwitchBlockStatementGroupCstNode[];
   switchRule?: SwitchRuleCstNode[];
   RCurly: IToken[];
 };
 
-export interface SwitchCaseCstNode extends CstNode {
-  name: "switchCase";
-  children: SwitchCaseCtx;
+export interface SwitchBlockStatementGroupCstNode extends CstNode {
+  name: "switchBlockStatementGroup";
+  children: SwitchBlockStatementGroupCtx;
 }
 
-export type SwitchCaseCtx = {
-  switchLabel: SwitchLabelCstNode[];
+export type SwitchBlockStatementGroupCtx = {
+  classicSwitchLabel: ClassicSwitchLabelCstNode[];
   blockStatements?: BlockStatementsCstNode[];
 };
 
@@ -2361,36 +2381,36 @@ export type SwitchLabelCtx = {
   Default?: IToken[];
 };
 
+export interface ClassicSwitchLabelCstNode extends CstNode {
+  name: "classicSwitchLabel";
+  children: ClassicSwitchLabelCtx;
+}
+
+export type ClassicSwitchLabelCtx = {
+  switchLabel: SwitchLabelCstNode[];
+  Colon: IToken[];
+};
+
 export interface SwitchRuleCstNode extends CstNode {
   name: "switchRule";
   children: SwitchRuleCtx;
 }
 
 export type SwitchRuleCtx = {
-  switchRuleLabel: SwitchRuleLabelCstNode[];
+  switchLabel: SwitchLabelCstNode[];
+  Arrow: IToken[];
   throwStatement?: ThrowStatementCstNode[];
   block?: BlockCstNode[];
   expression?: ExpressionCstNode[];
 };
 
-export interface SwitchRuleLabelCstNode extends CstNode {
-  name: "switchRuleLabel";
-  children: SwitchRuleLabelCtx;
+export interface CaseConstantCstNode extends CstNode {
+  name: "caseConstant";
+  children: CaseConstantCtx;
 }
 
-export type SwitchRuleLabelCtx = {
-  Case: IToken[];
-  constantExpression: ConstantExpressionCstNode[];
-  Arrow: IToken[];
-};
-
-export interface EnumConstantNameCstNode extends CstNode {
-  name: "enumConstantName";
-  children: EnumConstantNameCtx;
-}
-
-export type EnumConstantNameCtx = {
-  Identifier: IToken[];
+export type CaseConstantCtx = {
+  ternaryExpression: TernaryExpressionCstNode[];
 };
 
 export interface WhileStatementCstNode extends CstNode {
@@ -2672,6 +2692,17 @@ export type ResourceInitCtx = {
   expression: ExpressionCstNode[];
 };
 
+export interface YieldStatementCstNode extends CstNode {
+  name: "yieldStatement";
+  children: YieldStatementCtx;
+}
+
+export type YieldStatementCtx = {
+  Yield: IToken[];
+  expression: ExpressionCstNode[];
+  Semicolon: IToken[];
+};
+
 export interface VariableAccessCstNode extends CstNode {
   name: "variableAccess";
   children: VariableAccessCtx;
@@ -2702,15 +2733,6 @@ export type IsLocalVariableDeclarationCtx = {
   variableModifier?: VariableModifierCstNode[];
   localVariableType: LocalVariableTypeCstNode[];
   variableDeclaratorId: VariableDeclaratorIdCstNode[];
-};
-
-export interface ConstantExpressionCstNode extends CstNode {
-  name: "constantExpression";
-  children: ConstantExpressionCtx;
-}
-
-export type ConstantExpressionCtx = {
-  expression: ExpressionCstNode[];
 };
 
 export interface ExpressionCstNode extends CstNode {
@@ -2891,12 +2913,12 @@ export type PrimaryPrefixCtx = {
   literal?: LiteralCstNode[];
   This?: IToken[];
   Void?: IToken[];
-  numericType?: NumericTypeCstNode[];
-  Boolean?: IToken[];
+  unannPrimitiveTypeWithOptionalDimsSuffix?: UnannPrimitiveTypeWithOptionalDimsSuffixCstNode[];
   fqnOrRefType?: FqnOrRefTypeCstNode[];
   castExpression?: CastExpressionCstNode[];
   parenthesisExpression?: ParenthesisExpressionCstNode[];
   newExpression?: NewExpressionCstNode[];
+  switchStatement?: SwitchStatementCstNode[];
 };
 
 export interface PrimarySuffixCstNode extends CstNode {

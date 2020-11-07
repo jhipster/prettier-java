@@ -20,4 +20,14 @@ class Test {
     }
     return;
   }
+
+  public int calculate(Day d) {
+    return switch (d) {
+      case SATURDAY ,SUNDAY -> d.ordinal();
+      default -> {
+        int len = d.toString().length();
+        yield len * len;
+      }
+    };
+  }
 }
