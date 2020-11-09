@@ -219,7 +219,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
-  classicSwitchLabel(ctx: ClassicSwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -253,6 +252,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     ctx: IsLocalVariableDeclarationCtx,
     param?: IN
   ): OUT;
+  isClassicSwitchLabel(ctx: IsClassicSwitchLabelCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -548,7 +548,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
-  classicSwitchLabel(ctx: ClassicSwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -582,6 +581,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     ctx: IsLocalVariableDeclarationCtx,
     param?: IN
   ): OUT;
+  isClassicSwitchLabel(ctx: IsClassicSwitchLabelCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -2367,7 +2367,8 @@ export interface SwitchBlockStatementGroupCstNode extends CstNode {
 }
 
 export type SwitchBlockStatementGroupCtx = {
-  classicSwitchLabel: ClassicSwitchLabelCstNode[];
+  switchLabel: SwitchLabelCstNode[];
+  Colon: IToken[];
   blockStatements?: BlockStatementsCstNode[];
 };
 
@@ -2379,16 +2380,6 @@ export interface SwitchLabelCstNode extends CstNode {
 export type SwitchLabelCtx = {
   Case?: IToken[];
   Default?: IToken[];
-};
-
-export interface ClassicSwitchLabelCstNode extends CstNode {
-  name: "classicSwitchLabel";
-  children: ClassicSwitchLabelCtx;
-}
-
-export type ClassicSwitchLabelCtx = {
-  switchLabel: SwitchLabelCstNode[];
-  Colon: IToken[];
 };
 
 export interface SwitchRuleCstNode extends CstNode {
@@ -2733,6 +2724,16 @@ export type IsLocalVariableDeclarationCtx = {
   variableModifier?: VariableModifierCstNode[];
   localVariableType: LocalVariableTypeCstNode[];
   variableDeclaratorId: VariableDeclaratorIdCstNode[];
+};
+
+export interface IsClassicSwitchLabelCstNode extends CstNode {
+  name: "isClassicSwitchLabel";
+  children: IsClassicSwitchLabelCtx;
+}
+
+export type IsClassicSwitchLabelCtx = {
+  switchLabel: SwitchLabelCstNode[];
+  Colon: IToken[];
 };
 
 export interface ExpressionCstNode extends CstNode {

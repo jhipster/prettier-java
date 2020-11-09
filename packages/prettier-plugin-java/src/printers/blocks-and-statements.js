@@ -209,12 +209,18 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   switchBlockStatementGroup(ctx) {
-    const switchLabels = this.mapVisit(ctx.classicSwitchLabel);
+    const switchLabels = this.mapVisit(ctx.switchLabel);
+
+    const labels = [];
+    for (let i = 0; i < switchLabels.length; i++) {
+      labels.push(concat([switchLabels[i], ctx.Colon[i]]));
+    }
+
     const blockStatements = this.visit(ctx.blockStatements);
 
     return indent(
       rejectAndJoin(hardline, [
-        rejectAndJoin(hardline, switchLabels),
+        rejectAndJoin(hardline, labels),
         blockStatements
       ])
     );
@@ -230,10 +236,6 @@ class BlocksAndStatementPrettierVisitor {
     }
 
     return ctx.Default[0];
-  }
-
-  classicSwitchLabel(ctx) {
-    return concat([this.visit(ctx.switchLabel), ctx.Colon[0]]);
   }
 
   switchRule(ctx) {
@@ -563,6 +565,10 @@ class BlocksAndStatementPrettierVisitor {
 
   isLocalVariableDeclaration() {
     return "isLocalVariableDeclaration";
+  }
+
+  isClassicSwitchLabel() {
+    return "isClassicSwitchLabel";
   }
 }
 

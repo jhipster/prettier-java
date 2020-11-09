@@ -180,7 +180,7 @@ function defineRules($, t) {
     $.CONSUME(t.LCurly);
     $.OR([
       {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.classicSwitchLabel),
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isClassicSwitchLabel),
         ALT: () => $.MANY(() => $.SUBRULE($.switchBlockStatementGroup))
       },
       {
@@ -191,7 +191,10 @@ function defineRules($, t) {
   });
 
   $.RULE("switchBlockStatementGroup", () => {
-    $.AT_LEAST_ONE(() => $.SUBRULE($.classicSwitchLabel));
+    $.AT_LEAST_ONE(() => {
+      $.SUBRULE($.switchLabel);
+      $.CONSUME(t.Colon);
+    });
     $.OPTION(() => {
       $.SUBRULE($.blockStatements);
     });
@@ -217,12 +220,6 @@ function defineRules($, t) {
         ALT: () => $.CONSUME(t.Default)
       }
     ]);
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchLabel
-  $.RULE("classicSwitchLabel", () => {
-    $.SUBRULE($.switchLabel);
-    $.CONSUME(t.Colon);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-SwitchRule
@@ -554,6 +551,11 @@ function defineRules($, t) {
       default:
         return false;
     }
+  });
+
+  $.RULE("isClassicSwitchLabel", () => {
+    $.SUBRULE($.switchLabel);
+    $.CONSUME(t.Colon);
   });
 }
 
