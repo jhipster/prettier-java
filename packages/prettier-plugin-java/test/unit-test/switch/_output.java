@@ -53,6 +53,7 @@ class Switch {
     }
   }
 
+  // Switch rules
   static void howManyAgain(int k) {
     switch (k) {
       case 1 -> System.out.println("one");
@@ -60,6 +61,24 @@ class Switch {
         System.out.println("two");
       }
       case 3 -> throw new Exception(e);
+      default -> throw new Exception(e);
+    }
+  }
+
+  public Location getAdjacentLocation(Direction direction) {
+    switch (direction) {
+      case NORTH:
+        return new Location(this.x, this.y - SnakeUtils.GRID_SIZE);
+      case SOUTH:
+        return new Location(this.x, this.y + SnakeUtils.GRID_SIZE);
+      case EAST:
+        return new Location(this.x + SnakeUtils.GRID_SIZE, this.y);
+      case WEST:
+        return new Location(this.x - SnakeUtils.GRID_SIZE, this.y);
+      case NONE:
+      // fall through
+      default:
+        return this;
     }
   }
 }

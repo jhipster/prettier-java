@@ -1,7 +1,7 @@
 "use strict";
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const { group, indent, concat, join } = require("./prettier-builder");
+const { group, indent, dedent, concat, join } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
 const {
   hasLeadingLineComments,
@@ -220,7 +220,7 @@ class BlocksAndStatementPrettierVisitor {
 
     return indent(
       rejectAndJoin(hardline, [
-        rejectAndJoin(hardline, labels),
+        dedent(rejectAndJoin(hardline, labels)),
         blockStatements
       ])
     );
@@ -235,7 +235,7 @@ class BlocksAndStatementPrettierVisitor {
       ]);
     }
 
-    return ctx.Default[0];
+    return concat([ctx.Default[0]]);
   }
 
   switchRule(ctx) {
