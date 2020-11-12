@@ -13,7 +13,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
         with:
-          path: 'prettier-java'
+          path: "prettier-java"
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
@@ -49,8 +49,8 @@ jobs:
           cd $GITHUB_WORKSPACE/prettier
           pkg package.json -o $GITHUB_WORKSPACE/prettier-java-${GITHUB_REF##*/} --targets node10-linux-x64,node10-macos-x64,node10-win-x64
       - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
+        uses: skx/github-action-publish-binaries@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'prettier-java-*'
+          args: "prettier-java-*"

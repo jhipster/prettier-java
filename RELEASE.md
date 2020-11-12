@@ -14,15 +14,15 @@ upstream	git@github.com:jhipster/prettier-java (fetch)
 upstream	git@github.com:jhipster/prettier-java (push)
 ```
 
-Update `master` branch and `release` branch in your fork.
+Update `main` branch and `release` branch in your fork.
 
 ```
 git checkout release
 git fetch upstream
 git rebase upstream/release
 
-git checkout master
-git rebase upstream/master
+git checkout main
+git rebase upstream/main
 ```
 
 Be sure your dependencies is up-to-dated:
@@ -31,22 +31,22 @@ Be sure your dependencies is up-to-dated:
 yarn
 ```
 
-In `master` branch, launch the release, and answer the questions. It will:
+In `main` branch, launch the release, and answer the questions. It will:
 
 - change the version (patch, minor or major, accordingly to what you choose)
 - tag the version
-- push master branch to upstream
+- push main branch to upstream
 - push the tag to upstream
 
 ```
 yarn run lerna:version
 ```
 
-Then, if everything looks OK, merge the master branch to the release branch locally, then push the release branch:
+Then, if everything looks OK, merge the main branch to the release branch locally, then push the release branch:
 
 ```
 git checkout release
-git merge master
+git merge main
 git push upstream/release
 ```
 

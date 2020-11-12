@@ -15,7 +15,7 @@ yarn run
 
 ## Linking the java-parser to the printer
 
-If you want to use the master java-parser for the prettier-plugin-java (printer), you will need to link it by running these commands in the root folder:
+If you want to use the main java-parser for the prettier-plugin-java (printer), you will need to link it by running these commands in the root folder:
 
 ```bash
 cd packages/java-parser
