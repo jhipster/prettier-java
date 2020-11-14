@@ -25,72 +25,72 @@ const sampleRepos = [
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-online",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-microservice",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-gateway",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-oauth2",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-websocket",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-noi18n",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-nocache",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
-    branch: "master"
+    branch: "main"
   },
 
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-elasticsearch",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-dto",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-couchbase",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-cassandra",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-mongodb",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-gradle",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-react",
-    branch: "master"
+    branch: "main"
   }
 ];
 

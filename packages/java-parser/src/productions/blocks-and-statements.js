@@ -89,20 +89,27 @@ function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
   $.RULE("statementWithoutTrailingSubstatement", () => {
-    $.OR([
-      { ALT: () => $.SUBRULE($.block) },
-      { ALT: () => $.SUBRULE($.emptyStatement) },
-      { ALT: () => $.SUBRULE($.expressionStatement) },
-      { ALT: () => $.SUBRULE($.assertStatement) },
-      { ALT: () => $.SUBRULE($.switchStatement) },
-      { ALT: () => $.SUBRULE($.doStatement) },
-      { ALT: () => $.SUBRULE($.breakStatement) },
-      { ALT: () => $.SUBRULE($.continueStatement) },
-      { ALT: () => $.SUBRULE($.returnStatement) },
-      { ALT: () => $.SUBRULE($.synchronizedStatement) },
-      { ALT: () => $.SUBRULE($.throwStatement) },
-      { ALT: () => $.SUBRULE($.tryStatement) }
-    ]);
+    $.OR({
+      DEF: [
+        { ALT: () => $.SUBRULE($.block) },
+        { ALT: () => $.SUBRULE($.yieldStatement) },
+        { ALT: () => $.SUBRULE($.emptyStatement) },
+        {
+          GATE: () => !tokenMatcher(this.LA(1).tokenType, t.Switch),
+          ALT: () => $.SUBRULE($.expressionStatement)
+        },
+        { ALT: () => $.SUBRULE($.assertStatement) },
+        { ALT: () => $.SUBRULE($.switchStatement) },
+        { ALT: () => $.SUBRULE($.doStatement) },
+        { ALT: () => $.SUBRULE($.breakStatement) },
+        { ALT: () => $.SUBRULE($.continueStatement) },
+        { ALT: () => $.SUBRULE($.returnStatement) },
+        { ALT: () => $.SUBRULE($.synchronizedStatement) },
+        { ALT: () => $.SUBRULE($.throwStatement) },
+        { ALT: () => $.SUBRULE($.tryStatement) }
+      ],
+      IGNORE_AMBIGUITIES: true
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EmptyStatement
@@ -171,16 +178,23 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchBlock
   $.RULE("switchBlock", () => {
     $.CONSUME(t.LCurly);
-    $.MANY(() => {
-      // Spec Deviation: refactored "switchBlock" for easy post-processing
-      //                 each case and block together in the same rule.
-      $.SUBRULE($.switchCase);
-    });
+    $.OR([
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isClassicSwitchLabel),
+        ALT: () => $.MANY(() => $.SUBRULE($.switchBlockStatementGroup))
+      },
+      {
+        ALT: () => $.MANY2(() => $.SUBRULE($.switchRule))
+      }
+    ]);
     $.CONSUME(t.RCurly);
   });
 
-  $.RULE("switchCase", () => {
-    $.SUBRULE($.switchLabel);
+  $.RULE("switchBlockStatementGroup", () => {
+    $.AT_LEAST_ONE(() => {
+      $.SUBRULE($.switchLabel);
+      $.CONSUME(t.Colon);
+    });
     $.OPTION(() => {
       $.SUBRULE($.blockStatements);
     });
@@ -192,25 +206,41 @@ function defineRules($, t) {
       {
         ALT: () => {
           $.CONSUME(t.Case);
-          $.SUBRULE($.constantExpression);
-          $.CONSUME(t.Colon);
+          $.SUBRULE($.caseConstant);
+          $.MANY(() => {
+            $.CONSUME(t.Comma);
+            $.SUBRULE2($.caseConstant);
+          });
         }
       },
       // SPEC Deviation: the variant with "enumConstantName" was removed
       // as it can be matched by the "constantExpression" variant
       // the distinction is semantic not syntactic.
       {
+        ALT: () => $.CONSUME(t.Default)
+      }
+    ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-SwitchRule
+  $.RULE("switchRule", () => {
+    $.SUBRULE($.switchLabel);
+    $.CONSUME(t.Arrow);
+    $.OR([
+      { ALT: () => $.SUBRULE($.throwStatement) },
+      { ALT: () => $.SUBRULE($.block) },
+      {
         ALT: () => {
-          $.CONSUME(t.Default);
-          $.CONSUME3(t.Colon);
+          $.SUBRULE($.expression);
+          $.CONSUME(t.Semicolon);
         }
       }
     ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EnumConstantName
-  $.RULE("enumConstantName", () => {
-    $.CONSUME(t.Identifier);
+  $.RULE("caseConstant", () => {
+    $.SUBRULE($.ternaryExpression);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-WhileStatement
@@ -472,6 +502,13 @@ function defineRules($, t) {
     $.SUBRULE($.expression);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-YieldStatement
+  $.RULE("yieldStatement", () => {
+    $.CONSUME(t.Yield);
+    $.SUBRULE($.expression);
+    $.CONSUME(t.Semicolon);
+  });
+
   // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-VariableAccess
   $.RULE("variableAccess", () => {
     // Spec Deviation: both "expressionName" and "fieldAccess" can be parsed
@@ -514,6 +551,11 @@ function defineRules($, t) {
       default:
         return false;
     }
+  });
+
+  $.RULE("isClassicSwitchLabel", () => {
+    $.SUBRULE($.switchLabel);
+    $.CONSUME(t.Colon);
   });
 }
 

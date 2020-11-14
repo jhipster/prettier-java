@@ -344,8 +344,15 @@ createKeywordLikeToken({
 createKeywordLikeToken({
   name: "Var",
   pattern: "var",
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Keyword
+  // https://docs.oracle.com/javase/specs/jls/se14/html/jls-3.html#jls-Keyword
   // "var is not a keyword, but rather an identifier with special meaning as the type of a local variable declaration"
+  categories: Identifier
+});
+createKeywordLikeToken({
+  name: "Yield",
+  pattern: "yield",
+  // https://docs.oracle.com/javase/specs/jls/se14/html/jls-3.html#jls-Keyword
+  // "yield is not a keyword, but rather an identifier with special meaning as the type of a local variable declaration"
   categories: Identifier
 });
 createKeywordLikeToken({ name: "True", pattern: "true" });

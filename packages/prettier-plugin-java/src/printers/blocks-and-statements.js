@@ -1,7 +1,7 @@
 "use strict";
 
 const { line, softline, hardline } = require("prettier").doc.builders;
-const { group, indent, concat, join } = require("./prettier-builder");
+const { group, indent, dedent, concat, join } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
 const {
   hasLeadingLineComments,
@@ -195,7 +195,10 @@ class BlocksAndStatementPrettierVisitor {
   }
 
   switchBlock(ctx) {
-    const switchCases = this.mapVisit(ctx.switchCase);
+    const switchCases =
+      ctx.switchBlockStatementGroup !== undefined
+        ? this.mapVisit(ctx.switchBlockStatementGroup)
+        : this.mapVisit(ctx.switchRule);
 
     return putIntoBraces(
       rejectAndJoin(hardline, switchCases),
@@ -205,27 +208,52 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  switchCase(ctx) {
-    const switchLabel = this.visit(ctx.switchLabel);
+  switchBlockStatementGroup(ctx) {
+    const switchLabels = this.mapVisit(ctx.switchLabel);
+
+    const labels = [];
+    for (let i = 0; i < switchLabels.length; i++) {
+      labels.push(concat([switchLabels[i], ctx.Colon[i]]));
+    }
+
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return indent(rejectAndJoin(hardline, [switchLabel, blockStatements]));
+    return indent(
+      rejectAndJoin(hardline, [
+        dedent(rejectAndJoin(hardline, labels)),
+        blockStatements
+      ])
+    );
   }
 
   switchLabel(ctx) {
     if (ctx.Case) {
-      const constantExpression = this.visit(ctx.constantExpression);
+      const caseConstants = this.mapVisit(ctx.caseConstant);
       return rejectAndConcat([
         concat([ctx.Case[0], " "]),
-        constantExpression,
-        ctx.Colon[0]
+        rejectAndJoin(" ,", caseConstants)
       ]);
     }
 
-    return concat([ctx.Default[0], ctx.Colon[0]]);
+    return concat([ctx.Default[0]]);
   }
 
-  enumConstantName(ctx) {
+  switchRule(ctx) {
+    const switchLabel = this.visit(ctx.switchLabel);
+
+    let caseInstruction;
+    if (ctx.throwStatement !== undefined) {
+      caseInstruction = this.visit(ctx.throwStatement);
+    } else if (ctx.block !== undefined) {
+      caseInstruction = this.visit(ctx.block);
+    } else {
+      caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon[0]]);
+    }
+
+    return join(" ", [switchLabel, ctx.Arrow[0], caseInstruction]);
+  }
+
+  caseConstant(ctx) {
     return this.visitSingle(ctx);
   }
 
@@ -522,6 +550,11 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
+  yieldStatement(ctx) {
+    const expression = this.visit(ctx.expression);
+    return join(" ", [ctx.Yield[0], concat([expression, ctx.Semicolon[0]])]);
+  }
+
   variableAccess(ctx) {
     return this.visitSingle(ctx);
   }
@@ -532,6 +565,10 @@ class BlocksAndStatementPrettierVisitor {
 
   isLocalVariableDeclaration() {
     return "isLocalVariableDeclaration";
+  }
+
+  isClassicSwitchLabel() {
+    return "isClassicSwitchLabel";
   }
 }
 

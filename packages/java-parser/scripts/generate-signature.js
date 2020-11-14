@@ -28,6 +28,9 @@ const enrichChild = ({ definition, children, optional }) => {
     case "Repetition":
       enrichChildrenWithRepetition(definition, children);
       break;
+    case "RepetitionMandatory":
+      enrichChildrenWithMandatoryRepetition(definition, children);
+      break;
     case "Flat":
       enrichChild({ definition: definition.definition[0], optional, children });
       break;
@@ -49,6 +52,12 @@ const enrichChild = ({ definition, children, optional }) => {
 const enrichChildrenWithRepetition = (rule, children) => {
   rule.definition.forEach(definition => {
     enrichChild({ definition, children, optional: true });
+  });
+};
+
+const enrichChildrenWithMandatoryRepetition = (rule, children) => {
+  rule.definition.forEach(definition => {
+    enrichChild({ definition, children, optional: false });
   });
 };
 

@@ -1,10 +1,6 @@
 "use strict";
 const { tokenMatcher } = require("chevrotain");
 function defineRules($, t) {
-  $.RULE("constantExpression", () => {
-    $.SUBRULE($.expression);
-  });
-
   $.RULE("expression", () => {
     $.OR([
       {
@@ -226,7 +222,8 @@ function defineRules($, t) {
         ALT: () => $.SUBRULE($.castExpression)
       },
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
-      { ALT: () => $.SUBRULE($.newExpression) }
+      { ALT: () => $.SUBRULE($.newExpression) },
+      { ALT: () => $.SUBRULE($.switchStatement) }
     ]);
   });
 
