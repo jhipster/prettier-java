@@ -1,3 +1,52 @@
+# Latest v1.0.0
+
+## Enhancements
+
+- Support of Java 15 ! 🚀
+- Support of Text blocks
+- Support of new switch rules and yield statements
+
+- Improve throws rendering (From @jhaber: [#384](https://github.com/jhipster/prettier-java/pull/384))
+
+```java
+// Input
+
+void throwException7(String string1, String string2, String string3, String string4) throws RuntimeException {
+  throw new RuntimeException();
+}
+
+// Prettier 0.8.3
+
+void throwException7(
+  String string1,
+  String string2,
+  String string3,
+  String string4
+)
+  throws RuntimeException {
+  throw new RuntimeException();
+}
+
+// Prettier 1.0.0
+
+void throwException7(
+  String string1,
+  String string2,
+  String string3,
+  String string4
+) throws RuntimeException {
+  throw new RuntimeException();
+}
+```
+
+## Fixes
+
+- Parsing of unannPrimitiveType in primary ([#421](https://github.com/jhipster/prettier-java/pull/421))
+
+## Miscellaneous
+
+- Update dependencies
+
 # Latest v0.8.2
 
 ## Fixes
