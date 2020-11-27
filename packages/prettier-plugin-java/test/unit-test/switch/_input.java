@@ -75,4 +75,22 @@ class Switch {
         return this;
     }
   }
+
+  public void multipleCaseConstants(TestEnum testEnum) {
+    switch (testEnum) {
+      case FOO -> System.out.println("Foo!");
+        case BAR, BAZ -> System.out.println("Not Foo!");
+      case BAR, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ, BAZ -> System.out.println("Not Foo!");
+
+    }
+  }
+
+  public void caseConstantsWithComments(TestEnum testEnum) {
+    switch (testEnum) {
+        case BAR /* foo */, BAZ -> System.out.println("Not Foo!");
+        case BAR /* foo */, /* bar */ BAZ -> System.out.println("Not Foo!");
+        case BAR, /* bar */ BAZ -> System.out.println("Not Foo!");
+
+    }
+  }
 }

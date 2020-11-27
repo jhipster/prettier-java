@@ -12,7 +12,7 @@ class Test {
 
   public int calculate(Day d) {
     switch (d) {
-      case SATURDAY ,SUNDAY -> d.ordinal();
+      case SATURDAY, SUNDAY -> d.ordinal();
       default -> {
         int len = d.toString().length();
         yield len * len;
@@ -23,7 +23,7 @@ class Test {
 
   public int calculate(Day d) {
     return switch (d) {
-      case SATURDAY ,SUNDAY -> d.ordinal();
+      case SATURDAY, SUNDAY -> d.ordinal();
       default -> {
         int len = d.toString().length();
         yield len * len;

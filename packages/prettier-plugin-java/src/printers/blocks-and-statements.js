@@ -229,10 +229,21 @@ class BlocksAndStatementPrettierVisitor {
   switchLabel(ctx) {
     if (ctx.Case) {
       const caseConstants = this.mapVisit(ctx.caseConstant);
-      return rejectAndConcat([
-        concat([ctx.Case[0], " "]),
-        rejectAndJoin(" ,", caseConstants)
-      ]);
+
+      const commas = ctx.Comma
+        ? ctx.Comma.map(elt => {
+            return concat([elt, line]);
+          })
+        : [];
+
+      return group(
+        indent(
+          rejectAndConcat([
+            concat([ctx.Case[0], " "]),
+            rejectAndJoinSeps(commas, caseConstants)
+          ])
+        )
+      );
     }
 
     return concat([ctx.Default[0]]);
