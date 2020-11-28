@@ -1,4 +1,53 @@
-# Latest v1.0.0
+# Latest v1.0.1
+
+## Fixes
+
+- Correct spaces emplacement in multi-value switch expression case label ([#440](https://github.com/jhipster/prettier-java/pull/440))
+
+```java
+// Input
+
+public class Test {
+
+  public void test(TestEnum testEnum) {
+    switch (testEnum) {
+      case FOO -> System.out.println("Foo!");
+      case BAR, BAZ -> System.out.println("Not Foo!");
+    }
+  }
+}
+
+// Prettier 1.0.0
+
+public class Test {
+
+  public void test(TestEnum testEnum) {
+    switch (testEnum) {
+      case FOO -> System.out.println("Foo!");
+      case BAR ,BAZ -> System.out.println("Not Foo!");
+    }
+  }
+}
+
+// Prettier 1.0.1
+
+public class Test {
+
+  public void test(TestEnum testEnum) {
+    switch (testEnum) {
+      case FOO -> System.out.println("Foo!");
+      case BAR, BAZ -> System.out.println("Not Foo!");
+    }
+  }
+}
+
+```
+
+## Miscellaneous
+
+- Update prettier dependency to 2.2.1
+
+# v1.0.0
 
 ## Enhancements
 
