@@ -13,7 +13,7 @@ overrides:
       printWidth: 140
       tabWidth: 4
       useTabs: false
-      trailingComma: false
+      trailingComma: "none"
 ```
 
 Please refer to the [Prettier configuration documentation](https://prettier.io/docs/en/configuration.html) for more information.
