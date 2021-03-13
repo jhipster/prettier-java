@@ -341,7 +341,10 @@ class ExpressionsPrettierVisitor {
         suffixes.push(this.visit(ctx.primarySuffix[i]));
       }
 
-      if (countMethodInvocation === 1) {
+      if (
+        countMethodInvocation === 1 &&
+        ctx.primaryPrefix[0].children.newExpression === undefined
+      ) {
         return group(
           rejectAndConcat([
             primaryPrefix,
