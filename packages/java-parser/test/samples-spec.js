@@ -15,7 +15,6 @@ describe("The Java Parser", () => {
   createSampleSpecs("jhipster-online");
   createSampleSpecs("jhipster-sample-app");
   createSampleSpecs("jhipster-sample-app-cassandra");
-  createSampleSpecs("jhipster-sample-app-couchbase");
   createSampleSpecs("jhipster-sample-app-dto");
   createSampleSpecs("jhipster-sample-app-elasticsearch");
   createSampleSpecs("jhipster-sample-app-gateway");
