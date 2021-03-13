@@ -354,6 +354,7 @@ class ClassesPrettierVisitor {
         currentSegment = [];
       } else if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
+        currentSegment.push(" ");
       } else {
         currentSegment.push(token);
         if (
