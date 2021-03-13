@@ -53,4 +53,9 @@ public class BinaryOperations {
 
     return a || b || c;
   }
+
+    public void method() {
+        new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more").bar(10);
+        foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(10);
+    }
 }
