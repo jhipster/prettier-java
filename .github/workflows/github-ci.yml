@@ -36,6 +36,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11.x'
       - name: Install dependencies
         run: yarn
       - name: Run CI
@@ -56,6 +59,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11.x'
       - name: Install dependencies
         run: yarn
       - name: Run e2e tests
