@@ -167,7 +167,7 @@ class ExpressionsPrettierVisitor {
       groupsOfOperator,
       sortedBinaryOperators
     } = separateTokensIntoGroups(ctx);
-    const segmentsSplittedByBinaryOperator = [];
+    const segmentsSplitByBinaryOperator = [];
     let currentSegment = [];
 
     if (groupsOfOperator.length === 1 && groupsOfOperator[0].length === 0) {
@@ -212,7 +212,7 @@ class ExpressionsPrettierVisitor {
           );
         }
       }
-      segmentsSplittedByBinaryOperator.push(
+      segmentsSplitByBinaryOperator.push(
         group(rejectAndJoin(" ", currentSegment))
       );
     });
@@ -227,7 +227,7 @@ class ExpressionsPrettierVisitor {
               group(
                 rejectAndJoinSeps(
                   sortedBinaryOperators.map(elt => concat([" ", elt, line])),
-                  segmentsSplittedByBinaryOperator
+                  segmentsSplitByBinaryOperator
                 )
               )
             ])
@@ -241,7 +241,7 @@ class ExpressionsPrettierVisitor {
     return group(
       rejectAndJoinSeps(
         sortedBinaryOperators.map(elt => concat([" ", elt, line])),
-        segmentsSplittedByBinaryOperator
+        segmentsSplitByBinaryOperator
       )
     );
   }
