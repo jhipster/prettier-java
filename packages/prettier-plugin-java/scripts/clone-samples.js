@@ -70,10 +70,6 @@ const jhipster2 = [
     branch: "main"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster-sample-app-couchbase",
-    branch: "main"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-cassandra",
     branch: "main"
   },
