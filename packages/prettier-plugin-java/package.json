@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "java-parser": "1.0.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "prettier": "2.2.1"
   },
   "scripts": {
