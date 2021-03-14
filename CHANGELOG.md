@@ -1,4 +1,121 @@
-# Latest v1.0.1
+# Latest v1.0.2
+
+## Fixes
+
+- Keep space between annotation and type identifiers in unannClassType expressions ([#455](https://github.com/jhipster/prettier-java/pull/455))
+
+```java
+// Input
+class T {
+  SomeClass.@Valid SomeInnerClass someInnerClass = someClass.getInteractions().get(0);
+
+  void process(
+    Map.@NonNull Entry<String, SkeletonConfiguration> entry,
+    @NonNull Map<String, Object> context
+  ) {}
+}
+
+// Prettier 1.0.1
+class T {
+  SomeClass.@ValidSomeInnerClass someInnerClass = someClass
+    .getInteractions()
+    .get(0);
+
+  void process(
+    Map.@NonNullEntry<String, SkeletonConfiguration> entry,
+    @NonNull Map<String, Object> context
+  ) {}
+}
+
+// Prettier 1.0.2
+class T {
+
+  SomeClass.@Valid SomeInnerClass someInnerClass = someClass
+    .getInteractions()
+    .get(0);
+
+  void process(
+    Map.@NonNull Entry<String, SkeletonConfiguration> entry,
+    @NonNull Map<String, Object> context
+  ) {}
+}
+```
+
+- Fix inconsistent indentation between chained method on method and new object  ([#456](https://github.com/jhipster/prettier-java/pull/456))
+
+```java
+// Input
+class T {
+  public void method() {
+    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more").bar(10);
+    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(10);
+  }
+}
+
+// Prettier 1.0.1
+class T {
+  public void method() {
+    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more")
+    .bar(10);
+    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
+      .bar(10);
+  }
+}
+
+// Prettier 1.0.2
+class T {
+
+  public void method() {
+    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more")
+      .bar(10);
+    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
+      .bar(10);
+  }
+}
+```
+
+- Fix unstable formatting for method invocations with only comments ([#457](https://github.com/jhipster/prettier-java/pull/457))
+
+```java
+// Input
+class T {
+  public void method() {
+    Arrays.asList(// a
+                  // b
+                  // c
+                  // d
+    );
+  }
+}
+
+// Prettier 1.0.1
+class T {
+  public void method() {
+    Arrays.asList(// b // a
+    // c
+    // d
+    );
+  }
+}
+
+// Prettier 1.0.2
+class T {
+
+  public void method() {
+    Arrays.asList( // a
+      // b
+      // c
+      // d
+    );
+  }
+}
+```
+
+## Miscellaneous
+
+- Update lodash dependency to 4.17.21 ([#458](https://github.com/jhipster/prettier-java/pull/458))
+
+# v1.0.1
 
 ## Fixes
 
