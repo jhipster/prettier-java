@@ -586,10 +586,6 @@ class ExpressionsPrettierVisitor {
   }
 
   methodInvocationSuffix(ctx, params) {
-    if (ctx.argumentList === undefined) {
-      return rejectAndConcat([ctx.LBrace[0], ctx.RBrace[0]]);
-    }
-
     const argumentList = this.visit(ctx.argumentList);
     if (params && params.shouldDedent) {
       return dedent(
