@@ -43,4 +43,20 @@ class T {
     void t() {
 
     }
+
+    public static final List<Object> XXXXXXXXXXXXXXXXXX = Collections.unmodifiableList(
+        Arrays.asList(// a
+                      // b
+                      // c
+                      // d
+        )
+    );
+
+    public static final List<Object> XXXXXXXXXXXXXXXXXX = Collections.unmodifiableList(
+        Arrays.asList(// a
+                      // b
+                      // c
+                      // d
+        /*e*/)
+    );
 }
