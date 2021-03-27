@@ -693,7 +693,10 @@ function defineRules($, t) {
       $.SUBRULE($.recordComponentModifier);
     });
     $.SUBRULE($.unannType);
-    $.CONSUME(t.Identifier);
+    $.OR([
+      { ALT: () => $.CONSUME(t.Identifier) },
+      { ALT: () => $.SUBRULE($.variableArityRecordComponent) }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-VariableArityRecordComponent
