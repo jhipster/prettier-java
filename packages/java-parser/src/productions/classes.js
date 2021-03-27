@@ -780,7 +780,8 @@ function defineRules($, t) {
     const nextTokenType = this.LA(1).tokenType;
     return (
       tokenMatcher(nextTokenType, t.Class) ||
-      tokenMatcher(nextTokenType, t.Enum)
+      tokenMatcher(nextTokenType, t.Enum) ||
+      tokenMatcher(nextTokenType, t.Record)
     );
   });
 

@@ -6,7 +6,7 @@ const javaParser = require("../../src/index");
 describe("The Java Parser fixed bugs", () => {
   it("should handle Java records without body", () => {
     const input = `record Pet(String name, int age) {}`;
-    expect(() => javaParser.parse(input, "classDeclaration")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle Java records with simplified constructors", () => {
@@ -23,6 +23,6 @@ describe("The Java Parser fixed bugs", () => {
       }
     }
     `;
-    expect(() => javaParser.parse(input, "classDeclaration")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 });
