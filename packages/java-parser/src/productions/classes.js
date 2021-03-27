@@ -13,7 +13,8 @@ function defineRules($, t) {
     });
     $.OR([
       { ALT: () => $.SUBRULE($.normalClassDeclaration) },
-      { ALT: () => $.SUBRULE($.enumDeclaration) }
+      { ALT: () => $.SUBRULE($.enumDeclaration) },
+      { ALT: () => $.SUBRULE($.recordDeclaration) }
     ]);
   });
 
@@ -652,6 +653,93 @@ function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordHeader
+  $.RULE("recordDeclaration", () => {
+    $.CONSUME(t.Record);
+    $.SUBRULE($.typeIdentifier);
+    $.OPTION(() => {
+      $.SUBRULE($.typeParameters);
+    });
+    $.SUBRULE($.recordHeader);
+    $.OPTION2(() => {
+      $.SUBRULE($.superinterfaces);
+    });
+    $.SUBRULE($.recordBody);
+  });
+
+  $.RULE("recordHeader", () => {
+    $.CONSUME(t.LBrace);
+    $.OPTION(() => {
+      $.SUBRULE($.recordComponentList);
+    });
+    $.CONSUME(t.RBrace);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordComponentList
+  $.RULE("recordComponentList", () => {
+    $.SUBRULE($.recordComponent);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE2($.recordComponent);
+    });
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordComponent
+  $.RULE("recordComponent", () => {
+    // Spec Deviation: extracted common "{recordComponentModifier} unannType" prefix
+    //      extraction is safe because there are no other references to
+    //      "variableArityRecordComponent"
+    $.MANY(() => {
+      $.SUBRULE($.recordComponentModifier);
+    });
+    $.SUBRULE($.unannType);
+    $.CONSUME(t.Identifier);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-VariableArityRecordComponent
+  // Spec Deviation: common "{recordComponentModifier} unannType" prefix was extracted in "recordComponent"
+  $.RULE("variableArityRecordComponent", () => {
+    $.MANY(() => {
+      $.SUBRULE($.annotation);
+    });
+    $.CONSUME(t.DotDotDot);
+    $.CONSUME(t.Identifier);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordComponentModifier
+  $.RULE("recordComponentModifier", () => {
+    $.SUBRULE($.annotation);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordBody
+  $.RULE("recordBody", () => {
+    $.CONSUME(t.LCurly);
+    $.MANY(() => {
+      $.SUBRULE($.recordBodyDeclaration);
+    });
+    $.CONSUME(t.RCurly);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordBodyDeclaration
+  $.RULE("recordBodyDeclaration", () => {
+    $.OR([
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isCompactConstructorDeclaration),
+        ALT: () => $.SUBRULE($.compactConstructorDeclaration)
+      },
+      { ALT: () => $.SUBRULE($.classBodyDeclaration) }
+    ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-CompactConstructorDeclaration
+  $.RULE("compactConstructorDeclaration", () => {
+    $.MANY(() => {
+      $.SUBRULE($.constructorModifier);
+    });
+    $.SUBRULE($.simpleTypeName);
+    $.SUBRULE($.constructorBody);
+  });
+
   $.RULE("isClassDeclaration", () => {
     let isEmptyTypeDeclaration = false;
 
@@ -825,6 +913,11 @@ function defineRules($, t) {
       tokenMatcher(this.LA(1).tokenType, t.LSquare) &&
       tokenMatcher(this.LA(2).tokenType, t.RSquare)
     );
+  });
+
+  $.RULE("isCompactConstructorDeclaration", () => {
+    $.MANY($.constructorModifier);
+    $.SUBRULE($.simpleTypeName);
   });
 }
 

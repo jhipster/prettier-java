@@ -769,6 +769,38 @@ class ClassesPrettierVisitor {
     return { ...ctx.Semicolon[0], image: "" };
   }
 
+  recordDeclaration() {
+    return "recordDeclaration";
+  }
+  recordHeader() {
+    return "recordHeader";
+  }
+  recordComponentList() {
+    return "recordComponentList";
+  }
+  recordComponent() {
+    return "recordComponent";
+  }
+  variableArityRecordComponent() {
+    return "variableArityRecordComponent";
+  }
+
+  recordComponentModifier() {
+    return "recordDeclaration";
+  }
+
+  recordBody() {
+    return "recordDeclaration";
+  }
+
+  recordBodyDeclaration() {
+    return "recordBodyDeclaration";
+  }
+
+  compactConstructorDeclaration() {
+    return "compactConstructorDeclaration";
+  }
+
   isClassDeclaration() {
     return "isClassDeclaration";
   }
@@ -779,6 +811,10 @@ class ClassesPrettierVisitor {
 
   isDims() {
     return "isDims";
+  }
+
+  isCompactConstructorDeclaration() {
+    return "isCompactConstructorDeclaration";
   }
 }
 
