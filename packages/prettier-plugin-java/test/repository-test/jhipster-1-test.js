@@ -4,7 +4,6 @@ const { testRepositorySample } = require("../test-utils");
 
 const jhipsterRepository = [
   "jhipster-sample-app-microservice",
-  "jhipster-sample-app-gateway",
   "jhipster-sample-app-oauth2",
   "jhipster-sample-app-websocket",
   "jhipster-sample-app-noi18n",

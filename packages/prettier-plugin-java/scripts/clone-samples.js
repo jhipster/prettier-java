@@ -35,10 +35,6 @@ const jhipster1 = [
     branch: "main"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster-sample-app-gateway",
-    branch: "main"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-oauth2",
     branch: "main"
   },
