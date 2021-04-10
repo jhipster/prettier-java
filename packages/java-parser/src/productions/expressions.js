@@ -123,7 +123,15 @@ function defineRules($, t) {
           {
             ALT: () => {
               $.CONSUME(t.Instanceof);
-              $.SUBRULE($.referenceType);
+              $.OR1([
+                {
+                  GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
+                  ALT: () => $.SUBRULE($.pattern)
+                },
+                {
+                  ALT: () => $.SUBRULE($.referenceType)
+                }
+              ]);
             }
           },
           {
@@ -557,6 +565,14 @@ function defineRules($, t) {
       //   for a semantic analysis phase
       { ALT: () => $.CONSUME(t.New) }
     ]);
+  });
+
+  $.RULE("pattern", () => {
+    $.SUBRULE($.typePattern);
+  });
+
+  $.RULE("typePattern", () => {
+    $.SUBRULE($.localVariableDeclaration);
   });
 
   // backtracking lookahead logic

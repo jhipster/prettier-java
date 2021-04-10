@@ -3,7 +3,7 @@
 const { expect } = require("chai");
 const javaParser = require("../../src/index");
 
-describe("The Java Parser fixed bugs", () => {
+describe("Records", () => {
   it("should handle Java records without body", () => {
     const input = `record Pet(String name, int age) {}`;
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();

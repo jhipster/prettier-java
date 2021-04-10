@@ -3,7 +3,7 @@
 const { expect } = require("chai");
 const javaParser = require("../../src/index");
 
-describe("The Java Parser fixed bugs", () => {
+describe("Switch cases", () => {
   it("should handle Java 13 switch rules", () => {
     const input = `switch (k) {
       case 1 -> System.out.println("one");

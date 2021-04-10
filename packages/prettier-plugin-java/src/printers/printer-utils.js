@@ -109,6 +109,22 @@ function sortTokens() {
   });
 }
 
+function sortNodes() {
+  let nodes = [];
+
+  _.forEach(arguments, argument => {
+    if (argument) {
+      nodes = nodes.concat(argument);
+    }
+  });
+
+  return nodes.sort((a, b) => {
+    const aOffset = a.startOffset ? a.startOffset : a.location.startOffset;
+    const bOffset = b.startOffset ? b.startOffset : b.location.startOffset;
+    return aOffset - bOffset;
+  });
+}
+
 function matchCategory(token, categoryName) {
   const labels = token.tokenType.CATEGORIES.map(category => {
     return category.LABEL;
@@ -673,7 +689,7 @@ module.exports = {
   rejectAndConcat,
   sortAnnotationIdentifier,
   sortClassTypeChildren,
-  sortTokens,
+  sortNodes,
   matchCategory,
   sortModifiers,
   rejectAndJoinSeps,

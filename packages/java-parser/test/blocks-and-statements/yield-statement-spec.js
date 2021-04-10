@@ -3,7 +3,7 @@
 const { expect } = require("chai");
 const javaParser = require("../../src/index");
 
-describe("The Java Parser fixed bugs", () => {
+describe("Yield statements", () => {
   it("should handle yield as a special keyword", () => {
     const input = `String yield;`;
     expect(() => javaParser.parse(input, "blockStatement")).to.not.throw();
