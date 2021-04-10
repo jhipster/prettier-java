@@ -168,6 +168,8 @@ module.exports = {
       { value: "classLiteralSuffix" },
       { value: "arrayAccessSuffix" },
       { value: "methodReferenceSuffix" },
+      { value: "pattern" },
+      { value: "typePattern" },
       { value: "identifyNewExpressionType" },
       { value: "isLambdaExpression" },
       { value: "isCastExpression" },

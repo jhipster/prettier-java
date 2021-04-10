@@ -12,6 +12,7 @@ const {
   rejectAndJoin,
   rejectAndConcat,
   sortAnnotationIdentifier,
+  sortNodes,
   rejectAndJoinSeps,
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
@@ -159,7 +160,9 @@ class ExpressionsPrettierVisitor {
   binaryExpression(ctx, params) {
     handleCommentsBinaryExpression(ctx);
 
-    const referenceType = this.mapVisit(ctx.referenceType);
+    const instanceofReferences = this.mapVisit(
+      sortNodes(ctx.pattern, ctx.referenceType)
+    );
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
 
@@ -181,7 +184,10 @@ class ExpressionsPrettierVisitor {
         const shiftOperator = isShiftOperator(subgroup, i);
         if (token.tokenType.name === "Instanceof") {
           currentSegment.push(
-            rejectAndJoin(" ", [ctx.Instanceof[0], referenceType.shift()])
+            rejectAndJoin(" ", [
+              ctx.Instanceof[0],
+              instanceofReferences.shift()
+            ])
           );
         } else if (matchCategory(token, "'AssignmentOperator'")) {
           currentSegment.push(
@@ -659,6 +665,14 @@ class ExpressionsPrettierVisitor {
     const typeArguments = this.visit(ctx.typeArguments);
     const identifierOrNew = ctx.New ? ctx.New[0] : ctx.Identifier[0];
     return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
+  }
+
+  pattern(ctx) {
+    return this.visitSingle(ctx);
+  }
+
+  typePattern(ctx) {
+    return this.visitSingle(ctx);
   }
 
   identifyNewExpressionType() {
