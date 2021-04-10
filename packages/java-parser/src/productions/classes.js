@@ -784,7 +784,8 @@ function defineRules($, t) {
     return (
       tokenMatcher(nextTokenType, t.Class) ||
       tokenMatcher(nextTokenType, t.Enum) ||
-      tokenMatcher(nextTokenType, t.Record)
+      (tokenMatcher(nextTokenType, t.Record) &&
+        tokenMatcher(this.LA(2).tokenType, t.Identifier))
     );
   });
 

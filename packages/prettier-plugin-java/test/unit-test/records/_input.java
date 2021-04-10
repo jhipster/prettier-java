@@ -32,3 +32,10 @@ public record Pet(
 public void test() {}
     }
 
+class T {
+    String record = "1";
+
+    void t() {
+        record = "12";
+    }
+}
