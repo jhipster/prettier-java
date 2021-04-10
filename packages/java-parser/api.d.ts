@@ -116,12 +116,31 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   enumConstant(ctx: EnumConstantCtx, param?: IN): OUT;
   enumConstantModifier(ctx: EnumConstantModifierCtx, param?: IN): OUT;
   enumBodyDeclarations(ctx: EnumBodyDeclarationsCtx, param?: IN): OUT;
+  recordDeclaration(ctx: RecordDeclarationCtx, param?: IN): OUT;
+  recordHeader(ctx: RecordHeaderCtx, param?: IN): OUT;
+  recordComponentList(ctx: RecordComponentListCtx, param?: IN): OUT;
+  recordComponent(ctx: RecordComponentCtx, param?: IN): OUT;
+  variableArityRecordComponent(
+    ctx: VariableArityRecordComponentCtx,
+    param?: IN
+  ): OUT;
+  recordComponentModifier(ctx: RecordComponentModifierCtx, param?: IN): OUT;
+  recordBody(ctx: RecordBodyCtx, param?: IN): OUT;
+  recordBodyDeclaration(ctx: RecordBodyDeclarationCtx, param?: IN): OUT;
+  compactConstructorDeclaration(
+    ctx: CompactConstructorDeclarationCtx,
+    param?: IN
+  ): OUT;
   isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
   identifyClassBodyDeclarationType(
     ctx: IdentifyClassBodyDeclarationTypeCtx,
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
+  isCompactConstructorDeclaration(
+    ctx: IsCompactConstructorDeclarationCtx,
+    param?: IN
+  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -445,12 +464,31 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   enumConstant(ctx: EnumConstantCtx, param?: IN): OUT;
   enumConstantModifier(ctx: EnumConstantModifierCtx, param?: IN): OUT;
   enumBodyDeclarations(ctx: EnumBodyDeclarationsCtx, param?: IN): OUT;
+  recordDeclaration(ctx: RecordDeclarationCtx, param?: IN): OUT;
+  recordHeader(ctx: RecordHeaderCtx, param?: IN): OUT;
+  recordComponentList(ctx: RecordComponentListCtx, param?: IN): OUT;
+  recordComponent(ctx: RecordComponentCtx, param?: IN): OUT;
+  variableArityRecordComponent(
+    ctx: VariableArityRecordComponentCtx,
+    param?: IN
+  ): OUT;
+  recordComponentModifier(ctx: RecordComponentModifierCtx, param?: IN): OUT;
+  recordBody(ctx: RecordBodyCtx, param?: IN): OUT;
+  recordBodyDeclaration(ctx: RecordBodyDeclarationCtx, param?: IN): OUT;
+  compactConstructorDeclaration(
+    ctx: CompactConstructorDeclarationCtx,
+    param?: IN
+  ): OUT;
   isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
   identifyClassBodyDeclarationType(
     ctx: IdentifyClassBodyDeclarationTypeCtx,
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
+  isCompactConstructorDeclaration(
+    ctx: IsCompactConstructorDeclarationCtx,
+    param?: IN
+  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -998,6 +1036,7 @@ export type ClassDeclarationCtx = {
   classModifier?: ClassModifierCstNode[];
   normalClassDeclaration?: NormalClassDeclarationCstNode[];
   enumDeclaration?: EnumDeclarationCstNode[];
+  recordDeclaration?: RecordDeclarationCstNode[];
 };
 
 export interface NormalClassDeclarationCstNode extends CstNode {
@@ -1621,6 +1660,104 @@ export type EnumBodyDeclarationsCtx = {
   classBodyDeclaration?: ClassBodyDeclarationCstNode[];
 };
 
+export interface RecordDeclarationCstNode extends CstNode {
+  name: "recordDeclaration";
+  children: RecordDeclarationCtx;
+}
+
+export type RecordDeclarationCtx = {
+  Record: IToken[];
+  typeIdentifier: TypeIdentifierCstNode[];
+  typeParameters?: TypeParametersCstNode[];
+  recordHeader: RecordHeaderCstNode[];
+  superinterfaces?: SuperinterfacesCstNode[];
+  recordBody: RecordBodyCstNode[];
+};
+
+export interface RecordHeaderCstNode extends CstNode {
+  name: "recordHeader";
+  children: RecordHeaderCtx;
+}
+
+export type RecordHeaderCtx = {
+  LBrace: IToken[];
+  recordComponentList?: RecordComponentListCstNode[];
+  RBrace: IToken[];
+};
+
+export interface RecordComponentListCstNode extends CstNode {
+  name: "recordComponentList";
+  children: RecordComponentListCtx;
+}
+
+export type RecordComponentListCtx = {
+  recordComponent: RecordComponentCstNode[];
+  Comma?: IToken[];
+};
+
+export interface RecordComponentCstNode extends CstNode {
+  name: "recordComponent";
+  children: RecordComponentCtx;
+}
+
+export type RecordComponentCtx = {
+  recordComponentModifier?: RecordComponentModifierCstNode[];
+  unannType: UnannTypeCstNode[];
+  Identifier: IToken[];
+};
+
+export interface VariableArityRecordComponentCstNode extends CstNode {
+  name: "variableArityRecordComponent";
+  children: VariableArityRecordComponentCtx;
+}
+
+export type VariableArityRecordComponentCtx = {
+  annotation?: AnnotationCstNode[];
+  DotDotDot: IToken[];
+  Identifier: IToken[];
+};
+
+export interface RecordComponentModifierCstNode extends CstNode {
+  name: "recordComponentModifier";
+  children: RecordComponentModifierCtx;
+}
+
+export type RecordComponentModifierCtx = {
+  annotation: AnnotationCstNode[];
+};
+
+export interface RecordBodyCstNode extends CstNode {
+  name: "recordBody";
+  children: RecordBodyCtx;
+}
+
+export type RecordBodyCtx = {
+  LCurly: IToken[];
+  recordBodyDeclaration?: RecordBodyDeclarationCstNode[];
+  RCurly: IToken[];
+};
+
+export interface RecordBodyDeclarationCstNode extends CstNode {
+  name: "recordBodyDeclaration";
+  children: RecordBodyDeclarationCtx;
+}
+
+export type RecordBodyDeclarationCtx = {
+  compactConstructorDeclaration?: CompactConstructorDeclarationCstNode[];
+  classBodyDeclaration?: ClassBodyDeclarationCstNode[];
+};
+
+export interface CompactConstructorDeclarationCstNode extends CstNode {
+  name: "compactConstructorDeclaration";
+  children: CompactConstructorDeclarationCtx;
+}
+
+export type CompactConstructorDeclarationCtx = {
+  constructorModifier?: ConstructorModifierCstNode[];
+  simpleTypeName: SimpleTypeNameCstNode[];
+  constructorBody: ConstructorBodyCstNode[];
+};
+
 export interface IsClassDeclarationCstNode extends CstNode {
   name: "isClassDeclaration";
   children: IsClassDeclarationCtx;
@@ -1661,6 +1798,19 @@ export type IsDimsCtx = {
   At?: IToken[];
   typeName?: TypeNameCstNode[];
   LBrace?: IToken[];
+};
+
+export interface IsCompactConstructorDeclarationCstNode extends CstNode {
+  name: "isCompactConstructorDeclaration";
+  children: IsCompactConstructorDeclarationCtx;
+}
+
+export type IsCompactConstructorDeclarationCtx = {
+  annotation?: AnnotationCstNode[];
+  Public?: IToken[];
+  Protected?: IToken[];
+  Private?: IToken[];
+  simpleTypeName: SimpleTypeNameCstNode[];
 };
 
 export interface CompilationUnitCstNode extends CstNode {

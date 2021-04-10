@@ -27,9 +27,15 @@ class ClassesPrettierVisitor {
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
 
-    const classCST = ctx.normalClassDeclaration
-      ? ctx.normalClassDeclaration
-      : ctx.enumDeclaration;
+    let classCST;
+    if (ctx.normalClassDeclaration !== undefined) {
+      classCST = ctx.normalClassDeclaration;
+    } else if (ctx.enumDeclaration !== undefined) {
+      classCST = ctx.enumDeclaration;
+    } else {
+      classCST = ctx.recordDeclaration;
+    }
+
     const classDoc = this.visit(classCST);
 
     return rejectAndJoin(hardline, [
@@ -769,6 +775,125 @@ class ClassesPrettierVisitor {
     return { ...ctx.Semicolon[0], image: "" };
   }
 
+  recordDeclaration(ctx) {
+    const name = this.visit(ctx.typeIdentifier);
+    const optionalTypeParams = this.visit(ctx.typeParameters);
+
+    const recordHeader = this.visit(ctx.recordHeader);
+
+    let superInterfacesPart = "";
+    const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
+    if (optionalSuperInterfaces) {
+      superInterfacesPart = indent(
+        rejectAndConcat([line, optionalSuperInterfaces])
+      );
+    }
+
+    const body = this.visit(ctx.recordBody);
+
+    return rejectAndJoin(" ", [
+      group(
+        rejectAndConcat([
+          rejectAndJoin(" ", [ctx.Record[0], name]),
+          optionalTypeParams,
+          recordHeader,
+          superInterfacesPart
+        ])
+      ),
+      body
+    ]);
+  }
+  recordHeader(ctx) {
+    const recordComponentList = this.visit(ctx.recordComponentList);
+    return putIntoBraces(
+      recordComponentList,
+      softline,
+      ctx.LBrace[0],
+      ctx.RBrace[0]
+    );
+  }
+  recordComponentList(ctx) {
+    const recordComponents = this.mapVisit(ctx.recordComponent);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+
+    return rejectAndJoinSeps(commas, recordComponents);
+  }
+  recordComponent(ctx) {
+    const modifiers = this.mapVisit(ctx.recordComponentModifier);
+    const unannType = this.visit(ctx.unannType);
+
+    if (ctx.Identifier !== undefined) {
+      return rejectAndJoin(" ", [
+        join(" ", modifiers),
+        unannType,
+        ctx.Identifier[0]
+      ]);
+    }
+
+    const variableArityRecordComponent = this.visit(
+      ctx.variableArityRecordComponent
+    );
+    if (ctx.variableArityRecordComponent[0].children.annotation !== undefined) {
+      return rejectAndJoin(" ", [
+        join(" ", modifiers),
+        join(" ", [unannType, variableArityRecordComponent])
+      ]);
+    }
+
+    return rejectAndJoin(" ", [
+      join(" ", modifiers),
+      concat([unannType, variableArityRecordComponent])
+    ]);
+  }
+  variableArityRecordComponent(ctx) {
+    const annotations = this.mapVisit(ctx.annotation);
+    const identifier = ctx.Identifier[0];
+
+    return rejectAndJoin(" ", [
+      rejectAndConcat([rejectAndJoin(" ", annotations), ctx.DotDotDot[0]]),
+      identifier
+    ]);
+  }
+
+  recordComponentModifier(ctx) {
+    return this.visitSingle(ctx);
+  }
+
+  recordBody(ctx) {
+    return putIntoBraces(
+      rejectAndJoinSeps(
+        getBlankLinesSeparator(ctx.recordBodyDeclaration),
+        this.mapVisit(ctx.recordBodyDeclaration)
+      ),
+      hardline,
+      ctx.LCurly[0],
+      ctx.RCurly[0]
+    );
+  }
+
+  recordBodyDeclaration(ctx) {
+    return this.visitSingle(ctx);
+  }
+
+  compactConstructorDeclaration(ctx) {
+    const modifiers = sortModifiers(ctx.constructorModifier);
+    const firstAnnotations = this.mapVisit(modifiers[0]);
+    const otherModifiers = this.mapVisit(modifiers[1]);
+
+    const name = this.visit(ctx.simpleTypeName);
+    const constructorBody = this.visit(ctx.constructorBody);
+
+    return rejectAndJoin(" ", [
+      group(
+        rejectAndJoin(hardline, [
+          rejectAndJoin(hardline, firstAnnotations),
+          rejectAndJoin(" ", [join(" ", otherModifiers), name])
+        ])
+      ),
+      constructorBody
+    ]);
+  }
+
   isClassDeclaration() {
     return "isClassDeclaration";
   }
@@ -779,6 +904,10 @@ class ClassesPrettierVisitor {
 
   isDims() {
     return "isDims";
+  }
+
+  isCompactConstructorDeclaration() {
+    return "isCompactConstructorDeclaration";
   }
 }
 
