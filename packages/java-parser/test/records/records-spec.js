@@ -25,4 +25,63 @@ describe("The Java Parser fixed bugs", () => {
     `;
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
+
+  it("should handle Java records with simplified constructors inside java class declaration", () => {
+    const input = `
+    public class RecordClass {
+      record MyRecord(String name, int age) {
+          public MyRecord {
+            if (age < 0) {
+              throw new IllegalArgumentException("Age cannot be negative");
+            }
+    
+            if (name == null || name.isBlank()) {
+              throw new IllegalArgumentException("Name cannot be blank");
+            }
+          }
+      }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle Java records with constructor inside java class declaration", () => {
+    const input = `
+    public class RecordClass {
+      record MyRecord(String name, int age) {
+          public MyRecord(String name, int age) {
+            if (age < 0) {
+              throw new IllegalArgumentException("Age cannot be negative");
+            }
+    
+            if (name == null || name.isBlank()) {
+              throw new IllegalArgumentException("Name cannot be blank");
+            }
+          }
+      }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle Java records with constructor inside java class declaration", () => {
+    const input = `
+    public class RecordClass {
+      public record MyRecord(String name, int age) {
+          @Annotation
+          @Annotation2
+          public MyRecord {
+            if (age < 0) {
+              throw new IllegalArgumentException("Age cannot be negative");
+            }
+    
+            if (name == null || name.isBlank()) {
+              throw new IllegalArgumentException("Name cannot be blank");
+            }
+          }
+      }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
 });
