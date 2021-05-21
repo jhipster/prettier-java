@@ -48,7 +48,8 @@ const jhipster1 = [
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-nocache",
-    branch: "main"
+    branch: "main",
+    commitHash: "fda6dee77651042083780c812a1a54ff2de8da47"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
@@ -97,10 +98,21 @@ fs.emptyDirSync(samplesDir);
 
 sampleRepos.forEach(cloneRepo);
 
-function cloneRepo({ repoUrl, branch }) {
+function cloneRepo({ repoUrl, branch, commitHash }) {
   console.log(`cloning ${repoUrl}`);
-  cp.execSync(`git clone ${repoUrl} --branch ${branch} --depth 1`, {
-    cwd: samplesDir,
-    stdio: [0, 1, 2]
-  });
+  if (commitHash) {
+    cp.execSync(`git clone ${repoUrl} --branch ${branch}`, {
+      cwd: samplesDir,
+      stdio: [0, 1, 2]
+    });
+    cp.execSync(`git checkout ${commitHash}`, {
+      cwd: path.resolve(samplesDir, repoUrl.split("/").pop()),
+      stdio: [0, 1, 2]
+    });
+  } else {
+    cp.execSync(`git clone ${repoUrl} --branch ${branch} --depth 1`, {
+      cwd: samplesDir,
+      stdio: [0, 1, 2]
+    });
+  }
 }
