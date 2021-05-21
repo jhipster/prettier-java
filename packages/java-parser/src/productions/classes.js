@@ -850,7 +850,8 @@ function defineRules($, t) {
 
       if (
         tokenMatcher(nextTokenType, t.Class) ||
-        tokenMatcher(nextTokenType, t.Enum)
+        tokenMatcher(nextTokenType, t.Enum) ||
+        tokenMatcher(nextTokenType, t.Record)
       ) {
         return classBodyTypes.classDeclaration;
       }
@@ -923,6 +924,7 @@ function defineRules($, t) {
   $.RULE("isCompactConstructorDeclaration", () => {
     $.MANY($.constructorModifier);
     $.SUBRULE($.simpleTypeName);
+    $.CONSUME(t.LCurly);
   });
 }
 
