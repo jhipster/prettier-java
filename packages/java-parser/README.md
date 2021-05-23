@@ -2,7 +2,7 @@
 
 # java-parser
 
-A Java Parser implemented in JavaScript using the [Chevrotain Parsing ToolKit](https://github.com/SAP/chevrotain).
+A Java Parser implemented in JavaScript using the [Chevrotain Parsing ToolKit](https://github.com/Chevrotain/chevrotain).
 It outputs a **C**oncrete **S**yntax **T**ree, rather than an **A**bstract **S**yntax **T**ree.
 
 - [On the Difference between a CST and an AST](https://stackoverflow.com/questions/1888854/what-is-the-difference-between-an-abstract-syntax-tree-and-a-concrete-syntax-tre)
@@ -42,7 +42,7 @@ const cst = parse(javaText);
 
 ### Traversing the CST
 
-See relevant [Chevrotain documentation on CST Traversal](http://sap.github.io/chevrotain/docs/guide/concrete_syntax_tree.html#traversing).
+See relevant [Chevrotain documentation on CST Traversal](http://chevrotain.io/docs/guide/concrete_syntax_tree.html#traversing).
 
 ```javascript
 const {
