@@ -113,6 +113,18 @@ If you are using an IDE such as IntelliJ, you might want to configure it to matc
 For IntelliJ, you can use this configuration:
 ![IntelliJ config](./docs/intellij_imports_config.png)
 
+You can also import the Checkstyle configuration provided in the next section.
+
+## Checkstyle configuration
+
+You can use Prettier in combination with other linter, like Checkstyle.
+
+Here is one [Checkstyle Prettier compatible configuration](./docs/checkstyle/checkstyle.xml) you can use to start with !
+
+You can directly import the config into IntelliJ Idea for instance:
+
+![Import Checkstyle configuration](./docs/checkstyle/import-checkstyle-configuration.gif)
+
 ## Contributing
 
 Contributions are very welcome.
