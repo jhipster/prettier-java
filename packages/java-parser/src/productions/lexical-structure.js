@@ -1,6 +1,6 @@
 "use strict";
 function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Literal
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-Literal
   $.RULE("literal", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.integerLiteral) },
@@ -13,7 +13,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-IntegerLiteral
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-IntegerLiteral
   $.RULE("integerLiteral", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.DecimalLiteral) },
@@ -23,7 +23,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-FloatingPointLiteral
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-FloatingPointLiteral
   $.RULE("floatingPointLiteral", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.FloatLiteral) },
@@ -31,7 +31,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-BooleanLiteral
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-BooleanLiteral
   $.RULE("booleanLiteral", () => {
     $.OR([{ ALT: () => $.CONSUME(t.True) }, { ALT: () => $.CONSUME(t.False) }]);
   });

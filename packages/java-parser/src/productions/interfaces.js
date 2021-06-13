@@ -2,7 +2,7 @@
 const { tokenMatcher } = require("chevrotain");
 
 function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
     // Spec Deviation: extracted the common "interfaceModifier" prefix to avoid backtracking.
     $.MANY({
@@ -18,7 +18,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalInterfaceDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-NormalInterfaceDeclaration
   $.RULE("normalInterfaceDeclaration", () => {
     // Spec Deviation: The "interfaceModifier" prefix was extracted to the "interfaceDeclaration"
     $.CONSUME(t.Interface);
@@ -32,7 +32,7 @@ function defineRules($, t) {
     $.SUBRULE($.interfaceBody);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceModifier
   $.RULE("interfaceModifier", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.annotation) },
@@ -45,13 +45,13 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ExtendsInterfaces
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ExtendsInterfaces
   $.RULE("extendsInterfaces", () => {
     $.CONSUME(t.Extends);
     $.SUBRULE($.interfaceTypeList);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceBody
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceBody
   $.RULE("interfaceBody", () => {
     $.CONSUME(t.LCurly);
     $.MANY(() => {
@@ -69,7 +69,7 @@ function defineRules($, t) {
     semiColon: 5
   };
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("interfaceMemberDeclaration", () => {
     const detectedType = this.BACKTRACK_LOOKAHEAD(
       $.identifyInterfaceBodyDeclarationType
@@ -100,7 +100,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ConstantDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ConstantDeclaration
   $.RULE("constantDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.constantModifier);
@@ -110,7 +110,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ConstantModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ConstantModifier
   $.RULE("constantModifier", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.annotation) },
@@ -120,7 +120,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMethodDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMethodDeclaration
   $.RULE("interfaceMethodDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.interfaceMethodModifier);
@@ -129,7 +129,7 @@ function defineRules($, t) {
     $.SUBRULE($.methodBody);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMethodModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMethodModifier
   $.RULE("interfaceMethodModifier", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.annotation) },
@@ -142,7 +142,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-AnnotationTypeDeclaration
   $.RULE("annotationTypeDeclaration", () => {
     // Spec Deviation: The "interfaceModifier" prefix was extracted to the "interfaceDeclaration"
     $.CONSUME(t.At);
@@ -151,7 +151,7 @@ function defineRules($, t) {
     $.SUBRULE($.annotationTypeBody);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeBody
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-AnnotationTypeBody
   $.RULE("annotationTypeBody", () => {
     $.CONSUME(t.LCurly);
     $.MANY(() => {
@@ -169,7 +169,7 @@ function defineRules($, t) {
     semiColon: 5
   };
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-InterfaceMemberDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("annotationTypeMemberDeclaration", () => {
     const detectedType = this.BACKTRACK_LOOKAHEAD(
       $.identifyAnnotationBodyDeclarationType
@@ -200,7 +200,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeElementDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-AnnotationTypeElementDeclaration
   $.RULE("annotationTypeElementDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.annotationTypeElementModifier);
@@ -218,7 +218,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-AnnotationTypeElementModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-AnnotationTypeElementModifier
   $.RULE("annotationTypeElementModifier", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.annotation) },
@@ -227,13 +227,13 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-DefaultValue
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-DefaultValue
   $.RULE("defaultValue", () => {
     $.CONSUME(t.Default);
     $.SUBRULE($.elementValue);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-Annotation
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-Annotation
   $.RULE("annotation", () => {
     // Spec Deviation: The common prefix for all three annotation types was extracted to this rule.
     // This was done to avoid the use of backtracking for performance reasons.
@@ -241,14 +241,14 @@ function defineRules($, t) {
     $.SUBRULE($.typeName);
 
     // If this optional grammar was not invoked we have a markerAnnotation
-    // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-MarkerAnnotation
+    // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-MarkerAnnotation
     $.OPTION(() => {
       $.CONSUME(t.LBrace);
       $.OR({
         DEF: [
-          // normal annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-NormalAnnotation
+          // normal annotation - https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-NormalAnnotation
           { ALT: () => $.SUBRULE($.elementValuePairList) },
-          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-SingleElementAnnotation
+          // Single Element Annotation - https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-SingleElementAnnotation
           {
             ALT: () => $.SUBRULE($.elementValue)
           },
@@ -265,7 +265,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValuePairList
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ElementValuePairList
   $.RULE("elementValuePairList", () => {
     $.SUBRULE($.elementValuePair);
     $.MANY(() => {
@@ -280,7 +280,7 @@ function defineRules($, t) {
     $.SUBRULE($.elementValue);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValue
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ElementValue
   $.RULE("elementValue", () => {
     const isSimpleElementValueAnnotation = this.BACKTRACK_LOOKAHEAD(
       $.isSimpleElementValueAnnotation
@@ -301,7 +301,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValueArrayInitializer
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ElementValueArrayInitializer
   $.RULE("elementValueArrayInitializer", () => {
     $.CONSUME(t.LCurly);
     $.OPTION(() => {
@@ -313,7 +313,7 @@ function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-ElementValueList
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ElementValueList
   $.RULE("elementValueList", () => {
     $.SUBRULE($.elementValue);
     $.MANY({
