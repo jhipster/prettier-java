@@ -1,4 +1,138 @@
-# Latest v1.0.2
+# Latest v1.2.0
+
+## Enhancements
+
+- Supports of instance of pattern matching ([#476](https://github.com/jhipster/prettier-java/pull/476))
+
+```java
+// Input
+if (o instanceof Integer i || p instanceof Point || q instanceof Circle c || r instanceof Square) {
+  formatted = String.format("int %d", i);
+} else if (o instanceof Long l) {
+  formatted = String.format("long %d", l);
+} else if (o instanceof Double d) {
+  formatted = String.format("double %f", d);
+} else if (o instanceof String s) {
+  formatted = String.format("String %s", s);
+}
+
+// Output
+if (
+  o instanceof Integer i ||
+  p instanceof Point ||
+  q instanceof Circle c ||
+  r instanceof Square
+) {
+  formatted = String.format("int %d", i);
+} else if (o instanceof Long l) {
+  formatted = String.format("long %d", l);
+} else if (o instanceof Double d) {
+  formatted = String.format("double %f", d);
+} else if (o instanceof String s) {
+  formatted = String.format("String %s", s);
+}
+```
+
+- Supports of sealed classes and interfaces ([#478](https://github.com/jhipster/prettier-java/pull/478))
+
+```java
+// Input
+public sealed class Rectangle
+  implements Shape
+  permits Square {
+
+  private final double length;
+  private final double height;
+
+  public Rectangle(double length, double height) {
+    this.length = length;
+    this.height = height;
+  }
+
+  @Override
+  public double area() {
+    return length * height;
+  }
+}
+
+// Output
+public sealed class Rectangle implements Shape permits Square {
+
+  private final double length;
+  private final double height;
+
+  public Rectangle(double length, double height) {
+    this.length = length;
+    this.height = height;
+  }
+
+  @Override
+  public double area() {
+    return length * height;
+  }
+}
+```
+
+## Miscallenous
+
+- Add [copy/pastable Checkstyle configuration](./docs/checkstyle/checkstyle.xml) compatible with Prettier ([#477](https://github.com/jhipster/prettier-java/pull/477))
+
+# v1.1.1
+
+## Fixes
+
+- Fix parsing records inside class declarations
+  and records with simplified constructors
+  ([#470](https://github.com/jhipster/prettier-java/pull/470))
+
+## Miscallenous
+
+- Update links to Chevrotain library (From @Austin-Scott: [#472](https://github.com/jhipster/prettier-java/pull/472))
+
+# v1.1.0
+
+## Enhancements
+
+- Supports of Records ([#460](https://github.com/jhipster/prettier-java/pull/460))
+
+```java
+// Input
+public record Pet(
+    @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
+  ) {
+  public Pet {
+    if (age < 0) {
+      throw new IllegalArgumentException("Age cannot be negative");
+    }
+
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Name cannot be blank");
+    }
+  }
+
+  public void test() {}
+}
+
+// Output
+public record Pet(
+  @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
+) {
+  public Pet {
+    if (age < 0) {
+      throw new IllegalArgumentException("Age cannot be negative");
+    }
+
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Name cannot be blank");
+    }
+  }
+
+  public void test() {}
+}
+
+```
+
+# v1.0.2
 
 ## Fixes
 
