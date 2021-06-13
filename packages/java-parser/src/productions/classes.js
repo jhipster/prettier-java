@@ -32,6 +32,9 @@ function defineRules($, t) {
     $.OPTION3(() => {
       $.SUBRULE($.superinterfaces);
     });
+    $.OPTION4(() => {
+      $.SUBRULE($.classPermits);
+    });
     $.SUBRULE($.classBody);
   });
 
@@ -45,6 +48,8 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Abstract) },
       { ALT: () => $.CONSUME(t.Static) },
       { ALT: () => $.CONSUME(t.Final) },
+      { ALT: () => $.CONSUME(t.Sealed) },
+      { ALT: () => $.CONSUME(t.NonSealed) },
       { ALT: () => $.CONSUME(t.Strictfp) }
     ]);
   });
@@ -83,6 +88,16 @@ function defineRules($, t) {
     $.MANY(() => {
       $.CONSUME(t.Comma);
       $.SUBRULE2($.interfaceType);
+    });
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/preview/specs/sealed-classes-jls.html
+  $.RULE("classPermits", () => {
+    $.CONSUME(t.Permits);
+    $.SUBRULE($.typeName);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE2($.typeName);
     });
   });
 

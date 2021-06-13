@@ -83,6 +83,10 @@ const sampleRepos = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-react",
     branch: "main"
+  },
+  {
+    repoUrl: "https://github.com/nipafx/demo-java-x",
+    branch: "master"
   }
 ];
 

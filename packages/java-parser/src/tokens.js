@@ -1,5 +1,7 @@
 "use strict";
 const { createToken: createTokenOrg, Lexer } = require("chevrotain");
+const camelCase = require("lodash/camelCase");
+
 let chars;
 // A little mini DSL for easier lexer definition.
 const fragments = {};
@@ -247,14 +249,17 @@ const restrictedKeywords = [
   "to",
   "uses",
   "provides",
-  "with"
+  "with",
+  "sealed",
+  "non-sealed",
+  "permits"
 ];
 
 // By sorting the keywords in descending order we avoid ambiguities
 // of common prefixes.
 sortDescLength(restrictedKeywords).forEach(word => {
   createKeywordLikeToken({
-    name: word[0].toUpperCase() + word.substr(1),
+    name: word[0].toUpperCase() + camelCase(word.substr(1)),
     pattern: word,
     // restricted keywords can also be used as an Identifiers according to the spec.
     // TODO: inspect this causes no ambiguities

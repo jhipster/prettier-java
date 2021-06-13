@@ -49,6 +49,7 @@ class ClassesPrettierVisitor {
     const optionalTypeParams = this.visit(ctx.typeParameters);
     const optionalSuperClasses = this.visit(ctx.superclass);
     const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
+    const optionalClassPermits = this.visit(ctx.classPermits);
     const body = this.visit(ctx.classBody, { isNormalClassDeclaration: true });
 
     let superClassesPart = "";
@@ -63,13 +64,19 @@ class ClassesPrettierVisitor {
       );
     }
 
+    let classPermits = "";
+    if (optionalClassPermits) {
+      classPermits = indent(rejectAndConcat([line, optionalClassPermits]));
+    }
+
     return rejectAndJoin(" ", [
       group(
         rejectAndConcat([
           rejectAndJoin(" ", [ctx.Class[0], name]),
           optionalTypeParams,
           superClassesPart,
-          superInterfacesPart
+          superInterfacesPart,
+          classPermits
         ])
       ),
       body
@@ -108,6 +115,20 @@ class ClassesPrettierVisitor {
       rejectAndConcat([
         ctx.Implements[0],
         indent(rejectAndConcat([line, interfaceTypeList]))
+      ])
+    );
+  }
+
+  classPermits(ctx) {
+    const typeNames = this.mapVisit(ctx.typeName);
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+
+    return group(
+      rejectAndConcat([
+        ctx.Permits[0],
+        indent(
+          rejectAndConcat([line, group(rejectAndJoinSeps(commas, typeNames))])
+        )
       ])
     );
   }

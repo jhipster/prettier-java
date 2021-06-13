@@ -53,6 +53,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   superclass(ctx: SuperclassCtx, param?: IN): OUT;
   superinterfaces(ctx: SuperinterfacesCtx, param?: IN): OUT;
   interfaceTypeList(ctx: InterfaceTypeListCtx, param?: IN): OUT;
+  classPermits(ctx: ClassPermitsCtx, param?: IN): OUT;
   classBody(ctx: ClassBodyCtx, param?: IN): OUT;
   classBodyDeclaration(ctx: ClassBodyDeclarationCtx, param?: IN): OUT;
   classMemberDeclaration(ctx: ClassMemberDeclarationCtx, param?: IN): OUT;
@@ -164,6 +165,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
   extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
+  interfacePermits(ctx: InterfacePermitsCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
   interfaceMemberDeclaration(
     ctx: InterfaceMemberDeclarationCtx,
@@ -401,6 +403,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   superclass(ctx: SuperclassCtx, param?: IN): OUT;
   superinterfaces(ctx: SuperinterfacesCtx, param?: IN): OUT;
   interfaceTypeList(ctx: InterfaceTypeListCtx, param?: IN): OUT;
+  classPermits(ctx: ClassPermitsCtx, param?: IN): OUT;
   classBody(ctx: ClassBodyCtx, param?: IN): OUT;
   classBodyDeclaration(ctx: ClassBodyDeclarationCtx, param?: IN): OUT;
   classMemberDeclaration(ctx: ClassMemberDeclarationCtx, param?: IN): OUT;
@@ -512,6 +515,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
   extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
+  interfacePermits(ctx: InterfacePermitsCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
   interfaceMemberDeclaration(
     ctx: InterfaceMemberDeclarationCtx,
@@ -1050,6 +1054,7 @@ export type NormalClassDeclarationCtx = {
   typeParameters?: TypeParametersCstNode[];
   superclass?: SuperclassCstNode[];
   superinterfaces?: SuperinterfacesCstNode[];
+  classPermits?: ClassPermitsCstNode[];
   classBody: ClassBodyCstNode[];
 };
 
@@ -1066,6 +1071,8 @@ export type ClassModifierCtx = {
   Abstract?: IToken[];
   Static?: IToken[];
   Final?: IToken[];
+  Sealed?: IToken[];
+  NonSealed?: IToken[];
   Strictfp?: IToken[];
 };
 
@@ -1117,6 +1124,17 @@ export interface InterfaceTypeListCstNode extends CstNode {
 
 export type InterfaceTypeListCtx = {
   interfaceType: InterfaceTypeCstNode[];
+  Comma?: IToken[];
+};
+
+export interface ClassPermitsCstNode extends CstNode {
+  name: "classPermits";
+  children: ClassPermitsCtx;
+}
+
+export type ClassPermitsCtx = {
+  Permits: IToken[];
+  typeName: TypeNameCstNode[];
   Comma?: IToken[];
 };
 
@@ -1703,7 +1721,8 @@ export interface RecordComponentCstNode extends CstNode {
 export type RecordComponentCtx = {
   recordComponentModifier?: RecordComponentModifierCstNode[];
   unannType: UnannTypeCstNode[];
-  Identifier: IToken[];
+  Identifier?: IToken[];
+  variableArityRecordComponent?: VariableArityRecordComponentCstNode[];
 };
 
 export interface VariableArityRecordComponentCstNode extends CstNode {
@@ -1811,6 +1830,7 @@ export type IsCompactConstructorDeclarationCtx = {
   Protected?: IToken[];
   Private?: IToken[];
   simpleTypeName: SimpleTypeNameCstNode[];
+  LCurly: IToken[];
 };
 
 export interface CompilationUnitCstNode extends CstNode {
@@ -2019,6 +2039,7 @@ export type NormalInterfaceDeclarationCtx = {
   typeIdentifier: TypeIdentifierCstNode[];
   typeParameters?: TypeParametersCstNode[];
   extendsInterfaces?: ExtendsInterfacesCstNode[];
+  interfacePermits?: InterfacePermitsCstNode[];
   interfaceBody: InterfaceBodyCstNode[];
 };
 
@@ -2034,6 +2055,8 @@ export type InterfaceModifierCtx = {
   Private?: IToken[];
   Abstract?: IToken[];
   Static?: IToken[];
+  Sealed?: IToken[];
+  NonSealed?: IToken[];
   Strictfp?: IToken[];
 };
 
@@ -2045,6 +2068,17 @@ export interface ExtendsInterfacesCstNode extends CstNode {
 export type ExtendsInterfacesCtx = {
   Extends: IToken[];
   interfaceTypeList: InterfaceTypeListCstNode[];
+};
+
+export interface InterfacePermitsCstNode extends CstNode {
+  name: "interfacePermits";
+  children: InterfacePermitsCtx;
+}
+
+export type InterfacePermitsCtx = {
+  Permits: IToken[];
+  typeName: TypeNameCstNode[];
+  Comma?: IToken[];
 };
 
 export interface InterfaceBodyCstNode extends CstNode {
