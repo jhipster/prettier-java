@@ -1,5 +1,5 @@
 "use strict";
-const _ = require("lodash");
+const forEach = require("lodash/forEach");
 const { line, softline, hardline } = require("prettier").doc.builders;
 const {
   getBlankLinesSeparator,
@@ -374,7 +374,7 @@ class ClassesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    _.forEach(tokens, (token, i) => {
+    forEach(tokens, (token, i) => {
       if (token.name === "typeArguments") {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));

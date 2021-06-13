@@ -1,6 +1,6 @@
 "use strict";
 
-const _ = require("lodash");
+const forEach = require("lodash/forEach");
 const { ifBreak, line, softline } = require("prettier").doc.builders;
 const { concat, group, indent, dedent } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
@@ -166,10 +166,8 @@ class ExpressionsPrettierVisitor {
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
 
-    const {
-      groupsOfOperator,
-      sortedBinaryOperators
-    } = separateTokensIntoGroups(ctx);
+    const { groupsOfOperator, sortedBinaryOperators } =
+      separateTokensIntoGroups(ctx);
     const segmentsSplitByBinaryOperator = [];
     let currentSegment = [];
 
@@ -565,7 +563,7 @@ class ExpressionsPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    _.forEach(tokens, token => {
+    forEach(tokens, token => {
       if (token.name) {
         currentSegment.push(this.visit([token]));
       } else {
