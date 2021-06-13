@@ -186,10 +186,8 @@ function attachComments(
   );
 
   extendRangeOffset(comments, tokens);
-  const {
-    commentsByExtendedStartOffset,
-    commentsByExtendedEndOffset
-  } = mapCommentsByExtendedRange(comments);
+  const { commentsByExtendedStartOffset, commentsByExtendedEndOffset } =
+    mapCommentsByExtendedRange(comments);
 
   /*
     This set is here to ensure that we attach comments only once
@@ -214,9 +212,8 @@ function attachComments(
       });
 
       if (nodeTrailingComments.length > 0) {
-        mostEnclosiveCstNodeByEndOffset[
-          endOffset
-        ].trailingComments = nodeTrailingComments;
+        mostEnclosiveCstNodeByEndOffset[endOffset].trailingComments =
+          nodeTrailingComments;
       }
 
       nodeTrailingComments.forEach(comment => {
@@ -234,9 +231,8 @@ function attachComments(
       ].filter(comment => commentsToAttach.has(comment));
 
       if (nodeLeadingComments.length > 0) {
-        mostEnclosiveCstNodeByStartOffset[
-          startOffset
-        ].leadingComments = nodeLeadingComments;
+        mostEnclosiveCstNodeByStartOffset[startOffset].leadingComments =
+          nodeLeadingComments;
       }
 
       // prettier ignore support

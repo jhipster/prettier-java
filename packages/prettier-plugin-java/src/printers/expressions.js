@@ -166,10 +166,8 @@ class ExpressionsPrettierVisitor {
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
 
-    const {
-      groupsOfOperator,
-      sortedBinaryOperators
-    } = separateTokensIntoGroups(ctx);
+    const { groupsOfOperator, sortedBinaryOperators } =
+      separateTokensIntoGroups(ctx);
     const segmentsSplitByBinaryOperator = [];
     let currentSegment = [];
 

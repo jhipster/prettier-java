@@ -1,11 +1,6 @@
 "use strict";
-const {
-  concat,
-  hardline,
-  lineSuffix,
-  breakParent,
-  literalline
-} = require("prettier").doc.builders;
+const { concat, hardline, lineSuffix, breakParent, literalline } =
+  require("prettier").doc.builders;
 
 /**
  * Takes a token and return a doc with:

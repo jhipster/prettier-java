@@ -301,9 +301,8 @@ function getDeclarationsSeparator(
   const userBlankLinesSeparators = getBlankLinesSeparator(
     declarationsWithoutEmptyStatements
   );
-  const additionalBlankLines = declarationsWithoutEmptyStatements.map(
-    needLineDeclaration
-  );
+  const additionalBlankLines =
+    declarationsWithoutEmptyStatements.map(needLineDeclaration);
 
   const separators = [];
   let indexNextNotEmptyDeclaration = 0;

@@ -6,7 +6,8 @@ const { attachComments, matchFormatterOffOnPairs } = require("./comments");
 const parser = new JavaParser();
 
 const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
-const BaseJavaCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();
+const BaseJavaCstVisitorWithDefaults =
+  parser.getBaseCstVisitorConstructorWithDefaults();
 
 function parse(inputText, entryPoint = "compilationUnit") {
   // Lex

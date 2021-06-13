@@ -72,9 +72,8 @@ class JavaParser extends Parser {
 
     this.firstForUnaryExpressionNotPlusMinus = [];
     this.performSelfAnalysis();
-    this.firstForUnaryExpressionNotPlusMinus = expressions.computeFirstForUnaryExpressionNotPlusMinus.call(
-      this
-    );
+    this.firstForUnaryExpressionNotPlusMinus =
+      expressions.computeFirstForUnaryExpressionNotPlusMinus.call(this);
   }
 
   cstPostNonTerminal(ruleCstResult, ruleName) {
@@ -83,9 +82,8 @@ class JavaParser extends Parser {
       this.mostEnclosiveCstNodeByStartOffset[
         ruleCstResult.location.startOffset
       ] = ruleCstResult;
-      this.mostEnclosiveCstNodeByEndOffset[
-        ruleCstResult.location.endOffset
-      ] = ruleCstResult;
+      this.mostEnclosiveCstNodeByEndOffset[ruleCstResult.location.endOffset] =
+        ruleCstResult;
 
       shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
     }
