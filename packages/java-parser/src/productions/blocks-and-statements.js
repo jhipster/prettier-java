@@ -31,17 +31,23 @@ function defineRules($, t) {
 
     const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
 
-    $.OR([
-      {
-        GATE: () => isLocalVariableDeclaration,
-        ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
-      },
-      {
-        GATE: () => isClassDeclaration,
-        ALT: () => $.SUBRULE($.classDeclaration)
-      },
-      { ALT: () => $.SUBRULE($.statement) }
-    ]);
+    $.OR({
+      DEF: [
+        {
+          GATE: () => isLocalVariableDeclaration,
+          ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
+        },
+        {
+          GATE: () => isClassDeclaration,
+          ALT: () => $.SUBRULE($.classDeclaration)
+        },
+        {
+          ALT: () => $.SUBRULE($.interfaceDeclaration)
+        },
+        { ALT: () => $.SUBRULE($.statement) }
+      ],
+      IGNORE_AMBIGUITIES: true
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-LocalVariableDeclarationStatement

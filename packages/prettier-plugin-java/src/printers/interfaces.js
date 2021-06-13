@@ -35,6 +35,7 @@ class InterfacesPrettierVisitor {
     const typeIdentifier = this.visit(ctx.typeIdentifier);
     const typeParameters = this.visit(ctx.typeParameters);
     const extendsInterfaces = this.visit(ctx.extendsInterfaces);
+    const optionalInterfacePermits = this.visit(ctx.interfacePermits);
     const interfaceBody = this.visit(ctx.interfaceBody);
 
     let extendsInterfacesPart = "";
@@ -44,12 +45,20 @@ class InterfacesPrettierVisitor {
       );
     }
 
+    let interfacePermits = "";
+    if (optionalInterfacePermits) {
+      interfacePermits = indent(
+        rejectAndConcat([softline, optionalInterfacePermits])
+      );
+    }
+
     return rejectAndJoin(" ", [
       group(
         rejectAndJoin(" ", [
           ctx.Interface[0],
           concat([typeIdentifier, typeParameters]),
-          extendsInterfacesPart
+          extendsInterfacesPart,
+          interfacePermits
         ])
       ),
       interfaceBody
@@ -72,6 +81,10 @@ class InterfacesPrettierVisitor {
         indent(rejectAndConcat([line, interfaceTypeList]))
       ])
     );
+  }
+
+  interfacePermits(ctx) {
+    return this.classPermits(ctx);
   }
 
   interfaceBody(ctx) {

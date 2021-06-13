@@ -29,6 +29,9 @@ function defineRules($, t) {
     $.OPTION2(() => {
       $.SUBRULE($.extendsInterfaces);
     });
+    $.OPTION3(() => {
+      $.SUBRULE($.interfacePermits);
+    });
     $.SUBRULE($.interfaceBody);
   });
 
@@ -41,14 +44,26 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Private) },
       { ALT: () => $.CONSUME(t.Abstract) },
       { ALT: () => $.CONSUME(t.Static) },
+      { ALT: () => $.CONSUME(t.Sealed) },
+      { ALT: () => $.CONSUME(t.NonSealed) },
       { ALT: () => $.CONSUME(t.Strictfp) }
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ExtendsInterfaces
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceExtends
   $.RULE("extendsInterfaces", () => {
     $.CONSUME(t.Extends);
     $.SUBRULE($.interfaceTypeList);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/preview/specs/sealed-classes-jls.html
+  $.RULE("interfacePermits", () => {
+    $.CONSUME(t.Permits);
+    $.SUBRULE($.typeName);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE2($.typeName);
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceBody

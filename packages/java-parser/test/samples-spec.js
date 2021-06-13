@@ -27,6 +27,7 @@ describe("The Java Parser", () => {
   createSampleSpecs("jhipster-sample-app-react");
   createSampleSpecs("jhipster-sample-app-websocket");
   createSampleSpecs("guava");
+  createSampleSpecs("demo-java-x");
 });
 
 function createSampleSpecs(sampleName) {

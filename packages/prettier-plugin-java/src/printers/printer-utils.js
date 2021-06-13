@@ -20,6 +20,8 @@ const orderedModifiers = [
   "Volatile",
   "Synchronized",
   "Native",
+  "Sealed",
+  "NonSealed",
   "Strictfp"
 ];
 
