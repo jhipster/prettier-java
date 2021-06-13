@@ -11,7 +11,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-LambdaExpression
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-LambdaExpression
   $.RULE("lambdaExpression", () => {
     $.SUBRULE($.lambdaParameters);
     $.CONSUME(t.Arrow);
@@ -417,7 +417,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-UnqualifiedClassInstanceCreationExpression
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-UnqualifiedClassInstanceCreationExpression
   $.RULE("unqualifiedClassInstanceCreationExpression", () => {
     $.CONSUME(t.New);
     $.OPTION(() => {
@@ -482,7 +482,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.10.1
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-15.10.1
   $.RULE("arrayCreationExpression", () => {
     $.CONSUME(t.New);
     $.OR([
@@ -514,7 +514,7 @@ function defineRules($, t) {
     $.SUBRULE($.arrayInitializer);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-DimExprs
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-DimExprs
   $.RULE("dimExprs", () => {
     $.SUBRULE($.dimExpr);
     $.MANY({
@@ -527,7 +527,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-DimExpr
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-DimExpr
   $.RULE("dimExpr", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);

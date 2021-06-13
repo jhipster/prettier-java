@@ -2,7 +2,7 @@
 const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
 
 function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#CompilationUnit
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#CompilationUnit
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
     const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
@@ -20,7 +20,7 @@ function defineRules($, t) {
     $.CONSUME(EOF);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-OrdinaryCompilationUnit
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-OrdinaryCompilationUnit
   $.RULE("ordinaryCompilationUnit", () => {
     $.OPTION({
       GATE: $.BACKTRACK($.packageDeclaration),
@@ -36,7 +36,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModularCompilationUnit
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModularCompilationUnit
   $.RULE("modularCompilationUnit", () => {
     $.MANY(() => {
       $.SUBRULE($.importDeclaration);
@@ -44,7 +44,7 @@ function defineRules($, t) {
     $.SUBRULE($.moduleDeclaration);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-PackageDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-PackageDeclaration
   $.RULE("packageDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.packageModifier);
@@ -58,12 +58,12 @@ function defineRules($, t) {
     $.CONSUME2(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-PackageModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-PackageModifier
   $.RULE("packageModifier", () => {
     $.SUBRULE($.annotation);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ImportDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ImportDeclaration
   $.RULE("importDeclaration", () => {
     // Spec Deviation: The spec defines four different kinds of import declarations.
     //                 Our grammar however combines those into a single rule due to difficulties
@@ -95,7 +95,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-TypeDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-TypeDeclaration
   $.RULE("typeDeclaration", () => {
     // TODO: consider extracting the prefix modifiers here to avoid backtracking
     const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
@@ -110,7 +110,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModuleDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModuleDeclaration
   $.RULE("moduleDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
@@ -131,7 +131,7 @@ function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-ModuleDirective
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModuleDirective
   $.RULE("moduleDirective", () => {
     // Spec Deviation: Each of the alternatives of "moduleDirective" was extracted
     //                 to its own nonTerminal, to reduce verbosity.
@@ -150,7 +150,7 @@ function defineRules($, t) {
     $.MANY({
       GATE: () => {
         /**
-         * https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9 -
+         * https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.9 -
          *   There is one exception: immediately to the right of the character sequence `requires` in the ModuleDirective production,
          *   the character sequence `transitive` is tokenized as a keyword unless it is followed by a separator,
          *   in which case it is tokenized as an identifier.
@@ -218,7 +218,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-RequiresModifier
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-RequiresModifier
   $.RULE("requiresModifier", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.Transitive) },

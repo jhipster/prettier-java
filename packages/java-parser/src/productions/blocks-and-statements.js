@@ -6,7 +6,7 @@ const { tokenMatcher } = require("chevrotain");
 //                 the dangling else is resolved by attaching an "else" block
 //                 to the nearest "if"
 function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Block
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Block
   $.RULE("block", () => {
     $.CONSUME(t.LCurly);
     $.OPTION(() => {
@@ -15,7 +15,7 @@ function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BlockStatements
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-BlockStatements
   $.RULE("blockStatements", () => {
     $.SUBRULE($.blockStatement);
     $.MANY(() => {
@@ -23,7 +23,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BlockStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-BlockStatement
   $.RULE("blockStatement", () => {
     const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(
       $.isLocalVariableDeclaration
@@ -44,13 +44,13 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-LocalVariableDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-LocalVariableDeclarationStatement
   $.RULE("localVariableDeclarationStatement", () => {
     $.SUBRULE($.localVariableDeclaration);
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-LocalVariableDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-LocalVariableDeclaration
   $.RULE("localVariableDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.variableModifier);
@@ -59,7 +59,7 @@ function defineRules($, t) {
     $.SUBRULE($.variableDeclaratorList);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-LocalVariableType
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-LocalVariableType
   $.RULE("localVariableType", () => {
     $.OR({
       DEF: [
@@ -70,7 +70,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Statement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Statement
   $.RULE("statement", () => {
     $.OR({
       DEF: [
@@ -87,7 +87,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
   $.RULE("statementWithoutTrailingSubstatement", () => {
     $.OR({
       DEF: [
@@ -112,25 +112,25 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EmptyStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-EmptyStatement
   $.RULE("emptyStatement", () => {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-LabeledStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-LabeledStatement
   $.RULE("labeledStatement", () => {
     $.CONSUME(t.Identifier);
     $.CONSUME(t.Colon);
     $.SUBRULE($.statement);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ExpressionStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ExpressionStatement
   $.RULE("expressionStatement", () => {
     $.SUBRULE($.statementExpression);
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementExpression
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-StatementExpression
   $.RULE("statementExpression", () => {
     // Spec deviation: The many alternatives here were replaced with
     //                 the "expression" rule as it contains them all,
@@ -141,8 +141,8 @@ function defineRules($, t) {
   });
 
   // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-IfThenStatement
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-IfThenElseStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-IfThenStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-IfThenElseStatement
   $.RULE("ifStatement", () => {
     $.CONSUME(t.If);
     $.CONSUME(t.LBrace);
@@ -155,7 +155,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-AssertStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-AssertStatement
   $.RULE("assertStatement", () => {
     $.CONSUME(t.Assert);
     $.SUBRULE($.expression);
@@ -166,7 +166,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchStatement
   $.RULE("switchStatement", () => {
     $.CONSUME(t.Switch);
     $.CONSUME(t.LBrace);
@@ -175,7 +175,7 @@ function defineRules($, t) {
     $.SUBRULE($.switchBlock);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchBlock
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchBlock
   $.RULE("switchBlock", () => {
     $.CONSUME(t.LCurly);
     $.OR([
@@ -200,7 +200,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SwitchLabel
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchLabel
   $.RULE("switchLabel", () => {
     $.OR([
       {
@@ -222,7 +222,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-SwitchRule
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchRule
   $.RULE("switchRule", () => {
     $.SUBRULE($.switchLabel);
     $.CONSUME(t.Arrow);
@@ -238,12 +238,12 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EnumConstantName
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-EnumConstantName
   $.RULE("caseConstant", () => {
     $.SUBRULE($.ternaryExpression);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-WhileStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-WhileStatement
   $.RULE("whileStatement", () => {
     $.CONSUME(t.While);
     $.CONSUME(t.LBrace);
@@ -252,7 +252,7 @@ function defineRules($, t) {
     $.SUBRULE($.statement);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-DoStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-DoStatement
   $.RULE("doStatement", () => {
     $.CONSUME(t.Do);
     $.SUBRULE($.statement);
@@ -262,7 +262,7 @@ function defineRules($, t) {
     $.CONSUME(t.RBrace);
     $.CONSUME(t.Semicolon);
   });
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ForStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ForStatement
   $.RULE("forStatement", () => {
     $.OR([
       {
@@ -273,7 +273,7 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BasicForStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-BasicForStatement
   $.RULE("basicForStatement", () => {
     $.CONSUME(t.For);
     $.CONSUME(t.LBrace);
@@ -292,7 +292,7 @@ function defineRules($, t) {
     $.SUBRULE($.statement);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ForInit
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ForInit
   $.RULE("forInit", () => {
     $.OR([
       {
@@ -303,12 +303,12 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ForUpdate
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ForUpdate
   $.RULE("forUpdate", () => {
     $.SUBRULE($.statementExpressionList);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-StatementExpressionList
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-StatementExpressionList
   $.RULE("statementExpressionList", () => {
     $.SUBRULE($.statementExpression);
     $.MANY(() => {
@@ -317,7 +317,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-EnhancedForStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-EnhancedForStatement
   $.RULE("enhancedForStatement", () => {
     $.CONSUME(t.For);
     $.CONSUME(t.LBrace);
@@ -332,7 +332,7 @@ function defineRules($, t) {
     $.SUBRULE($.statement);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-BreakStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-BreakStatement
   $.RULE("breakStatement", () => {
     $.CONSUME(t.Break);
     $.OPTION(() => {
@@ -341,7 +341,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ContinueStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ContinueStatement
   $.RULE("continueStatement", () => {
     $.CONSUME(t.Continue);
     $.OPTION(() => {
@@ -350,7 +350,7 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ReturnStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ReturnStatement
   $.RULE("returnStatement", () => {
     $.CONSUME(t.Return);
     $.OPTION(() => {
@@ -359,14 +359,14 @@ function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ThrowStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ThrowStatement
   $.RULE("throwStatement", () => {
     $.CONSUME(t.Throw);
     $.SUBRULE($.expression);
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-SynchronizedStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SynchronizedStatement
   $.RULE("synchronizedStatement", () => {
     $.CONSUME(t.Synchronized);
     $.CONSUME(t.LBrace);
@@ -375,7 +375,7 @@ function defineRules($, t) {
     $.SUBRULE($.block);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-TryStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-TryStatement
   $.RULE("tryStatement", () => {
     $.OR({
       DEF: [
@@ -402,7 +402,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Catches
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Catches
   $.RULE("catches", () => {
     $.SUBRULE($.catchClause);
     $.MANY(() => {
@@ -410,7 +410,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-CatchClause
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-CatchClause
   $.RULE("catchClause", () => {
     $.CONSUME(t.Catch);
     $.CONSUME(t.LBrace);
@@ -419,7 +419,7 @@ function defineRules($, t) {
     $.SUBRULE($.block);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-CatchFormalParameter
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-CatchFormalParameter
   $.RULE("catchFormalParameter", () => {
     $.MANY(() => {
       $.SUBRULE($.variableModifier);
@@ -428,7 +428,7 @@ function defineRules($, t) {
     $.SUBRULE($.variableDeclaratorId);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-CatchType
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-CatchType
   $.RULE("catchType", () => {
     $.SUBRULE($.unannClassType);
     $.MANY(() => {
@@ -437,13 +437,13 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Finally
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Finally
   $.RULE("finally", () => {
     $.CONSUME(t.Finally);
     $.SUBRULE($.block);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-TryWithResourcesStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-TryWithResourcesStatement
   $.RULE("tryWithResourcesStatement", () => {
     $.CONSUME(t.Try);
     $.SUBRULE($.resourceSpecification);
@@ -456,7 +456,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ResourceSpecification
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ResourceSpecification
   $.RULE("resourceSpecification", () => {
     $.CONSUME(t.LBrace);
     $.SUBRULE($.resourceList);
@@ -466,7 +466,7 @@ function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-ResourceList
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ResourceList
   $.RULE("resourceList", () => {
     $.SUBRULE($.resource);
     $.MANY({
@@ -478,7 +478,7 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-Resource
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Resource
   $.RULE("resource", () => {
     $.OR([
       {
@@ -502,14 +502,14 @@ function defineRules($, t) {
     $.SUBRULE($.expression);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se15/html/jls-14.html#jls-YieldStatement
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-YieldStatement
   $.RULE("yieldStatement", () => {
     $.CONSUME(t.Yield);
     $.SUBRULE($.expression);
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se11/html/jls-14.html#jls-VariableAccess
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-VariableAccess
   $.RULE("variableAccess", () => {
     // Spec Deviation: both "expressionName" and "fieldAccess" can be parsed
     //                 by the "primary" rule
