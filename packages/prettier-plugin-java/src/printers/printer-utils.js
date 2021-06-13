@@ -1,5 +1,8 @@
 "use strict";
-const _ = require("lodash");
+const forEach = require("lodash/forEach");
+const forEachRight = require("lodash/forEachRight");
+const findLastIndex = require("lodash/findLastIndex");
+
 const { ifBreak, join, concat, group } = require("./prettier-builder");
 const {
   getTokenLeadingComments,
@@ -98,7 +101,7 @@ function sortAnnotationIdentifier(annotations, identifiers) {
 function sortTokens() {
   let tokens = [];
 
-  _.forEach(arguments, argument => {
+  forEach(arguments, argument => {
     if (argument) {
       tokens = tokens.concat(argument);
     }
@@ -112,7 +115,7 @@ function sortTokens() {
 function sortNodes() {
   let nodes = [];
 
-  _.forEach(arguments, argument => {
+  forEach(arguments, argument => {
     if (argument) {
       nodes = nodes.concat(argument);
     }
@@ -174,7 +177,7 @@ function sortModifiers(modifiers) {
    * method annotations which come after all other
    * modifiers
    */
-  _.forEachRight(modifiers, modifier => {
+  forEachRight(modifiers, modifier => {
     const isAnnotation = modifier.children.annotation !== undefined;
     const isMethodAnnotation =
       isAnnotation &&
@@ -421,7 +424,7 @@ function hasNonTrailingAnnotation(methodModifiers) {
   const firstAnnotationIndex = methodModifiers.findIndex(
     modifier => modifier.children.annotation !== undefined
   );
-  const lastNonAnnotationIndex = _.findLastIndex(
+  const lastNonAnnotationIndex = findLastIndex(
     methodModifiers,
     modifier => modifier.children.annotation === undefined
   );

@@ -1,6 +1,6 @@
 "use strict";
 
-const _ = require("lodash");
+const forEach = require("lodash/forEach");
 
 const { concat, join } = require("./prettier-builder");
 const { printTokenWithComments } = require("./comments/format-comments");
@@ -59,7 +59,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    _.forEach(tokens, (token, i) => {
+    forEach(tokens, (token, i) => {
       if (token.name === "typeArguments") {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));
@@ -112,7 +112,7 @@ class TypesValuesAndVariablesPrettierVisitor {
     const segments = [];
     let currentSegment = [];
 
-    _.forEach(tokens, token => {
+    forEach(tokens, token => {
       if (token.name === "annotation") {
         currentSegment.push(this.visit([token]));
       } else {
