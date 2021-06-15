@@ -616,15 +616,18 @@ class ClassesPrettierVisitor {
     const receiverParameter = this.visit(ctx.receiverParameter);
     const formalParameterList = this.visit(ctx.formalParameterList);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
-    return rejectAndConcat([
+
+    return rejectAndJoin(" ", [
       typeParameters,
-      simpleTypeName,
-      putIntoBraces(
-        rejectAndJoinSeps(commas, [receiverParameter, formalParameterList]),
-        softline,
-        ctx.LBrace[0],
-        ctx.RBrace[0]
-      )
+      concat([
+        simpleTypeName,
+        putIntoBraces(
+          rejectAndJoinSeps(commas, [receiverParameter, formalParameterList]),
+          softline,
+          ctx.LBrace[0],
+          ctx.RBrace[0]
+        )
+      ])
     ]);
   }
 
