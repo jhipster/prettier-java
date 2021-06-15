@@ -58,4 +58,8 @@ public class Constructors {
     this("enough parameter", "fit");
     System.out.println("constructor with this that does not wrap");
   }
+
+  public <T> GenericConstructor(T genericParameter) {}
+
+  public <T> GenericConstructor(T genericParameter) {}
 }
