@@ -245,4 +245,8 @@ public class Expressions {
       )
       .toArray(double[][]::new);
   }
+
+  public void t() {
+    var t = ImmutableMap.<R, V>of<T>::a();
+  }
 }

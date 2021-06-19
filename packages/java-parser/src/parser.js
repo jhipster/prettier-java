@@ -1,5 +1,5 @@
 "use strict";
-const { Parser, isRecognitionException } = require("chevrotain");
+const { CstParser, isRecognitionException } = require("chevrotain");
 const { allTokens, tokens: t } = require("./tokens");
 const lexicalStructure = require("./productions/lexical-structure");
 const typesValuesVariables = require("./productions/types-values-and-variables");
@@ -36,7 +36,7 @@ const { shouldNotFormat } = require("./comments");
  * TODO: document guide lines for using back tracking
  *
  */
-class JavaParser extends Parser {
+class JavaParser extends CstParser {
   constructor() {
     super(allTokens, {
       maxLookahead: 1,
@@ -77,8 +77,8 @@ class JavaParser extends Parser {
   }
 
   cstPostNonTerminal(ruleCstResult, ruleName) {
-    super.cstPostNonTerminal(ruleCstResult, ruleName);
     if (this.isBackTracking() === false) {
+      super.cstPostNonTerminal(ruleCstResult, ruleName);
       this.mostEnclosiveCstNodeByStartOffset[
         ruleCstResult.location.startOffset
       ] = ruleCstResult;

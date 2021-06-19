@@ -453,23 +453,11 @@ class ExpressionsPrettierVisitor {
     const annotation = this.mapVisit(ctx.annotation);
     const fqnOrRefTypeCommon = this.visit(ctx.fqnOrRefTypePartCommon);
 
-    let fqnOrRefTypePart$methodTypeArguments = "";
-    if (
-      ctx.$methodTypeArguments &&
-      ctx.$methodTypeArguments[0].children &&
-      ctx.$methodTypeArguments[0].children.typeArguments
-    ) {
-      fqnOrRefTypePart$methodTypeArguments = this.visit(
-        ctx.$methodTypeArguments
-      );
-    }
+    const typeArguments = this.visit(ctx.typeArguments);
 
     return rejectAndJoin(" ", [
       rejectAndJoin(" ", annotation),
-      rejectAndConcat([
-        fqnOrRefTypePart$methodTypeArguments,
-        fqnOrRefTypeCommon
-      ])
+      rejectAndConcat([typeArguments, fqnOrRefTypeCommon])
     ]);
   }
 
@@ -481,24 +469,9 @@ class ExpressionsPrettierVisitor {
       keyWord = ctx.Super[0];
     }
 
-    let fqnOrRefTypePart$classTypeArguments = "";
-    if (
-      ctx.$classTypeArguments &&
-      ctx.$classTypeArguments[0].children &&
-      ctx.$classTypeArguments[0].children.typeArguments
-    ) {
-      fqnOrRefTypePart$classTypeArguments = this.visit(ctx.$classTypeArguments);
-    }
+    const typeArguments = this.visit(ctx.typeArguments);
 
-    return rejectAndConcat([keyWord, fqnOrRefTypePart$classTypeArguments]);
-  }
-
-  fqnOrRefTypePartRest$methodTypeArguments(ctx) {
-    return this.visitSingle(ctx);
-  }
-
-  fqnOrRefTypePartCommon$classTypeArguments(ctx) {
-    return this.visitSingle(ctx);
+    return rejectAndConcat([keyWord, typeArguments]);
   }
 
   parenthesisExpression(ctx) {
