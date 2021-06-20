@@ -1,4 +1,20 @@
-# Latest v1.2.0
+# Latest v1.3.0
+
+## Enhancements
+
+- Add a space after generic constructor type parameters ([#485](https://github.com/jhipster/prettier-java/pull/485))
+```java
+// Input
+public <T> GenericConstructor(T genericParameter) {}
+
+// Prettier 1.2.0
+public <T>GenericConstructor(T genericParameter) {}
+
+// Prettier 1.2.1
+public <T> GenericConstructor(T genericParameter) {}
+```
+
+# v1.2.0
 
 ## Enhancements
 
