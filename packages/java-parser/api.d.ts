@@ -1220,6 +1220,7 @@ export interface VariableDeclaratorCstNode extends CstNode {
 export type VariableDeclaratorCtx = {
   variableDeclaratorId: VariableDeclaratorIdCstNode[];
   Equals?: IToken[];
+  variableInitializer?: VariableInitializerCstNode[];
 };
 
 export interface VariableDeclaratorIdCstNode extends CstNode {
