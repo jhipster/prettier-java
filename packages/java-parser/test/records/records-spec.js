@@ -84,4 +84,37 @@ describe("Records", () => {
     `;
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
+
+  it("should handle Java records inside an interface definition", () => {
+    const input = `
+    public interface SomeInterface {
+      record SomeRecord(
+          String param
+      ) { }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle Java records implementing an interface inside an interface definition", () => {
+    const input = `
+    public interface SomeInterface {
+      record SomeRecord(
+          String param
+      ) implements AnyInterface { }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle Java records implementing an interface inside a class definition", () => {
+    const input = `
+    public class SomeClass {
+      record SomeRecord(
+          String param
+      ) implements AnyInterface { }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
 });
