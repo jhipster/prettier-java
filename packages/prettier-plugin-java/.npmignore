@@ -5,3 +5,4 @@ test-samples
 samples
 coverage
 .nyc_output
+*.log

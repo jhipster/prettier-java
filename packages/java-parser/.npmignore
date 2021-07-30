@@ -5,3 +5,4 @@ scripts
 test
 .mocharc.js
 diagrams.html
+*.log
