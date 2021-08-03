@@ -378,7 +378,8 @@ function defineRules($, t) {
     nextTokenType = this.LA(1).tokenType;
     if (
       tokenMatcher(nextTokenType, t.Class) ||
-      tokenMatcher(nextTokenType, t.Enum)
+      tokenMatcher(nextTokenType, t.Enum) ||
+      tokenMatcher(nextTokenType, t.Record)
     ) {
       return InterfaceBodyTypes.classDeclaration;
     }

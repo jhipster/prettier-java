@@ -1,4 +1,11 @@
-# Latest v1.3.0
+# Latest v1.3.1
+
+## Fixes
+
+- Fix interface member detection to support inner records
+  (From @rnorth: [#492](https://github.com/jhipster/prettier-java/pull/492))
+- Remove yarn-error.log file from releases
+# v1.3.0
 
 ## Enhancements
 

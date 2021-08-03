@@ -78,3 +78,7 @@ class T {
     }
   }
 }
+
+public interface MyInterface {
+  record MyRecord(String param) implements MyInterface {}
+}
