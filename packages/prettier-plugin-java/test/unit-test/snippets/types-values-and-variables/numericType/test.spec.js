@@ -1,6 +1,8 @@
 "use strict";
 
-const { CstPrettierPrinter } = require("../../../../../src/cst-printer");
+const {
+  BaseCstPrettierPrinter
+} = require("../../../../../dist/cjs/base-cst-printer");
 
 const { assert, spy } = require("sinon");
 const { formatJavaSnippet } = require("../../../../test-utils");
@@ -18,9 +20,9 @@ describe("numericType", () => {
       floatingPointTypeSpy.restore();
     }
 
-    integralTypeSpy = spy(CstPrettierPrinter.prototype, "integralType");
+    integralTypeSpy = spy(BaseCstPrettierPrinter.prototype, "integralType");
     floatingPointTypeSpy = spy(
-      CstPrettierPrinter.prototype,
+      BaseCstPrettierPrinter.prototype,
       "floatingPointType"
     );
   });

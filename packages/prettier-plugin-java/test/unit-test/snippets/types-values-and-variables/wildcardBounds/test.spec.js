@@ -2,7 +2,9 @@
 
 const { assert, spy } = require("sinon");
 const { expectSnippetToBeFormatted } = require("../../../../test-utils");
-const { CstPrettierPrinter } = require("../../../../../src/cst-printer");
+const {
+  BaseCstPrettierPrinter
+} = require("../../../../../dist/cjs/base-cst-printer");
 
 describe("Wildcard Bounds", () => {
   let referenceTypeSpy;
@@ -12,7 +14,7 @@ describe("Wildcard Bounds", () => {
     if (referenceTypeSpy !== undefined) {
       referenceTypeSpy.restore();
     }
-    referenceTypeSpy = spy(CstPrettierPrinter.prototype, "referenceType");
+    referenceTypeSpy = spy(BaseCstPrettierPrinter.prototype, "referenceType");
   });
 
   it("can format a wildcardBounds with extends", () => {

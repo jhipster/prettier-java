@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": "src",
+    "strict": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "noImplicitThis": false
+  },
+  "include": ["src"]
+}

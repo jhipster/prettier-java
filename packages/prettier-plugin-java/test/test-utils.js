@@ -8,7 +8,7 @@ const { resolve, relative, basename } = require("path");
 const klawSync = require("klaw-sync");
 const { spawnSync } = require("child_process");
 
-const { createPrettierDoc } = require("../src/cst-printer");
+const { createPrettierDoc } = require("../dist/cjs/cst-printer");
 const javaParser = require("java-parser");
 const { printDocToString } = require("prettier").doc.printer;
 
