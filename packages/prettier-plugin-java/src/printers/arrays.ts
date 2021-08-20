@@ -1,13 +1,20 @@
-"use strict";
-const { line } = require("prettier").doc.builders;
-const {
+import {
+  ArrayInitializerCtx,
+  VariableInitializerListCtx
+} from "java-parser/api";
+import {
+  printArrayList,
   rejectAndConcat,
-  rejectAndJoinSeps,
-  printArrayList
-} = require("./printer-utils");
+  rejectAndJoinSeps
+} from "./printer-utils";
+import { builders } from "prettier/doc";
+import { BaseCstPrettierPrinter } from "../base-cst-printer";
 
-class ArraysPrettierVisitor {
-  arrayInitializer(ctx) {
+const { line } = builders;
+
+export class ArraysPrettierVisitor extends BaseCstPrettierPrinter {
+  prettierOptions: any;
+  arrayInitializer(ctx: ArrayInitializerCtx) {
     const optionalVariableInitializerList = this.visit(
       ctx.variableInitializerList
     );
@@ -21,7 +28,7 @@ class ArraysPrettierVisitor {
     });
   }
 
-  variableInitializerList(ctx) {
+  variableInitializerList(ctx: VariableInitializerListCtx) {
     const variableInitializers = this.mapVisit(ctx.variableInitializer);
     const commas = ctx.Comma
       ? ctx.Comma.map(comma => {
@@ -32,7 +39,3 @@ class ArraysPrettierVisitor {
     return rejectAndJoinSeps(commas, variableInitializers);
   }
 }
-
-module.exports = {
-  ArraysPrettierVisitor
-};
