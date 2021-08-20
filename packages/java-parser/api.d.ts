@@ -1,4 +1,34 @@
-import { CstNode, ICstVisitor, IToken } from "chevrotain";
+import {
+  CstNode as ChevrotainCstNode,
+  CstNodeLocation,
+  ICstVisitor,
+  IToken as ChevrotainIToken
+} from "chevrotain";
+
+export interface CstNode extends ChevrotainCstNode {
+  children: CstChildrenDictionary;
+  leadingComments?: IToken[];
+  trailingComments?: IToken[];
+  ignore?: boolean;
+  location: CstNodeLocation;
+}
+
+export interface IToken extends ChevrotainIToken {
+  leadingComments?: IToken[];
+  trailingComments?: IToken[];
+  startOffset: number;
+  startLine: number;
+  startColumn: number;
+  endOffset: number;
+  endLine: number;
+  endColumn: number;
+}
+
+export type CstElement = IToken | CstNode;
+
+export declare type CstChildrenDictionary = {
+  [identifier: string]: CstElement[];
+};
 
 export function parse(text: string, startProduction?: string): CstNode;
 
@@ -342,6 +372,8 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
+  pattern(ctx: PatternCtx, param?: IN): OUT;
+  typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
@@ -358,7 +390,8 @@ interface JavaCstVisitorConstructor<IN, OUT> {
 }
 
 export abstract class JavaCstVisitorWithDefaults<IN, OUT>
-  implements ICstVisitor<IN, OUT> {
+  implements ICstVisitor<IN, OUT>
+{
   // No need to implement these two methods
   // Generic Visit method implemented by the Chevrotain Library
   visit(cstNode: CstNode | CstNode[], param?: IN): OUT;
@@ -692,6 +725,8 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
+  pattern(ctx: PatternCtx, param?: IN): OUT;
+  typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
@@ -814,6 +849,7 @@ export interface ReferenceTypeCstNode extends CstNode {
 export type ReferenceTypeCtx = {
   annotation?: AnnotationCstNode[];
   primitiveType?: PrimitiveTypeCstNode[];
+  dims?: DimsCstNode[];
   classOrInterfaceType?: ClassOrInterfaceTypeCstNode[];
 };
 
@@ -1220,6 +1256,7 @@ export interface VariableDeclaratorCstNode extends CstNode {
 export type VariableDeclaratorCtx = {
   variableDeclaratorId: VariableDeclaratorIdCstNode[];
   Equals?: IToken[];
+  variableInitializer?: VariableInitializerCstNode[];
 };
 
 export interface VariableDeclaratorIdCstNode extends CstNode {
@@ -1358,6 +1395,7 @@ export interface MethodHeaderCstNode extends CstNode {
 
 export type MethodHeaderCtx = {
   typeParameters?: TypeParametersCstNode[];
+  annotation?: AnnotationCstNode[];
   result: ResultCstNode[];
   methodDeclarator: MethodDeclaratorCstNode[];
   throws?: ThrowsCstNode[];
@@ -1395,6 +1433,7 @@ export type ReceiverParameterCtx = {
   annotation?: AnnotationCstNode[];
   unannType: UnannTypeCstNode[];
   Identifier?: IToken[];
+  Dot?: IToken[];
   This: IToken[];
 };
 
@@ -1544,6 +1583,7 @@ export type ConstructorDeclaratorCtx = {
   simpleTypeName: SimpleTypeNameCstNode[];
   LBrace: IToken[];
   receiverParameter?: ReceiverParameterCstNode[];
+  Comma?: IToken[];
   formalParameterList?: FormalParameterListCstNode[];
   RBrace: IToken[];
 };
@@ -1656,6 +1696,8 @@ export type EnumConstantCtx = {
   enumConstantModifier?: EnumConstantModifierCstNode[];
   Identifier: IToken[];
   LBrace?: IToken[];
+  argumentList?: ArgumentListCstNode[];
+  RBrace?: IToken[];
   classBody?: ClassBodyCstNode[];
 };
 
@@ -1817,6 +1859,9 @@ export type IsDimsCtx = {
   At?: IToken[];
   typeName?: TypeNameCstNode[];
   LBrace?: IToken[];
+  elementValuePairList?: ElementValuePairListCstNode[];
+  elementValue?: ElementValueCstNode[];
+  RBrace?: IToken[];
 };
 
 export interface IsCompactConstructorDeclarationCstNode extends CstNode {
@@ -1894,6 +1939,11 @@ export interface ImportDeclarationCstNode extends CstNode {
 
 export type ImportDeclarationCtx = {
   Import?: IToken[];
+  Static?: IToken[];
+  packageOrTypeName?: PackageOrTypeNameCstNode[];
+  Dot?: IToken[];
+  Star?: IToken[];
+  Semicolon?: IToken[];
   emptyStatement?: EmptyStatementCstNode[];
 };
 
@@ -1958,6 +2008,8 @@ export type ExportsModuleDirectiveCtx = {
   Exports: IToken[];
   packageName: PackageNameCstNode[];
   To?: IToken[];
+  moduleName?: ModuleNameCstNode[];
+  Comma?: IToken[];
   Semicolon: IToken[];
 };
 
@@ -1970,6 +2022,8 @@ export type OpensModuleDirectiveCtx = {
   Opens: IToken[];
   packageName: PackageNameCstNode[];
   To?: IToken[];
+  moduleName?: ModuleNameCstNode[];
+  Comma?: IToken[];
   Semicolon: IToken[];
 };
 
@@ -2237,6 +2291,9 @@ export type AnnotationCtx = {
   At: IToken[];
   typeName: TypeNameCstNode[];
   LBrace?: IToken[];
+  elementValuePairList?: ElementValuePairListCstNode[];
+  elementValue?: ElementValueCstNode[];
+  RBrace?: IToken[];
 };
 
 export interface ElementValuePairListCstNode extends CstNode {
@@ -2387,6 +2444,7 @@ export interface BlockStatementCstNode extends CstNode {
 export type BlockStatementCtx = {
   localVariableDeclarationStatement?: LocalVariableDeclarationStatementCstNode[];
   classDeclaration?: ClassDeclarationCstNode[];
+  interfaceDeclaration?: InterfaceDeclarationCstNode[];
   statement?: StatementCstNode[];
 };
 
@@ -2563,6 +2621,8 @@ export interface SwitchLabelCstNode extends CstNode {
 
 export type SwitchLabelCtx = {
   Case?: IToken[];
+  caseConstant?: CaseConstantCstNode[];
+  Comma?: IToken[];
   Default?: IToken[];
 };
 
@@ -2577,6 +2637,7 @@ export type SwitchRuleCtx = {
   throwStatement?: ThrowStatementCstNode[];
   block?: BlockCstNode[];
   expression?: ExpressionCstNode[];
+  Semicolon?: IToken[];
 };
 
 export interface CaseConstantCstNode extends CstNode {
@@ -2752,6 +2813,9 @@ export interface TryStatementCstNode extends CstNode {
 
 export type TryStatementCtx = {
   Try?: IToken[];
+  block?: BlockCstNode[];
+  catches?: CatchesCstNode[];
+  finally?: FinallyCstNode[];
   tryWithResourcesStatement?: TryWithResourcesStatementCstNode[];
 };
 
@@ -3041,6 +3105,8 @@ export interface TernaryExpressionCstNode extends CstNode {
 export type TernaryExpressionCtx = {
   binaryExpression: BinaryExpressionCstNode[];
   QuestionMark?: IToken[];
+  expression?: ExpressionCstNode[];
+  Colon?: IToken[];
 };
 
 export interface BinaryExpressionCstNode extends CstNode {
@@ -3051,7 +3117,10 @@ export interface BinaryExpressionCstNode extends CstNode {
 export type BinaryExpressionCtx = {
   unaryExpression: UnaryExpressionCstNode[];
   Instanceof?: IToken[];
+  pattern?: PatternCstNode[];
+  referenceType?: ReferenceTypeCstNode[];
   AssignmentOperator?: IToken[];
+  expression?: ExpressionCstNode[];
   Less?: IToken[];
   Greater?: IToken[];
   BinaryOperator?: IToken[];
@@ -3113,6 +3182,10 @@ export interface PrimarySuffixCstNode extends CstNode {
 
 export type PrimarySuffixCtx = {
   Dot?: IToken[];
+  This?: IToken[];
+  unqualifiedClassInstanceCreationExpression?: UnqualifiedClassInstanceCreationExpressionCstNode[];
+  typeArguments?: TypeArgumentsCstNode[];
+  Identifier?: IToken[];
   methodInvocationSuffix?: MethodInvocationSuffixCstNode[];
   classLiteralSuffix?: ClassLiteralSuffixCstNode[];
   arrayAccessSuffix?: ArrayAccessSuffixCstNode[];
@@ -3138,8 +3211,18 @@ export interface FqnOrRefTypePartRestCstNode extends CstNode {
 
 export type FqnOrRefTypePartRestCtx = {
   annotation?: AnnotationCstNode[];
-  typeArguments?: TypeArgumentsCstNode[];
+  $methodTypeArguments?: FqnOrRefTypePartRest$MethodTypeArgumentsCstNode[];
   fqnOrRefTypePartCommon: FqnOrRefTypePartCommonCstNode[];
+};
+
+export interface FqnOrRefTypePartRest$MethodTypeArgumentsCstNode
+  extends CstNode {
+  name: "fqnOrRefTypePartRest$methodTypeArguments";
+  children: FqnOrRefTypePartRest$MethodTypeArgumentsCtx;
+}
+
+export type FqnOrRefTypePartRest$MethodTypeArgumentsCtx = {
+  typeArguments: TypeArgumentsCstNode[];
 };
 
 export interface FqnOrRefTypePartCommonCstNode extends CstNode {
@@ -3150,7 +3233,17 @@ export interface FqnOrRefTypePartCommonCstNode extends CstNode {
 export type FqnOrRefTypePartCommonCtx = {
   Identifier?: IToken[];
   Super?: IToken[];
-  typeArguments?: TypeArgumentsCstNode[];
+  $classTypeArguments?: FqnOrRefTypePartCommon$ClassTypeArgumentsCstNode[];
+};
+
+export interface FqnOrRefTypePartCommon$ClassTypeArgumentsCstNode
+  extends CstNode {
+  name: "fqnOrRefTypePartCommon$classTypeArguments";
+  children: FqnOrRefTypePartCommon$ClassTypeArgumentsCtx;
+}
+
+export type FqnOrRefTypePartCommon$ClassTypeArgumentsCtx = {
+  typeArguments: TypeArgumentsCstNode[];
 };
 
 export interface FqnOrRefTypePartFirstCstNode extends CstNode {
@@ -3378,6 +3471,24 @@ export type MethodReferenceSuffixCtx = {
   New?: IToken[];
 };
 
+export interface PatternCstNode extends CstNode {
+  name: "pattern";
+  children: PatternCtx;
+}
+
+export type PatternCtx = {
+  typePattern: TypePatternCstNode[];
+};
+
+export interface TypePatternCstNode extends CstNode {
+  name: "typePattern";
+  children: TypePatternCtx;
+}
+
+export type TypePatternCtx = {
+  localVariableDeclaration: LocalVariableDeclarationCstNode[];
+};
+
 export interface IdentifyNewExpressionTypeCstNode extends CstNode {
   name: "identifyNewExpressionType";
   children: IdentifyNewExpressionTypeCtx;
@@ -3434,4 +3545,5 @@ export type IsRefTypeInMethodRefCtx = {
   typeArguments: TypeArgumentsCstNode[];
   dims?: DimsCstNode[];
   Dot?: IToken[];
+  classOrInterfaceType?: ClassOrInterfaceTypeCstNode[];
 };
