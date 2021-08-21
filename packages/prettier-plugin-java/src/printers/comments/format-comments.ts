@@ -1,6 +1,10 @@
-"use strict";
-const { concat, hardline, lineSuffix, breakParent, literalline } =
-  require("prettier").doc.builders;
+import { builders } from "prettier/doc";
+import { CstElement, CstNode, IToken } from "java-parser";
+import { CstNodeLocation } from "@chevrotain/types";
+import { isCstElementOrUndefinedIToken } from "../../types/utils";
+import { Doc } from "prettier";
+
+const { concat, hardline, lineSuffix, breakParent, literalline } = builders;
 
 /**
  * Takes a token and return a doc with:
@@ -8,10 +12,10 @@ const { concat, hardline, lineSuffix, breakParent, literalline } =
  * - the token image
  * - concatenated trailing comments
  *
- * @param {Token} token
+ * @param {IToken} token
  * @return a doc with the token and its comments
  */
-function printTokenWithComments(token) {
+export function printTokenWithComments(token: IToken) {
   return printWithComments(
     token,
     token.image,
@@ -26,11 +30,11 @@ function printTokenWithComments(token) {
  * - the node doc value
  * - concatenated trailing comments
  *
- * @param {CSTNode} node
+ * @param {CstNode} node
  * @param {Doc} value - the converted node value
  * @return a doc with the token and its comments
  */
-function printNodeWithComments(node, value) {
+export function printNodeWithComments(node: CstNode, value: string) {
   return printWithComments(
     node,
     value,
@@ -39,11 +43,11 @@ function printNodeWithComments(node, value) {
   );
 }
 
-function printWithComments(
-  nodeOrToken,
-  value,
-  getLeadingComments,
-  getTrailingComments
+function printWithComments<T extends CstNode | IToken>(
+  nodeOrToken: T,
+  value: string,
+  getLeadingComments: (token: T) => Doc[],
+  getTrailingComments: (token: T, value: string) => Doc[]
 ) {
   const leadingComments = getLeadingComments(nodeOrToken);
   const trailingComments = getTrailingComments(nodeOrToken, value);
@@ -54,24 +58,27 @@ function printWithComments(
 }
 
 /**
- * @param {Token} token
+ * @param {IToken} token
  * @return an array containing processed leading comments and separators
  */
-function getTokenLeadingComments(token) {
+export function getTokenLeadingComments(token: IToken) {
   return getLeadingComments(token, token);
 }
 
 /**
- * @param {CSTNode} node
+ * @param {CstNode} node
  * @return an array containing processed leading comments and separators
  */
-function getNodeLeadingComments(node) {
+function getNodeLeadingComments(node: CstNode) {
   return getLeadingComments(node, node.location);
 }
 
-function getLeadingComments(nodeOrToken, location) {
+function getLeadingComments(
+  nodeOrToken: CstElement,
+  location: CstNodeLocation | IToken
+): Doc[] {
   const arr = [];
-  if (Object.prototype.hasOwnProperty.call(nodeOrToken, "leadingComments")) {
+  if (nodeOrToken.leadingComments !== undefined) {
     let previousEndLine = nodeOrToken.leadingComments[0].endLine;
     let step;
     arr.push(concat(formatComment(nodeOrToken.leadingComments[0])));
@@ -106,25 +113,30 @@ function getLeadingComments(nodeOrToken, location) {
 }
 
 /**
- * @param {Token} token
+ * @param {IToken} token
  * @return an array containing processed trailing comments and separators
  */
-function getTokenTrailingComments(token) {
+function getTokenTrailingComments(token: IToken) {
   return getTrailingComments(token, token.image, token);
 }
 
 /**
- * @param {CSTNode} node
+ * @param {CstNode} node
+ * @param {string} value
  * @return an array containing processed trailing comments and separators
  */
-function getNodeTrailingComments(node, value) {
+function getNodeTrailingComments(node: CstNode, value: string) {
   return getTrailingComments(node, value, node.location);
 }
 
-function getTrailingComments(nodeOrToken, value, location) {
-  const arr = [];
+function getTrailingComments(
+  nodeOrToken: CstElement,
+  value: string,
+  location: CstNodeLocation | IToken
+) {
+  const arr: Doc = [];
   let previousEndLine = location.endLine;
-  if (Object.prototype.hasOwnProperty.call(nodeOrToken, "trailingComments")) {
+  if (nodeOrToken.trailingComments !== undefined) {
     nodeOrToken.trailingComments.forEach((comment, idx) => {
       let separator = "";
 
@@ -151,7 +163,7 @@ function getTrailingComments(nodeOrToken, value, location) {
   return arr;
 }
 
-function isJavaDoc(comment, lines) {
+function isJavaDoc(comment: IToken, lines: string[]) {
   let isJavaDoc = true;
   if (comment.tokenType.name === "TraditionalComment" && lines.length > 1) {
     for (let i = 1; i < lines.length; i++) {
@@ -167,8 +179,8 @@ function isJavaDoc(comment, lines) {
   return isJavaDoc;
 }
 
-function formatJavaDoc(lines) {
-  const res = [lines[0].trim()];
+function formatJavaDoc(lines: string[]) {
+  const res: Doc[] = [lines[0].trim()];
 
   for (let i = 1; i < lines.length; i++) {
     res.push(hardline);
@@ -178,8 +190,8 @@ function formatJavaDoc(lines) {
   return res;
 }
 
-function formatComment(comment) {
-  const res = [];
+function formatComment(comment: IToken) {
+  const res: Doc[] = [];
   const lines = comment.image.split("\n");
 
   if (isJavaDoc(comment, lines)) {
@@ -194,30 +206,19 @@ function formatComment(comment) {
   return res;
 }
 
-function isToken(doc) {
-  return (
-    doc && Object.prototype.hasOwnProperty.call(doc, "image") && doc.tokenType
-  );
-}
-
-function processComments(docs) {
+export function processComments(
+  docs: (CstElement | undefined)[] | CstElement | undefined
+) {
   if (!Array.isArray(docs)) {
-    if (isToken(docs)) {
+    if (isCstElementOrUndefinedIToken(docs)) {
       return printTokenWithComments(docs);
     }
     return docs;
   }
   return docs.map(elt => {
-    if (isToken(elt)) {
+    if (isCstElementOrUndefinedIToken(elt)) {
       return printTokenWithComments(elt);
     }
     return elt;
   });
 }
-
-module.exports = {
-  getTokenLeadingComments,
-  processComments,
-  printTokenWithComments,
-  printNodeWithComments
-};

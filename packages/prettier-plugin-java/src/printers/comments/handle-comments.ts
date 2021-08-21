@@ -1,8 +1,7 @@
-"use strict";
+import { hasLeadingComments } from "./comments-utils";
+import { BinaryExpressionCtx, IToken } from "java-parser";
 
-const { hasLeadingComments } = require("./comments-utils");
-
-function handleCommentsBinaryExpression(ctx) {
+export function handleCommentsBinaryExpression(ctx: BinaryExpressionCtx) {
   let unaryExpressionIndex = 1;
   if (ctx.BinaryOperator !== undefined) {
     ctx.BinaryOperator.forEach(binaryOperator => {
@@ -18,7 +17,7 @@ function handleCommentsBinaryExpression(ctx) {
         const shiftUp =
           binaryOperator.leadingComments[0].startLine -
           1 -
-          ctx.BinaryOperator.startLine;
+          binaryOperator.startLine;
 
         if (
           binaryOperator.startLine !==
@@ -36,15 +35,11 @@ function handleCommentsBinaryExpression(ctx) {
         // to the following unaryExpression as leading comments
         ctx.unaryExpression[unaryExpressionIndex].leadingComments =
           ctx.unaryExpression[unaryExpressionIndex].leadingComments || [];
-        ctx.unaryExpression[unaryExpressionIndex].leadingComments.unshift(
+        ctx.unaryExpression[unaryExpressionIndex].leadingComments!.unshift(
           ...binaryOperator.leadingComments
         );
-        delete binaryOperator.leadingComments;
+        delete (binaryOperator as IToken).leadingComments;
       }
     });
   }
 }
-
-module.exports = {
-  handleCommentsBinaryExpression
-};
