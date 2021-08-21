@@ -1,9 +1,11 @@
 import {
-  CstNode,
+  AbstractOrdinaryCompilationUnitCtx,
+  AnnotationCstNode,
+  CompilationUnitCtx,
   CstElement,
+  CstNode,
   IToken,
-  TypeArgumentsCstNode,
-  AnnotationCstNode
+  TypeArgumentsCstNode
 } from "java-parser/api";
 
 export function isCstNode(tokenOrNode: CstElement): tokenOrNode is CstNode {
@@ -33,4 +35,13 @@ export const isAnnotationCstNode = (
   cstElement: CstElement
 ): cstElement is AnnotationCstNode => {
   return (cstElement as CstNode).name === "annotation";
+};
+
+export const isOrdinaryCompilationUnitCtx = (
+  ctx: CompilationUnitCtx
+): ctx is AbstractOrdinaryCompilationUnitCtx => {
+  return (
+    (ctx as AbstractOrdinaryCompilationUnitCtx).ordinaryCompilationUnit !==
+    undefined
+  );
 };

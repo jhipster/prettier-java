@@ -1883,11 +1883,19 @@ export interface CompilationUnitCstNode extends CstNode {
   children: CompilationUnitCtx;
 }
 
-export type CompilationUnitCtx = {
-  ordinaryCompilationUnit?: OrdinaryCompilationUnitCstNode[];
-  modularCompilationUnit?: ModularCompilationUnitCstNode[];
+export type AbstractOrdinaryCompilationUnitCtx = {
+  ordinaryCompilationUnit: OrdinaryCompilationUnitCstNode[];
   EOF: IToken[];
 };
+
+export type AbstractModularCompilationUnitCtx = {
+  modularCompilationUnit: OrdinaryCompilationUnitCstNode[];
+  EOF: IToken[];
+};
+
+export type CompilationUnitCtx =
+  | AbstractOrdinaryCompilationUnitCtx
+  | AbstractModularCompilationUnitCtx;
 
 export interface OrdinaryCompilationUnitCstNode extends CstNode {
   name: "ordinaryCompilationUnit";

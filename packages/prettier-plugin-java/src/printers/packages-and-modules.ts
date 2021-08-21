@@ -1,28 +1,49 @@
-"use strict";
-
-const { line, hardline, indent, group } = require("prettier").doc.builders;
-const { concat, join } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments/format-comments");
-const {
+import { concat, join } from "./prettier-builder";
+import { printTokenWithComments } from "./comments/format-comments";
+import {
   buildFqn,
-  rejectAndJoin,
-  rejectAndConcat,
-  rejectAndJoinSeps,
   displaySemicolon,
-  putIntoBraces,
   getBlankLinesSeparator,
+  putIntoBraces,
+  rejectAndConcat,
+  rejectAndJoin,
+  rejectAndJoinSeps,
   sortImports
-} = require("./printer-utils");
+} from "./printer-utils";
+import { builders } from "prettier/doc";
+import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import {
+  CompilationUnitCtx,
+  ExportsModuleDirectiveCtx,
+  ImportDeclarationCtx,
+  IToken,
+  ModularCompilationUnitCtx,
+  ModuleDeclarationCtx,
+  ModuleDirectiveCtx,
+  OpensModuleDirectiveCtx,
+  OrdinaryCompilationUnitCtx,
+  PackageDeclarationCtx,
+  PackageModifierCtx,
+  ProvidesModuleDirectiveCtx,
+  RequiresModifierCtx,
+  RequiresModuleDirectiveCtx,
+  TypeDeclarationCtx,
+  UsesModuleDirectiveCtx
+} from "java-parser";
+import { isOrdinaryCompilationUnitCtx } from "../types/utils";
 
-class PackagesAndModulesPrettierVisitor {
-  compilationUnit(ctx) {
-    const compilationUnit =
-      ctx.ordinaryCompilationUnit || ctx.modularCompilationUnit;
+const { line, hardline, indent, group } = builders;
+
+export class PackagesAndModulesPrettierVisitor extends BaseCstPrettierPrinter {
+  compilationUnit(ctx: CompilationUnitCtx) {
+    const compilationUnit = isOrdinaryCompilationUnitCtx(ctx)
+      ? ctx.ordinaryCompilationUnit
+      : ctx.modularCompilationUnit;
 
     return concat([this.visit(compilationUnit[0]), line]);
   }
 
-  ordinaryCompilationUnit(ctx) {
+  ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx) {
     const packageDecl = this.visit(ctx.packageDeclaration);
 
     const sortedImportsDecl = sortImports(ctx.importDeclaration);
@@ -41,7 +62,7 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  modularCompilationUnit(ctx) {
+  modularCompilationUnit(ctx: ModularCompilationUnitCtx) {
     const sortedImportsDecl = sortImports(ctx.importDeclaration);
     const nonStaticImports = this.mapVisit(sortedImportsDecl.nonStaticImports);
     const staticImports = this.mapVisit(sortedImportsDecl.staticImports);
@@ -57,7 +78,7 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  packageDeclaration(ctx) {
+  packageDeclaration(ctx: PackageDeclarationCtx) {
     const modifiers = this.mapVisit(ctx.packageModifier);
     const name = buildFqn(ctx.Identifier, ctx.Dot);
 
@@ -67,11 +88,11 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  packageModifier(ctx) {
+  packageModifier(ctx: PackageModifierCtx) {
     return this.visitSingle(ctx);
   }
 
-  importDeclaration(ctx) {
+  importDeclaration(ctx: ImportDeclarationCtx) {
     if (ctx.emptyStatement !== undefined) {
       return this.visit(ctx.emptyStatement);
     }
@@ -79,23 +100,23 @@ class PackagesAndModulesPrettierVisitor {
     const optionalStatic = ctx.Static ? ctx.Static[0] : "";
     const packageOrTypeName = this.visit(ctx.packageOrTypeName);
 
-    const optionalDotStar = ctx.Dot ? concat([ctx.Dot[0], ctx.Star[0]]) : "";
+    const optionalDotStar = ctx.Dot ? concat([ctx.Dot[0], ctx.Star![0]]) : "";
 
     return rejectAndJoin(" ", [
-      ctx.Import[0],
+      ctx.Import![0],
       optionalStatic,
-      rejectAndConcat([packageOrTypeName, optionalDotStar, ctx.Semicolon[0]])
+      rejectAndConcat([packageOrTypeName, optionalDotStar, ctx.Semicolon![0]])
     ]);
   }
 
-  typeDeclaration(ctx) {
+  typeDeclaration(ctx: TypeDeclarationCtx) {
     if (ctx.Semicolon) {
       return displaySemicolon(ctx.Semicolon[0]);
     }
     return this.visitSingle(ctx);
   }
 
-  moduleDeclaration(ctx) {
+  moduleDeclaration(ctx: ModuleDeclarationCtx) {
     const annotations = this.mapVisit(ctx.annotation);
     const optionalOpen = ctx.Open ? ctx.Open[0] : "";
     const name = buildFqn(ctx.Identifier, ctx.Dot);
@@ -115,11 +136,11 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  moduleDirective(ctx) {
+  moduleDirective(ctx: ModuleDirectiveCtx) {
     return this.visitSingle(ctx);
   }
 
-  requiresModuleDirective(ctx) {
+  requiresModuleDirective(ctx: RequiresModuleDirectiveCtx) {
     const modifiers = this.mapVisit(ctx.requiresModifier);
     const moduleName = this.visit(ctx.moduleName);
 
@@ -130,7 +151,7 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  exportsModuleDirective(ctx) {
+  exportsModuleDirective(ctx: ExportsModuleDirectiveCtx) {
     const packageName = this.visit(ctx.packageName);
     const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
@@ -156,7 +177,7 @@ class PackagesAndModulesPrettierVisitor {
     );
   }
 
-  opensModuleDirective(ctx) {
+  opensModuleDirective(ctx: OpensModuleDirectiveCtx) {
     const packageName = this.visit(ctx.packageName);
     const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
@@ -182,7 +203,7 @@ class PackagesAndModulesPrettierVisitor {
     );
   }
 
-  usesModuleDirective(ctx) {
+  usesModuleDirective(ctx: UsesModuleDirectiveCtx) {
     const typeName = this.visit(ctx.typeName);
 
     return rejectAndConcat([
@@ -192,7 +213,7 @@ class PackagesAndModulesPrettierVisitor {
     ]);
   }
 
-  providesModuleDirective(ctx) {
+  providesModuleDirective(ctx: ProvidesModuleDirectiveCtx) {
     const firstTypeName = this.visit(ctx.typeName[0]);
     const otherTypeNames = this.mapVisit(ctx.typeName.slice(1));
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
@@ -217,15 +238,11 @@ class PackagesAndModulesPrettierVisitor {
     );
   }
 
-  requiresModifier(ctx) {
-    return printTokenWithComments(this.getSingle(ctx));
+  requiresModifier(ctx: RequiresModifierCtx) {
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
   isModuleCompilationUnit() {
     return "isModuleCompilationUnit";
   }
 }
-
-module.exports = {
-  PackagesAndModulesPrettierVisitor
-};
