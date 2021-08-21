@@ -1,28 +1,101 @@
-"use strict";
-const forEach = require("lodash/forEach");
-const { line, softline, hardline } = require("prettier").doc.builders;
-const {
+import forEach from "lodash/forEach";
+import {
+  displaySemicolon,
   getBlankLinesSeparator,
+  getClassBodyDeclarationsSeparator,
+  isStatementEmptyStatement,
+  putIntoBraces,
   reject,
   rejectAndConcat,
   rejectAndJoin,
-  sortClassTypeChildren,
-  sortModifiers,
   rejectAndJoinSeps,
-  displaySemicolon,
-  putIntoBraces,
-  getClassBodyDeclarationsSeparator,
-  isStatementEmptyStatement
-} = require("./printer-utils");
-const { concat, join, group, indent } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments/format-comments");
-const {
-  hasLeadingLineComments,
-  hasLeadingComments
-} = require("./comments/comments-utils");
+  sortClassTypeChildren,
+  sortModifiers
+} from "./printer-utils";
+import { concat, group, indent, join } from "./prettier-builder";
+import { printTokenWithComments } from "./comments/format-comments";
+import {
+  hasLeadingComments,
+  hasLeadingLineComments
+} from "./comments/comments-utils";
+import { builders } from "prettier/doc";
+import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import {
+  ClassBodyCtx,
+  ClassBodyDeclarationCtx,
+  ClassDeclarationCtx,
+  ClassMemberDeclarationCtx,
+  ClassModifierCtx,
+  ClassPermitsCtx,
+  CompactConstructorDeclarationCtx,
+  ConstructorBodyCtx,
+  ConstructorDeclarationCtx,
+  ConstructorDeclaratorCtx,
+  ConstructorModifierCtx,
+  EnumBodyCtx,
+  EnumBodyDeclarationsCtx,
+  EnumConstantCtx,
+  EnumConstantListCtx,
+  EnumConstantModifierCtx,
+  EnumDeclarationCtx,
+  ExceptionTypeCtx,
+  ExceptionTypeListCtx,
+  ExplicitConstructorInvocationCtx,
+  FieldDeclarationCtx,
+  FieldModifierCtx,
+  FormalParameterCtx,
+  FormalParameterListCtx,
+  InstanceInitializerCtx,
+  InterfaceTypeListCtx,
+  IToken,
+  MethodBodyCtx,
+  MethodDeclarationCtx,
+  MethodDeclaratorCtx,
+  MethodHeaderCtx,
+  MethodModifierCtx,
+  NormalClassDeclarationCtx,
+  QualifiedExplicitConstructorInvocationCtx,
+  ReceiverParameterCtx,
+  RecordBodyCtx,
+  RecordBodyDeclarationCtx,
+  RecordComponentCtx,
+  RecordComponentListCtx,
+  RecordComponentModifierCtx,
+  RecordDeclarationCtx,
+  RecordHeaderCtx,
+  ResultCtx,
+  SimpleTypeNameCtx,
+  StaticInitializerCtx,
+  SuperclassCtx,
+  SuperinterfacesCtx,
+  ThrowsCtx,
+  TypeParameterListCtx,
+  TypeParametersCtx,
+  UnannClassOrInterfaceTypeCtx,
+  UnannClassTypeCtx,
+  UnannInterfaceTypeCtx,
+  UnannPrimitiveTypeCtx,
+  UnannPrimitiveTypeWithOptionalDimsSuffixCtx,
+  UnannReferenceTypeCtx,
+  UnannTypeCtx,
+  UnannTypeVariableCtx,
+  UnqualifiedExplicitConstructorInvocationCtx,
+  VariableArityParameterCtx,
+  VariableArityRecordComponentCtx,
+  VariableDeclaratorCtx,
+  VariableDeclaratorIdCtx,
+  VariableDeclaratorListCtx,
+  VariableInitializerCtx,
+  VariableModifierCtx,
+  VariableParaRegularParameterCtx
+} from "java-parser";
+import { Doc } from "prettier";
+import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils";
 
-class ClassesPrettierVisitor {
-  classDeclaration(ctx) {
+const { line, softline, hardline } = builders;
+
+export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
+  classDeclaration(ctx: ClassDeclarationCtx) {
     const modifiers = sortModifiers(ctx.classModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -44,7 +117,7 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  normalClassDeclaration(ctx) {
+  normalClassDeclaration(ctx: NormalClassDeclarationCtx) {
     const name = this.visit(ctx.typeIdentifier);
     const optionalTypeParams = this.visit(ctx.typeParameters);
     const optionalSuperClasses = this.visit(ctx.superclass);
@@ -83,32 +156,32 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  classModifier(ctx) {
+  classModifier(ctx: ClassModifierCtx) {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  typeParameters(ctx) {
+  typeParameters(ctx: TypeParametersCtx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
     return rejectAndConcat([ctx.Less[0], typeParameterList, ctx.Greater[0]]);
   }
 
-  typeParameterList(ctx) {
+  typeParameterList(ctx: TypeParameterListCtx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndJoinSeps(commas, typeParameter);
   }
 
-  superclass(ctx) {
+  superclass(ctx: SuperclassCtx) {
     return join(" ", [ctx.Extends[0], this.visit(ctx.classType)]);
   }
 
-  superinterfaces(ctx) {
+  superinterfaces(ctx: SuperinterfacesCtx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
     return group(
@@ -119,7 +192,7 @@ class ClassesPrettierVisitor {
     );
   }
 
-  classPermits(ctx) {
+  classPermits(ctx: ClassPermitsCtx) {
     const typeNames = this.mapVisit(ctx.typeName);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
@@ -133,14 +206,14 @@ class ClassesPrettierVisitor {
     );
   }
 
-  interfaceTypeList(ctx) {
+  interfaceTypeList(ctx: InterfaceTypeListCtx) {
     const interfaceType = this.mapVisit(ctx.interfaceType);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
     return group(rejectAndJoinSeps(commas, interfaceType));
   }
 
-  classBody(ctx, param) {
+  classBody(ctx: ClassBodyCtx, param: any) {
     let content = "";
     if (ctx.classBodyDeclaration !== undefined) {
       const classBodyDeclsVisited = reject(
@@ -179,11 +252,11 @@ class ClassesPrettierVisitor {
     return putIntoBraces(content, hardline, ctx.LCurly[0], ctx.RCurly[0]);
   }
 
-  classBodyDeclaration(ctx) {
+  classBodyDeclaration(ctx: ClassBodyDeclarationCtx) {
     return this.visitSingle(ctx);
   }
 
-  classMemberDeclaration(ctx) {
+  classMemberDeclaration(ctx: ClassMemberDeclarationCtx) {
     if (ctx.Semicolon) {
       return displaySemicolon(ctx.Semicolon[0]);
     }
@@ -191,7 +264,7 @@ class ClassesPrettierVisitor {
     return this.visitSingle(ctx);
   }
 
-  fieldDeclaration(ctx) {
+  fieldDeclaration(ctx: FieldDeclarationCtx) {
     const modifiers = sortModifiers(ctx.fieldModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -209,26 +282,26 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  fieldModifier(ctx) {
+  fieldModifier(ctx: FieldModifierCtx) {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | ...
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  variableDeclaratorList(ctx) {
+  variableDeclaratorList(ctx: VariableDeclaratorListCtx) {
     const variableDeclarators = this.mapVisit(ctx.variableDeclarator);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
     return rejectAndJoinSeps(commas, variableDeclarators);
   }
 
-  variableDeclarator(ctx) {
+  variableDeclarator(ctx: VariableDeclaratorCtx) {
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
     if (ctx.Equals) {
       const variableInitializer = this.visit(ctx.variableInitializer);
 
-      if (hasLeadingLineComments(ctx.variableInitializer[0])) {
+      if (hasLeadingLineComments(ctx.variableInitializer![0])) {
         return group(
           indent(
             rejectAndJoin(hardline, [
@@ -241,14 +314,14 @@ class ClassesPrettierVisitor {
 
       if (
         // Array Initialisation
-        ctx.variableInitializer[0].children.arrayInitializer !== undefined ||
+        ctx.variableInitializer![0].children.arrayInitializer !== undefined ||
         // Lambda expression
-        ctx.variableInitializer[0].children.expression[0].children
+        ctx.variableInitializer![0].children.expression![0].children
           .lambdaExpression !== undefined ||
         // Ternary Expression
-        (ctx.variableInitializer[0].children.expression[0].children
+        (ctx.variableInitializer![0].children.expression![0].children
           .ternaryExpression !== undefined &&
-          ctx.variableInitializer[0].children.expression[0].children
+          ctx.variableInitializer![0].children.expression![0].children
             .ternaryExpression[0].children.QuestionMark !== undefined)
       ) {
         return rejectAndJoin(" ", [
@@ -259,11 +332,11 @@ class ClassesPrettierVisitor {
       }
 
       if (
-        ctx.variableInitializer[0].children.expression[0].children
+        ctx.variableInitializer![0].children.expression![0].children
           .ternaryExpression !== undefined
       ) {
         const firstPrimary =
-          ctx.variableInitializer[0].children.expression[0].children
+          ctx.variableInitializer![0].children.expression![0].children
             .ternaryExpression[0].children.binaryExpression[0].children
             .unaryExpression[0].children.primary[0];
 
@@ -297,7 +370,7 @@ class ClassesPrettierVisitor {
           firstPrimary.children.primarySuffix[0].children
             .methodInvocationSuffix !== undefined;
         const isUniqueUnaryExpression =
-          ctx.variableInitializer[0].children.expression[0].children
+          ctx.variableInitializer![0].children.expression![0].children
             .ternaryExpression[0].children.binaryExpression[0].children
             .unaryExpression.length === 1;
 
@@ -324,68 +397,70 @@ class ClassesPrettierVisitor {
     return variableDeclaratorId;
   }
 
-  variableDeclaratorId(ctx) {
+  variableDeclaratorId(ctx: VariableDeclaratorIdCtx) {
     const identifier = ctx.Identifier[0];
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([identifier, dims]);
   }
 
-  variableInitializer(ctx) {
+  variableInitializer(ctx: VariableInitializerCtx) {
     return this.visitSingle(ctx);
   }
 
-  unannType(ctx) {
+  unannType(ctx: UnannTypeCtx) {
     return this.visitSingle(ctx);
   }
 
-  unannPrimitiveTypeWithOptionalDimsSuffix(ctx) {
+  unannPrimitiveTypeWithOptionalDimsSuffix(
+    ctx: UnannPrimitiveTypeWithOptionalDimsSuffixCtx
+  ) {
     const unannPrimitiveType = this.visit(ctx.unannPrimitiveType);
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([unannPrimitiveType, dims]);
   }
 
-  unannPrimitiveType(ctx) {
+  unannPrimitiveType(ctx: UnannPrimitiveTypeCtx) {
     if (ctx.numericType) {
       return this.visitSingle(ctx);
     }
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  unannReferenceType(ctx) {
+  unannReferenceType(ctx: UnannReferenceTypeCtx) {
     const unannClassOrInterfaceType = this.visit(ctx.unannClassOrInterfaceType);
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([unannClassOrInterfaceType, dims]);
   }
 
-  unannClassOrInterfaceType(ctx) {
+  unannClassOrInterfaceType(ctx: UnannClassOrInterfaceTypeCtx) {
     return this.visit(ctx.unannClassType);
   }
 
-  unannClassType(ctx) {
+  unannClassType(ctx: UnannClassTypeCtx) {
     const tokens = sortClassTypeChildren(
       ctx.annotation,
       ctx.typeArguments,
       ctx.Identifier
     );
 
-    const segments = [];
-    let currentSegment = [];
+    const segments: Doc[] = [];
+    let currentSegment: (Doc | IToken)[] = [];
 
     forEach(tokens, (token, i) => {
-      if (token.name === "typeArguments") {
+      if (isTypeArgumentsCstNode(token)) {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));
         currentSegment = [];
-      } else if (token.name === "annotation") {
+      } else if (isAnnotationCstNode(token)) {
         currentSegment.push(this.visit([token]));
         currentSegment.push(" ");
       } else {
-        currentSegment.push(token);
+        currentSegment.push(token as IToken);
         if (
-          (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
+          (i + 1 < tokens.length && !isTypeArgumentsCstNode(tokens[i + 1])) ||
           i + 1 === tokens.length
         ) {
           segments.push(rejectAndConcat(currentSegment));
@@ -397,15 +472,15 @@ class ClassesPrettierVisitor {
     return rejectAndJoinSeps(ctx.Dot, segments);
   }
 
-  unannInterfaceType(ctx) {
+  unannInterfaceType(ctx: UnannInterfaceTypeCtx) {
     return this.visit(ctx.unannClassType);
   }
 
-  unannTypeVariable(ctx) {
-    return printTokenWithComments(this.getSingle(ctx));
+  unannTypeVariable(ctx: UnannTypeVariableCtx) {
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  methodDeclaration(ctx) {
+  methodDeclaration(ctx: MethodDeclarationCtx) {
     const modifiers = sortModifiers(ctx.methodModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -424,15 +499,15 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  methodModifier(ctx) {
+  methodModifier(ctx: MethodModifierCtx) {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  methodHeader(ctx) {
+  methodHeader(ctx: MethodHeaderCtx) {
     const typeParameters = this.visit(ctx.typeParameters);
     const annotations = this.mapVisit(ctx.annotation);
     const result = this.visit(ctx.result);
@@ -452,15 +527,15 @@ class ClassesPrettierVisitor {
     );
   }
 
-  result(ctx) {
+  result(ctx: ResultCtx) {
     if (ctx.unannType) {
       return this.visit(ctx.unannType);
     }
     // void
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  methodDeclarator(ctx) {
+  methodDeclarator(ctx: MethodDeclaratorCtx) {
     const identifier = printTokenWithComments(ctx.Identifier[0]);
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
@@ -477,11 +552,11 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  receiverParameter(ctx) {
+  receiverParameter(ctx: ReceiverParameterCtx) {
     const annotations = this.mapVisit(ctx.annotation);
     const unannType = this.visit(ctx.unannType);
     const identifier = ctx.Identifier
-      ? concat([ctx.Identifier[0], ctx.Dot[0]])
+      ? concat([ctx.Identifier[0], ctx.Dot![0]])
       : "";
 
     return rejectAndJoin("", [
@@ -492,17 +567,17 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  formalParameterList(ctx) {
+  formalParameterList(ctx: FormalParameterListCtx) {
     const formalParameter = this.mapVisit(ctx.formalParameter);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
     return rejectAndJoinSeps(commas, formalParameter);
   }
 
-  formalParameter(ctx) {
+  formalParameter(ctx: FormalParameterCtx) {
     return this.visitSingle(ctx);
   }
 
-  variableParaRegularParameter(ctx) {
+  variableParaRegularParameter(ctx: VariableParaRegularParameterCtx) {
     const variableModifier = this.mapVisit(ctx.variableModifier);
     const unannType = this.visit(ctx.unannType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
@@ -514,7 +589,7 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  variableArityParameter(ctx) {
+  variableArityParameter(ctx: VariableArityParameterCtx) {
     const variableModifier = this.mapVisit(ctx.variableModifier);
     const unannType = this.visit(ctx.unannType);
     const annotations = this.mapVisit(ctx.annotation);
@@ -537,48 +612,48 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  variableModifier(ctx) {
+  variableModifier(ctx: VariableModifierCtx) {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  throws(ctx) {
+  throws(ctx: ThrowsCtx) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
     const throwsDeclaration = join(" ", [ctx.Throws[0], exceptionTypeList]);
     return group(indent(rejectAndConcat([softline, throwsDeclaration])));
   }
 
-  exceptionTypeList(ctx) {
+  exceptionTypeList(ctx: ExceptionTypeListCtx) {
     const exceptionTypes = this.mapVisit(ctx.exceptionType);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
     return rejectAndJoinSeps(commas, exceptionTypes);
   }
 
-  exceptionType(ctx) {
+  exceptionType(ctx: ExceptionTypeCtx) {
     return this.visitSingle(ctx);
   }
 
-  methodBody(ctx) {
+  methodBody(ctx: MethodBodyCtx) {
     if (ctx.block) {
       return this.visit(ctx.block);
     }
 
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  instanceInitializer(ctx) {
+  instanceInitializer(ctx: InstanceInitializerCtx) {
     return this.visitSingle(ctx);
   }
 
-  staticInitializer(ctx) {
+  staticInitializer(ctx: StaticInitializerCtx) {
     const block = this.visit(ctx.block);
 
     return join(" ", [ctx.Static[0], block]);
   }
 
-  constructorDeclaration(ctx) {
+  constructorDeclaration(ctx: ConstructorDeclarationCtx) {
     const modifiers = sortModifiers(ctx.constructorModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -602,15 +677,15 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  constructorModifier(ctx) {
+  constructorModifier(ctx: ConstructorModifierCtx) {
     if (ctx.annotation) {
       return this.visit(ctx.annotation);
     }
     // public | protected | private | Synchronized | ...
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  constructorDeclarator(ctx) {
+  constructorDeclarator(ctx: ConstructorDeclaratorCtx) {
     const typeParameters = this.visit(ctx.typeParameters);
     const simpleTypeName = this.visit(ctx.simpleTypeName);
     const receiverParameter = this.visit(ctx.receiverParameter);
@@ -631,11 +706,11 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  simpleTypeName(ctx) {
-    return printTokenWithComments(this.getSingle(ctx));
+  simpleTypeName(ctx: SimpleTypeNameCtx) {
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  constructorBody(ctx) {
+  constructorBody(ctx: ConstructorBodyCtx) {
     const explicitConstructorInvocation = this.visit(
       ctx.explicitConstructorInvocation
     );
@@ -650,13 +725,15 @@ class ClassesPrettierVisitor {
     );
   }
 
-  explicitConstructorInvocation(ctx) {
+  explicitConstructorInvocation(ctx: ExplicitConstructorInvocationCtx) {
     return this.visitSingle(ctx);
   }
 
-  unqualifiedExplicitConstructorInvocation(ctx) {
+  unqualifiedExplicitConstructorInvocation(
+    ctx: UnqualifiedExplicitConstructorInvocationCtx
+  ) {
     const typeArguments = this.visit(ctx.typeArguments);
-    const keyWord = ctx.This ? ctx.This[0] : ctx.Super[0];
+    const keyWord = ctx.This ? ctx.This[0] : ctx.Super![0];
     const argumentList = this.visit(ctx.argumentList);
     return rejectAndConcat([
       typeArguments,
@@ -670,7 +747,9 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  qualifiedExplicitConstructorInvocation(ctx) {
+  qualifiedExplicitConstructorInvocation(
+    ctx: QualifiedExplicitConstructorInvocationCtx
+  ) {
     const expressionName = this.visit(ctx.expressionName);
     const typeArguments = this.visit(ctx.typeArguments);
     const argumentList = this.visit(ctx.argumentList);
@@ -689,7 +768,7 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  enumDeclaration(ctx) {
+  enumDeclaration(ctx: EnumDeclarationCtx) {
     const classModifier = this.mapVisit(ctx.classModifier);
     const typeIdentifier = this.visit(ctx.typeIdentifier);
     const superinterfaces = this.visit(ctx.superinterfaces);
@@ -704,7 +783,7 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  enumBody(ctx) {
+  enumBody(ctx: EnumBodyCtx) {
     const enumConstantList = this.visit(ctx.enumConstantList);
     const enumBodyDeclarations = this.visit(ctx.enumBodyDeclarations);
 
@@ -716,7 +795,7 @@ class ClassesPrettierVisitor {
     // edge case: https://github.com/jhipster/prettier-java/issues/383
     const handleEnumBodyDeclarationsLeadingComments =
       !hasNoClassBodyDeclarations &&
-      hasLeadingComments(ctx.enumBodyDeclarations[0])
+      hasLeadingComments(ctx.enumBodyDeclarations![0])
         ? hardline
         : "";
 
@@ -744,18 +823,20 @@ class ClassesPrettierVisitor {
     );
   }
 
-  enumConstantList(ctx) {
+  enumConstantList(ctx: EnumConstantListCtx) {
     const enumConstants = this.mapVisit(ctx.enumConstant);
 
     const blankLineSeparators = getBlankLinesSeparator(ctx.enumConstant);
     const commas = ctx.Comma
-      ? ctx.Comma.map((elt, index) => concat([elt, blankLineSeparators[index]]))
+      ? ctx.Comma.map((elt, index) =>
+          concat([elt, blankLineSeparators![index]])
+        )
       : [];
 
     return group(rejectAndJoinSeps(commas, enumConstants));
   }
 
-  enumConstant(ctx) {
+  enumConstant(ctx: EnumConstantCtx) {
     const modifiers = sortModifiers(ctx.enumConstantModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -765,7 +846,7 @@ class ClassesPrettierVisitor {
     const classBody = this.visit(ctx.classBody);
 
     const optionnalBracesAndArgumentList = ctx.LBrace
-      ? putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
+      ? putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace![0])
       : "";
 
     return rejectAndJoin(hardline, [
@@ -778,11 +859,11 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  enumConstantModifier(ctx) {
+  enumConstantModifier(ctx: EnumConstantModifierCtx) {
     return this.visitSingle(ctx);
   }
 
-  enumBodyDeclarations(ctx) {
+  enumBodyDeclarations(ctx: EnumBodyDeclarationsCtx) {
     if (ctx.classBodyDeclaration !== undefined) {
       const classBodyDeclaration = this.mapVisit(ctx.classBodyDeclaration);
 
@@ -799,7 +880,7 @@ class ClassesPrettierVisitor {
     return { ...ctx.Semicolon[0], image: "" };
   }
 
-  recordDeclaration(ctx) {
+  recordDeclaration(ctx: RecordDeclarationCtx) {
     const name = this.visit(ctx.typeIdentifier);
     const optionalTypeParams = this.visit(ctx.typeParameters);
 
@@ -827,7 +908,7 @@ class ClassesPrettierVisitor {
       body
     ]);
   }
-  recordHeader(ctx) {
+  recordHeader(ctx: RecordHeaderCtx) {
     const recordComponentList = this.visit(ctx.recordComponentList);
     return putIntoBraces(
       recordComponentList,
@@ -836,13 +917,13 @@ class ClassesPrettierVisitor {
       ctx.RBrace[0]
     );
   }
-  recordComponentList(ctx) {
+  recordComponentList(ctx: RecordComponentListCtx) {
     const recordComponents = this.mapVisit(ctx.recordComponent);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndJoinSeps(commas, recordComponents);
   }
-  recordComponent(ctx) {
+  recordComponent(ctx: RecordComponentCtx) {
     const modifiers = this.mapVisit(ctx.recordComponentModifier);
     const unannType = this.visit(ctx.unannType);
 
@@ -857,7 +938,9 @@ class ClassesPrettierVisitor {
     const variableArityRecordComponent = this.visit(
       ctx.variableArityRecordComponent
     );
-    if (ctx.variableArityRecordComponent[0].children.annotation !== undefined) {
+    if (
+      ctx.variableArityRecordComponent![0].children.annotation !== undefined
+    ) {
       return rejectAndJoin(" ", [
         join(" ", modifiers),
         join(" ", [unannType, variableArityRecordComponent])
@@ -869,7 +952,7 @@ class ClassesPrettierVisitor {
       concat([unannType, variableArityRecordComponent])
     ]);
   }
-  variableArityRecordComponent(ctx) {
+  variableArityRecordComponent(ctx: VariableArityRecordComponentCtx) {
     const annotations = this.mapVisit(ctx.annotation);
     const identifier = ctx.Identifier[0];
 
@@ -879,11 +962,11 @@ class ClassesPrettierVisitor {
     ]);
   }
 
-  recordComponentModifier(ctx) {
+  recordComponentModifier(ctx: RecordComponentModifierCtx) {
     return this.visitSingle(ctx);
   }
 
-  recordBody(ctx) {
+  recordBody(ctx: RecordBodyCtx) {
     return putIntoBraces(
       rejectAndJoinSeps(
         getBlankLinesSeparator(ctx.recordBodyDeclaration),
@@ -895,11 +978,11 @@ class ClassesPrettierVisitor {
     );
   }
 
-  recordBodyDeclaration(ctx) {
+  recordBodyDeclaration(ctx: RecordBodyDeclarationCtx) {
     return this.visitSingle(ctx);
   }
 
-  compactConstructorDeclaration(ctx) {
+  compactConstructorDeclaration(ctx: CompactConstructorDeclarationCtx) {
     const modifiers = sortModifiers(ctx.constructorModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
@@ -934,7 +1017,3 @@ class ClassesPrettierVisitor {
     return "isCompactConstructorDeclaration";
   }
 }
-
-module.exports = {
-  ClassesPrettierVisitor
-};
