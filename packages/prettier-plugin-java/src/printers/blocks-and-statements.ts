@@ -1,26 +1,78 @@
 "use strict";
 
-const { line, softline, hardline } = require("prettier").doc.builders;
-const { group, indent, dedent, concat, join } = require("./prettier-builder");
-const { printTokenWithComments } = require("./comments/format-comments");
-const {
+import { builders } from "prettier/doc";
+import { concat, dedent, group, indent, join } from "./prettier-builder";
+import { printTokenWithComments } from "./comments/format-comments";
+import {
   hasLeadingLineComments,
   hasTrailingLineComments
-} = require("./comments/comments-utils");
-const {
+} from "./comments/comments-utils";
+import {
   displaySemicolon,
+  getBlankLinesSeparator,
+  isStatementEmptyStatement,
+  putIntoBraces,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
-  getBlankLinesSeparator,
   rejectSeparators,
-  putIntoBraces,
-  isStatementEmptyStatement,
   sortModifiers
-} = require("./printer-utils");
+} from "./printer-utils";
+import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import {
+  AssertStatementCtx,
+  BasicForStatementCtx,
+  BlockCtx,
+  BlockStatementCtx,
+  BlockStatementsCtx,
+  BreakStatementCtx,
+  CaseConstantCtx,
+  CatchClauseCtx,
+  CatchesCtx,
+  CatchFormalParameterCtx,
+  CatchTypeCtx,
+  ContinueStatementCtx,
+  DoStatementCtx,
+  EmptyStatementCtx,
+  EnhancedForStatementCtx,
+  ExpressionStatementCtx,
+  FinallyCtx,
+  ForInitCtx,
+  ForStatementCtx,
+  ForUpdateCtx,
+  IfStatementCtx,
+  IToken,
+  LabeledStatementCtx,
+  LocalVariableDeclarationCtx,
+  LocalVariableDeclarationStatementCtx,
+  LocalVariableTypeCtx,
+  ResourceCtx,
+  ResourceInitCtx,
+  ResourceListCtx,
+  ResourceSpecificationCtx,
+  ReturnStatementCtx,
+  StatementCtx,
+  StatementExpressionCtx,
+  StatementExpressionListCtx,
+  StatementWithoutTrailingSubstatementCtx,
+  SwitchBlockCtx,
+  SwitchBlockStatementGroupCtx,
+  SwitchLabelCtx,
+  SwitchRuleCtx,
+  SwitchStatementCtx,
+  SynchronizedStatementCtx,
+  ThrowStatementCtx,
+  TryStatementCtx,
+  TryWithResourcesStatementCtx,
+  VariableAccessCtx,
+  WhileStatementCtx,
+  YieldStatementCtx
+} from "java-parser";
 
-class BlocksAndStatementPrettierVisitor {
-  block(ctx) {
+const { line, softline, hardline } = builders;
+
+export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
+  block(ctx: BlockCtx) {
     const blockStatements = this.visit(ctx.blockStatements);
 
     return putIntoBraces(
@@ -31,7 +83,7 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  blockStatements(ctx) {
+  blockStatements(ctx: BlockStatementsCtx) {
     const blockStatement = this.mapVisit(ctx.blockStatement);
 
     const separators = rejectSeparators(
@@ -42,16 +94,16 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndJoinSeps(separators, blockStatement);
   }
 
-  blockStatement(ctx) {
+  blockStatement(ctx: BlockStatementCtx) {
     return this.visitSingle(ctx);
   }
 
-  localVariableDeclarationStatement(ctx) {
+  localVariableDeclarationStatement(ctx: LocalVariableDeclarationStatementCtx) {
     const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
     return rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]);
   }
 
-  localVariableDeclaration(ctx) {
+  localVariableDeclaration(ctx: LocalVariableDeclarationCtx) {
     const modifiers = sortModifiers(ctx.variableModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const finalModifiers = this.mapVisit(modifiers[1]);
@@ -68,15 +120,15 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  localVariableType(ctx) {
+  localVariableType(ctx: LocalVariableTypeCtx) {
     if (ctx.unannType) {
       return this.visitSingle(ctx);
     }
 
-    return printTokenWithComments(this.getSingle(ctx));
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  statement(ctx, params) {
+  statement(ctx: StatementCtx, params: any) {
     // handling Labeled statements comments
     if (ctx.labeledStatement !== undefined) {
       const newLabelStatement = { ...ctx.labeledStatement[0] };
@@ -109,31 +161,34 @@ class BlocksAndStatementPrettierVisitor {
     return this.visitSingle(ctx, params);
   }
 
-  statementWithoutTrailingSubstatement(ctx, params) {
+  statementWithoutTrailingSubstatement(
+    ctx: StatementWithoutTrailingSubstatementCtx,
+    params: any
+  ) {
     return this.visitSingle(ctx, params);
   }
 
-  emptyStatement(ctx, params) {
+  emptyStatement(ctx: EmptyStatementCtx, params: any) {
     return displaySemicolon(ctx.Semicolon[0], params);
   }
 
-  labeledStatement(ctx) {
+  labeledStatement(ctx: LabeledStatementCtx) {
     const identifier = ctx.Identifier[0];
     const statement = this.visit(ctx.statement);
 
     return rejectAndJoin(ctx.Colon[0], [identifier, statement]);
   }
 
-  expressionStatement(ctx) {
+  expressionStatement(ctx: ExpressionStatementCtx) {
     const statementExpression = this.visit(ctx.statementExpression);
     return rejectAndConcat([statementExpression, ctx.Semicolon[0]]);
   }
 
-  statementExpression(ctx) {
+  statementExpression(ctx: StatementExpressionCtx) {
     return this.visitSingle(ctx);
   }
 
-  ifStatement(ctx) {
+  ifStatement(ctx: IfStatementCtx) {
     const expression = this.visit(ctx.expression);
 
     const ifStatement = this.visit(ctx.statement[0], {
@@ -173,7 +228,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  assertStatement(ctx) {
+  assertStatement(ctx: AssertStatementCtx) {
     const expressions = this.mapVisit(ctx.expression);
     const colon = ctx.Colon ? ctx.Colon[0] : ":";
     return rejectAndConcat([
@@ -183,7 +238,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  switchStatement(ctx) {
+  switchStatement(ctx: SwitchStatementCtx) {
     const expression = this.visit(ctx.expression);
     const switchBlock = this.visit(ctx.switchBlock);
 
@@ -194,7 +249,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  switchBlock(ctx) {
+  switchBlock(ctx: SwitchBlockCtx) {
     const switchCases =
       ctx.switchBlockStatementGroup !== undefined
         ? this.mapVisit(ctx.switchBlockStatementGroup)
@@ -208,7 +263,7 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  switchBlockStatementGroup(ctx) {
+  switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx) {
     const switchLabels = this.mapVisit(ctx.switchLabel);
 
     const labels = [];
@@ -226,7 +281,7 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  switchLabel(ctx) {
+  switchLabel(ctx: SwitchLabelCtx) {
     if (ctx.Case) {
       const caseConstants = this.mapVisit(ctx.caseConstant);
 
@@ -246,10 +301,10 @@ class BlocksAndStatementPrettierVisitor {
       );
     }
 
-    return concat([ctx.Default[0]]);
+    return concat([ctx.Default![0]]);
   }
 
-  switchRule(ctx) {
+  switchRule(ctx: SwitchRuleCtx) {
     const switchLabel = this.visit(ctx.switchLabel);
 
     let caseInstruction;
@@ -258,17 +313,17 @@ class BlocksAndStatementPrettierVisitor {
     } else if (ctx.block !== undefined) {
       caseInstruction = this.visit(ctx.block);
     } else {
-      caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon[0]]);
+      caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon![0]]);
     }
 
     return join(" ", [switchLabel, ctx.Arrow[0], caseInstruction]);
   }
 
-  caseConstant(ctx) {
+  caseConstant(ctx: CaseConstantCtx) {
     return this.visitSingle(ctx);
   }
 
-  whileStatement(ctx) {
+  whileStatement(ctx: WhileStatementCtx) {
     const expression = this.visit(ctx.expression);
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
@@ -284,7 +339,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  doStatement(ctx) {
+  doStatement(ctx: DoStatementCtx) {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
@@ -302,11 +357,11 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  forStatement(ctx) {
+  forStatement(ctx: ForStatementCtx) {
     return this.visitSingle(ctx);
   }
 
-  basicForStatement(ctx) {
+  basicForStatement(ctx: BasicForStatementCtx) {
     const forInit = this.visit(ctx.forInit);
     const expression = this.visit(ctx.expression);
     const forUpdate = this.visit(ctx.forUpdate);
@@ -334,15 +389,15 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  forInit(ctx) {
+  forInit(ctx: ForInitCtx) {
     return this.visitSingle(ctx);
   }
 
-  forUpdate(ctx) {
+  forUpdate(ctx: ForUpdateCtx) {
     return this.visitSingle(ctx);
   }
 
-  statementExpressionList(ctx) {
+  statementExpressionList(ctx: StatementExpressionListCtx) {
     const statementExpressions = this.mapVisit(ctx.statementExpression);
     const commas = ctx.Comma
       ? ctx.Comma.map(elt => {
@@ -352,7 +407,7 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndJoinSeps(commas, statementExpressions);
   }
 
-  enhancedForStatement(ctx) {
+  enhancedForStatement(ctx: EnhancedForStatementCtx) {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
@@ -376,7 +431,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  breakStatement(ctx) {
+  breakStatement(ctx: BreakStatementCtx) {
     if (ctx.Identifier) {
       const identifier = ctx.Identifier[0];
       return rejectAndConcat([
@@ -389,7 +444,7 @@ class BlocksAndStatementPrettierVisitor {
     return concat([ctx.Break[0], ctx.Semicolon[0]]);
   }
 
-  continueStatement(ctx) {
+  continueStatement(ctx: ContinueStatementCtx) {
     if (ctx.Identifier) {
       const identifier = ctx.Identifier[0];
 
@@ -403,7 +458,7 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndConcat([ctx.Continue[0], ctx.Semicolon[0]]);
   }
 
-  returnStatement(ctx) {
+  returnStatement(ctx: ReturnStatementCtx) {
     if (ctx.expression) {
       const expression = this.visit(ctx.expression, {
         addParenthesisToWrapStatement: true
@@ -419,7 +474,7 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndConcat([ctx.Return[0], ctx.Semicolon[0]]);
   }
 
-  throwStatement(ctx) {
+  throwStatement(ctx: ThrowStatementCtx) {
     const expression = this.visit(ctx.expression);
 
     return rejectAndConcat([
@@ -429,7 +484,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  synchronizedStatement(ctx) {
+  synchronizedStatement(ctx: SynchronizedStatementCtx) {
     const expression = this.visit(ctx.expression);
     const block = this.visit(ctx.block);
 
@@ -445,7 +500,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  tryStatement(ctx) {
+  tryStatement(ctx: TryStatementCtx) {
     if (ctx.tryWithResourcesStatement) {
       return this.visit(ctx.tryWithResourcesStatement);
     }
@@ -454,15 +509,15 @@ class BlocksAndStatementPrettierVisitor {
     const catches = this.visit(ctx.catches);
     const finallyBlock = this.visit(ctx.finally);
 
-    return rejectAndJoin(" ", [ctx.Try[0], block, catches, finallyBlock]);
+    return rejectAndJoin(" ", [ctx.Try![0], block, catches, finallyBlock]);
   }
 
-  catches(ctx) {
+  catches(ctx: CatchesCtx) {
     const catchClauses = this.mapVisit(ctx.catchClause);
     return rejectAndJoin(" ", catchClauses);
   }
 
-  catchClause(ctx) {
+  catchClause(ctx: CatchClauseCtx) {
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
 
@@ -479,7 +534,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  catchFormalParameter(ctx) {
+  catchFormalParameter(ctx: CatchFormalParameterCtx) {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const catchType = this.visit(ctx.catchType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
@@ -491,7 +546,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  catchType(ctx) {
+  catchType(ctx: CatchTypeCtx) {
     const unannClassType = this.visit(ctx.unannClassType);
     const classTypes = this.mapVisit(ctx.classType);
     const ors = ctx.Or ? ctx.Or.map(elt => concat([line, elt, " "])) : [];
@@ -499,13 +554,13 @@ class BlocksAndStatementPrettierVisitor {
     return group(rejectAndJoinSeps(ors, [unannClassType, ...classTypes]));
   }
 
-  finally(ctx) {
+  finally(ctx: FinallyCtx) {
     const block = this.visit(ctx.block);
 
     return rejectAndJoin(" ", [ctx.Finally[0], block]);
   }
 
-  tryWithResourcesStatement(ctx) {
+  tryWithResourcesStatement(ctx: TryWithResourcesStatementCtx) {
     const resourceSpecification = this.visit(ctx.resourceSpecification);
     const block = this.visit(ctx.block);
     const catches = this.visit(ctx.catches);
@@ -520,7 +575,7 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  resourceSpecification(ctx) {
+  resourceSpecification(ctx: ResourceSpecificationCtx) {
     const resourceList = this.visit(ctx.resourceList);
     const optionalSemicolon = ctx.Semicolon ? ctx.Semicolon[0] : "";
 
@@ -532,7 +587,7 @@ class BlocksAndStatementPrettierVisitor {
     );
   }
 
-  resourceList(ctx) {
+  resourceList(ctx: ResourceListCtx) {
     const resources = this.mapVisit(ctx.resource);
     const semicolons = ctx.Semicolon
       ? ctx.Semicolon.map(elt => {
@@ -542,11 +597,11 @@ class BlocksAndStatementPrettierVisitor {
     return rejectAndJoinSeps(semicolons, resources);
   }
 
-  resource(ctx) {
+  resource(ctx: ResourceCtx) {
     return this.visitSingle(ctx);
   }
 
-  resourceInit(ctx) {
+  resourceInit(ctx: ResourceInitCtx) {
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
     const identifier = ctx.Identifier[0];
@@ -561,12 +616,12 @@ class BlocksAndStatementPrettierVisitor {
     ]);
   }
 
-  yieldStatement(ctx) {
+  yieldStatement(ctx: YieldStatementCtx) {
     const expression = this.visit(ctx.expression);
     return join(" ", [ctx.Yield[0], concat([expression, ctx.Semicolon[0]])]);
   }
 
-  variableAccess(ctx) {
+  variableAccess(ctx: VariableAccessCtx) {
     return this.visitSingle(ctx);
   }
 
@@ -582,7 +637,3 @@ class BlocksAndStatementPrettierVisitor {
     return "isClassicSwitchLabel";
   }
 }
-
-module.exports = {
-  BlocksAndStatementPrettierVisitor
-};
