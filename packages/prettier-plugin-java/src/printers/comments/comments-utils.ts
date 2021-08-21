@@ -14,7 +14,7 @@ export function hasLeadingComments(
   return token.leadingComments !== undefined;
 }
 
-function hasTrailingComments(
+export function hasTrailingComments(
   token: CstElement
 ): token is TrailingComments<CstElement> {
   return token.trailingComments !== undefined;

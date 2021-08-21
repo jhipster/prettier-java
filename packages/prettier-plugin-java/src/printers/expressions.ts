@@ -69,6 +69,7 @@ import {
 } from "./printer-utils";
 import { builders } from "prettier/doc";
 import { Doc } from "prettier";
+import { isAnnotationCstNode, isCstNode } from "../types/utils";
 const { ifBreak, line, softline } = builders;
 
 export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
@@ -210,7 +211,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     handleCommentsBinaryExpression(ctx);
 
     const instanceofReferences = this.mapVisit(
-      sortNodes(ctx.pattern, ctx.referenceType)
+      sortNodes([ctx.pattern, ctx.referenceType])
     );
     const expression = this.mapVisit(ctx.expression);
     const unaryExpression = this.mapVisit(ctx.unaryExpression);
@@ -615,7 +616,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     let currentSegment: any[] = [];
 
     forEach(tokens, token => {
-      if (token.name) {
+      if (isAnnotationCstNode(token)) {
         currentSegment.push(this.visit([token]));
       } else {
         currentSegment.push(token);

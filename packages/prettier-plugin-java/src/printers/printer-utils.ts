@@ -1,16 +1,42 @@
-"use strict";
-const forEach = require("lodash/forEach");
-const forEachRight = require("lodash/forEachRight");
-const findLastIndex = require("lodash/findLastIndex");
+import forEach from "lodash/forEach";
+import forEachRight from "lodash/forEachRight";
+import findLastIndex from "lodash/findLastIndex";
+import findIndex from "lodash/findIndex";
+import includes from "lodash/includes";
 
-const { ifBreak, join, concat, group } = require("./prettier-builder");
-const {
+import { concat, group, ifBreak, join } from "./prettier-builder";
+import {
   getTokenLeadingComments,
   printTokenWithComments
-} = require("./comments/format-comments");
-const { hasComments } = require("./comments/comments-utils");
-const { indent, hardline, line } = require("prettier").doc.builders;
+} from "./comments/format-comments";
+import {
+  hasComments,
+  hasLeadingComments,
+  hasTrailingComments
+} from "./comments/comments-utils";
+import { builders, utils } from "prettier/doc";
+import {
+  AnnotationCstNode,
+  BinaryExpressionCtx,
+  ClassBodyDeclarationCstNode,
+  ConstantModifierCstNode,
+  CstElement,
+  CstNode,
+  FieldModifierCstNode,
+  ImportDeclarationCstNode,
+  InterfaceMemberDeclarationCstNode,
+  InterfaceMethodModifierCstNode,
+  InterfaceModifierCstNode,
+  IToken,
+  LambdaParametersWithBracesCtx,
+  MethodModifierCstNode,
+  TypeArgumentsCstNode
+} from "java-parser";
+import { Doc, doc } from "prettier";
+import { isCstNode, isIToken } from "../types/utils";
+import isConcat = utils.isConcat;
 
+const { indent, hardline, line } = builders;
 const orderedModifiers = [
   "Public",
   "Protected",
@@ -28,11 +54,15 @@ const orderedModifiers = [
   "Strictfp"
 ];
 
-function buildFqn(tokens, dots) {
+export function buildFqn(tokens: IToken[], dots: IToken[] | undefined) {
   return rejectAndJoinSeps(dots ? dots : [], tokens);
 }
 
-function rejectAndJoinSeps(sepTokens, elems, sep) {
+export function rejectAndJoinSeps(
+  sepTokens: (IToken | Doc)[] | undefined,
+  elems: (Doc | IToken | undefined)[],
+  sep?: string
+) {
   if (!Array.isArray(sepTokens)) {
     return rejectAndJoin(sepTokens, elems);
   }
@@ -49,61 +79,73 @@ function rejectAndJoinSeps(sepTokens, elems, sep) {
   return concat(res);
 }
 
-function reject(elems) {
+export function reject(elems: (IToken | Doc | undefined)[]) {
   return elems.filter(item => {
     if (typeof item === "string") {
       return item !== "";
     }
     // eslint-ignore next - We want the conversion to boolean!
+    // @ts-ignore
     return item != false && item !== undefined;
   });
 }
 
-function rejectSeparators(separators, elems) {
+export function rejectSeparators(
+  separators: Doc[] | undefined,
+  elems: (IToken | Doc | undefined)[]
+) {
   const realElements = reject(elems);
 
   const realSeparators = [];
   for (let i = 0; i < realElements.length - 1; i++) {
     if (realElements[i] !== "") {
-      realSeparators.push(separators[i]);
+      realSeparators.push(separators![i]);
     }
   }
 
   return realSeparators;
 }
 
-function rejectAndJoin(sep, elems) {
+export function rejectAndJoin(
+  sep: Doc | IToken | undefined,
+  elems: (Doc | IToken | undefined)[]
+) {
   const actualElements = reject(elems);
 
   return join(sep, actualElements);
 }
 
-function rejectAndConcat(elems) {
+export function rejectAndConcat(elems: (Doc | IToken | undefined)[]) {
   const actualElements = reject(elems);
 
   return concat(actualElements);
 }
 
-function sortAnnotationIdentifier(annotations, identifiers) {
-  let tokens = [...identifiers];
+export function sortAnnotationIdentifier(
+  annotations: AnnotationCstNode[] | undefined,
+  identifiers: IToken[]
+) {
+  let tokens: CstElement[] = [...identifiers];
 
   if (annotations && annotations.length > 0) {
     tokens = [...tokens, ...annotations];
   }
 
   return tokens.sort((a, b) => {
-    const startOffset1 =
-      a.name === "annotation" ? a.children.At[0].startOffset : a.startOffset;
-    const startOffset2 =
-      b.name === "annotation" ? b.children.At[0].startOffset : b.startOffset;
+    const startOffset1 = isCstNode(a)
+      ? (a.children.At[0] as IToken).startOffset
+      : a.startOffset;
+    const startOffset2 = isCstNode(b)
+      ? (b.children.At[0] as IToken).startOffset
+      : b.startOffset;
     return startOffset1 - startOffset2;
   });
 }
 
-function sortTokens() {
-  let tokens = [];
+function sortTokens(values: (IToken[] | undefined)[]): IToken[] {
+  let tokens: IToken[] = [];
 
-  forEach(arguments, argument => {
+  forEach(values, argument => {
     if (argument) {
       tokens = tokens.concat(argument);
     }
@@ -114,32 +156,37 @@ function sortTokens() {
   });
 }
 
-function sortNodes() {
-  let nodes = [];
+export function sortNodes(values: (CstNode[] | undefined)[]) {
+  let nodes: CstNode[] = [];
 
-  forEach(arguments, argument => {
+  forEach(values, argument => {
     if (argument) {
       nodes = nodes.concat(argument);
     }
   });
 
   return nodes.sort((a, b) => {
-    const aOffset = a.startOffset ? a.startOffset : a.location.startOffset;
-    const bOffset = b.startOffset ? b.startOffset : b.location.startOffset;
+    const aOffset = a.location.startOffset;
+    const bOffset = b.location.startOffset;
     return aOffset - bOffset;
   });
 }
 
-function matchCategory(token, categoryName) {
-  const labels = token.tokenType.CATEGORIES.map(category => {
+export function matchCategory(token: IToken, categoryName: string) {
+  const labels = (token.tokenType.CATEGORIES || []).map(category => {
     return category.LABEL;
   });
 
   return labels.indexOf(categoryName) !== -1;
 }
 
-function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
-  let tokens = [...identifiers];
+export function sortClassTypeChildren(
+  annotations: AnnotationCstNode[] | undefined,
+  typeArguments: TypeArgumentsCstNode[] | undefined,
+  identifiers: IToken[],
+  dots?: IToken[]
+) {
+  let tokens: CstElement[] = [...identifiers];
 
   if (annotations && annotations.length > 0) {
     tokens = [...tokens, ...annotations];
@@ -154,24 +201,24 @@ function sortClassTypeChildren(annotations, typeArguments, identifiers, dots) {
   }
 
   return tokens.sort((a, b) => {
-    const startOffsetA = a.name
+    const startOffsetA = isCstNode(a)
       ? a.children.At
-        ? a.children.At[0].startOffset
-        : a.children.Less[0].startOffset
+        ? (a.children.At[0] as IToken).startOffset
+        : (a.children.Less[0] as IToken).startOffset
       : a.startOffset;
-    const startOffsetB = b.name
+    const startOffsetB = isCstNode(b)
       ? b.children.At
-        ? b.children.At[0].startOffset
-        : b.children.Less[0].startOffset
+        ? (b.children.At[0] as IToken).startOffset
+        : (b.children.Less[0] as IToken).startOffset
       : b.startOffset;
     return startOffsetA - startOffsetB;
   });
 }
 
-function sortModifiers(modifiers) {
-  let firstAnnotations = [];
-  const otherModifiers = [];
-  let lastAnnotations = [];
+export function sortModifiers(modifiers: CstNode[] | undefined) {
+  let firstAnnotations: CstNode[] = [];
+  const otherModifiers: CstNode[] = [];
+  let lastAnnotations: CstNode[] = [];
   let hasOtherModifier = false;
 
   /**
@@ -217,9 +264,9 @@ function sortModifiers(modifiers) {
   return [firstAnnotations, otherModifiers.concat(lastAnnotations)];
 }
 
-function findDeepElementInPartsArray(item, elt) {
+export function findDeepElementInPartsArray(item: any, elt: any) {
   if (Array.isArray(item)) {
-    if (item.includes(elt)) {
+    if (includes(item, elt)) {
       return true;
     }
     for (let i = 0; i < item.length; i++) {
@@ -241,7 +288,7 @@ function findDeepElementInPartsArray(item, elt) {
   return false;
 }
 
-function displaySemicolon(token, params) {
+export function displaySemicolon(token: IToken, params?: any) {
   if (params !== undefined && params.allowEmptyStatement) {
     return printTokenWithComments(token);
   }
@@ -254,7 +301,7 @@ function displaySemicolon(token, params) {
   return printTokenWithComments(token);
 }
 
-function isExplicitLambdaParameter(ctx) {
+export function isExplicitLambdaParameter(ctx: LambdaParametersWithBracesCtx) {
   return (
     ctx &&
     ctx.lambdaParameterList &&
@@ -264,22 +311,22 @@ function isExplicitLambdaParameter(ctx) {
   );
 }
 
-function getBlankLinesSeparator(ctx) {
+export function getBlankLinesSeparator(ctx: CstNode[] | undefined) {
   if (ctx === undefined) {
     return undefined;
   }
 
-  const separators = [];
+  const separators: Doc[] = [];
   for (let i = 0; i < ctx.length - 1; i++) {
-    const previousRuleEndLineWithComment =
-      ctx[i].trailingComments !== undefined
-        ? ctx[i].trailingComments[ctx[i].trailingComments.length - 1].endLine
-        : ctx[i].location.endLine;
+    const node = ctx[i];
+    const previousRuleEndLineWithComment = hasTrailingComments(node)
+      ? node.trailingComments[node.trailingComments.length - 1].endLine
+      : (node.location.endLine as number);
 
-    const nextRuleStartLineWithComment =
-      ctx[i + 1].leadingComments !== undefined
-        ? ctx[i + 1].leadingComments[0].startLine
-        : ctx[i + 1].location.startLine;
+    const nextNode = ctx[i + 1];
+    const nextRuleStartLineWithComment = hasLeadingComments(nextNode)
+      ? nextNode.leadingComments[0].startLine
+      : nextNode.location.startLine;
 
     if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
       separators.push(concat([hardline, hardline]));
@@ -291,10 +338,14 @@ function getBlankLinesSeparator(ctx) {
   return separators;
 }
 
-function getDeclarationsSeparator(
-  declarations,
-  needLineDeclaration,
-  isSemicolon
+function getDeclarationsSeparator<
+  Declaration extends
+    | ClassBodyDeclarationCstNode
+    | InterfaceMemberDeclarationCstNode
+>(
+  declarations: Declaration[],
+  needLineDeclaration: (decl: Declaration) => boolean,
+  isSemicolon: (decl: Declaration) => boolean
 ) {
   const declarationsWithoutEmptyStatements = declarations.filter(
     declaration => !isSemicolon(declaration)
@@ -320,6 +371,7 @@ function getDeclarationsSeparator(
       declarationsWithoutEmptyStatements.length - 1
     ) {
       const isTwoHardLines =
+        // @ts-ignore
         userBlankLinesSeparators[indexNextNotEmptyDeclaration].parts[0].type ===
         "concat";
       const additionalSep =
@@ -330,7 +382,7 @@ function getDeclarationsSeparator(
           : "";
       separators.push(
         concat([
-          userBlankLinesSeparators[indexNextNotEmptyDeclaration],
+          userBlankLinesSeparators![indexNextNotEmptyDeclaration],
           additionalSep
         ])
       );
@@ -342,7 +394,9 @@ function getDeclarationsSeparator(
   return separators;
 }
 
-function needLineClassBodyDeclaration(declaration) {
+function needLineClassBodyDeclaration(
+  declaration: ClassBodyDeclarationCstNode
+) {
   if (declaration.children.classMemberDeclaration === undefined) {
     return true;
   }
@@ -366,7 +420,9 @@ function needLineClassBodyDeclaration(declaration) {
   return true;
 }
 
-function needLineInterfaceMemberDeclaration(declaration) {
+function needLineInterfaceMemberDeclaration(
+  declaration: InterfaceMemberDeclarationCstNode
+) {
   if (declaration.children.constantDeclaration !== undefined) {
     const constantDeclaration = declaration.children.constantDeclaration[0];
     if (
@@ -394,7 +450,9 @@ function needLineInterfaceMemberDeclaration(declaration) {
   return true;
 }
 
-function isClassBodyDeclarationASemicolon(classBodyDeclaration) {
+function isClassBodyDeclarationASemicolon(
+  classBodyDeclaration: ClassBodyDeclarationCstNode
+) {
   if (classBodyDeclaration.children.classMemberDeclaration) {
     if (
       classBodyDeclaration.children.classMemberDeclaration[0].children
@@ -406,11 +464,15 @@ function isClassBodyDeclarationASemicolon(classBodyDeclaration) {
   return false;
 }
 
-function isInterfaceMemberASemicolon(interfaceMemberDeclaration) {
+function isInterfaceMemberASemicolon(
+  interfaceMemberDeclaration: InterfaceMemberDeclarationCstNode
+) {
   return interfaceMemberDeclaration.children.Semicolon !== undefined;
 }
 
-function hasAnnotation(modifiers) {
+function hasAnnotation(
+  modifiers: FieldModifierCstNode[] | ConstantModifierCstNode[]
+) {
   return modifiers.some(modifier => modifier.children.annotation !== undefined);
 }
 
@@ -421,8 +483,11 @@ function hasAnnotation(modifiers) {
  * @param methodModifiers
  * @returns {boolean}
  */
-function hasNonTrailingAnnotation(methodModifiers) {
-  const firstAnnotationIndex = methodModifiers.findIndex(
+function hasNonTrailingAnnotation(
+  methodModifiers: (MethodModifierCstNode | InterfaceMethodModifierCstNode)[]
+) {
+  const firstAnnotationIndex = findIndex(
+    methodModifiers,
     modifier => modifier.children.annotation !== undefined
   );
   const lastNonAnnotationIndex = findLastIndex(
@@ -436,7 +501,9 @@ function hasNonTrailingAnnotation(methodModifiers) {
   );
 }
 
-function getClassBodyDeclarationsSeparator(classBodyDeclarationContext) {
+export function getClassBodyDeclarationsSeparator(
+  classBodyDeclarationContext: ClassBodyDeclarationCstNode[]
+) {
   return getDeclarationsSeparator(
     classBodyDeclarationContext,
     needLineClassBodyDeclaration,
@@ -444,8 +511,8 @@ function getClassBodyDeclarationsSeparator(classBodyDeclarationContext) {
   );
 }
 
-function getInterfaceBodyDeclarationsSeparator(
-  interfaceMemberDeclarationContext
+export function getInterfaceBodyDeclarationsSeparator(
+  interfaceMemberDeclarationContext: InterfaceMemberDeclarationCstNode[]
 ) {
   return getDeclarationsSeparator(
     interfaceMemberDeclarationContext,
@@ -454,7 +521,12 @@ function getInterfaceBodyDeclarationsSeparator(
   );
 }
 
-function putIntoBraces(argument, separator, LBrace, RBrace) {
+export function putIntoBraces(
+  argument: Doc,
+  separator: Doc,
+  LBrace: IToken,
+  RBrace: IToken
+) {
   const rightBraceLeadingComments = getTokenLeadingComments(RBrace);
   const lastBreakLine =
     // check if last element of the array is a line
@@ -491,27 +563,28 @@ function putIntoBraces(argument, separator, LBrace, RBrace) {
   );
 }
 
-const andOrBinaryOperators = new Set(["&&", "||", "&", "|", "^"]);
-function separateTokensIntoGroups(ctx) {
+const andOrBinaryOperators = ["&&", "||", "&", "|", "^"];
+
+export function separateTokensIntoGroups(ctx: BinaryExpressionCtx) {
   /**
    * separate tokens into groups by andOrBinaryOperators ("&&", "||", "&", "|", "^")
    * in order to break those operators in priority.
    */
-  const tokens = sortTokens(
+  const tokens = sortTokens([
     ctx.Instanceof,
     ctx.AssignmentOperator,
     ctx.Less,
     ctx.Greater,
     ctx.BinaryOperator
-  );
+  ]);
 
-  const groupsOfOperator = [];
-  const sortedBinaryOperators = [];
-  let tmpGroup = [];
+  const groupsOfOperator: IToken[][] = [];
+  const sortedBinaryOperators: IToken[] = [];
+  let tmpGroup: IToken[] = [];
   tokens.forEach(token => {
     if (
       matchCategory(token, "'BinaryOperator'") &&
-      andOrBinaryOperators.has(token.image)
+      includes(andOrBinaryOperators, token.image)
     ) {
       sortedBinaryOperators.push(token);
       groupsOfOperator.push(tmpGroup);
@@ -529,7 +602,7 @@ function separateTokensIntoGroups(ctx) {
   };
 }
 
-function isShiftOperator(tokens, index) {
+export function isShiftOperator(tokens: IToken[], index: number) {
   if (tokens.length <= index + 1) {
     return "none";
   }
@@ -559,48 +632,18 @@ function isShiftOperator(tokens, index) {
   return "none";
 }
 
-function retrieveNodesToken(ctx) {
-  const tokens = retrieveNodesTokenRec(ctx);
-  tokens.sort((token1, token2) => {
-    return token1.startOffset - token2.startOffset;
-  });
-  return tokens;
-}
-
-function retrieveNodesTokenRec(ctx) {
-  const tokens = [];
-  if (
-    ctx &&
-    Object.prototype.hasOwnProperty.call(ctx, "image") &&
-    ctx.tokenType
-  ) {
-    if (ctx.leadingComments) {
-      tokens.push(...ctx.leadingComments);
-    }
-    tokens.push(ctx);
-    if (ctx.trailingComments) {
-      tokens.push(...ctx.trailingComments);
-    }
-    return tokens;
-  }
-  Object.keys(ctx.children).forEach(child => {
-    ctx.children[child].forEach(subctx => {
-      tokens.push(...retrieveNodesTokenRec(subctx));
-    });
-  });
-  return tokens;
-}
-
-function isStatementEmptyStatement(statement) {
+export function isStatementEmptyStatement(statement: Doc) {
   return (
     statement === ";" ||
-    (statement.type === "concat" && statement.parts[0] === ";")
+    // @ts-ignore
+
+    (isConcat(statement) && statement.parts[0] === ";")
   );
 }
 
-function sortImports(imports) {
-  const staticImports = [];
-  const nonStaticImports = [];
+export function sortImports(imports: ImportDeclarationCstNode[] | undefined) {
+  const staticImports: ImportDeclarationCstNode[] = [];
+  const nonStaticImports: ImportDeclarationCstNode[] = [];
 
   if (imports !== undefined) {
     for (let i = 0; i < imports.length; i++) {
@@ -612,10 +655,13 @@ function sortImports(imports) {
     }
 
     // TODO: Could be optimized as we could expect that the array is already almost sorted
-    const comparator = (first, second) =>
+    const comparator = (
+      first: ImportDeclarationCstNode,
+      second: ImportDeclarationCstNode
+    ) =>
       compareFqn(
-        first.children.packageOrTypeName[0],
-        second.children.packageOrTypeName[0]
+        first.children.packageOrTypeName![0],
+        second.children.packageOrTypeName![0]
       );
     staticImports.sort(comparator);
     nonStaticImports.sort(comparator);
@@ -627,7 +673,10 @@ function sortImports(imports) {
   };
 }
 
-function compareFqn(packageOrTypeNameFirst, packageOrTypeNameSecond) {
+function compareFqn(
+  packageOrTypeNameFirst: { children: { Identifier: IToken[] } },
+  packageOrTypeNameSecond: { children: { Identifier: IToken[] } }
+) {
   const identifiersFirst = packageOrTypeNameFirst.children.Identifier;
   const identifiersSecond = packageOrTypeNameSecond.children.Identifier;
 
@@ -649,7 +698,9 @@ function compareFqn(packageOrTypeNameFirst, packageOrTypeNameSecond) {
   return 0;
 }
 
-function isUniqueMethodInvocation(primarySuffixes) {
+export function isUniqueMethodInvocation(
+  primarySuffixes: CstNode[] | undefined
+) {
   if (primarySuffixes === undefined) {
     return 0;
   }
@@ -668,7 +719,19 @@ function isUniqueMethodInvocation(primarySuffixes) {
   return count;
 }
 
-function printArrayList({ list, extraComma, LCurly, RCurly, trailingComma }) {
+export function printArrayList({
+  list,
+  extraComma,
+  LCurly,
+  RCurly,
+  trailingComma
+}: {
+  list: doc.builders.Doc;
+  extraComma: IToken[] | undefined;
+  LCurly: IToken;
+  RCurly: IToken;
+  trailingComma: any;
+}) {
   let optionalComma;
   if (trailingComma !== "none" && list !== "") {
     optionalComma = extraComma
@@ -685,31 +748,3 @@ function printArrayList({ list, extraComma, LCurly, RCurly, trailingComma }) {
     RCurly
   );
 }
-
-module.exports = {
-  buildFqn,
-  reject,
-  rejectAndJoin,
-  rejectAndConcat,
-  sortAnnotationIdentifier,
-  sortClassTypeChildren,
-  sortNodes,
-  matchCategory,
-  sortModifiers,
-  rejectAndJoinSeps,
-  findDeepElementInPartsArray,
-  isExplicitLambdaParameter,
-  getBlankLinesSeparator,
-  displaySemicolon,
-  rejectSeparators,
-  putIntoBraces,
-  getInterfaceBodyDeclarationsSeparator,
-  getClassBodyDeclarationsSeparator,
-  separateTokensIntoGroups,
-  isShiftOperator,
-  retrieveNodesToken,
-  isStatementEmptyStatement,
-  sortImports,
-  isUniqueMethodInvocation,
-  printArrayList
-};

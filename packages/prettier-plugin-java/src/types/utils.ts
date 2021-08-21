@@ -1,4 +1,10 @@
-import { CstNode, CstElement, IToken } from "java-parser/api";
+import {
+  CstNode,
+  CstElement,
+  IToken,
+  TypeArgumentsCstNode,
+  AnnotationCstNode
+} from "java-parser/api";
 
 export function isCstNode(tokenOrNode: CstElement): tokenOrNode is CstNode {
   return !isIToken(tokenOrNode);
@@ -16,3 +22,15 @@ export function isCstElementOrUndefinedIToken(
 ): tokenOrNode is IToken {
   return tokenOrNode !== undefined && isIToken(tokenOrNode);
 }
+
+export const isTypeArgumentsCstNode = (
+  cstElement: CstElement
+): cstElement is TypeArgumentsCstNode => {
+  return (cstElement as CstNode).name === "typeArguments";
+};
+
+export const isAnnotationCstNode = (
+  cstElement: CstElement
+): cstElement is AnnotationCstNode => {
+  return (cstElement as CstNode).name === "annotation";
+};

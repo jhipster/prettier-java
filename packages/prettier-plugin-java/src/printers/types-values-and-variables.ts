@@ -15,6 +15,7 @@ import {
   AnnotationCstNode,
   ClassOrInterfaceTypeCtx,
   ClassTypeCtx,
+  CstNode,
   DimsCtx,
   FloatingPointTypeCtx,
   IntegralTypeCtx,
@@ -34,7 +35,11 @@ import {
   WildcardCtx
 } from "java-parser/api";
 import { BaseCstPrettierPrinter } from "../base-cst-printer";
-import { isCstNode } from "../types/utils";
+import {
+  isAnnotationCstNode,
+  isCstNode,
+  isTypeArgumentsCstNode
+} from "../types/utils";
 
 export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrinter {
   primitiveType(ctx: PrimitiveTypeCtx) {
@@ -85,16 +90,16 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
     let currentSegment: any[] = [];
 
     forEach(tokens, (token, i) => {
-      if (token.name === "typeArguments") {
+      if (isTypeArgumentsCstNode(token)) {
         currentSegment.push(this.visit([token]));
         segments.push(rejectAndConcat(currentSegment));
         currentSegment = [];
-      } else if (token.name === "annotation") {
+      } else if (isAnnotationCstNode(token)) {
         currentSegment.push(this.visit([token]));
       } else {
         currentSegment.push(token);
         if (
-          (i + 1 < tokens.length && tokens[i + 1].name !== "typeArguments") ||
+          (i + 1 < tokens.length && !isTypeArgumentsCstNode(tokens[i + 1])) ||
           i + 1 === tokens.length
         ) {
           segments.push(rejectAndConcat(currentSegment));
