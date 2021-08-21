@@ -8,5 +8,5 @@
     "noImplicitThis": false,
     "moduleResolution": "node"
   },
-  "include": ["src"]
+  "include": ["src", "test", "tsconfig.json"]
 }

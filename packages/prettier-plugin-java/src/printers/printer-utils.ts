@@ -26,17 +26,17 @@ import {
   ImportDeclarationCstNode,
   InterfaceMemberDeclarationCstNode,
   InterfaceMethodModifierCstNode,
-  InterfaceModifierCstNode,
   IToken,
   LambdaParametersWithBracesCtx,
   MethodModifierCstNode,
   TypeArgumentsCstNode
 } from "java-parser";
 import { Doc, doc } from "prettier";
-import { isCstNode, isIToken } from "../types/utils";
-import isConcat = utils.isConcat;
+import { isCstNode } from "../types/utils";
 
 const { indent, hardline, line } = builders;
+const { isConcat } = utils;
+
 const orderedModifiers = [
   "Public",
   "Protected",
