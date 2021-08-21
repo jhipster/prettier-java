@@ -28,8 +28,8 @@ jobs:
       matrix:
         node_version:
           - 12.x
-          - 13.x
           - 14.x
+          - 16.x
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -52,7 +52,7 @@ jobs:
         test_repository:
           - e2e-jhipster1
           - e2e-jhipster2
-        node_version: [12.x]
+        node_version: [14.x]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -63,5 +63,7 @@ jobs:
           java-version: '11.x'
       - name: Install dependencies
         run: yarn
+      - name: Build prettier-plugin-java
+        run: yarn run build:prettier-plugin-java
       - name: Run e2e tests
         run: yarn run test:prettier-plugin-java test:${{ matrix.test_repository }}
