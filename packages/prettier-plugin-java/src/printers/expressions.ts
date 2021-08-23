@@ -1,6 +1,5 @@
 "use strict";
 
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
 import {
   ArgumentListCtx,
   ArrayAccessSuffixCtx,
@@ -50,9 +49,18 @@ import {
 } from "java-parser/api";
 
 import forEach from "lodash/forEach";
-import { concat, dedent, group, indent } from "./prettier-builder";
+import { Doc } from "prettier";
+import { builders } from "prettier/doc";
+import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { isAnnotationCstNode } from "../types/utils";
+import {
+  isArgumentListSingleLambda,
+  isSingleArgumentLambdaExpressionWithBlock
+} from "../utils/expressions-utils";
+import { printArgumentListWithBraces } from "../utils/printArgumentListWithBraces";
 import { printTokenWithComments } from "./comments/format-comments";
 import { handleCommentsBinaryExpression } from "./comments/handle-comments";
+import { concat, dedent, group, indent } from "./prettier-builder";
 import {
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
@@ -67,13 +75,6 @@ import {
   sortAnnotationIdentifier,
   sortNodes
 } from "./printer-utils";
-import { builders } from "prettier/doc";
-import { Doc } from "prettier";
-import { isAnnotationCstNode } from "../types/utils";
-import {
-  isArgumentListSingleLambda,
-  isSingleArgumentLambdaExpressionWithBlock
-} from "../utils/expressions-utils";
 
 const { ifBreak, line, softline, indentIfBreak } = builders;
 
@@ -629,7 +630,14 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const classOrInterfaceTypeToInstantiate = this.visit(
       ctx.classOrInterfaceTypeToInstantiate
     );
-    const argumentList = this.visit(ctx.argumentList);
+
+    let content = printArgumentListWithBraces.call(
+      this,
+      ctx.argumentList,
+      ctx.RBrace[0],
+      ctx.LBrace[0]
+    );
+
     const classBody = this.visit(ctx.classBody);
 
     return rejectAndJoin(" ", [
@@ -637,7 +645,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       rejectAndConcat([
         typeArguments,
         classOrInterfaceTypeToInstantiate,
-        putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0])
+        content
       ]),
       classBody
     ]);
@@ -705,7 +713,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
 
   argumentList(
     ctx: ArgumentListCtx,
-    params: { lambdaParametersGroupId: symbol }
+    params?: {
+      lambdaParametersGroupId: symbol;
+      isInsideMethodInvocationSuffix: boolean;
+    }
   ) {
     const expressions = this.mapVisit(ctx.expression, params);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];

@@ -115,4 +115,111 @@ public class Lambda {
             executor
         );
     }
+
+    public void testConstructor() {
+        new Value(
+            (
+                x
+
+            ) -> {
+                // testing method
+                return n * 2;
+            }
+        );
+
+        new Value(
+            (
+                aVeryLongListOfParameter,
+                aVeryLongListOfParameter
+            ) -> {
+                // testing method
+                return n * 2;
+            }
+        );
+
+      new Value(
+          (
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter
+          ) -> {
+              // testing method
+              return n * 2;
+          }
+      );
+    }
+}
+
+class T {
+    T() {
+        super(x -> {
+            // testing method
+            return n * 2;
+        });
+    }
+
+    T() {
+        super((x,y) -> {
+            // testing method
+            return n * 2;
+        });
+    }
+
+    T() {
+        super((aVeryLongListOfParameter,
+                  aVeryLongListOfParameter,
+                  aVeryLongListOfParameter,
+                  aVeryLongListOfParameter,
+                  aVeryLongListOfParameter,
+                  aVeryLongListOfParameter) -> {
+            // testing method
+            return n * 2;
+        });
+    }
+
+    T() {
+        super((
+                  aVeryLongListOfParameter,
+                  aVeryLongListOfParameter,
+                  aParameterThatS
+              ) -> {
+            // testing method
+            return n * 2;
+        });
+    }
+}
+
+enum Enum {
+    VALUE(x -> {
+        // testing method
+        return n * 2;
+    }),
+    VALUE((x,y) -> {
+        // testing method
+        return n * 2;
+    }),
+    VALUE((aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter) -> {
+        // testing method
+        return n * 2;
+    }),
+    VALUE((
+              aVeryLongListOfParameter,
+              aVeryLongListOfParameter,
+              aParameterThatS
+          ) -> {
+        // testing method
+        return n * 2;
+    }),
+    VALUE(x -> {
+        // testing method
+        return n * 2;
+    }, other)
 }
