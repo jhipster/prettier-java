@@ -91,7 +91,7 @@ import {
 } from "java-parser";
 import { Doc } from "prettier";
 import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils";
-import { printArgumentListWithBraces } from "../utils/printArgumentListWithBraces";
+import { printArgumentListWithBraces } from "../utils";
 
 const { line, softline, hardline } = builders;
 

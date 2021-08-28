@@ -53,11 +53,11 @@ import { Doc } from "prettier";
 import { builders } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer";
 import { isAnnotationCstNode } from "../types/utils";
+import { isArgumentListSingleLambda } from "../utils/expressions-utils";
 import {
-  isArgumentListSingleLambda,
-  isSingleArgumentLambdaExpressionWithBlock
-} from "../utils/expressions-utils";
-import { printArgumentListWithBraces } from "../utils/printArgumentListWithBraces";
+  printSingleLambdaInvocation,
+  printArgumentListWithBraces
+} from "../utils";
 import { printTokenWithComments } from "./comments/format-comments";
 import { handleCommentsBinaryExpression } from "./comments/handle-comments";
 import { concat, dedent, group, indent } from "./prettier-builder";
@@ -684,23 +684,17 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   methodInvocationSuffix(ctx: MethodInvocationSuffixCtx, params: any) {
-    const lambdaParametersGroupId = Symbol("lambdaParameters");
-    const argumentList = this.visit(ctx.argumentList, {
-      lambdaParametersGroupId,
-      isInsideMethodInvocationSuffix: true
-    });
-
     const isSingleLambda = isArgumentListSingleLambda(ctx.argumentList);
     if (isSingleLambda) {
-      const rBrace = isSingleArgumentLambdaExpressionWithBlock(ctx.argumentList)
-        ? ifBreak(
-            indent(concat([softline, ctx.RBrace[0]])),
-            printTokenWithComments(ctx.RBrace[0]),
-            { groupId: lambdaParametersGroupId }
-          )
-        : indent(concat([softline, ctx.RBrace[0]]));
-      return dedent(putIntoBraces(argumentList, "", ctx.LBrace[0], rBrace));
+      return printSingleLambdaInvocation.call(
+        this,
+        ctx.argumentList,
+        ctx.RBrace[0],
+        ctx.LBrace[0]
+      );
     }
+
+    const argumentList = this.visit(ctx.argumentList);
 
     if (params && params.shouldDedent) {
       return dedent(
