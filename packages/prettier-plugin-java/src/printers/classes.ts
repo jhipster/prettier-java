@@ -91,6 +91,7 @@ import {
 } from "java-parser";
 import { Doc } from "prettier";
 import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils";
+import { printArgumentListWithBraces } from "../utils";
 
 const { line, softline, hardline } = builders;
 
@@ -734,16 +735,16 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   ) {
     const typeArguments = this.visit(ctx.typeArguments);
     const keyWord = ctx.This ? ctx.This[0] : ctx.Super![0];
-    const argumentList = this.visit(ctx.argumentList);
+    const argumentList = printArgumentListWithBraces.call(
+      this,
+      ctx.argumentList,
+      ctx.RBrace![0],
+      ctx.LBrace[0]
+    );
     return rejectAndConcat([
       typeArguments,
       keyWord,
-      group(
-        rejectAndConcat([
-          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
-          ctx.Semicolon[0]
-        ])
-      )
+      group(rejectAndConcat([argumentList, ctx.Semicolon[0]]))
     ]);
   }
 
@@ -752,19 +753,19 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   ) {
     const expressionName = this.visit(ctx.expressionName);
     const typeArguments = this.visit(ctx.typeArguments);
-    const argumentList = this.visit(ctx.argumentList);
+    const argumentList = printArgumentListWithBraces.call(
+      this,
+      ctx.argumentList,
+      ctx.RBrace![0],
+      ctx.LBrace[0]
+    );
 
     return rejectAndConcat([
       expressionName,
       ctx.Dot[0],
       typeArguments,
       ctx.Super[0],
-      group(
-        rejectAndConcat([
-          putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace[0]),
-          ctx.Semicolon[0]
-        ])
-      )
+      group(rejectAndConcat([argumentList, ctx.Semicolon[0]]))
     ]);
   }
 
@@ -842,18 +843,22 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     const otherModifiers = this.mapVisit(modifiers[1]);
 
     const identifier = ctx.Identifier[0];
-    const argumentList = this.visit(ctx.argumentList);
     const classBody = this.visit(ctx.classBody);
 
-    const optionnalBracesAndArgumentList = ctx.LBrace
-      ? putIntoBraces(argumentList, softline, ctx.LBrace[0], ctx.RBrace![0])
+    const optionalBracesAndArgumentList = ctx.LBrace
+      ? printArgumentListWithBraces.call(
+          this,
+          ctx.argumentList,
+          ctx.RBrace![0],
+          ctx.LBrace[0]
+        )
       : "";
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, firstAnnotations),
       rejectAndJoin(" ", [
         rejectAndJoin(" ", otherModifiers),
-        rejectAndConcat([identifier, optionnalBracesAndArgumentList]),
+        rejectAndConcat([identifier, optionalBracesAndArgumentList]),
         classBody
       ])
     ]);
