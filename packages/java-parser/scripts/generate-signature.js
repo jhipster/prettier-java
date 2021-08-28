@@ -32,14 +32,14 @@ const enrichChild = ({ definition, children, optional }) => {
       enrichChildrenWithMandatoryRepetition(definition, children);
       break;
     case "Flat":
-      enrichChild({ definition: definition.definition[0], optional, children });
+      definition.definition.forEach(innerDefinition => {
+        enrichChild({ definition: innerDefinition, optional, children });
+      });
       break;
     case "Alternative":
     case "Option":
-      enrichChild({
-        definition: definition.definition[0],
-        optional: true,
-        children
+      definition.definition.forEach(innerDefinition => {
+        enrichChild({ definition: innerDefinition, optional: true, children });
       });
       break;
     // TODO: add other GAST structures

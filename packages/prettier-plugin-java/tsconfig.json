@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": "src",
+    "strict": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "noImplicitThis": false,
+    "moduleResolution": "node"
+  },
+  "include": ["src", "test", "tsconfig.json"]
+}

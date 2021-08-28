@@ -3,6 +3,7 @@ lerna.json
 packages/prettier-plugin-java/samples
 packages/prettier-plugin-java/test-samples
 packages/prettier-plugin-java/README.md
+packages/prettier-plugin-java/dist
 CHANGELOG*
 .nyc_output
 coverage

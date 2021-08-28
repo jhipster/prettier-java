@@ -6,3 +6,4 @@ samples
 coverage
 .nyc_output
 *.log
+src
