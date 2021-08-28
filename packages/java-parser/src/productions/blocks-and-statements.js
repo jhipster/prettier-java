@@ -98,7 +98,10 @@ function defineRules($, t) {
     $.OR({
       DEF: [
         { ALT: () => $.SUBRULE($.block) },
-        { ALT: () => $.SUBRULE($.yieldStatement) },
+        {
+          GATE: () => this.BACKTRACK_LOOKAHEAD($.yieldStatement),
+          ALT: () => $.SUBRULE($.yieldStatement)
+        },
         { ALT: () => $.SUBRULE($.emptyStatement) },
         {
           GATE: () => !tokenMatcher(this.LA(1).tokenType, t.Switch),
