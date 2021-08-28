@@ -3219,18 +3219,8 @@ export interface FqnOrRefTypePartRestCstNode extends CstNode {
 
 export type FqnOrRefTypePartRestCtx = {
   annotation?: AnnotationCstNode[];
-  $methodTypeArguments?: FqnOrRefTypePartRest$MethodTypeArgumentsCstNode[];
+  typeArguments?: TypeArgumentsCstNode[];
   fqnOrRefTypePartCommon: FqnOrRefTypePartCommonCstNode[];
-};
-
-export interface FqnOrRefTypePartRest$MethodTypeArgumentsCstNode
-  extends CstNode {
-  name: "fqnOrRefTypePartRest$methodTypeArguments";
-  children: FqnOrRefTypePartRest$MethodTypeArgumentsCtx;
-}
-
-export type FqnOrRefTypePartRest$MethodTypeArgumentsCtx = {
-  typeArguments: TypeArgumentsCstNode[];
 };
 
 export interface FqnOrRefTypePartCommonCstNode extends CstNode {
@@ -3241,17 +3231,7 @@ export interface FqnOrRefTypePartCommonCstNode extends CstNode {
 export type FqnOrRefTypePartCommonCtx = {
   Identifier?: IToken[];
   Super?: IToken[];
-  $classTypeArguments?: FqnOrRefTypePartCommon$ClassTypeArgumentsCstNode[];
-};
-
-export interface FqnOrRefTypePartCommon$ClassTypeArgumentsCstNode
-  extends CstNode {
-  name: "fqnOrRefTypePartCommon$classTypeArguments";
-  children: FqnOrRefTypePartCommon$ClassTypeArgumentsCtx;
-}
-
-export type FqnOrRefTypePartCommon$ClassTypeArgumentsCtx = {
-  typeArguments: TypeArgumentsCstNode[];
+  typeArguments?: TypeArgumentsCstNode[];
 };
 
 export interface FqnOrRefTypePartFirstCstNode extends CstNode {
