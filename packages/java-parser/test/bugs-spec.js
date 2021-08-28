@@ -92,4 +92,11 @@ describe("The Java Parser fixed bugs", () => {
     const input = "double[][]";
     expect(() => javaParser.parse(input, "primaryPrefix")).to.not.throw();
   });
+
+  it("issue #498 - should not throw on yield static imports", () => {
+    const inputs = ["Thread.yield();", "yield();", "yield(a);"];
+    inputs.forEach(input => {
+      expect(() => javaParser.parse(input, "statement")).to.not.throw();
+    });
+  });
 });

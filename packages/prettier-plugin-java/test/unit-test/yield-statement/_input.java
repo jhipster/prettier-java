@@ -25,4 +25,10 @@
             }
         };
     }
+
+    void should_not_throw_on_yield_static_imports() {
+        Thread.yield ();
+        yield();
+        yield(a);
+    }
 }
