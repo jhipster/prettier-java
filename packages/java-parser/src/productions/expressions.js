@@ -309,12 +309,7 @@ function defineRules($, t) {
       $.SUBRULE($.annotation);
     });
 
-    $.OPTION({
-      NAME: "$methodTypeArguments",
-      DEF: () => {
-        $.SUBRULE2($.typeArguments);
-      }
-    });
+    $.OPTION(() => $.SUBRULE2($.typeArguments));
 
     $.SUBRULE($.fqnOrRefTypePartCommon);
   });
@@ -335,7 +330,6 @@ function defineRules($, t) {
     }
 
     $.OPTION2({
-      NAME: "$classTypeArguments",
       // unrestricted typeArguments here would create an ambiguity with "LessThan" operator
       // e.g: "var x = a < b;"
       // The "<" would be parsed as the beginning of a "typeArguments"

@@ -185,5 +185,9 @@ public class Expressions {
   public void unannTypePrimitiveWithMethodReferenceSuffix(String[] args) {
     List.of(new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}).toArray(double[][]::new);
   }
+
+  public void typeExpressionsInFqnParts() {
+    var myVariable = ImmutableMap.<R, V>of<T>::a();
+  }
 }
 
