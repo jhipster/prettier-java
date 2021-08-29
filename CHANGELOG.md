@@ -1,10 +1,22 @@
-# Latest v1.3.1
+# Latest v1.4.0
+
+## Enhancements
+
+- Improve method invocation with lambda parameters ([#497](https://github.com/jhipster/prettier-java/pull/497))
+
+## Fixes
+
+- Fix parsing of static imports of yield methods ([#499](https://github.com/jhipster/prettier-java/pull/499))
+- Improve java-parser types signatures ([#496](https://github.com/jhipster/prettier-java/pull/496))
+
+# v1.3.1
 
 ## Fixes
 
 - Fix interface member detection to support inner records
   (From @rnorth: [#492](https://github.com/jhipster/prettier-java/pull/492))
 - Remove yarn-error.log file from releases
+
 # v1.3.0
 
 ## Enhancements
