@@ -1,5 +1,12 @@
+public record Pet(@NotNull String name) {}
+
+public record Pet(@NotNull String name, int age) {}
+
 public record Pet(
-  @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
+  @NotNull String name,
+  int age,
+  String... others,
+  Object @Nullable... errorMessageArgs
 ) {
   public Pet {
     if (age < 0) {
@@ -15,7 +22,10 @@ public record Pet(
 }
 
 public record Pet(
-  @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
+  @NotNull String name,
+  int age,
+  String... others,
+  Object @Nullable... errorMessageArgs
 ) {}
 
 public record Pet() {}
@@ -79,6 +89,39 @@ class T {
   }
 }
 
+class MySplitRecordConstructor {
+
+  record MyRecord(
+    String name,
+    int age,
+    String name,
+    int age,
+    String name,
+    int age
+  ) {
+    public MyRecord(String name, int age) {
+      if (age < 0) {
+        throw new IllegalArgumentException("Age cannot be negative");
+      }
+      if (name == null || name.isBlank()) {
+        throw new IllegalArgumentException("Name cannot be blank");
+      }
+    }
+  }
+}
+
 public interface MyInterface {
   record MyRecord(String param) implements MyInterface {}
+}
+
+public interface MyInterface {
+  record MySplitRecord(
+    String param,
+    String param,
+    String param,
+    String param,
+    String param,
+    String param
+  )
+    implements MyInterface {}
 }

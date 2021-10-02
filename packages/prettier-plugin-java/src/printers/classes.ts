@@ -924,7 +924,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
   recordComponentList(ctx: RecordComponentListCtx) {
     const recordComponents = this.mapVisit(ctx.recordComponent);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
     return rejectAndJoinSeps(commas, recordComponents);
   }
