@@ -27,6 +27,8 @@ import {
   BlockStatementsCtx,
   BreakStatementCtx,
   CaseConstantCtx,
+  CaseLabelElementCtx,
+  CaseOrDefaultLabelCtx,
   CatchClauseCtx,
   CatchesCtx,
   CatchFormalParameterCtx,
@@ -264,26 +266,32 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx) {
-    const switchLabels = this.mapVisit(ctx.switchLabel);
-
-    const labels = [];
-    for (let i = 0; i < switchLabels.length; i++) {
-      labels.push(concat([switchLabels[i], ctx.Colon[i]]));
-    }
+    const switchLabel = this.visit(ctx.switchLabel);
 
     const blockStatements = this.visit(ctx.blockStatements);
 
-    return indent(
-      rejectAndJoin(hardline, [
-        dedent(rejectAndJoin(hardline, labels)),
-        blockStatements
-      ])
-    );
+    return concat([
+      switchLabel,
+      ctx.Colon[0],
+      blockStatements && indent([hardline, blockStatements])
+    ]);
   }
 
   switchLabel(ctx: SwitchLabelCtx) {
+    const caseOrDefaultLabels = this.mapVisit(ctx.caseOrDefaultLabel);
+
+    const colons = ctx.Colon
+      ? ctx.Colon.map(elt => {
+          return concat([elt, hardline]);
+        })
+      : [];
+
+    return group(rejectAndJoinSeps(colons, caseOrDefaultLabels));
+  }
+
+  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx) {
     if (ctx.Case) {
-      const caseConstants = this.mapVisit(ctx.caseConstant);
+      const caseLabelElements = this.mapVisit(ctx.caseLabelElement);
 
       const commas = ctx.Comma
         ? ctx.Comma.map(elt => {
@@ -295,13 +303,20 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
         indent(
           rejectAndConcat([
             concat([ctx.Case[0], " "]),
-            rejectAndJoinSeps(commas, caseConstants)
+            rejectAndJoinSeps(commas, caseLabelElements)
           ])
         )
       );
     }
 
     return concat([ctx.Default![0]]);
+  }
+
+  caseLabelElement(ctx: CaseLabelElementCtx) {
+    if (ctx.Default || ctx.Null) {
+      return this.getSingle(ctx);
+    }
+    return this.visitSingle(ctx);
   }
 
   switchRule(ctx: SwitchRuleCtx) {

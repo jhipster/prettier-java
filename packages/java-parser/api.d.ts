@@ -270,6 +270,8 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
+  caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -2619,7 +2621,7 @@ export interface SwitchBlockStatementGroupCstNode extends CstNode {
 export type SwitchBlockStatementGroupCtx = {
   switchLabel: SwitchLabelCstNode[];
   Colon: IToken[];
-  blockStatements?: BlockStatementsCstNode[];
+  blockStatements: BlockStatementsCstNode[];
 };
 
 export interface SwitchLabelCstNode extends CstNode {
@@ -2628,9 +2630,31 @@ export interface SwitchLabelCstNode extends CstNode {
 }
 
 export type SwitchLabelCtx = {
+  caseOrDefaultLabel: CaseOrDefaultLabelCstNode[];
+  Colon?: IToken[];
+};
+
+export interface CaseOrDefaultLabelCstNode extends CstNode {
+  name: "caseOrDefaultLabel";
+  children: CaseOrDefaultLabelCtx;
+}
+
+export type CaseOrDefaultLabelCtx = {
   Case?: IToken[];
-  caseConstant?: CaseConstantCstNode[];
+  caseLabelElement?: CaseLabelElementCstNode[];
   Comma?: IToken[];
+  Default?: IToken[];
+};
+
+export interface CaseLabelElementCstNode extends CstNode {
+  name: "caseLabelElement";
+  children: CaseLabelElementCtx;
+}
+
+export type CaseLabelElementCtx = {
+  caseConstant?: CaseConstantCstNode[];
+  pattern?: PatternCstNode[];
+  Null?: IToken[];
   Default?: IToken[];
 };
 
