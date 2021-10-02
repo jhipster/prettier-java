@@ -1,4 +1,12 @@
 public record Pet(
+@NotNull String name
+    ) {}
+
+    public record Pet(
+@NotNull String name, int age
+    ) {}
+
+public record Pet(
 @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
     ) {
 public Pet {
@@ -46,7 +54,7 @@ public MyRecord {
             if (age < 0) {
               throw new IllegalArgumentException("Age cannot be negative");
             }
-    
+
       if (name == null || name.isBlank()) {
               throw new IllegalArgumentException("Name cannot be blank");
        }
@@ -71,18 +79,18 @@ class MyRecordConstructor {
 
 public class MyRecordWithAnnotationAndModifiers {
                 public record MyRecord(
-          String name, 
+          String name,
           int age) {
                 @Annotation
           @Annotation2
           public MyRecord {
             if (
-                age < 0) 
+                age < 0)
             {
               throw new IllegalArgumentException("Age cannot be negative");
             }
-    
-            if (name == null || 
+
+            if (name == null ||
             name.isBlank()) {
               throw new IllegalArgumentException("Name cannot be blank");
             }
@@ -91,9 +99,30 @@ public class MyRecordWithAnnotationAndModifiers {
     }
 }
 
+class MySplitRecordConstructor {
+    record MyRecord(String name,
+     int age, String name,
+     int age,String name,
+     int age) {
+          public MyRecord(String name,
+           int age) {
+            if (age < 0) {
+  throw new IllegalArgumentException("Age cannot be negative");
+            }
+                if (name == null || name.isBlank()) {
+              throw new IllegalArgumentException("Name cannot be blank");
+        }
+          }
+      }
+}
+
 public interface MyInterface {
     record MyRecord(
         String param) implements MyInterface {
 
          }
+}
+
+public interface MyInterface {
+  record MySplitRecord(String param, String param, String param, String param, String param, String param) implements MyInterface {}
 }
