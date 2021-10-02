@@ -93,4 +93,47 @@ class Switch {
 
     }
   }
+
+    static String formatterPatternSwitchRules(Object o) {
+        return switch (o) {
+            case
+
+                Integer i ->
+
+
+                String.format("int %d", i);
+                    case Long l    -> String.format("long %d", l);
+            case Double d  -> String.format("double %f", d);
+            case String s  -> String.format("String %s", s);
+            case TOTO  -> String.format("TOTO %s", o);
+            case null -> String.format("Null !");
+            case default -> String.format("Default !");
+                    default        -> o.toString();
+        };
+    }
+
+    static String formatterPatternSwitch(Object o) {
+        return switch (o) {
+            case Integer i :
+                yield  "It is an integer";
+            case Double d :
+                case String s:
+                yield  "It is an integer";
+        };
+    }
+
+    static String shouldFormatSwitchBlocksWithEmptyLastBlock(Object o) {
+        switch (state) {
+            case READY:
+                return true;
+            case DONE:
+                return false;
+            default:
+
+
+        }
+
+        log.info("Done !");
+
+    }
 }

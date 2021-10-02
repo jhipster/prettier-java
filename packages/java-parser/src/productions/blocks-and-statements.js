@@ -200,33 +200,57 @@ function defineRules($, t) {
   });
 
   $.RULE("switchBlockStatementGroup", () => {
-    $.AT_LEAST_ONE(() => {
-      $.SUBRULE($.switchLabel);
-      $.CONSUME(t.Colon);
-    });
+    $.SUBRULE($.switchLabel);
+    $.CONSUME(t.Colon);
     $.OPTION(() => {
       $.SUBRULE($.blockStatements);
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchLabel
   $.RULE("switchLabel", () => {
+    $.SUBRULE($.caseOrDefaultLabel);
+    $.MANY({
+      GATE: () =>
+        tokenMatcher($.LA(1).tokenType, t.Colon) &&
+        (tokenMatcher($.LA(2).tokenType, t.Case) ||
+          tokenMatcher($.LA(2).tokenType, t.Default)),
+      DEF: () => {
+        $.CONSUME(t.Colon);
+        $.SUBRULE2($.caseOrDefaultLabel);
+      }
+    });
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchLabel
+  $.RULE("caseOrDefaultLabel", () => {
     $.OR([
       {
         ALT: () => {
           $.CONSUME(t.Case);
-          $.SUBRULE($.caseConstant);
+          $.SUBRULE($.caseLabelElement);
           $.MANY(() => {
             $.CONSUME(t.Comma);
-            $.SUBRULE2($.caseConstant);
+            $.SUBRULE2($.caseLabelElement);
           });
         }
       },
-      // SPEC Deviation: the variant with "enumConstantName" was removed
-      // as it can be matched by the "constantExpression" variant
-      // the distinction is semantic not syntactic.
       {
         ALT: () => $.CONSUME(t.Default)
+      }
+    ]);
+  });
+
+  $.RULE("caseLabelElement", () => {
+    $.OR([
+      { ALT: () => $.CONSUME(t.Null) },
+      { ALT: () => $.CONSUME(t.Default) },
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
+        ALT: () => $.SUBRULE($.pattern)
+      },
+      {
+        GATE: () => tokenMatcher($.LA(1).tokenType, t.Null) === false,
+        ALT: () => $.SUBRULE($.caseConstant)
       }
     ]);
   });

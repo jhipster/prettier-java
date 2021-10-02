@@ -27,6 +27,8 @@ module.exports = {
       { value: "switchBlock" },
       { value: "switchBlockStatementGroup" },
       { value: "switchLabel" },
+      { value: "caseOrDefaultLabel" },
+      { value: "caseLabelElement" },
       { value: "switchRule" },
       { value: "caseConstant" },
       { value: "whileStatement" },
