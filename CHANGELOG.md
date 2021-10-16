@@ -1,4 +1,94 @@
-# Latest v1.4.0
+# Latest v1.5.0
+
+## Enhancements
+
+- Split record parameters on several lines if thez do not fit on a single line ([#509](https://github.com/jhipster/prettier-java/pull/509))
+  ```java
+
+  // Input
+  public record Person(
+      String firstName, String lastName, String email,
+      String phoneNumber,
+      String streetAddress,
+      String city,
+      String state,
+      String zipCode
+  ) {}
+
+  // Prettier 1.4.0
+  public record Person(
+    String firstName, String lastName, String email, String phoneNumber, String streetAddress, String city, String state, String zipCode
+  ) {}
+
+  // Prettier 1.5.0
+  public record Person(
+    String firstName,
+    String lastName,
+    String email,
+    String phoneNumber,
+    String streetAddress,
+    String city,
+    String state,
+    String zipCode
+  ) {}
+  ```
+
+- Support pattern matching in switch statements preview feature ([#511](https://github.com/jhipster/prettier-java/pull/511))
+  ```java
+  // Input
+  class T {
+    static String formatterPatternSwitch(Object o) {
+      return switch (o) {
+        case
+
+          Integer i ->
+
+
+          String.format("int %d", i);
+        case Long l    -> String.format("long %d", l);
+        case Double d  -> String.format("double %f", d);
+        case String s  -> String.format("String %s", s);
+        case TOTO  -> String.format("TOTO %s", o);
+        case null -> String.format("Null !");
+        case default -> String.format("Default !");
+        default        -> o.toString();
+      };
+    }
+  }
+
+  // Output
+  class T {
+    static String formatterPatternSwitch(Object o) {
+      return switch (o) {
+        case Integer i -> String.format("int %d", i);
+        case Long l -> String.format("long %d", l);
+        case Double d -> String.format("double %f", d);
+        case String s -> String.format("String %s", s);
+        case TOTO -> String.format("TOTO %s", o);
+        case null -> String.format("Null !");
+        case default -> String.format("Default !");
+        default -> o.toString();
+      };
+    }
+  }
+  ```
+- Improve printing of class with long typeParameterList ([#512](https://github.com/jhipster/prettier-java/pull/512))
+  ```java
+  // Input
+  public class ComplexGenericClass<BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>, BEANTYPE, CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>> {}
+
+  // Prettier 1.4.0
+  public class ComplexGenericClass<BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>, BEANTYPE, CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>> {}
+
+  // Prettier 1.5.0
+  public class ComplexGenericClass<
+    BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>,
+    BEANTYPE,
+    CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
+  > {}
+  ```
+
+# v1.4.0
 
 ## Enhancements
 
