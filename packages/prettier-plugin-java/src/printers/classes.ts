@@ -168,14 +168,19 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   typeParameters(ctx: TypeParametersCtx) {
     const typeParameterList = this.visit(ctx.typeParameterList);
 
-    return rejectAndConcat([ctx.Less[0], typeParameterList, ctx.Greater[0]]);
+    return putIntoBraces(
+      typeParameterList,
+      softline,
+      ctx.Less[0],
+      ctx.Greater[0]
+    );
   }
 
   typeParameterList(ctx: TypeParameterListCtx) {
     const typeParameter = this.mapVisit(ctx.typeParameter);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return rejectAndJoinSeps(commas, typeParameter);
+    return group(rejectAndJoinSeps(commas, typeParameter));
   }
 
   superclass(ctx: SuperclassCtx) {
