@@ -579,15 +579,23 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
 
   referenceTypeCastExpression(ctx: ReferenceTypeCastExpressionCtx) {
     const referenceType = this.visit(ctx.referenceType);
-    const additionalBound = this.mapVisit(ctx.additionalBound);
+    const hasAdditionalBounds = ctx.additionalBound !== undefined;
+    const additionalBounds = rejectAndJoin(
+      line,
+      this.mapVisit(ctx.additionalBound)
+    );
 
     const expression = ctx.lambdaExpression
       ? this.visit(ctx.lambdaExpression)
       : this.visit(ctx.unaryExpressionNotPlusMinus);
 
     return rejectAndJoin(" ", [
-      rejectAndConcat([ctx.LBrace[0], referenceType, ctx.RBrace[0]]),
-      additionalBound,
+      putIntoBraces(
+        rejectAndJoin(line, [referenceType, additionalBounds]),
+        hasAdditionalBounds ? softline : "",
+        ctx.LBrace[0],
+        ctx.RBrace[0]
+      ),
       expression
     ]);
   }
