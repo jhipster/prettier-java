@@ -311,7 +311,10 @@ export function isExplicitLambdaParameter(ctx: LambdaParametersWithBracesCtx) {
   );
 }
 
-export function getBlankLinesSeparator(ctx: CstNode[] | undefined) {
+export function getBlankLinesSeparator(
+  ctx: CstNode[] | undefined,
+  separator: builders.Line | builders.Concat = hardline
+) {
   if (ctx === undefined) {
     return undefined;
   }
@@ -331,7 +334,7 @@ export function getBlankLinesSeparator(ctx: CstNode[] | undefined) {
     if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
       separators.push(concat([hardline, hardline]));
     } else {
-      separators.push(hardline);
+      separators.push(separator);
     }
   }
 

@@ -929,7 +929,16 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
   recordComponentList(ctx: RecordComponentListCtx) {
     const recordComponents = this.mapVisit(ctx.recordComponent);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
+
+    const blankLineSeparators = getBlankLinesSeparator(
+      ctx.recordComponent,
+      line
+    );
+    const commas = ctx.Comma
+      ? ctx.Comma.map((elt, index) =>
+          concat([elt, blankLineSeparators![index]])
+        )
+      : [];
 
     return rejectAndJoinSeps(commas, recordComponents);
   }
@@ -938,11 +947,12 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     const unannType = this.visit(ctx.unannType);
 
     if (ctx.Identifier !== undefined) {
-      return rejectAndJoin(" ", [
-        join(" ", modifiers),
-        unannType,
-        ctx.Identifier[0]
-      ]);
+      return group(
+        rejectAndJoin(line, [
+          join(line, modifiers),
+          join(" ", [unannType, ctx.Identifier[0]])
+        ])
+      );
     }
 
     const variableArityRecordComponent = this.visit(
@@ -951,16 +961,20 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     if (
       ctx.variableArityRecordComponent![0].children.annotation !== undefined
     ) {
-      return rejectAndJoin(" ", [
-        join(" ", modifiers),
-        join(" ", [unannType, variableArityRecordComponent])
-      ]);
+      return group(
+        rejectAndJoin(line, [
+          join(line, modifiers),
+          join(" ", [unannType, variableArityRecordComponent])
+        ])
+      );
     }
 
-    return rejectAndJoin(" ", [
-      join(" ", modifiers),
-      concat([unannType, variableArityRecordComponent])
-    ]);
+    return group(
+      rejectAndJoin(line, [
+        join(line, modifiers),
+        concat([unannType, variableArityRecordComponent])
+      ])
+    );
   }
   variableArityRecordComponent(ctx: VariableArityRecordComponentCtx) {
     const annotations = this.mapVisit(ctx.annotation);

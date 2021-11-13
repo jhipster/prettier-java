@@ -125,3 +125,36 @@ public interface MyInterface {
   )
     implements MyInterface {}
 }
+
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  Status status,
+
+  @NotNull Integer number,
+
+  Integer anotherNumber
+) {}
+
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  // comment
+  Status status,
+
+  // comment
+  @NotNull Integer number
+) {}
+
+public record Record(
+  @Schema(type = "integer", description = "A small description ") Status status,
+
+  @Schema(type = "integer", description = "A longer description  ")
+  Status status
+) {}
