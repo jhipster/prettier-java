@@ -1,8 +1,166 @@
-# Latest v1.5.0
+# Latest v1.6.0
 
 ## Enhancements
 
-- Split record parameters on several lines if thez do not fit on a single line ([#509](https://github.com/jhipster/prettier-java/pull/509))
+- Improve formatting of records parameters with annotations
+
+```java
+// Input
+public record Record(
+    @JsonSerialize(using = StatusSerializer.class, nullsUsing = NullSerializer.class)
+    @Schema(type = "integer", description = "Some fancy description")
+    Status status,
+
+    @NotNull
+    Integer number
+) {}
+
+public record Record(
+    @JsonSerialize(using = StatusSerializer.class, nullsUsing = NullSerializer.class)
+    @Schema(type = "integer", description = "Some fancy description")
+    // comment
+    Status status,
+
+
+    // another comment
+    @NotNull
+    Integer number
+) {}
+
+// Prettier v1.5.0
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  ) @Schema(
+    type = "integer",
+    description = "Some fancy description"
+  ) Status status,
+  @NotNull Integer number
+) {}
+
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  ) @Schema(type = "integer", description = "Some fancy description") // comment
+  Status status,
+  // another comment
+  @NotNull Integer number
+) {}
+
+// Prettier v1.6.0
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  Status status,
+
+  @NotNull Integer number
+) {}
+
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  // comment
+  Status status,
+
+  // another comment
+  @NotNull Integer number
+) {}
+
+```
+
+## Fixes
+
+- Fix casting with additional bounds
+```java
+
+// Input
+class Example {
+  void should_cast_with_single_element() {
+    var myElem = (int) othrElement;
+    var myElem = (A) othrElement;
+    var myElem = (A) (othrElement, value) -> othrElement + value;
+    var myElem = (Aaeaozeaonzeoazneaozenazonelkadndpndpazdpazdpazdpazdpazeazpeaazdpazdpazpdazdpa) othrElement;
+  }
+
+  void should_cast_with_additional_bounds() {
+    foo((A & B) obj);
+    foo((A & B & C) obj);
+    foo((Aaeaozeaonzeoazneaozenazone & Bazoieoainzeonaozenoazne & Cjneazeanezoanezoanzeoaneonazeono) obj);
+    foo((Aaeaozeaonzeoazneaozenazone & Bazoieoainzeonaozenoazne & Cjneazeanezoanezoanzeoaneonazeono) (othrElement, value) -> othrElement + value);
+  }
+}
+
+// Prettier v1.5.0
+class Example {
+
+  void should_cast_with_single_element() {
+    var myElem = (int) othrElement;
+    var myElem = (A) othrElement;
+    var myElem = (A) (othrElement, value) -> othrElement + value;
+    var myElem = (Aaeaozeaonzeoazneaozenazonelkadndpndpazdpazdpazdpazdpazeazpeaazdpazdpazpdazdpa) othrElement;
+  }
+
+  void should_cast_with_additional_bounds() {
+    foo((A) & B obj);
+    foo((A) & B& C obj);
+    foo(
+      (Aaeaozeaonzeoazneaozenazone) & Bazoieoainzeonaozenoazne& Cjneazeanezoanezoanzeoaneonazeono obj
+    );
+    foo(
+      (Aaeaozeaonzeoazneaozenazone) & Bazoieoainzeonaozenoazne& Cjneazeanezoanezoanzeoaneonazeono (
+          othrElement,
+          value
+        ) ->
+        othrElement + value
+    );
+  }
+}
+
+// Prettier v1.6.0
+class Example {
+
+  void should_cast_with_single_element() {
+    var myElem = (int) othrElement;
+    var myElem = (A) othrElement;
+    var myElem = (A) (othrElement, value) -> othrElement + value;
+    var myElem = (Aaeaozeaonzeoazneaozenazonelkadndpndpazdpazdpazdpazdpazeazpeaazdpazdpazpdazdpa) othrElement;
+  }
+
+  void should_cast_with_additional_bounds() {
+    foo((A & B) obj);
+    foo((A & B & C) obj);
+    foo(
+      (
+        Aaeaozeaonzeoazneaozenazone
+        & Bazoieoainzeonaozenoazne
+        & Cjneazeanezoanezoanzeoaneonazeono
+      ) obj
+    );
+    foo(
+      (
+        Aaeaozeaonzeoazneaozenazone
+        & Bazoieoainzeonaozenoazne
+        & Cjneazeanezoanezoanzeoaneonazeono
+      ) (othrElement, value) -> othrElement + value
+    );
+  }
+}
+
+```
+
+# v1.5.0
+
+## Enhancements
+
+- Split record parameters on several lines if they do not fit on a single line ([#509](https://github.com/jhipster/prettier-java/pull/509))
   ```java
 
   // Input
@@ -472,7 +630,7 @@ void throwException7(
 
 - Update dependencies
 
-# Latest v0.8.2
+# v0.8.2
 
 ## Fixes
 
