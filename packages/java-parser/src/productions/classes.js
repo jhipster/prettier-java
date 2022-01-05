@@ -849,6 +849,8 @@ function defineRules($, t) {
             { ALT: () => $.CONSUME(t.Volatile) },
             { ALT: () => $.CONSUME(t.Synchronized) },
             { ALT: () => $.CONSUME(t.Native) },
+            { ALT: () => $.CONSUME(t.Sealed) },
+            { ALT: () => $.CONSUME(t.NonSealed) },
             { ALT: () => $.CONSUME(t.Strictfp) }
           ]);
         }
