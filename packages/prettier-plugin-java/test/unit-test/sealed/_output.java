@@ -87,3 +87,17 @@ public sealed class Shape
     ALongVeryLongRectangle,
     ALongVeryLongTriangle,
     ALongVeryLongUnicorn {}
+
+public class NestedSealedClasses {
+
+  public abstract static sealed class SealedParent permits SealedChild {}
+
+  static final class SealedChild extends SealedParent {}
+}
+
+public class NestedNonSealedClasses {
+
+  public abstract static non-sealed class NonSealedParent {}
+
+  static final class SealedChild extends NonSealedParent {}
+}

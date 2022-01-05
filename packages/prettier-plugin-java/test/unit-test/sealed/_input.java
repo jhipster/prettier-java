@@ -70,3 +70,15 @@ public sealed interface Shape permits ALongVeryLongCircle, ALongVeryLongRectangl
 public sealed interface Shape extends AbstractShape permits ALongVeryLongCircle, ALongVeryLongRectangle, ALongVeryLongTriangle, ALongVeryLongUnicorn {}
 public sealed class Shape permits ALongVeryLongCircle, ALongVeryLongRectangle, ALongVeryLongTriangle, ALongVeryLongUnicorn {}
 public sealed class Shape extends AbstractShape permits ALongVeryLongCircle, ALongVeryLongRectangle, ALongVeryLongTriangle, ALongVeryLongUnicorn {}
+
+public class NestedSealedClasses {
+    public static sealed abstract class SealedParent permits SealedChild {}
+
+    final static class SealedChild extends SealedParent {}
+}
+
+public class NestedNonSealedClasses {
+    public static non-sealed abstract class NonSealedParent {}
+
+    final static class SealedChild extends NonSealedParent {}
+}

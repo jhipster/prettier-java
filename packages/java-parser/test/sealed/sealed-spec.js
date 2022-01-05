@@ -55,4 +55,26 @@ describe("Sealed Classes & Interfaces", () => {
     `;
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
+
+  it("should handle sealed classes inside class declarations", () => {
+    const input = `
+    public class SealedClasses {
+        public static sealed abstract class SealedParent permits SealedChild {}
+
+        final static class SealedChild extends SealedParent {}
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle non-sealed classes inside class declarations", () => {
+    const input = `
+    public class SealedClasses {
+        public static non-sealed abstract class SealedParent {}
+
+        final static class SealedChild extends SealedParent {}
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
 });
