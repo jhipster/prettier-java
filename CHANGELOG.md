@@ -1,4 +1,28 @@
-# Latest v1.6.0
+# Latest v1.6.1
+
+## Fixes
+
+- Fix parsing of nested sealed and non-sealed classes (Issue [#522](https://github.com/jhipster/prettier-java/issues/522) closed with [#523](https://github.com/jhipster/prettier-java/pull/523))
+```java
+
+// Input
+public class SealedClasses {
+  public static sealed abstract class SealedParent permits SealedChild {}
+
+  final static class SealedChild extends SealedParent {}
+}
+
+// Output
+public class NestedSealedClasses {
+
+  public abstract static sealed class SealedParent permits SealedChild {}
+
+  static final class SealedChild extends SealedParent {}
+}
+
+```
+
+# v1.6.0
 
 ## Enhancements
 
