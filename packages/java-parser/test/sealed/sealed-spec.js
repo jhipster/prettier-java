@@ -56,9 +56,11 @@ describe("Sealed Classes & Interfaces", () => {
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
-  it("should handle sealed classes inside class declarations", () => {
+  it("should handle sealed classes and interfaces inside class declarations", () => {
     const input = `
     public class SealedClasses {
+        sealed interface SealedParent {}
+
         public static sealed abstract class SealedParent permits SealedChild {}
 
         final static class SealedChild extends SealedParent {}
@@ -67,9 +69,35 @@ describe("Sealed Classes & Interfaces", () => {
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
-  it("should handle non-sealed classes inside class declarations", () => {
+  it("should handle non-sealed classes and interfaces inside class declarations", () => {
     const input = `
     public class SealedClasses {
+        non-sealed interface SealedParent {}
+
+        public static non-sealed abstract class SealedParent {}
+
+        final static class SealedChild extends SealedParent {}
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle sealed classes and interfaces inside interface declarations", () => {
+    const input = `
+    public interface Test {
+        sealed interface Inner {}
+
+        public static sealed abstract class SealedParent {}
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should handle non-sealed classes and interfaces inside interface declarations", () => {
+    const input = `
+    public interface SealedClasses {
+        non-sealed interface Inner {}
+
         public static non-sealed abstract class SealedParent {}
 
         final static class SealedChild extends SealedParent {}
