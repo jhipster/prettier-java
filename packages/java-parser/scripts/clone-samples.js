@@ -86,7 +86,7 @@ const sampleRepos = [
   },
   {
     repoUrl: "https://github.com/nipafx/demo-java-x",
-    branch: "master"
+    branch: "main"
   }
 ];
 
