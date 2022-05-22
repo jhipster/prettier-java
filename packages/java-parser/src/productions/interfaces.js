@@ -366,11 +366,13 @@ function defineRules($, t) {
           { ALT: () => $.CONSUME(t.Public) },
           { ALT: () => $.CONSUME(t.Protected) },
           { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Final) },
           { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Default) },
-          { ALT: () => $.CONSUME(t.Strictfp) }
+          { ALT: () => $.CONSUME(t.Static) },
+          { ALT: () => $.CONSUME(t.Sealed) },
+          { ALT: () => $.CONSUME(t.NonSealed) },
+          { ALT: () => $.CONSUME(t.Strictfp) },
+          { ALT: () => $.CONSUME(t.Final) },
+          { ALT: () => $.CONSUME(t.Default) }
         ]);
       }
     });

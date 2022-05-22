@@ -101,3 +101,15 @@ public class NestedNonSealedClasses {
 
   static final class SealedChild extends NonSealedParent {}
 }
+
+public interface Test {
+  sealed interface Inner {}
+
+  public abstract static sealed class SealedParent {}
+
+  non-sealed interface Inner {}
+
+  public abstract static non-sealed class SealedParent {}
+
+  static final class SealedChild extends SealedParent {}
+}
