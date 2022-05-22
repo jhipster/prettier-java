@@ -95,7 +95,7 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
         segments.push(rejectAndConcat(currentSegment));
         currentSegment = [];
       } else if (isAnnotationCstNode(token)) {
-        currentSegment.push(this.visit([token]));
+        currentSegment.push(this.visit([token]), " ");
       } else {
         currentSegment.push(token);
         if (

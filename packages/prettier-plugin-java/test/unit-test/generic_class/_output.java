@@ -27,3 +27,10 @@ public class ComplexGenericClass<
     return new ArrayList<>();
   }
 }
+
+public class Foo<T> {
+
+  public <U extends @NotNull T> void example(U u) {}
+
+  public <U extends com.java.Any.@NotNull T> void example(U u) {}
+}
