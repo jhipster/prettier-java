@@ -1,4 +1,54 @@
-# Latest v1.6.1
+# Latest v1.6.2
+
+## Fixes
+
+- Fix parsing of nested sealed and non-sealed classes & interfaces inside interfaces (Issue [#533](https://github.com/jhipster/prettier-java/issues/533) closed with [#538](https://github.com/jhipster/prettier-java/pull/538))
+
+```java
+
+public interface Test {
+    sealed interface Inner {}
+
+    public static sealed abstract class SealedParent {}
+
+    non-sealed interface Inner {}
+
+    public static non-sealed abstract class SealedParent {}
+
+    final static class SealedChild extends SealedParent {}
+}
+
+```
+
+- Fix incorrect reformating of type bounds in a generic extends clause (Issue [#536](https://github.com/jhipster/prettier-java/issues/536) closed with [#537](https://github.com/jhipster/prettier-java/pull/537))
+
+```java
+// Input
+public class Foo<T> {
+
+  public <U extends @NotNull T> void example(U u) {}
+
+  public <U extends com.java.Any.@NotNull T> void example(U u) {}
+}
+
+// Prettier 1.6.1
+public class Foo<T> {
+
+  public <U extends @NotNullT> void example(U u) {}
+
+  public <U extends com.java.Any.@NotNullT> void example(U u) {}
+}
+
+// Prettier 1.6.2
+public class Foo<T> {
+
+  public <U extends @NotNull T> void example(U u) {}
+
+  public <U extends com.java.Any.@NotNull T> void example(U u) {}
+}
+```
+
+# v1.6.1
 
 ## Fixes
 
