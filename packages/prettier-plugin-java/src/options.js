@@ -172,6 +172,7 @@ module.exports = {
       { value: "arrayAccessSuffix" },
       { value: "methodReferenceSuffix" },
       { value: "pattern" },
+      { value: "primaryPattern" },
       { value: "typePattern" },
       { value: "identifyNewExpressionType" },
       { value: "isLambdaExpression" },
