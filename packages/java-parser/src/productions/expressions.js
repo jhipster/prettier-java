@@ -562,7 +562,26 @@ function defineRules($, t) {
   });
 
   $.RULE("pattern", () => {
-    $.SUBRULE($.typePattern);
+    $.SUBRULE($.primaryPattern);
+    $.OPTION(() => {
+      $.CONSUME(t.AndAnd);
+      $.SUBRULE($.binaryExpression);
+    });
+  });
+
+  $.RULE("primaryPattern", () => {
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(t.LBrace);
+          $.SUBRULE($.pattern);
+          $.CONSUME(t.RBrace);
+        }
+      },
+      {
+        ALT: () => $.SUBRULE($.typePattern)
+      }
+    ]);
   });
 
   $.RULE("typePattern", () => {

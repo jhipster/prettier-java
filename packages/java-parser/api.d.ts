@@ -375,6 +375,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
+  primaryPattern(ctx: PrimaryPatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
@@ -625,6 +626,8 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
+  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
+  caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -728,6 +731,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
+  primaryPattern(ctx: PrimaryPatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
@@ -1848,6 +1852,8 @@ export type IdentifyClassBodyDeclarationTypeCtx = {
   Volatile?: IToken[];
   Synchronized?: IToken[];
   Native?: IToken[];
+  Sealed?: IToken[];
+  NonSealed?: IToken[];
   Strictfp?: IToken[];
   unannType: UnannTypeCstNode[];
 };
@@ -2370,11 +2376,13 @@ export type IdentifyInterfaceBodyDeclarationTypeCtx = {
   Public?: IToken[];
   Protected?: IToken[];
   Private?: IToken[];
-  Static?: IToken[];
-  Final?: IToken[];
   Abstract?: IToken[];
-  Default?: IToken[];
+  Static?: IToken[];
+  Sealed?: IToken[];
+  NonSealed?: IToken[];
   Strictfp?: IToken[];
+  Final?: IToken[];
+  Default?: IToken[];
   unannType: UnannTypeCstNode[];
 };
 
@@ -2621,7 +2629,7 @@ export interface SwitchBlockStatementGroupCstNode extends CstNode {
 export type SwitchBlockStatementGroupCtx = {
   switchLabel: SwitchLabelCstNode[];
   Colon: IToken[];
-  blockStatements: BlockStatementsCstNode[];
+  blockStatements?: BlockStatementsCstNode[];
 };
 
 export interface SwitchLabelCstNode extends CstNode {
@@ -2652,10 +2660,10 @@ export interface CaseLabelElementCstNode extends CstNode {
 }
 
 export type CaseLabelElementCtx = {
-  caseConstant?: CaseConstantCstNode[];
-  pattern?: PatternCstNode[];
   Null?: IToken[];
   Default?: IToken[];
+  pattern?: PatternCstNode[];
+  caseConstant?: CaseConstantCstNode[];
 };
 
 export interface SwitchRuleCstNode extends CstNode {
@@ -3489,7 +3497,21 @@ export interface PatternCstNode extends CstNode {
 }
 
 export type PatternCtx = {
-  typePattern: TypePatternCstNode[];
+  primaryPattern: PrimaryPatternCstNode[];
+  AndAnd?: IToken[];
+  binaryExpression?: BinaryExpressionCstNode[];
+};
+
+export interface PrimaryPatternCstNode extends CstNode {
+  name: "primaryPattern";
+  children: PrimaryPatternCtx;
+}
+
+export type PrimaryPatternCtx = {
+  LBrace?: IToken[];
+  pattern?: PatternCstNode[];
+  RBrace?: IToken[];
+  typePattern?: TypePatternCstNode[];
 };
 
 export interface TypePatternCstNode extends CstNode {

@@ -32,4 +32,21 @@ describe("Pattern matching", () => {
     `;
     expect(() => javaParser.parse(input, "methodDeclaration")).to.not.throw();
   });
+
+  it("should support pattern matching guards", () => {
+    const input = `
+    package com.vimat.model;
+
+    public record Buyer(String name, double bestPrice, double joker) {
+      public boolean hasBestOffer(Buyer other) {
+          return switch (other) {
+            case null -> true;
+            case Buyer b && this.bestPrice > b.bestPrice -> true;
+            default -> false;
+          };
+        }
+    }
+    `;
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
 });
