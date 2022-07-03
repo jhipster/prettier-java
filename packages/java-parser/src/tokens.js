@@ -49,7 +49,7 @@ FRAGMENT(
   "OctalEscape",
   "\\\\({{OctalDigit}}|{{ZeroToThree}}?{{OctalDigit}}{2})"
 );
-FRAGMENT("EscapeSequence", "\\\\[btnfr\"'\\\\]|{{OctalEscape}}");
+FRAGMENT("EscapeSequence", "\\\\[bstnfr\"'\\\\]|{{OctalEscape}}");
 // Not using InputCharacter terminology there because CR and LF are already captured in EscapeSequence
 FRAGMENT(
   "StringCharacter",
