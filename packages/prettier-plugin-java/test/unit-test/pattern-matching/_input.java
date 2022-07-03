@@ -12,4 +12,24 @@ class T {
         }
         return formatted;
     }
+
+    void test(Buyer other) {
+        return switch (other) {
+            case null -> true;
+            case Buyer b && this.bestPrice > b.bestPrice -> true;
+            case Buyer b && this.bestPrice > b.bestPrice -> {
+                return true;
+            }
+            case (Buyer b && this.bestPrice > b.bestPrice) -> true;
+            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> true;
+            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> {
+                return true;
+            }
+            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> true;
+            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> {
+                return true;
+            }
+            default -> false;
+        };
+    }
 }
