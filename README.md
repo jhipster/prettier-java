@@ -115,6 +115,15 @@ For IntelliJ, you can use this configuration:
 
 You can also import the Checkstyle configuration provided in the next section.
 
+For VSCode with [Language Support for Java](https://marketplace.visualstudio.com/items?itemName=redhat.java), you can use this configuration (`settings.json`):
+```json
+{
+  "java.completion.importOrder": [
+    "#"
+  ]
+}
+```
+
 ## Checkstyle configuration
 
 You can use Prettier in combination with other linter, like Checkstyle.
