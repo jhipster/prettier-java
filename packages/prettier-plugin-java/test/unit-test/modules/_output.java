@@ -3,6 +3,7 @@ open module soat.vending.machine.gui {
   requires soat.vending.machine.model;
   requires transitive soat.core;
   exports fr.soat.vending.machine.model to another, again, ano;
+  exports fr.soat.vending.machine.model.without.destination;
 
   exports fr.soat.vending.machine.model.it.should.be.breaking.but.only.a.part
     to another, again, ano;
@@ -17,6 +18,8 @@ open module soat.vending.machine.gui {
       again,
       ano,
       averyveryveryveryveryveryveryveryveryveryverylongname;
+
+  opens fr.soat.vending.machine.model.without.destination;
 
   opens fr.soat.vending.machine.model to another, again, ano;
 

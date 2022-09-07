@@ -153,28 +153,35 @@ export class PackagesAndModulesPrettierVisitor extends BaseCstPrettierPrinter {
 
   exportsModuleDirective(ctx: ExportsModuleDirectiveCtx) {
     const packageName = this.visit(ctx.packageName);
-    const to = ctx.To ? ctx.To[0] : "";
     const moduleNames = this.mapVisit(ctx.moduleName);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return group(
-      rejectAndConcat([
-        indent(
-          rejectAndJoin(line, [
-            rejectAndJoin(" ", [ctx.Exports[0], packageName]),
-            group(
-              indent(
-                rejectAndJoin(line, [
-                  to,
-                  rejectAndJoinSeps(commas, moduleNames)
-                ])
+    if (ctx.To) {
+      return group(
+        rejectAndConcat([
+          indent(
+            rejectAndJoin(line, [
+              rejectAndJoin(" ", [ctx.Exports[0], packageName]),
+              group(
+                indent(
+                  rejectAndJoin(line, [
+                    ctx.To[0],
+                    rejectAndJoinSeps(commas, moduleNames)
+                  ])
+                )
               )
-            )
-          ])
-        ),
-        ctx.Semicolon[0]
-      ])
-    );
+            ])
+          ),
+          ctx.Semicolon[0]
+        ])
+      );
+    }
+    
+    return rejectAndConcat([
+      concat([ctx.Exports[0], " "]),
+      packageName,
+      ctx.Semicolon[0]
+    ]);
   }
 
   opensModuleDirective(ctx: OpensModuleDirectiveCtx) {
@@ -183,24 +190,32 @@ export class PackagesAndModulesPrettierVisitor extends BaseCstPrettierPrinter {
     const moduleNames = this.mapVisit(ctx.moduleName);
     const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
 
-    return group(
-      rejectAndConcat([
-        indent(
-          rejectAndJoin(line, [
-            rejectAndJoin(" ", [ctx.Opens[0], packageName]),
-            group(
-              indent(
-                rejectAndJoin(line, [
-                  to,
-                  rejectAndJoinSeps(commas, moduleNames)
-                ])
+    if (ctx.To) {
+      return group(
+        rejectAndConcat([
+          indent(
+            rejectAndJoin(line, [
+              rejectAndJoin(" ", [ctx.Opens[0], packageName]),
+              group(
+                indent(
+                  rejectAndJoin(line, [
+                    ctx.To[0],
+                    rejectAndJoinSeps(commas, moduleNames)
+                  ])
+                )
               )
-            )
-          ])
-        ),
-        ctx.Semicolon[0]
-      ])
-    );
+            ])
+          ),
+          ctx.Semicolon[0]
+        ])
+      );
+    }
+
+    return rejectAndConcat([
+      concat([ctx.Opens[0], " "]),
+      packageName,
+      ctx.Semicolon[0]
+    ]);
   }
 
   usesModuleDirective(ctx: UsesModuleDirectiveCtx) {
