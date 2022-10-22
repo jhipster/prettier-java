@@ -13,8 +13,8 @@ describe("Wildcard Bounds", () => {
     referenceTypeSpy = spy(BaseCstPrettierPrinter.prototype, "referenceType");
   });
 
-  it("can format a wildcardBounds with extends", () => {
-    expectSnippetToBeFormatted({
+  it("can format a wildcardBounds with extends", async () => {
+    await expectSnippetToBeFormatted({
       snippet: "extends int[]",
       expectedOutput: "extends int[]",
       entryPoint: "wildcardBounds"
@@ -22,8 +22,8 @@ describe("Wildcard Bounds", () => {
     assert.callCount(referenceTypeSpy, 2);
   });
 
-  it("can format a wildcardBounds with super", () => {
-    expectSnippetToBeFormatted({
+  it("can format a wildcardBounds with super", async () => {
+    await expectSnippetToBeFormatted({
       snippet: "super int[]",
       expectedOutput: "super int[]",
       entryPoint: "wildcardBounds"
