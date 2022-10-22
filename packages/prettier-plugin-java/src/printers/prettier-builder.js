@@ -10,8 +10,13 @@ const { processComments } = require("./comments/format-comments");
  */
 
 function concat(docs) {
-  const concatenation = prettier.concat(processComments(docs));
-  return concatenation.parts.length === 0 ? "" : concatenation;
+  const concatenation = processComments(docs);
+
+  if (!Array.isArray(docs)) {
+    return "";
+  }
+
+  return concatenation;
 }
 
 function join(sep, docs) {
@@ -19,7 +24,7 @@ function join(sep, docs) {
     processComments(sep),
     processComments(docs)
   );
-  return concatenation.parts.length === 0 ? "" : concatenation;
+  return concatenation.length === 0 ? "" : concatenation;
 }
 
 function group(doc, opts) {
@@ -29,7 +34,7 @@ function group(doc, opts) {
 
 function fill(docs) {
   const fill = prettier.fill(processComments(docs));
-  return fill.parts.length === 0 ? "" : fill;
+  return fill.length === 0 ? "" : fill;
 }
 
 function indent(doc) {

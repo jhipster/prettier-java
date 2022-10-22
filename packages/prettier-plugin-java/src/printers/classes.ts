@@ -220,7 +220,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   classBody(ctx: ClassBodyCtx, param: any) {
-    let content = "";
+    let content: Doc = "";
     if (ctx.classBodyDeclaration !== undefined) {
       const classBodyDeclsVisited = reject(
         this.mapVisit(ctx.classBodyDeclaration)
@@ -887,7 +887,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
       ]);
     }
 
-    return { ...ctx.Semicolon[0], image: "" };
+    return printTokenWithComments({ ...ctx.Semicolon[0], image: "" });
   }
 
   recordDeclaration(ctx: RecordDeclarationCtx) {

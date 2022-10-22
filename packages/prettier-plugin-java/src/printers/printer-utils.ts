@@ -14,7 +14,7 @@ import {
   hasLeadingComments,
   hasTrailingComments
 } from "./comments/comments-utils";
-import { builders, utils } from "prettier/doc";
+import { builders } from "prettier/doc";
 import {
   AnnotationCstNode,
   BinaryExpressionCtx,
@@ -35,7 +35,6 @@ import { Doc, doc } from "prettier";
 import { isCstNode } from "../types/utils";
 
 const { indent, hardline, line } = builders;
-const { isConcat } = utils;
 
 const orderedModifiers = [
   "Public",
@@ -59,7 +58,8 @@ export function buildFqn(tokens: IToken[], dots: IToken[] | undefined) {
 }
 
 export function rejectAndJoinSeps(
-  sepTokens: (IToken | Doc)[] | undefined,
+  // TODO: remove any
+  sepTokens: (IToken | Doc | any)[] | undefined,
   elems: (Doc | IToken | undefined)[],
   sep?: string
 ) {
@@ -107,18 +107,21 @@ export function rejectSeparators(
 }
 
 export function rejectAndJoin(
-  sep: Doc | IToken | undefined,
-  elems: (Doc | IToken | undefined)[]
+  // TODO: remove any
+  sep: Doc | IToken | undefined | any,
+  // TODO: remove any
+  elems: (Doc | IToken | undefined | any)[]
 ) {
   const actualElements = reject(elems);
 
   return join(sep, actualElements);
 }
 
-export function rejectAndConcat(elems: (Doc | IToken | undefined)[]) {
+// TODO: remove any
+export function rejectAndConcat(elems: (Doc | IToken | undefined | any)[]) {
   const actualElements = reject(elems);
 
-  return concat(actualElements);
+  return concat(actualElements) as Doc;
 }
 
 export function sortAnnotationIdentifier(
@@ -332,13 +335,35 @@ export function getBlankLinesSeparator(
       : nextNode.location.startLine;
 
     if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
-      separators.push(concat([hardline, hardline]));
+      separators.push([hardline, hardline]);
     } else {
       separators.push(separator);
     }
   }
 
   return separators;
+}
+
+// TODO: CLEAN THIS UP
+function isTwoHardLineMethod(
+  userBlankLinesSeparators: undefined | Doc[],
+  indexNextNotEmptyDeclaration: number
+) {
+  if (userBlankLinesSeparators === undefined) {
+    return false;
+  }
+
+  const nextNotEmptyDeclarationSeparator =
+    userBlankLinesSeparators[indexNextNotEmptyDeclaration];
+  if (Array.isArray(nextNotEmptyDeclarationSeparator)) {
+    return (
+      nextNotEmptyDeclarationSeparator.length === 2 &&
+      nextNotEmptyDeclarationSeparator[0] === hardline &&
+      nextNotEmptyDeclarationSeparator[1] === hardline
+    );
+  }
+
+  return false;
 }
 
 function getDeclarationsSeparator<
@@ -373,10 +398,11 @@ function getDeclarationsSeparator<
       indexNextNotEmptyDeclaration <
       declarationsWithoutEmptyStatements.length - 1
     ) {
-      const isTwoHardLines =
-        // @ts-ignore
-        userBlankLinesSeparators[indexNextNotEmptyDeclaration].parts[0].type ===
-        "concat";
+      const isTwoHardLines = isTwoHardLineMethod(
+        userBlankLinesSeparators,
+        indexNextNotEmptyDeclaration
+      );
+      // @ts-ignore
       const additionalSep =
         !isTwoHardLines &&
         (additionalBlankLines[indexNextNotEmptyDeclaration + 1] ||
@@ -540,7 +566,10 @@ export function putIntoBraces(
   delete RBrace.leadingComments;
 
   let contentInsideBraces;
-  if (argument === undefined || argument === "") {
+
+  // TODO: remove ts-ignore
+  // @ts-ignore
+  if (argument === undefined || argument === "" || argument.length === 0) {
     if (rightBraceLeadingComments.length === 0) {
       return concat([LBrace, RBrace]);
     }
@@ -559,7 +588,7 @@ export function putIntoBraces(
   return group(
     rejectAndConcat([
       LBrace,
-      indent(concat(contentInsideBraces)),
+      indent(concat(contentInsideBraces) as Doc),
       lastBreakLine,
       RBrace
     ])
@@ -640,7 +669,7 @@ export function isStatementEmptyStatement(statement: Doc) {
     statement === ";" ||
     // @ts-ignore
 
-    (isConcat(statement) && statement.parts[0] === ";")
+    statement[0] === ";"
   );
 }
 

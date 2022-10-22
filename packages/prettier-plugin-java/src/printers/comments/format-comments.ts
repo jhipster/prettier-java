@@ -4,7 +4,7 @@ import { CstNodeLocation } from "@chevrotain/types";
 import { isCstElementOrUndefinedIToken } from "../../types/utils";
 import { Doc } from "prettier";
 
-const { concat, hardline, lineSuffix, breakParent, literalline } = builders;
+const { hardline, lineSuffix, breakParent, literalline } = builders;
 
 /**
  * Takes a token and return a doc with:
@@ -54,7 +54,7 @@ function printWithComments<T extends CstNode | IToken>(
 
   return leadingComments.length === 0 && trailingComments.length === 0
     ? value
-    : concat([...leadingComments, value, ...trailingComments]);
+    : [...leadingComments, value, ...trailingComments];
 }
 
 /**
@@ -81,7 +81,7 @@ function getLeadingComments(
   if (nodeOrToken.leadingComments !== undefined) {
     let previousEndLine = nodeOrToken.leadingComments[0].endLine;
     let step;
-    arr.push(concat(formatComment(nodeOrToken.leadingComments[0])));
+    arr.push(formatComment(nodeOrToken.leadingComments[0]));
     for (let i = 1; i < nodeOrToken.leadingComments.length; i++) {
       step = nodeOrToken.leadingComments[i].startLine - previousEndLine;
       if (
@@ -93,7 +93,7 @@ function getLeadingComments(
         arr.push(hardline, hardline);
       }
 
-      arr.push(concat(formatComment(nodeOrToken.leadingComments[i])));
+      arr.push(formatComment(nodeOrToken.leadingComments[i]));
       previousEndLine = nodeOrToken.leadingComments[i].endLine;
     }
 
@@ -142,18 +142,19 @@ function getTrailingComments(
 
       if (comment.startLine !== previousEndLine) {
         arr.push(hardline);
-      } else if (value !== "" && idx === 0) {
+      } else if (
+        // TODO: CLEAN THIS UP
+        value !== "" &&
+        !(Array.isArray(value) && value.length === 0) &&
+        idx === 0
+      ) {
         separator = " ";
       }
 
       if (comment.tokenType.name === "LineComment") {
-        arr.push(
-          lineSuffix(
-            concat([separator, concat(formatComment(comment)), breakParent])
-          )
-        );
+        arr.push(lineSuffix([separator, formatComment(comment), breakParent]));
       } else {
-        arr.push(concat(formatComment(comment)));
+        arr.push(formatComment(comment));
       }
 
       previousEndLine = comment.endLine;
