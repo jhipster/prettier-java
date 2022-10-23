@@ -22,7 +22,7 @@
     "test:all": "yarn run test && yarn run test:e2e-jhipster1 && yarn run test:e2e-jhipster2",
     "clone-samples": "node scripts/clone-samples.js",
     "build": "tsc -p tsconfig.build.json --outDir dist",
-    "build:watch": "tsc -p tsconfig.build.json --outDir dist -w"
+    "build:watch": "tsc -p tsconfig.build.json --inlineSourceMap --outDir dist -w"
   },
   "devDependencies": {
     "@babel/cli": "7.19.3",
