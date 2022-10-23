@@ -1,4 +1,8 @@
 "use strict";
+import { IToken } from "java-parser";
+import { doc } from "prettier";
+import Doc = doc.builders.Doc;
+
 const prettier = require("prettier").doc.builders;
 
 const { processComments } = require("./comments/format-comments");
@@ -9,7 +13,7 @@ const { processComments } = require("./comments/format-comments");
  * ------------------------------------------------------------------
  */
 
-function concat(docs) {
+export function concat(docs: (Doc | IToken)[]): Doc {
   const concatenation = processComments(docs);
 
   if (!Array.isArray(docs)) {
@@ -19,7 +23,7 @@ function concat(docs) {
   return concatenation;
 }
 
-function join(sep, docs) {
+export function join(sep: any, docs: (Doc | IToken)[]): Doc {
   const concatenation = prettier.join(
     processComments(sep),
     processComments(docs)
@@ -27,39 +31,32 @@ function join(sep, docs) {
   return concatenation.length === 0 ? "" : concatenation;
 }
 
-function group(doc, opts) {
+export function group(doc: Doc | IToken, opts?: any) {
   const group = prettier.group(processComments(doc), opts);
   return group.contents === undefined ? "" : group;
 }
 
-function fill(docs) {
+export function fill(docs: (Doc | IToken)[]) {
   const fill = prettier.fill(processComments(docs));
   return fill.length === 0 ? "" : fill;
 }
 
-function indent(doc) {
+export function indent(doc: Doc | IToken) {
   const indentedDoc = prettier.indent(processComments(doc));
   return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
-function dedent(doc) {
+export function dedent(doc: Doc | IToken) {
   const indentedDoc = prettier.dedent(processComments(doc));
   return indentedDoc.contents.length === 0 ? "" : indentedDoc;
 }
 
-function ifBreak(breakContents, flatContents) {
+export function ifBreak(
+  breakContents: Doc | IToken,
+  flatContents: Doc | IToken
+) {
   return prettier.ifBreak(
     processComments(breakContents),
     processComments(flatContents)
   );
 }
-
-module.exports = {
-  concat,
-  join,
-  group,
-  fill,
-  indent,
-  dedent,
-  ifBreak
-};

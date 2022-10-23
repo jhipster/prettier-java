@@ -1,3 +1,4 @@
+import { doc } from "prettier";
 import { concat, group, indent } from "./prettier-builder";
 import { printTokenWithComments } from "./comments/format-comments";
 import {
@@ -40,6 +41,7 @@ import {
   IToken,
   NormalInterfaceDeclarationCtx
 } from "java-parser";
+import Doc = doc.builders.Doc;
 
 const { line, softline, hardline } = builders;
 
@@ -116,7 +118,7 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   interfaceBody(ctx: InterfaceBodyCtx) {
-    let joinedInterfaceMemberDeclaration = "";
+    let joinedInterfaceMemberDeclaration: Doc = "";
 
     if (ctx.interfaceMemberDeclaration !== undefined) {
       const interfaceMemberDeclaration = this.mapVisit(

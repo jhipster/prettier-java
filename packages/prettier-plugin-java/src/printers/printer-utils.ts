@@ -58,8 +58,7 @@ export function buildFqn(tokens: IToken[], dots: IToken[] | undefined) {
 }
 
 export function rejectAndJoinSeps(
-  // TODO: remove any
-  sepTokens: (IToken | Doc | any)[] | undefined,
+  sepTokens: (IToken | Doc)[] | undefined,
   elems: (Doc | IToken | undefined)[],
   sep?: string
 ) {
@@ -79,7 +78,7 @@ export function rejectAndJoinSeps(
   return concat(res);
 }
 
-export function reject(elems: (IToken | Doc | undefined)[]) {
+export function reject(elems: (IToken | Doc | undefined)[]): (IToken | Doc)[] {
   return elems.filter(item => {
     if (typeof item === "string") {
       return item !== "";
@@ -87,7 +86,7 @@ export function reject(elems: (IToken | Doc | undefined)[]) {
     // eslint-ignore next - We want the conversion to boolean!
     // @ts-ignore
     return item != false && item !== undefined;
-  });
+  }) as (IToken | Doc)[];
 }
 
 export function rejectSeparators(
@@ -107,18 +106,15 @@ export function rejectSeparators(
 }
 
 export function rejectAndJoin(
-  // TODO: remove any
-  sep: Doc | IToken | undefined | any,
-  // TODO: remove any
-  elems: (Doc | IToken | undefined | any)[]
+  sep: Doc | IToken | undefined,
+  elems: (Doc | IToken | undefined)[]
 ) {
   const actualElements = reject(elems);
 
   return join(sep, actualElements);
 }
 
-// TODO: remove any
-export function rejectAndConcat(elems: (Doc | IToken | undefined | any)[]) {
+export function rejectAndConcat(elems: (Doc | IToken | undefined)[]) {
   const actualElements = reject(elems);
 
   return concat(actualElements) as Doc;
