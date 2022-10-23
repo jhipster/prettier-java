@@ -46,7 +46,7 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
     const annotations = this.mapVisit(ctx.annotation);
     const type = ctx.numericType
       ? this.visit(ctx.numericType)
-      : this.visitSingle(ctx);
+      : (this.getSingle(ctx) as IToken);
 
     return rejectAndJoin(" ", [join(" ", annotations), type]);
   }
@@ -117,7 +117,7 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
 
   typeVariable(ctx: TypeVariableCtx) {
     const annotations = this.mapVisit(ctx.annotation);
-    const identifier = this.visitSingle(ctx);
+    const identifier = this.getSingle(ctx) as IToken;
 
     return rejectAndJoin(" ", [join(" ", annotations), identifier]);
   }
