@@ -3,6 +3,7 @@ import { CstElement, CstNode, IToken } from "java-parser";
 import { CstNodeLocation } from "@chevrotain/types";
 import { isCstElementOrUndefinedIToken } from "../../types/utils";
 import { Doc } from "prettier";
+import isEmptyDoc from "../../utils/isEmptyDoc";
 
 const { hardline, lineSuffix, breakParent, literalline } = builders;
 
@@ -142,7 +143,7 @@ function getTrailingComments(
 
       if (comment.startLine !== previousEndLine) {
         arr.push(hardline);
-      } else if (!isEmptyValue(value) && idx === 0) {
+      } else if (!isEmptyDoc(value) && idx === 0) {
         separator = " ";
       }
 
@@ -158,10 +159,6 @@ function getTrailingComments(
 
   return arr;
 }
-
-const isEmptyValue = (value: Doc) =>
-  (typeof value === "string" && value === "") ||
-  (Array.isArray(value) && value.length === 0);
 
 function isJavaDoc(comment: IToken, lines: string[]) {
   let isJavaDoc = true;

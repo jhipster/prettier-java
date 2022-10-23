@@ -1,20 +1,3 @@
-import forEach from "lodash/forEach";
-import forEachRight from "lodash/forEachRight";
-import findLastIndex from "lodash/findLastIndex";
-import findIndex from "lodash/findIndex";
-import includes from "lodash/includes";
-
-import { concat, group, ifBreak, join } from "./prettier-builder";
-import {
-  getTokenLeadingComments,
-  printTokenWithComments
-} from "./comments/format-comments";
-import {
-  hasComments,
-  hasLeadingComments,
-  hasTrailingComments
-} from "./comments/comments-utils";
-import { builders } from "prettier/doc";
 import {
   AnnotationCstNode,
   BinaryExpressionCtx,
@@ -31,8 +14,26 @@ import {
   MethodModifierCstNode,
   TypeArgumentsCstNode
 } from "java-parser";
+import findIndex from "lodash/findIndex";
+import findLastIndex from "lodash/findLastIndex";
+import forEach from "lodash/forEach";
+import forEachRight from "lodash/forEachRight";
+import includes from "lodash/includes";
 import { Doc, doc } from "prettier";
+import { builders } from "prettier/doc";
 import { isCstNode } from "../types/utils";
+import { isEmptyDoc } from "../utils";
+import {
+  hasComments,
+  hasLeadingComments,
+  hasTrailingComments
+} from "./comments/comments-utils";
+import {
+  getTokenLeadingComments,
+  printTokenWithComments
+} from "./comments/format-comments";
+
+import { concat, group, ifBreak, join } from "./prettier-builder";
 
 const { indent, hardline, line } = builders;
 
@@ -117,7 +118,7 @@ export function rejectAndJoin(
 export function rejectAndConcat(elems: (Doc | IToken | undefined)[]) {
   const actualElements = reject(elems);
 
-  return concat(actualElements) as Doc;
+  return concat(actualElements);
 }
 
 export function sortAnnotationIdentifier(
@@ -340,27 +341,17 @@ export function getBlankLinesSeparator(
   return separators;
 }
 
-// TODO: CLEAN THIS UP
-function isTwoHardLineMethod(
-  userBlankLinesSeparators: undefined | Doc[],
-  indexNextNotEmptyDeclaration: number
-) {
-  if (userBlankLinesSeparators === undefined) {
+const isTwoHardLine = (userBlankLinesSeparator: Doc): boolean => {
+  if (!Array.isArray(userBlankLinesSeparator)) {
     return false;
   }
 
-  const nextNotEmptyDeclarationSeparator =
-    userBlankLinesSeparators[indexNextNotEmptyDeclaration];
-  if (Array.isArray(nextNotEmptyDeclarationSeparator)) {
-    return (
-      nextNotEmptyDeclarationSeparator.length === 2 &&
-      nextNotEmptyDeclarationSeparator[0] === hardline &&
-      nextNotEmptyDeclarationSeparator[1] === hardline
-    );
-  }
-
-  return false;
-}
+  return (
+    userBlankLinesSeparator.length === 2 &&
+    userBlankLinesSeparator[0] === hardline &&
+    userBlankLinesSeparator[1] === hardline
+  );
+};
 
 function getDeclarationsSeparator<
   Declaration extends
@@ -394,13 +385,11 @@ function getDeclarationsSeparator<
       indexNextNotEmptyDeclaration <
       declarationsWithoutEmptyStatements.length - 1
     ) {
-      const isTwoHardLines = isTwoHardLineMethod(
-        userBlankLinesSeparators,
-        indexNextNotEmptyDeclaration
+      const isNextSeparatorTwoHardLine = isTwoHardLine(
+        userBlankLinesSeparators[indexNextNotEmptyDeclaration]
       );
-      // @ts-ignore
       const additionalSep =
-        !isTwoHardLines &&
+        !isNextSeparatorTwoHardLine &&
         (additionalBlankLines[indexNextNotEmptyDeclaration + 1] ||
           additionalBlankLines[indexNextNotEmptyDeclaration])
           ? hardline
@@ -563,9 +552,7 @@ export function putIntoBraces(
 
   let contentInsideBraces;
 
-  // TODO: remove ts-ignore
-  // @ts-ignore
-  if (argument === undefined || argument === "" || argument.length === 0) {
+  if (isEmptyDoc(argument)) {
     if (rightBraceLeadingComments.length === 0) {
       return concat([LBrace, RBrace]);
     }
@@ -584,7 +571,7 @@ export function putIntoBraces(
   return group(
     rejectAndConcat([
       LBrace,
-      indent(concat(contentInsideBraces) as Doc),
+      indent(concat(contentInsideBraces)),
       lastBreakLine,
       RBrace
     ])
@@ -662,10 +649,7 @@ export function isShiftOperator(tokens: IToken[], index: number) {
 
 export function isStatementEmptyStatement(statement: Doc) {
   return (
-    statement === ";" ||
-    // @ts-ignore
-
-    statement[0] === ";"
+    statement === ";" || (Array.isArray(statement) && statement[0] === ";")
   );
 }
 
