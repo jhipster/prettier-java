@@ -34,7 +34,7 @@ export function printTokenWithComments(token: IToken) {
  * @param {Doc} value - the converted node value
  * @return a doc with the token and its comments
  */
-export function printNodeWithComments(node: CstNode, value: string) {
+export function printNodeWithComments(node: CstNode, value: Doc) {
   return printWithComments(
     node,
     value,
@@ -45,9 +45,9 @@ export function printNodeWithComments(node: CstNode, value: string) {
 
 function printWithComments<T extends CstNode | IToken>(
   nodeOrToken: T,
-  value: string,
+  value: Doc,
   getLeadingComments: (token: T) => Doc[],
-  getTrailingComments: (token: T, value: string) => Doc[]
+  getTrailingComments: (token: T, value: Doc) => Doc[]
 ) {
   const leadingComments = getLeadingComments(nodeOrToken);
   const trailingComments = getTrailingComments(nodeOrToken, value);
@@ -125,13 +125,13 @@ function getTokenTrailingComments(token: IToken) {
  * @param {string} value
  * @return an array containing processed trailing comments and separators
  */
-function getNodeTrailingComments(node: CstNode, value: string) {
+function getNodeTrailingComments(node: CstNode, value: Doc) {
   return getTrailingComments(node, value, node.location);
 }
 
 function getTrailingComments(
   nodeOrToken: CstElement,
-  value: string,
+  value: Doc,
   location: CstNodeLocation | IToken
 ) {
   const arr: Doc = [];
@@ -142,12 +142,7 @@ function getTrailingComments(
 
       if (comment.startLine !== previousEndLine) {
         arr.push(hardline);
-      } else if (
-        // TODO: CLEAN THIS UP
-        value !== "" &&
-        !(Array.isArray(value) && value.length === 0) &&
-        idx === 0
-      ) {
+      } else if (!isEmptyValue(value) && idx === 0) {
         separator = " ";
       }
 
@@ -163,6 +158,10 @@ function getTrailingComments(
 
   return arr;
 }
+
+const isEmptyValue = (value: Doc) =>
+  (typeof value === "string" && value === "") ||
+  (Array.isArray(value) && value.length === 0);
 
 function isJavaDoc(comment: IToken, lines: string[]) {
   let isJavaDoc = true;

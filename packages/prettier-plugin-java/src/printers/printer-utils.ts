@@ -313,9 +313,9 @@ export function isExplicitLambdaParameter(ctx: LambdaParametersWithBracesCtx) {
 export function getBlankLinesSeparator(
   ctx: CstNode[] | undefined,
   separator: builders.Line | builders.Concat = hardline
-) {
+): Doc[] {
   if (ctx === undefined) {
-    return undefined;
+    return [];
   }
 
   const separators: Doc[] = [];
