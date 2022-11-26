@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-java",
-  "version": "1.6.2",
+  "version": "2.0.0",
   "description": "Prettier Java Plugin",
   "main": "dist/index.js",
   "files": [
@@ -9,7 +9,7 @@
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
-    "java-parser": "2.0.2",
+    "java-parser": "2.0.3",
     "lodash": "4.17.21",
     "prettier": "2.8.0"
   },
