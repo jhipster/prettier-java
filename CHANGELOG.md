@@ -1,4 +1,4 @@
-# Latest v1.6.2
+# Latest v2.0.0
 
 ## Breaking changes
 - Drop support of Node.js 12
