@@ -14,12 +14,12 @@
     "prettier": "2.3.1"
   },
   "scripts": {
-    "test": "npm-run-all test:unit test:e2e-core",
+    "test": "yarn run test:unit && yarn run test:e2e-core",
     "test:unit": "mocha \"test/unit-test/**/*.spec.ts\" \"test/unit-test/**/*-spec.ts\"",
     "test:e2e-core": "node scripts/clone-samples e2e-core && mocha \"test/repository-test/core-test.ts\"",
     "test:e2e-jhipster1": "node scripts/clone-samples e2e-jhipster1 && mocha \"test/repository-test/jhipster-1-test.ts\"",
     "test:e2e-jhipster2": "node scripts/clone-samples e2e-jhipster2 && mocha \"test/repository-test/jhipster-2-test.ts\"",
-    "test:all": "npm-run-all test test:e2e-jhipster1 test:e2e-jhipster2",
+    "test:all": "yarn run test && yarn run test:e2e-jhipster1 && yarn run test:e2e-jhipster2",
     "clone-samples": "node scripts/clone-samples.js",
     "build": "tsc -p tsconfig.build.json --outDir dist",
     "build:watch": "tsc -p tsconfig.build.json --outDir dist -w"
