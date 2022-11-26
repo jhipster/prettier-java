@@ -11,7 +11,7 @@
     "lodash": "4.17.21"
   },
   "scripts": {
-    "test": "npm-run-all clone-samples test:execute",
+    "test": "yarn run clone-samples && yarn run test:execute",
     "test:execute": "mocha \"test/**/*-spec.js\"",
     "clone-samples": "node ./scripts/clone-samples"
   }
