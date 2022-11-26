@@ -22,20 +22,20 @@ describe("numericType", () => {
     );
   });
 
-  it("can format byte keyword", () => {
+  it("can format byte keyword", async () => {
     const snippet = "byte";
     const entryPoint = "numericType";
 
-    formatJavaSnippet({ snippet, entryPoint });
+    await formatJavaSnippet({ snippet, entryPoint });
     assert.callCount(integralTypeSpy, 1);
     assert.callCount(floatingPointTypeSpy, 0);
   });
 
-  it("can format double keyword", () => {
+  it("can format double keyword", async () => {
     const snippet = "double";
     const entryPoint = "numericType";
 
-    formatJavaSnippet({ snippet, entryPoint });
+    await formatJavaSnippet({ snippet, entryPoint });
     assert.callCount(integralTypeSpy, 0);
     assert.callCount(floatingPointTypeSpy, 1);
   });

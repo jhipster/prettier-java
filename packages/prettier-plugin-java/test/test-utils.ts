@@ -12,7 +12,7 @@ import { format, doc } from "prettier";
 
 const { printDocToString } = doc.printer;
 
-const pluginPath = resolve(__dirname, "../");
+const pluginPath = resolve(__dirname, "../dist/index.js");
 export function testSample(testFolder: string, exclusive?: boolean) {
   const itOrItOnly = exclusive ? it.only : it;
   const inputPath = resolve(testFolder, "_input.java");
@@ -28,8 +28,8 @@ export function testSample(testFolder: string, exclusive?: boolean) {
     expectedContents = readFileSync(expectedPath, "utf8");
   });
 
-  itOrItOnly(`can format <${relativeInputPath}>`, () => {
-    const actual = format(inputContents, {
+  itOrItOnly(`can format <${relativeInputPath}>`, async () => {
+    const actual = await format(inputContents, {
       parser: "java",
       plugins: [pluginPath]
     });
@@ -37,13 +37,13 @@ export function testSample(testFolder: string, exclusive?: boolean) {
     expect(actual).to.equal(expectedContents);
   });
 
-  it(`Performs a stable formatting for <${relativeInputPath}>`, () => {
-    const onePass = format(inputContents, {
+  it(`Performs a stable formatting for <${relativeInputPath}>`, async () => {
+    const onePass = await format(inputContents, {
       parser: "java",
       plugins: [pluginPath]
     });
 
-    const secondPass = format(onePass, {
+    const secondPass = await format(onePass, {
       parser: "java",
       plugins: [pluginPath]
     });
@@ -58,8 +58,10 @@ export function testRepositorySample(
 ) {
   describe(`Prettify the repository <${testFolder}>`, function () {
     this.timeout(0);
+
     const testsamples = resolve(__dirname, "../test-samples");
     const samplesDir = resolve(testsamples, basename(testFolder));
+
     if (existsSync(samplesDir)) {
       removeSync(samplesDir);
     }
@@ -76,14 +78,14 @@ export function testRepositorySample(
       it(`Performs a stable formatting for <${relative(
         samplesDir,
         fileDesc.path
-      )}>`, () => {
+      )}>`, async () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
 
-        const onePass = format(javaFileText, {
+        const onePass = await format(javaFileText, {
           parser: "java",
           plugins: [pluginPath]
         });
-        const secondPass = format(onePass, {
+        const secondPass = await format(onePass, {
           parser: "java",
           plugins: [pluginPath]
         });
@@ -91,7 +93,7 @@ export function testRepositorySample(
       });
     });
 
-    it(`verify semantic validity ${testFolder}`, () => {
+    it(`verify semantic validity ${testFolder}`, function () {
       const code = spawnSync(command, args, {
         cwd: samplesDir,
         maxBuffer: Infinity
@@ -105,7 +107,7 @@ export function testRepositorySample(
   });
 }
 
-export function formatJavaSnippet({
+export async function formatJavaSnippet({
   snippet,
   entryPoint,
   prettierOptions = {}
@@ -122,11 +124,11 @@ export function formatJavaSnippet({
     useTabs: false,
     ...prettierOptions
   };
-  const doc = createPrettierDoc(node, options);
-  return printDocToString(doc, options).formatted;
+  const doc = await createPrettierDoc(node, options);
+  return await printDocToString(doc, options).formatted;
 }
 
-export function expectSnippetToBeFormatted({
+export async function expectSnippetToBeFormatted({
   snippet,
   expectedOutput,
   entryPoint,
@@ -137,8 +139,12 @@ export function expectSnippetToBeFormatted({
   entryPoint: string;
   prettierOptions?: any;
 }) {
-  const onePass = formatJavaSnippet({ snippet, entryPoint, prettierOptions });
-  const secondPass = formatJavaSnippet({
+  const onePass = await formatJavaSnippet({
+    snippet,
+    entryPoint,
+    prettierOptions
+  });
+  const secondPass = await formatJavaSnippet({
     snippet: onePass,
     entryPoint,
     prettierOptions

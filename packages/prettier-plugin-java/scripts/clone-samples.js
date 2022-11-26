@@ -27,10 +27,6 @@ const core = [
 
 const jhipster1 = [
   {
-    repoUrl: "https://github.com/jhipster/jhipster-online",
-    branch: "main"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-microservice",
     branch: "main"
   },

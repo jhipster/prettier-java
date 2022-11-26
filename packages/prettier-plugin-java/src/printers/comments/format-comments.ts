@@ -3,8 +3,9 @@ import { CstElement, CstNode, IToken } from "java-parser";
 import { CstNodeLocation } from "@chevrotain/types";
 import { isCstElementOrUndefinedIToken } from "../../types/utils";
 import { Doc } from "prettier";
+import isEmptyDoc from "../../utils/isEmptyDoc";
 
-const { concat, hardline, lineSuffix, breakParent, literalline } = builders;
+const { hardline, lineSuffix, breakParent, literalline } = builders;
 
 /**
  * Takes a token and return a doc with:
@@ -34,7 +35,7 @@ export function printTokenWithComments(token: IToken) {
  * @param {Doc} value - the converted node value
  * @return a doc with the token and its comments
  */
-export function printNodeWithComments(node: CstNode, value: string) {
+export function printNodeWithComments(node: CstNode, value: Doc) {
   return printWithComments(
     node,
     value,
@@ -45,16 +46,16 @@ export function printNodeWithComments(node: CstNode, value: string) {
 
 function printWithComments<T extends CstNode | IToken>(
   nodeOrToken: T,
-  value: string,
+  value: Doc,
   getLeadingComments: (token: T) => Doc[],
-  getTrailingComments: (token: T, value: string) => Doc[]
+  getTrailingComments: (token: T, value: Doc) => Doc[]
 ) {
   const leadingComments = getLeadingComments(nodeOrToken);
   const trailingComments = getTrailingComments(nodeOrToken, value);
 
   return leadingComments.length === 0 && trailingComments.length === 0
     ? value
-    : concat([...leadingComments, value, ...trailingComments]);
+    : [...leadingComments, value, ...trailingComments];
 }
 
 /**
@@ -81,7 +82,7 @@ function getLeadingComments(
   if (nodeOrToken.leadingComments !== undefined) {
     let previousEndLine = nodeOrToken.leadingComments[0].endLine;
     let step;
-    arr.push(concat(formatComment(nodeOrToken.leadingComments[0])));
+    arr.push(formatComment(nodeOrToken.leadingComments[0]));
     for (let i = 1; i < nodeOrToken.leadingComments.length; i++) {
       step = nodeOrToken.leadingComments[i].startLine - previousEndLine;
       if (
@@ -93,7 +94,7 @@ function getLeadingComments(
         arr.push(hardline, hardline);
       }
 
-      arr.push(concat(formatComment(nodeOrToken.leadingComments[i])));
+      arr.push(formatComment(nodeOrToken.leadingComments[i]));
       previousEndLine = nodeOrToken.leadingComments[i].endLine;
     }
 
@@ -125,13 +126,13 @@ function getTokenTrailingComments(token: IToken) {
  * @param {string} value
  * @return an array containing processed trailing comments and separators
  */
-function getNodeTrailingComments(node: CstNode, value: string) {
+function getNodeTrailingComments(node: CstNode, value: Doc) {
   return getTrailingComments(node, value, node.location);
 }
 
 function getTrailingComments(
   nodeOrToken: CstElement,
-  value: string,
+  value: Doc,
   location: CstNodeLocation | IToken
 ) {
   const arr: Doc = [];
@@ -142,18 +143,14 @@ function getTrailingComments(
 
       if (comment.startLine !== previousEndLine) {
         arr.push(hardline);
-      } else if (value !== "" && idx === 0) {
+      } else if (!isEmptyDoc(value) && idx === 0) {
         separator = " ";
       }
 
       if (comment.tokenType.name === "LineComment") {
-        arr.push(
-          lineSuffix(
-            concat([separator, concat(formatComment(comment)), breakParent])
-          )
-        );
+        arr.push(lineSuffix([separator, formatComment(comment), breakParent]));
       } else {
-        arr.push(concat(formatComment(comment)));
+        arr.push(formatComment(comment));
       }
 
       previousEndLine = comment.endLine;

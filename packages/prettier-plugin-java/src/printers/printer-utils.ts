@@ -1,20 +1,3 @@
-import forEach from "lodash/forEach";
-import forEachRight from "lodash/forEachRight";
-import findLastIndex from "lodash/findLastIndex";
-import findIndex from "lodash/findIndex";
-import includes from "lodash/includes";
-
-import { concat, group, ifBreak, join } from "./prettier-builder";
-import {
-  getTokenLeadingComments,
-  printTokenWithComments
-} from "./comments/format-comments";
-import {
-  hasComments,
-  hasLeadingComments,
-  hasTrailingComments
-} from "./comments/comments-utils";
-import { builders, utils } from "prettier/doc";
 import {
   AnnotationCstNode,
   BinaryExpressionCtx,
@@ -31,11 +14,28 @@ import {
   MethodModifierCstNode,
   TypeArgumentsCstNode
 } from "java-parser";
+import findIndex from "lodash/findIndex";
+import findLastIndex from "lodash/findLastIndex";
+import forEach from "lodash/forEach";
+import forEachRight from "lodash/forEachRight";
+import includes from "lodash/includes";
 import { Doc, doc } from "prettier";
+import { builders } from "prettier/doc";
 import { isCstNode } from "../types/utils";
+import { isEmptyDoc } from "../utils";
+import {
+  hasComments,
+  hasLeadingComments,
+  hasTrailingComments
+} from "./comments/comments-utils";
+import {
+  getTokenLeadingComments,
+  printTokenWithComments
+} from "./comments/format-comments";
+
+import { concat, group, ifBreak, join } from "./prettier-builder";
 
 const { indent, hardline, line } = builders;
-const { isConcat } = utils;
 
 const orderedModifiers = [
   "Public",
@@ -79,7 +79,7 @@ export function rejectAndJoinSeps(
   return concat(res);
 }
 
-export function reject(elems: (IToken | Doc | undefined)[]) {
+export function reject(elems: (IToken | Doc | undefined)[]): (IToken | Doc)[] {
   return elems.filter(item => {
     if (typeof item === "string") {
       return item !== "";
@@ -87,7 +87,7 @@ export function reject(elems: (IToken | Doc | undefined)[]) {
     // eslint-ignore next - We want the conversion to boolean!
     // @ts-ignore
     return item != false && item !== undefined;
-  });
+  }) as (IToken | Doc)[];
 }
 
 export function rejectSeparators(
@@ -314,9 +314,9 @@ export function isExplicitLambdaParameter(ctx: LambdaParametersWithBracesCtx) {
 export function getBlankLinesSeparator(
   ctx: CstNode[] | undefined,
   separator: builders.Line | builders.Concat = hardline
-) {
+): Doc[] {
   if (ctx === undefined) {
-    return undefined;
+    return [];
   }
 
   const separators: Doc[] = [];
@@ -332,7 +332,7 @@ export function getBlankLinesSeparator(
       : nextNode.location.startLine;
 
     if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
-      separators.push(concat([hardline, hardline]));
+      separators.push([hardline, hardline]);
     } else {
       separators.push(separator);
     }
@@ -340,6 +340,18 @@ export function getBlankLinesSeparator(
 
   return separators;
 }
+
+const isTwoHardLine = (userBlankLinesSeparator: Doc): boolean => {
+  if (!Array.isArray(userBlankLinesSeparator)) {
+    return false;
+  }
+
+  return (
+    userBlankLinesSeparator.length === 2 &&
+    userBlankLinesSeparator[0] === hardline &&
+    userBlankLinesSeparator[1] === hardline
+  );
+};
 
 function getDeclarationsSeparator<
   Declaration extends
@@ -373,12 +385,11 @@ function getDeclarationsSeparator<
       indexNextNotEmptyDeclaration <
       declarationsWithoutEmptyStatements.length - 1
     ) {
-      const isTwoHardLines =
-        // @ts-ignore
-        userBlankLinesSeparators[indexNextNotEmptyDeclaration].parts[0].type ===
-        "concat";
+      const isNextSeparatorTwoHardLine = isTwoHardLine(
+        userBlankLinesSeparators[indexNextNotEmptyDeclaration]
+      );
       const additionalSep =
-        !isTwoHardLines &&
+        !isNextSeparatorTwoHardLine &&
         (additionalBlankLines[indexNextNotEmptyDeclaration + 1] ||
           additionalBlankLines[indexNextNotEmptyDeclaration])
           ? hardline
@@ -540,7 +551,8 @@ export function putIntoBraces(
   delete RBrace.leadingComments;
 
   let contentInsideBraces;
-  if (argument === undefined || argument === "") {
+
+  if (isEmptyDoc(argument)) {
     if (rightBraceLeadingComments.length === 0) {
       return concat([LBrace, RBrace]);
     }
@@ -637,10 +649,7 @@ export function isShiftOperator(tokens: IToken[], index: number) {
 
 export function isStatementEmptyStatement(statement: Doc) {
   return (
-    statement === ";" ||
-    // @ts-ignore
-
-    (isConcat(statement) && statement.parts[0] === ";")
+    statement === ";" || (Array.isArray(statement) && statement[0] === ";")
   );
 }
 

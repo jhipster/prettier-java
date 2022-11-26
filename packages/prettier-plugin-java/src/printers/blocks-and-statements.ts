@@ -70,6 +70,7 @@ import {
   WhileStatementCtx,
   YieldStatementCtx
 } from "java-parser";
+import { Doc } from "prettier";
 
 const { line, softline, hardline } = builders;
 
@@ -198,7 +199,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
     });
     const ifSeparator = isStatementEmptyStatement(ifStatement) ? "" : " ";
 
-    let elsePart = "";
+    let elsePart: Doc = "";
     if (ctx.Else !== undefined) {
       const elseStatement = this.visit(ctx.statement[1], {
         allowEmptyStatement: true
