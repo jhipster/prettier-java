@@ -6,6 +6,7 @@
     "benchmark/*"
   ],
   "scripts": {
+    "prepare": "husky install",
     "lerna:version": "lerna version --exact --git-remote upstream",
     "lerna:publish": "lerna publish from-git --yes",
     "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
@@ -20,8 +21,12 @@
     "update-test-outputs": "node packages/prettier-plugin-java/scripts/update-test-output.js"
   },
   "lint-staged": {
+    "*.json": [
+      "prettier --write"
+    ],
     "*.js,*.ts": [
-      "eslint --fix"
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "devDependencies": {
