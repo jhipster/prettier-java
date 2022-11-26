@@ -1,5 +1,133 @@
 # Latest v1.6.2
 
+## Breaking changes
+- Drop support of Node.js 12
+
+## Enhancements
+
+- Support pattern matching guards (Issue [#535](https://github.com/jhipster/prettier-java/issues/535) closed with [#559](https://github.com/jhipster/prettier-java/pull/559))
+
+```java
+// Input
+class T {
+
+    void test(Buyer other) {
+        return switch (other) {
+            case null -> true;
+            case Buyer b && this.bestPrice > b.bestPrice -> true;
+            case Buyer b && this.bestPrice > b.bestPrice -> {
+                return true;
+            }
+            case (Buyer b && this.bestPrice > b.bestPrice) -> true;
+            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> true;
+            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> {
+                return true;
+            }
+            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> true;
+            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> {
+                return true;
+            }
+            default -> false;
+        };
+    }
+}
+
+// Output
+class T {
+  void test(Buyer other) {
+    return switch (other) {
+      case null -> true;
+      case Buyer b && this.bestPrice > b.bestPrice -> true;
+      case Buyer b && this.bestPrice > b.bestPrice -> {
+        return true;
+      }
+      case (Buyer b && this.bestPrice > b.bestPrice) -> true;
+      case Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice -> true;
+      case Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice -> {
+        return true;
+      }
+      case (
+          Buyer b &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice
+        ) -> true;
+      case (
+          Buyer b &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice
+        ) -> {
+        return true;
+      }
+      default -> false;
+    };
+  }
+}
+```
+
+
+## Fixes
+
+- Fix parsing of escaped spaces in strings (Issue [#541](https://github.com/jhipster/prettier-java/issues/541) closed with [#543](https://github.com/jhipster/prettier-java/pull/543))
+
+```java
+public class Test {
+
+  public static final String REGEX = "^\s$";
+
+}
+```
+
+- Fix unwanted space in "exports"-statement in module-info.java (Issue [#550](https://github.com/jhipster/prettier-java/issues/550) closed with [#551](https://github.com/jhipster/prettier-java/pull/551))
+  Thanks to [@BjornJaspers](https://github.com/BjornJaspers) for the fix
+
+```java
+// Input
+open module org.myorg.module {
+  requires some.required.module;
+
+  exports org.myorg.module.exportpackage1;
+  exports org.myorg.module.exportpackage2;
+}
+```
+
+```java
+// Prettier 1.6.2
+open module org.myorg.module {
+  requires some.required.module;
+
+  exports org.myorg.module.exportpackage1 ;
+  exports org.myorg.module.exportpackage2 ;
+}
+```
+
+```java
+// Prettier 1.6.3
+open module org.myorg.module {
+  requires some.required.module;
+
+  exports org.myorg.module.exportpackage1;
+  exports org.myorg.module.exportpackage2;
+}
+```
+
+## Misc
+- doc: add VSCode Java import order configuration ([#546](https://github.com/jhipster/prettier-java/pull/546))
+  Thanks to [@derkoe](https://github.com/derkoe) for the contribution
+
+# v1.6.2
+
 ## Fixes
 
 - Fix parsing of nested sealed and non-sealed classes & interfaces inside interfaces (Issue [#533](https://github.com/jhipster/prettier-java/issues/533) closed with [#538](https://github.com/jhipster/prettier-java/pull/538))
