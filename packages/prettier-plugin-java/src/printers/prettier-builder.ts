@@ -2,8 +2,6 @@
 import { IToken } from "java-parser";
 import { doc } from "prettier";
 import Doc = doc.builders.Doc;
-import Concat = doc.builders.Concat;
-import Fill = doc.builders.Fill;
 
 const prettier = require("prettier").doc.builders;
 
@@ -26,12 +24,7 @@ export function concat(docs: (Doc | IToken)[]): Doc {
 }
 
 export function join(sep: any, docs: (Doc | IToken)[]): Doc {
-  const concatenation = prettier.join(
-    processComments(sep),
-    processComments(docs)
-  );
-
-  return processEmptyDocs(concatenation);
+  return prettier.join(processComments(sep), processComments(docs));
 }
 
 export function group(doc: Doc | IToken, opts?: any) {
@@ -40,9 +33,7 @@ export function group(doc: Doc | IToken, opts?: any) {
 }
 
 export function fill(docs: (Doc | IToken)[]) {
-  const fill = prettier.fill(processComments(docs));
-
-  return processEmptyDocs(fill);
+  return prettier.fill(processComments(docs));
 }
 
 export function indent(doc: Doc | IToken) {
@@ -68,8 +59,3 @@ export function ifBreak(
 export function indentIfBreak(contents: Doc | IToken, opts?: any) {
   return prettier.indentIfBreak(processComments(contents), opts);
 }
-
-// TODO: remove this once prettier 3.0 is released
-const processEmptyDocs = (doc: Fill | Concat): Doc => {
-  return doc.parts?.length === 0 ? "" : doc;
-};
