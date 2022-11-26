@@ -7560,11 +7560,6 @@ prettier@2.8.0:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.0.tgz#c7df58393c9ba77d6fba3921ae01faf994fb9dc9"
   integrity sha512-9Lmg8hTFZKG0Asr/kW9Bp8tJjRVluO8EJQVfY2T7FMw9T5jy4I/Uvx0Rca/XWf50QQ1/SS48+6IJWnrb+2yemA==
 
-prettier@3.0.0-alpha.3:
-  version "3.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.0-alpha.3.tgz#21c35c12792dc0e1d04dd00efe0976f383928f58"
-  integrity sha512-gYWrMcU3iMwG+PSPU2KnprIKslFDW+mslyA8DCrCASO9z1+rEog82WzoYtP7Kh7QglVepKjl94iJFfRPTens2A==
-
 pretty-format@^29.0.0, pretty-format@^29.3.1:
   version "29.3.1"
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-29.3.1.tgz#1841cac822b02b4da8971dacb03e8a871b4722da"
