@@ -34,6 +34,7 @@ import {
   ParenthesisExpressionCtx,
   PatternCtx,
   PrimaryCtx,
+  PrimaryPatternCtx,
   PrimaryPrefixCtx,
   PrimarySuffixCtx,
   PrimitiveCastExpressionCtx,
@@ -75,6 +76,7 @@ import {
   sortAnnotationIdentifier,
   sortNodes
 } from "./printer-utils";
+import join = builders.join;
 
 const { ifBreak, line, softline, indentIfBreak } = builders;
 
@@ -759,7 +761,28 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   pattern(ctx: PatternCtx) {
-    return this.visitSingle(ctx);
+    const primaryPattern = this.visit(ctx.primaryPattern);
+    if (ctx.AndAnd === undefined) {
+      return primaryPattern;
+    }
+
+    const binaryExpression = this.visit(ctx.binaryExpression);
+    return rejectAndConcat([
+      primaryPattern,
+      " ",
+      ctx.AndAnd[0],
+      line,
+      binaryExpression
+    ]);
+  }
+
+  primaryPattern(ctx: PrimaryPatternCtx) {
+    if (ctx.LBrace === undefined) {
+      return this.visitSingle(ctx);
+    }
+
+    const pattern = this.visit(ctx.pattern);
+    return putIntoBraces(pattern, softline, ctx.LBrace[0], ctx.RBrace![0]);
   }
 
   typePattern(ctx: TypePatternCtx) {
