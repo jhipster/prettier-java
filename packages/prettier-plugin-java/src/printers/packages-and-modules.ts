@@ -176,7 +176,7 @@ export class PackagesAndModulesPrettierVisitor extends BaseCstPrettierPrinter {
         ])
       );
     }
-    
+
     return rejectAndConcat([
       concat([ctx.Exports[0], " "]),
       packageName,
