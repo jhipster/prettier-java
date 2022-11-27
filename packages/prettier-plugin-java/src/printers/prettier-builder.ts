@@ -65,6 +65,10 @@ export function ifBreak(
   );
 }
 
+export function indentIfBreak(contents: Doc | IToken, opts?: any) {
+  return prettier.indentIfBreak(processComments(contents), opts);
+}
+
 // TODO: remove this once prettier 3.0 is released
 const processEmptyDocs = (doc: Fill | Concat): Doc => {
   return doc.parts?.length === 0 ? "" : doc;

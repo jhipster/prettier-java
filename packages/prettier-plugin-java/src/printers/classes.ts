@@ -12,7 +12,7 @@ import {
   sortClassTypeChildren,
   sortModifiers
 } from "./printer-utils";
-import { concat, group, indent, join } from "./prettier-builder";
+import { concat, group, indent, join, indentIfBreak } from "./prettier-builder";
 import { printTokenWithComments } from "./comments/format-comments";
 import {
   hasLeadingComments,
@@ -93,7 +93,7 @@ import { Doc } from "prettier";
 import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils";
 import { printArgumentListWithBraces } from "../utils";
 
-const { line, softline, hardline } = builders;
+const { line, softline, hardline, lineSuffixBoundary } = builders;
 
 export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   classDeclaration(ctx: ClassDeclarationCtx) {
@@ -330,10 +330,14 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
           ctx.variableInitializer![0].children.expression![0].children
             .ternaryExpression[0].children.QuestionMark !== undefined)
       ) {
-        return rejectAndJoin(" ", [
-          variableDeclaratorId,
+        const groupId = Symbol("assignment");
+        return group([
+          group(variableDeclaratorId),
+          " ",
           ctx.Equals[0],
-          variableInitializer
+          group(indent(line), { id: groupId }),
+          lineSuffixBoundary,
+          indentIfBreak(variableInitializer, { groupId })
         ]);
       }
 
@@ -351,10 +355,14 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
           firstPrimary.children.primaryPrefix[0].children.castExpression !==
           undefined
         ) {
-          return rejectAndJoin(" ", [
-            variableDeclaratorId,
+          const groupId = Symbol("assignment");
+          return group([
+            group(variableDeclaratorId),
+            " ",
             ctx.Equals[0],
-            variableInitializer
+            group(indent(line), { id: groupId }),
+            lineSuffixBoundary,
+            indentIfBreak(variableInitializer, { groupId })
           ]);
         }
 
@@ -363,10 +371,14 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
           firstPrimary.children.primaryPrefix[0].children.newExpression !==
           undefined
         ) {
-          return rejectAndJoin(" ", [
-            variableDeclaratorId,
+          const groupId = Symbol("assignment");
+          return group([
+            group(variableDeclaratorId),
+            " ",
             ctx.Equals[0],
-            variableInitializer
+            group(indent(line), { id: groupId }),
+            lineSuffixBoundary,
+            indentIfBreak(variableInitializer, { groupId })
           ]);
         }
 
@@ -383,10 +395,14 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
         const isUniqueMethodInvocation =
           isMethodInvocation && isUniqueUnaryExpression;
         if (isUniqueMethodInvocation) {
-          return rejectAndJoin(" ", [
-            variableDeclaratorId,
+          const groupId = Symbol("assignment");
+          return group([
+            group(variableDeclaratorId),
+            " ",
             ctx.Equals[0],
-            variableInitializer
+            group(indent(line), { id: groupId }),
+            lineSuffixBoundary,
+            indentIfBreak(variableInitializer, { groupId })
           ]);
         }
       }

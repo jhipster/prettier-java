@@ -20,8 +20,17 @@ public class Variables {
     "ghi",
     "jkl"
   );
-  private Map<Integer, String> genericVariable4 = new HashMap<Integer, String>();
-  private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<Integer, String, Integer>();
+  private Map<Integer, String> genericVariable4 =
+    new HashMap<Integer, String>();
+  private Map<Integer, String, Integer, String> genericVariable5 =
+    new HashMap<Integer, String, Integer>();
+
+  private Object variableWithComment1 /* comment */= new Object();
+  private Object variableWithComment2 = /* comment */new Object();
+  private Object variableWithComment3 /* very very very long comment */=
+    new Object();
+  private Object variableWithComment4 =
+    /* very very very long comment */new Object();
 
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];
@@ -160,6 +169,59 @@ public class Variables {
     boolean willDrop =
       predictDropResponse.getSendResult().isIgnorableFailure() ||
       predictDropResponsegetSendResultisFatalError;
+  }
+
+  public void breakAfterEquals() {
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object().other().methods();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object()
+        .a()
+        .number()
+        .of()
+        .other()
+        .methods()
+        .that()
+        .should()
+        .cause()
+        .a()
+        .wrap();
+
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object[10];
+
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object[] { new Object(), new Object() };
+
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object[] {
+        new Object(),
+        new Object(),
+        new Object(),
+        new Object(),
+        new Object(),
+      };
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      SomeClass.someStaticMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      someMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      someMethod().anotherMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      someBooleanVariable ? new Object() : null;
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      anotherVeryLongNameForIllustrativePurposes != null
+        ? anotherVeryLongNameForIllustrativePurposes
+        : new Object();
   }
 
   public methodWithVariableInitializationWithComments() {

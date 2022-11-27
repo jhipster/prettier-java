@@ -4,7 +4,8 @@ public class Cast {
     var myElem = (int) othrElement;
     var myElem = (A) othrElement;
     var myElem = (A) (othrElement, value) -> othrElement + value;
-    var myElem = (Aaeaozeaonzeoazneaozenazonelkadndpndpazdpazdpazdpazdpazeazpeaazdpazdpazpdazdpa) othrElement;
+    var myElem =
+      (Aaeaozeaonzeoazneaozenazonelkadndpndpazdpazdpazdpazdpazeazpeaazdpazdpazpdazdpa) othrElement;
   }
 
   void should_cast_with_additional_bounds() {
