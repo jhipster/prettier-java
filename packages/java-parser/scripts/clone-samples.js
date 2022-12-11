@@ -33,7 +33,7 @@ const sampleRepos = [
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-online",
-    branch: "master"
+    branch: "main"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-microservice",
