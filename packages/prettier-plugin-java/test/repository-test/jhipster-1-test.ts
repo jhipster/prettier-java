@@ -6,7 +6,6 @@ const jhipsterRepository = [
   "jhipster-sample-app-oauth2",
   "jhipster-sample-app-websocket",
   "jhipster-sample-app-noi18n",
-  "jhipster-sample-app-nocache",
   "jhipster-sample-app-hazelcast"
 ];
 

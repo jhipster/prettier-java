@@ -52,10 +52,6 @@ const sampleRepos = [
     branch: "main"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster-sample-app-nocache",
-    branch: "main"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
     branch: "main"
   },
