@@ -27,8 +27,8 @@ function locEnd(/* node */) {
   return -1;
 }
 
-function hasPragma(/* text */) {
-  return false;
+function hasPragma(text) {
+  return /^\/\*\*[\n][\t\s]+\*\s@(prettier|format)[\n][\t\s]+\*\//.test(text);
 }
 
 const parsers = {
