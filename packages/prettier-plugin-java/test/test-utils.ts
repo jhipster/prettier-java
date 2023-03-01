@@ -13,7 +13,15 @@ import { format, doc } from "prettier";
 const { printDocToString } = doc.printer;
 
 const pluginPath = resolve(__dirname, "../dist/index.js");
-export function testSample(testFolder: string, exclusive?: boolean) {
+export function testSampleWithOptions({
+  testFolder,
+  exclusive,
+  prettierOptions = {}
+}: {
+  testFolder: string;
+  exclusive?: boolean;
+  prettierOptions?: any;
+}) {
   const itOrItOnly = exclusive ? it.only : it;
   const inputPath = resolve(testFolder, "_input.java");
   const expectedPath = resolve(testFolder, "_output.java");
@@ -31,7 +39,8 @@ export function testSample(testFolder: string, exclusive?: boolean) {
   itOrItOnly(`can format <${relativeInputPath}>`, async () => {
     const actual = await format(inputContents, {
       parser: "java",
-      plugins: [pluginPath]
+      plugins: [pluginPath],
+      ...prettierOptions
     });
 
     expect(actual).to.equal(expectedContents);
@@ -40,15 +49,21 @@ export function testSample(testFolder: string, exclusive?: boolean) {
   it(`Performs a stable formatting for <${relativeInputPath}>`, async () => {
     const onePass = await format(inputContents, {
       parser: "java",
-      plugins: [pluginPath]
+      plugins: [pluginPath],
+      ...prettierOptions
     });
 
     const secondPass = await format(onePass, {
       parser: "java",
-      plugins: [pluginPath]
+      plugins: [pluginPath],
+      ...prettierOptions
     });
     expect(onePass).to.equal(secondPass);
   });
+}
+
+export function testSample(testFolder: string, exclusive?: boolean) {
+  testSampleWithOptions({ testFolder, exclusive });
 }
 
 export function testRepositorySample(
