@@ -21,7 +21,6 @@ describe("The Java Parser", () => {
   createSampleSpecs("jhipster-sample-app-hazelcast");
   createSampleSpecs("jhipster-sample-app-microservice");
   createSampleSpecs("jhipster-sample-app-mongodb");
-  createSampleSpecs("jhipster-sample-app-nocache");
   createSampleSpecs("jhipster-sample-app-noi18n");
   createSampleSpecs("jhipster-sample-app-oauth2");
   createSampleSpecs("jhipster-sample-app-react");

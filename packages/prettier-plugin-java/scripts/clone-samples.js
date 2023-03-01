@@ -43,11 +43,6 @@ const jhipster1 = [
     branch: "main"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster-sample-app-nocache",
-    branch: "main",
-    commitHash: "fda6dee77651042083780c812a1a54ff2de8da47"
-  },
-  {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
     branch: "main"
   }
