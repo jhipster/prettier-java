@@ -1,4 +1,85 @@
-# Latest v2.0.0
+# Latest v2.1.0
+
+## Enhancements
+
+- Support for require-pragma option (Issue [#573](https://github.com/jhipster/prettier-java/issues/573) closed with [#574](https://github.com/jhipster/prettier-java/pull/574))
+  Thanks to [@yannick-paz](https://github.com/yannick-paz) for the contribution !
+
+```java
+// Input
+/**
+ * @prettier
+ */
+public class Example { private int test=-1;}
+
+// Output with require-pragma option activated
+/**
+ * @prettier
+ */
+public class Example {
+  private int test = -1;
+}
+
+// Input
+public class Example { private int test=-1;}
+
+// Output with require-pragma option activated
+public class Example { private int test=-1;}
+```
+
+## Fixes
+
+- Break long assignments after equals (Issue [#527](https://github.com/jhipster/prettier-java/issues/527) closed with [#564](https://github.com/jhipster/prettier-java/pull/564))
+  Thanks to [@jtkiesel](https://github.com/jtkiesel) for the fix !
+
+```java
+// Input
+class Example {
+
+  void example() {
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = new Object()
+      .someMethod();
+
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes2 = new Object[] {
+      new Object(),
+      new Object()
+    };
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes3 = SomeClass.someStaticMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = someMethod()
+      .anotherMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = anotherValue !=
+      null
+      ? anotherValue
+      : new Object();
+  }
+}
+
+// Output
+class Example {
+
+  void example() {
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object().someMethod();
+
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes2 =
+      new Object[] { new Object(), new Object() };
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes3 =
+      SomeClass.someStaticMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      someMethod().anotherMethod();
+
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      anotherValue != null ? anotherValue : new Object();
+  }
+}
+```
+
+# v2.0.0
 
 ## Breaking changes
 - Drop support of Node.js 12
