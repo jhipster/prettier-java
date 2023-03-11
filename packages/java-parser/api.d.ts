@@ -272,6 +272,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
   caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
   caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
+  guard(ctx: GuardCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -628,6 +629,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
   caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
   caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
+  guard(ctx: GuardCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -2663,7 +2665,18 @@ export type CaseLabelElementCtx = {
   Null?: IToken[];
   Default?: IToken[];
   pattern?: PatternCstNode[];
+  guard?: GuardCstNode[];
   caseConstant?: CaseConstantCstNode[];
+};
+
+export interface GuardCstNode extends CstNode {
+  name: "guard";
+  children: GuardCtx;
+}
+
+export type GuardCtx = {
+  When: IToken[];
+  binaryExpression: BinaryExpressionCstNode[];
 };
 
 export interface SwitchRuleCstNode extends CstNode {

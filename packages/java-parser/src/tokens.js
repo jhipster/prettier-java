@@ -354,6 +354,11 @@ createKeywordLikeToken({
   categories: Identifier
 });
 createKeywordLikeToken({
+  name: "When",
+  pattern: "when",
+  categories: Identifier
+});
+createKeywordLikeToken({
   name: "Yield",
   pattern: "yield",
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.9

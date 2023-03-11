@@ -246,13 +246,21 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Default) },
       {
         GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
-        ALT: () => $.SUBRULE($.pattern)
+        ALT: () => {
+          $.SUBRULE($.pattern);
+          $.OPTION(() => $.SUBRULE($.guard));
+        }
       },
       {
         GATE: () => tokenMatcher($.LA(1).tokenType, t.Null) === false,
         ALT: () => $.SUBRULE($.caseConstant)
       }
     ]);
+  });
+
+  $.RULE("guard", () => {
+    $.CONSUME(t.When);
+    $.SUBRULE($.binaryExpression);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchRule

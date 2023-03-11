@@ -41,7 +41,7 @@ import {
   FinallyCtx,
   ForInitCtx,
   ForStatementCtx,
-  ForUpdateCtx,
+  ForUpdateCtx, GuardCtx,
   IfStatementCtx,
   IToken,
   LabeledStatementCtx,
@@ -317,7 +317,19 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
     if (ctx.Default || ctx.Null) {
       return this.getSingle(ctx);
     }
-    return this.visitSingle(ctx);
+
+    if (ctx.caseConstant) {
+      return this.visit(ctx.caseConstant);
+    }
+
+    const pattern = this.visit(ctx.pattern);
+    const guard = this.visit(ctx.guard);
+
+    return rejectAndJoin(line, [pattern, guard]);
+  }
+
+  guard(ctx: GuardCtx) {
+    return group(indent(join(line, [ctx.When[0], this.visit(ctx.binaryExpression)])));
   }
 
   switchRule(ctx: SwitchRuleCtx) {

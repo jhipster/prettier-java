@@ -58,4 +58,44 @@ class T {
       default -> false;
     };
   }
+
+  void shouldFormatPatternsWithGuards() {
+    switch (o) {
+      case Integer i when i <= 0 -> System.out.println("<=0");
+      case Integer i when i > 0 -> System.out.println(">0");
+      case Integer myVeryVeryVeryVeryExtremelyLongNameThatWillBreak
+        when
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak >
+          0 -> System.out.println(">0");
+      case Integer myVeryVeryVeryVeryExtremelyLongNameThatWillBreak
+        when
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak >
+          2 -> System.out.println(">0");
+      case Integer myVeryVeryVeryVeryExtremelyLongNameThatWillBreak
+        when
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak >
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak +
+          2 -> {
+        System.out.println(">0");
+      }
+      case Integer myVeryVeryVeryVeryExtremelyLongNameThatWillBreak
+        when
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak >
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak +
+          2 -> System.out.println(">0");
+      case Integer myVeryVeryVeryVeryExtremelyLongNameThatWillBreak
+        when
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak >
+          myVeryVeryVeryVeryExtremelyLongNameThatWillBreak +
+          2 -> {
+        System.out.println(">0");
+      }
+      case MyVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongClassName i
+        when i > 0 -> System.out.println(">0");
+      case MyVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongClassName i
+        when i > 0 -> {
+        System.out.println(">0");
+      }
+    }
+  }
 }

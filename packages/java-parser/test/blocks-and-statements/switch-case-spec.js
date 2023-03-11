@@ -73,4 +73,14 @@ describe("Switch cases", () => {
     }`;
     expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
   });
+
+  it("should handle guard in switch labels", () => {
+    const input = `switch (o) {
+        case Integer i
+        when i <= 0    -> System.out.println("<=0");
+        case Integer i
+        when i > 0     -> System.out.println(">0");
+    }`;
+    expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
+  });
 });
