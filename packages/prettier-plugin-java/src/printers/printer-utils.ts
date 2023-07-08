@@ -34,6 +34,8 @@ import {
 } from "./comments/format-comments";
 
 import { concat, group, ifBreak, join } from "./prettier-builder";
+import Indent = builders.Indent;
+import IfBreak = builders.IfBreak;
 
 const { indent, hardline, line } = builders;
 
@@ -535,20 +537,34 @@ export function getInterfaceBodyDeclarationsSeparator(
   );
 }
 
+function getAndRemoveLeadingComment(
+  doc: IToken | builders.Indent | builders.IfBreak | string
+) {
+  const isTokenWithLeadingComment =
+    typeof doc !== "string" && "leadingComments" in doc;
+  if (!isTokenWithLeadingComment) {
+    return [];
+  }
+
+  const leadingComments = getTokenLeadingComments(doc);
+  delete doc.leadingComments;
+
+  return leadingComments;
+}
+
 export function putIntoBraces(
   argument: Doc,
   separator: Doc,
   LBrace: IToken,
-  RBrace: IToken
+  RBrace: IToken | Indent | IfBreak | string
 ) {
-  const rightBraceLeadingComments = getTokenLeadingComments(RBrace);
+  const rightBraceLeadingComments = getAndRemoveLeadingComment(RBrace);
   const lastBreakLine =
     // check if last element of the array is a line
     rightBraceLeadingComments.length !== 0 &&
     rightBraceLeadingComments[rightBraceLeadingComments.length - 1] === hardline
       ? rightBraceLeadingComments.pop()
       : separator;
-  delete RBrace.leadingComments;
 
   let contentInsideBraces;
 

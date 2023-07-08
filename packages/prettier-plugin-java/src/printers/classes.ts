@@ -126,19 +126,19 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     const optionalClassPermits = this.visit(ctx.classPermits);
     const body = this.visit(ctx.classBody, { isNormalClassDeclaration: true });
 
-    let superClassesPart = "";
+    let superClassesPart: Doc = "";
     if (optionalSuperClasses) {
       superClassesPart = indent(rejectAndConcat([line, optionalSuperClasses]));
     }
 
-    let superInterfacesPart = "";
+    let superInterfacesPart: Doc = "";
     if (optionalSuperInterfaces) {
       superInterfacesPart = indent(
         rejectAndConcat([line, optionalSuperInterfaces])
       );
     }
 
-    let classPermits = "";
+    let classPermits: Doc = "";
     if (optionalClassPermits) {
       classPermits = indent(rejectAndConcat([line, optionalClassPermits]));
     }
@@ -912,7 +912,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
 
     const recordHeader = this.visit(ctx.recordHeader);
 
-    let superInterfacesPart = "";
+    let superInterfacesPart: Doc = "";
     const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
     if (optionalSuperInterfaces) {
       superInterfacesPart = indent(

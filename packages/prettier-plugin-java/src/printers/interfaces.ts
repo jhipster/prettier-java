@@ -1,4 +1,3 @@
-import { doc } from "prettier";
 import { concat, group, indent } from "./prettier-builder";
 import { printTokenWithComments } from "./comments/format-comments";
 import {
@@ -41,7 +40,7 @@ import {
   IToken,
   NormalInterfaceDeclarationCtx
 } from "java-parser";
-import Doc = doc.builders.Doc;
+import Doc = builders.Doc;
 
 const { line, softline, hardline } = builders;
 
@@ -68,14 +67,14 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
     const optionalInterfacePermits = this.visit(ctx.interfacePermits);
     const interfaceBody = this.visit(ctx.interfaceBody);
 
-    let extendsInterfacesPart = "";
+    let extendsInterfacesPart: Doc = "";
     if (extendsInterfaces) {
       extendsInterfacesPart = indent(
         rejectAndConcat([softline, extendsInterfaces])
       );
     }
 
-    let interfacePermits = "";
+    let interfacePermits: Doc = "";
     if (optionalInterfacePermits) {
       interfacePermits = indent(
         rejectAndConcat([softline, optionalInterfacePermits])
@@ -277,7 +276,7 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
   annotation(ctx: AnnotationCtx) {
     const fqn = this.visit(ctx.typeName);
 
-    let annoArgs = "";
+    let annoArgs: Doc = "";
     if (ctx.LBrace) {
       if (ctx.elementValuePairList) {
         annoArgs = putIntoBraces(
