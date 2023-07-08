@@ -1,3 +1,11 @@
+# Latest v2.2.0
+
+## Enhancements
+
+- Upgrade prettier version to Prettier v3
+
+# v2.1.0
+
 # Latest v2.1.0
 
 ## Enhancements
@@ -10,21 +18,32 @@
 /**
  * @prettier
  */
-public class Example { private int test=-1;}
+public class Example {
+
+  private int test = -1;
+}
 
 // Output with require-pragma option activated
 /**
  * @prettier
  */
 public class Example {
+
   private int test = -1;
 }
 
 // Input
-public class Example { private int test=-1;}
+public class Example {
+
+  private int test = -1;
+}
 
 // Output with require-pragma option activated
-public class Example { private int test=-1;}
+public class Example {
+
+  private int test = -1;
+}
+
 ```
 
 ## Fixes
@@ -37,23 +56,20 @@ public class Example { private int test=-1;}
 class Example {
 
   void example() {
-    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = new Object()
-      .someMethod();
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new Object().someMethod();
 
-    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes2 = new Object[] {
-      new Object(),
-      new Object()
-    };
+    Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes2 =
+      new Object[] { new Object(), new Object() };
 
-    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes3 = SomeClass.someStaticMethod();
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes3 =
+      SomeClass.someStaticMethod();
 
-    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = someMethod()
-      .anotherMethod();
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      someMethod().anotherMethod();
 
-    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes = anotherValue !=
-      null
-      ? anotherValue
-      : new Object();
+    Object aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      anotherValue != null ? anotherValue : new Object();
   }
 }
 
@@ -77,11 +93,13 @@ class Example {
       anotherValue != null ? anotherValue : new Object();
   }
 }
+
 ```
 
 # v2.0.0
 
 ## Breaking changes
+
 - Drop support of Node.js 12
 
 ## Enhancements
@@ -92,29 +110,6 @@ class Example {
 // Input
 class T {
 
-    void test(Buyer other) {
-        return switch (other) {
-            case null -> true;
-            case Buyer b && this.bestPrice > b.bestPrice -> true;
-            case Buyer b && this.bestPrice > b.bestPrice -> {
-                return true;
-            }
-            case (Buyer b && this.bestPrice > b.bestPrice) -> true;
-            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> true;
-            case Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice -> {
-                return true;
-            }
-            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> true;
-            case (Buyer b && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice && this.bestPrice > b.bestPrice) -> {
-                return true;
-            }
-            default -> false;
-        };
-    }
-}
-
-// Output
-class T {
   void test(Buyer other) {
     return switch (other) {
       case null -> true;
@@ -155,8 +150,52 @@ class T {
     };
   }
 }
-```
 
+// Output
+class T {
+
+  void test(Buyer other) {
+    return switch (other) {
+      case null -> true;
+      case Buyer b && this.bestPrice > b.bestPrice -> true;
+      case Buyer b && this.bestPrice > b.bestPrice -> {
+        return true;
+      }
+      case (Buyer b && this.bestPrice > b.bestPrice) -> true;
+      case Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice -> true;
+      case Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice -> {
+        return true;
+      }
+      case (
+          Buyer b &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice
+        ) -> true;
+      case (
+          Buyer b &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice &&
+          this.bestPrice > b.bestPrice
+        ) -> {
+        return true;
+      }
+      default -> false;
+    };
+  }
+}
+
+```
 
 ## Fixes
 
@@ -166,8 +205,8 @@ class T {
 public class Test {
 
   public static final String REGEX = "^\s$";
-
 }
+
 ```
 
 - Fix unwanted space in "exports"-statement in module-info.java (Issue [#550](https://github.com/jhipster/prettier-java/issues/550) closed with [#551](https://github.com/jhipster/prettier-java/pull/551))
@@ -181,6 +220,7 @@ open module org.myorg.module {
   exports org.myorg.module.exportpackage1;
   exports org.myorg.module.exportpackage2;
 }
+
 ```
 
 ```java
@@ -188,9 +228,10 @@ open module org.myorg.module {
 open module org.myorg.module {
   requires some.required.module;
 
-  exports org.myorg.module.exportpackage1 ;
-  exports org.myorg.module.exportpackage2 ;
+  exports org.myorg.module.exportpackage1;
+  exports org.myorg.module.exportpackage2;
 }
+
 ```
 
 ```java
@@ -201,9 +242,11 @@ open module org.myorg.module {
   exports org.myorg.module.exportpackage1;
   exports org.myorg.module.exportpackage2;
 }
+
 ```
 
 ## Misc
+
 - doc: add VSCode Java import order configuration ([#546](https://github.com/jhipster/prettier-java/pull/546))
   Thanks to [@derkoe](https://github.com/derkoe) for the contribution
 
@@ -214,17 +257,16 @@ open module org.myorg.module {
 - Fix parsing of nested sealed and non-sealed classes & interfaces inside interfaces (Issue [#533](https://github.com/jhipster/prettier-java/issues/533) closed with [#538](https://github.com/jhipster/prettier-java/pull/538))
 
 ```java
-
 public interface Test {
-    sealed interface Inner {}
+  sealed interface Inner {}
 
-    public static sealed abstract class SealedParent {}
+  public abstract static sealed class SealedParent {}
 
-    non-sealed interface Inner {}
+  non-sealed interface Inner {}
 
-    public static non-sealed abstract class SealedParent {}
+  public abstract static non-sealed class SealedParent {}
 
-    final static class SealedChild extends SealedParent {}
+  static final class SealedChild extends SealedParent {}
 }
 
 ```
@@ -262,13 +304,14 @@ public class Foo<T> {
 ## Fixes
 
 - Fix parsing of nested sealed and non-sealed classes (Issue [#522](https://github.com/jhipster/prettier-java/issues/522) closed with [#523](https://github.com/jhipster/prettier-java/pull/523))
-```java
 
+```java
 // Input
 public class SealedClasses {
-  public static sealed abstract class SealedParent permits SealedChild {}
 
-  final static class SealedChild extends SealedParent {}
+  public abstract static sealed class SealedParent permits SealedChild {}
+
+  static final class SealedChild extends SealedParent {}
 }
 
 // Output
@@ -290,35 +333,13 @@ public class NestedSealedClasses {
 ```java
 // Input
 public record Record(
-    @JsonSerialize(using = StatusSerializer.class, nullsUsing = NullSerializer.class)
-    @Schema(type = "integer", description = "Some fancy description")
-    Status status,
-
-    @NotNull
-    Integer number
-) {}
-
-public record Record(
-    @JsonSerialize(using = StatusSerializer.class, nullsUsing = NullSerializer.class)
-    @Schema(type = "integer", description = "Some fancy description")
-    // comment
-    Status status,
-
-
-    // another comment
-    @NotNull
-    Integer number
-) {}
-
-// Prettier v1.5.0
-public record Record(
   @JsonSerialize(
     using = StatusSerializer.class,
     nullsUsing = NullSerializer.class
-  ) @Schema(
-    type = "integer",
-    description = "Some fancy description"
-  ) Status status,
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  Status status,
+
   @NotNull Integer number
 ) {}
 
@@ -326,7 +347,32 @@ public record Record(
   @JsonSerialize(
     using = StatusSerializer.class,
     nullsUsing = NullSerializer.class
-  ) @Schema(type = "integer", description = "Some fancy description") // comment
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  // comment
+  Status status,
+
+  // another comment
+  @NotNull Integer number
+) {}
+
+// Prettier v1.5.0
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description")
+  Status status,
+  @NotNull Integer number
+) {}
+
+public record Record(
+  @JsonSerialize(
+    using = StatusSerializer.class,
+    nullsUsing = NullSerializer.class
+  )
+  @Schema(type = "integer", description = "Some fancy description") // comment
   Status status,
   // another comment
   @NotNull Integer number
@@ -362,6 +408,7 @@ public record Record(
 ## Fixes
 
 - Fix casting with additional bounds
+
 ```java
 
 // Input
@@ -444,21 +491,30 @@ class Example {
 ## Enhancements
 
 - Split record parameters on several lines if they do not fit on a single line ([#509](https://github.com/jhipster/prettier-java/pull/509))
-  ```java
 
+  ```java
   // Input
   public record Person(
-      String firstName, String lastName, String email,
-      String phoneNumber,
-      String streetAddress,
-      String city,
-      String state,
-      String zipCode
+    String firstName,
+    String lastName,
+    String email,
+    String phoneNumber,
+    String streetAddress,
+    String city,
+    String state,
+    String zipCode
   ) {}
 
   // Prettier 1.4.0
   public record Person(
-    String firstName, String lastName, String email, String phoneNumber, String streetAddress, String city, String state, String zipCode
+    String firstName,
+    String lastName,
+    String email,
+    String phoneNumber,
+    String streetAddress,
+    String city,
+    String state,
+    String zipCode
   ) {}
 
   // Prettier 1.5.0
@@ -472,33 +528,15 @@ class Example {
     String state,
     String zipCode
   ) {}
+
   ```
 
 - Support pattern matching in switch statements preview feature ([#511](https://github.com/jhipster/prettier-java/pull/511))
+
   ```java
   // Input
   class T {
-    static String formatterPatternSwitch(Object o) {
-      return switch (o) {
-        case
 
-          Integer i ->
-
-
-          String.format("int %d", i);
-        case Long l    -> String.format("long %d", l);
-        case Double d  -> String.format("double %f", d);
-        case String s  -> String.format("String %s", s);
-        case TOTO  -> String.format("TOTO %s", o);
-        case null -> String.format("Null !");
-        case default -> String.format("Default !");
-        default        -> o.toString();
-      };
-    }
-  }
-
-  // Output
-  class T {
     static String formatterPatternSwitch(Object o) {
       return switch (o) {
         case Integer i -> String.format("int %d", i);
@@ -512,14 +550,42 @@ class Example {
       };
     }
   }
+
+  // Output
+  class T {
+
+    static String formatterPatternSwitch(Object o) {
+      return switch (o) {
+        case Integer i -> String.format("int %d", i);
+        case Long l -> String.format("long %d", l);
+        case Double d -> String.format("double %f", d);
+        case String s -> String.format("String %s", s);
+        case TOTO -> String.format("TOTO %s", o);
+        case null -> String.format("Null !");
+        case default -> String.format("Default !");
+        default -> o.toString();
+      };
+    }
+  }
+
   ```
+
 - Improve printing of class with long typeParameterList ([#512](https://github.com/jhipster/prettier-java/pull/512))
+
   ```java
   // Input
-  public class ComplexGenericClass<BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>, BEANTYPE, CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>> {}
+  public class ComplexGenericClass<
+    BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>,
+    BEANTYPE,
+    CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
+  > {}
 
   // Prettier 1.4.0
-  public class ComplexGenericClass<BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>, BEANTYPE, CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>> {}
+  public class ComplexGenericClass<
+    BEAN extends AbstractBean & BeanItemSelect<BEANTYPE>,
+    BEANTYPE,
+    CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
+  > {}
 
   // Prettier 1.5.0
   public class ComplexGenericClass<
@@ -527,6 +593,7 @@ class Example {
     BEANTYPE,
     CONFIG extends BeanConfig<BEAN, BEANTYPE, CONFIG>
   > {}
+
   ```
 
 # v1.4.0
@@ -553,6 +620,7 @@ class Example {
 ## Enhancements
 
 - Add a space after generic constructor type parameters ([#485](https://github.com/jhipster/prettier-java/pull/485))
+
 ```java
 // Input
 public <T> GenericConstructor(T genericParameter) {}
@@ -603,9 +671,7 @@ if (
 
 ```java
 // Input
-public sealed class Rectangle
-  implements Shape
-  permits Square {
+public sealed class Rectangle implements Shape permits Square {
 
   private final double length;
   private final double height;
@@ -637,6 +703,7 @@ public sealed class Rectangle implements Shape permits Square {
     return length * height;
   }
 }
+
 ```
 
 ## Miscallenous
@@ -664,8 +731,11 @@ public sealed class Rectangle implements Shape permits Square {
 ```java
 // Input
 public record Pet(
-    @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
-  ) {
+  @NotNull String name,
+  int age,
+  String... others,
+  Object @Nullable... errorMessageArgs
+) {
   public Pet {
     if (age < 0) {
       throw new IllegalArgumentException("Age cannot be negative");
@@ -681,7 +751,10 @@ public record Pet(
 
 // Output
 public record Pet(
-  @NotNull String name, int age, String... others, Object @Nullable... errorMessageArgs
+  @NotNull String name,
+  int age,
+  String... others,
+  Object @Nullable... errorMessageArgs
 ) {
   public Pet {
     if (age < 0) {
@@ -741,22 +814,26 @@ class T {
 }
 ```
 
-- Fix inconsistent indentation between chained method on method and new object  ([#456](https://github.com/jhipster/prettier-java/pull/456))
+- Fix inconsistent indentation between chained method on method and new object ([#456](https://github.com/jhipster/prettier-java/pull/456))
 
 ```java
 // Input
 class T {
+
   public void method() {
-    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more").bar(10);
-    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(10);
+    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more")
+      .bar(10);
+    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
+      .bar(10);
   }
 }
 
 // Prettier 1.0.1
 class T {
+
   public void method() {
     new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more")
-    .bar(10);
+      .bar(10);
     foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
       .bar(10);
   }
@@ -772,6 +849,7 @@ class T {
       .bar(10);
   }
 }
+
 ```
 
 - Fix unstable formatting for method invocations with only comments ([#457](https://github.com/jhipster/prettier-java/pull/457))
@@ -779,21 +857,23 @@ class T {
 ```java
 // Input
 class T {
+
   public void method() {
-    Arrays.asList(// a
-                  // b
-                  // c
-                  // d
+    Arrays.asList( // a
+      // b
+      // c
+      // d
     );
   }
 }
 
 // Prettier 1.0.1
 class T {
+
   public void method() {
-    Arrays.asList(// b // a
-    // c
-    // d
+    Arrays.asList( // b // a
+      // c
+      // d
     );
   }
 }
@@ -809,6 +889,7 @@ class T {
     );
   }
 }
+
 ```
 
 ## Miscellaneous
@@ -841,7 +922,7 @@ public class Test {
   public void test(TestEnum testEnum) {
     switch (testEnum) {
       case FOO -> System.out.println("Foo!");
-      case BAR ,BAZ -> System.out.println("Not Foo!");
+      case BAR, BAZ -> System.out.println("Not Foo!");
     }
   }
 }
@@ -922,7 +1003,6 @@ void throwException7(
 
 - uses exact dependencies when releasing a new version of java-parser and prettier-plugin-java
 
-
 # v0.8.1
 
 ## Enhancements
@@ -945,17 +1025,17 @@ class Indent {
     );
 
     assertThat(
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
-      )
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    )
       .isEqualTo();
 
     assertThat(
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
-        useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
-      )
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
+      useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
+    )
       .isEqualTo()
       .anotherInvocation(
         useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
@@ -968,8 +1048,6 @@ class Indent {
         useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
       )
       .isEqualTo();
-
-
   }
 }
 
@@ -1253,7 +1331,7 @@ double[][]::new
     "typeArgument",
     "wildcard",
     "wildcardBounds"
-  ]
+  ];
   ```
 
 ## Fixes
@@ -1261,19 +1339,21 @@ double[][]::new
 ### Re-Writer
 
 - Fix formatting of empty enums to not insert commas when trailing-comma is enabled [#385](https://github.com/jhipster/prettier-java/pull/385))
+
   ```java
   // Input
-  public enum Enum {
-  }
+  public enum Enum {}
 
   // Prettier v0.7.1
   public enum Enum {
-    ,
+
   }
 
   // Prettier v0.8.0
   public enum Enum {}
+
   ```
+
 - Fix formatting of enum with comments [#385](https://github.com/jhipster/prettier-java/pull/385))
 
 ## Miscellaneous
@@ -1304,58 +1384,74 @@ double[][]::new
 - Add support for trailing commas option ([#354](https://github.com/jhipster/prettier-java/pull/354))
 
   For enumerations:
+
   ```java
   // Input
   public enum Enum {
-    ONE, TWO, THREE
+    ONE,
+    TWO,
+    THREE
   }
 
   // Output
   public enum Enum {
     ONE,
     TWO,
-    THREE,
+    THREE
   }
+
   ```
 
   For arrays:
+
   ```java
   // Input
   public class T {
-    void t() {
-      int[] ints = { 1, 2, 3, };
-      int[] ints = { aVeryLongArrayValue, anotherVeryLongArrayValue, andYetAnotherVeryLongArrayValue };
-    }
-  }
 
-  // Output
-  public class T {
     void t() {
       int[] ints = { 1, 2, 3 };
       int[] ints = {
         aVeryLongArrayValue,
         anotherVeryLongArrayValue,
-        andYetAnotherVeryLongArrayValue,
+        andYetAnotherVeryLongArrayValue
       };
-    }
-  }
-  ```
-- By default, remove trailing comma in arrays ([#354](https://github.com/jhipster/prettier-java/pull/354))
-
-  ```java
-  // Input
-  public class T {
-    void t() {
-      int[] ints = { 1, 2, 3, };
     }
   }
 
   // Output
   public class T {
+
+    void t() {
+      int[] ints = { 1, 2, 3 };
+      int[] ints = {
+        aVeryLongArrayValue,
+        anotherVeryLongArrayValue,
+        andYetAnotherVeryLongArrayValue
+      };
+    }
+  }
+
+  ```
+
+- By default, remove trailing comma in arrays ([#354](https://github.com/jhipster/prettier-java/pull/354))
+
+  ```java
+  // Input
+  public class T {
+
     void t() {
       int[] ints = { 1, 2, 3 };
     }
   }
+
+  // Output
+  public class T {
+
+    void t() {
+      int[] ints = { 1, 2, 3 };
+    }
+  }
+
   ```
 
 - Allow blank lines in enumerations' constant list ([#350](https://github.com/jhipster/prettier-java/pull/350))
@@ -1363,11 +1459,10 @@ double[][]::new
   ```java
   // Input
   public enum OtherEnum {
-    ONE, TWO,
+    ONE,
+    TWO,
 
     THREE,
-
-
 
     FOUR,
     /* Five */
@@ -1375,8 +1470,6 @@ double[][]::new
 
     /* Six */
     SIX
-
-
   }
 
   // Output
@@ -1393,6 +1486,7 @@ double[][]::new
     /* Six */
     SIX
   }
+
   ```
 
 - Always add a blank line between an enumeration's constants and declarations ([#351](https://github.com/jhipster/prettier-java/pull/351))
@@ -1402,6 +1496,7 @@ double[][]::new
   public enum EnumWithExtraCommaAndEnumBodyDeclarations {
     THIS_IS_GOOD("abc"),
     THIS_IS_FINE("abc");
+
     public static final String thisWillBeDeleted = "DELETED";
   }
 
@@ -1412,6 +1507,7 @@ double[][]::new
 
     public static final String thisWillBeDeleted = "DELETED";
   }
+
   ```
 
 ## Fixes
@@ -1423,7 +1519,8 @@ double[][]::new
   ```java
   // Input
   public class Test {
-    public TestField testField;;
+
+    public TestField testField;
 
     @Override
     public void someMethod() {}
@@ -1431,18 +1528,22 @@ double[][]::new
 
   // Output (v0.6.0)
   public class Test {
+
     public TestField testField;
+
     @Override
     public void someMethod() {}
   }
 
   // Output (v0.7.0)
   public class Test {
+
     public TestField testField;
 
     @Override
     public void someMethod() {}
   }
+
   ```
 
 - Fix line wrapping in switch statements ([#359](https://github.com/jhipster/prettier-java/pull/359))
@@ -1549,26 +1650,31 @@ double[][]::new
     return a || b || c;
   }
   ```
+
 - Fix comments indentation when they are at the end of a block: indent the comments based on the block they are in ([#345](https://github.com/jhipster/prettier-java/pull/345))
 
   ```java
   // Input
   public class T {
+
     int i;
     // comment
   }
 
   // Output (v0.6.0)
   public class T {
+
     int i;
-  // comment
+    // comment
   }
 
   // Output (v0.7.0)
   public class T {
+
     int i;
     // comment
   }
+
   ```
 
 - Fix respect of blank lines with comments ([#348](https://github.com/jhipster/prettier-java/pull/348))
@@ -1617,13 +1723,26 @@ double[][]::new
 
     }
   }
+
   // @formatter:on
   public class PrettierIgnoreClass {
-    public void myMethod(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10) {
 
-    }
+    public void myMethod(
+      int param1,
+      int param2,
+      int param3,
+      int param4,
+      int param5,
+      int param6,
+      int param7,
+      int param8,
+      int param9,
+      int param10
+    ) {}
   }
+
   ```
+
   ```java
   // Output
   // @formatter:off
@@ -1649,6 +1768,7 @@ double[][]::new
       int param10
     ) {}
   }
+
   ```
 
 - Print enums' values on their own line ([#319](https://github.com/jhipster/prettier-java/pull/319))
@@ -1656,7 +1776,9 @@ double[][]::new
   ```java
   // Input
   public enum Enum {
-    SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+    SOME_ENUM,
+    ANOTHER_ENUM,
+    LAST_ENUM
   }
 
   // Output
@@ -1665,6 +1787,7 @@ double[][]::new
     ANOTHER_ENUM,
     LAST_ENUM
   }
+
   ```
 
 - Remove extra comma in enums ([#319](https://github.com/jhipster/prettier-java/pull/319))
@@ -1672,7 +1795,9 @@ double[][]::new
   ```java
   // Input
   public enum EnumWithExtraComma {
-    SOME_ENUM, ANOTHER_ENUM, LAST_ENUM,
+    SOME_ENUM,
+    ANOTHER_ENUM,
+    LAST_ENUM
   }
 
   // Output
@@ -1681,6 +1806,7 @@ double[][]::new
     ANOTHER_ENUM,
     LAST_ENUM
   }
+
   ```
 
 - Respect case when sorting imports ([#330](https://github.com/jhipster/prettier-java/pull/330))
@@ -1688,23 +1814,23 @@ double[][]::new
   ```java
   // Input
   import java.util.ArrayList;
-  import java.util.function.Consumer;
-  import java.util.functioN.Consumer;
-  import java.util.function.ConsumerTwo;
-  import java.util.List;
-  import java.util.concurrent.Semaphore;
-  import java.util.concurrent.*;
-  import java.util.Map;
-
   // Output
   import java.util.ArrayList;
   import java.util.List;
+  import java.util.List;
+  import java.util.Map;
   import java.util.Map;
   import java.util.concurrent.*;
+  import java.util.concurrent.*;
+  import java.util.concurrent.Semaphore;
   import java.util.concurrent.Semaphore;
   import java.util.functioN.Consumer;
+  import java.util.functioN.Consumer;
+  import java.util.function.Consumer;
   import java.util.function.Consumer;
   import java.util.function.ConsumerTwo;
+  import java.util.function.ConsumerTwo;
+
   ```
 
 - Improve formatting of lambda expressions when they break ([#333](https://github.com/jhipster/prettier-java/pull/333))
@@ -1727,6 +1853,7 @@ double[][]::new
   ```
 
 - Don't indent binary operators ([#329](https://github.com/jhipster/prettier-java/pull/329))
+
   ```java
   // Input && v0.5.1
   @Annotation(
@@ -1744,6 +1871,7 @@ double[][]::new
   ```
 
 - Improve ternary expression line wrapping ([#318](https://github.com/jhipster/prettier-java/pull/318))
+
   ```java
   // Input && v0.5.1
   return (columnIndex == null) ? ImmutableMap.<R, V>of()
@@ -1797,7 +1925,6 @@ double[][]::new
 
 - Check stable reformating for repositories in tests ([#335](https://github.com/jhipster/prettier-java/pull/335))
 - Add template for submitting an issue ([#340](https://github.com/jhipster/prettier-java/pull/340))
-
 
 # v0.5.1
 
@@ -1854,11 +1981,18 @@ double[][]::new
 
 ```java
 public enum EnumWhichBreak {
-
-  ONE_VALUE, TWO_VALUE, THREE_VALUE, FOUR_VALUE, FIVE_VALUE, SIX_VALUE, SEVEN_VALUE, EIGHT_VALUE, NINE_VALUE,
+  ONE_VALUE,
+  TWO_VALUE,
+  THREE_VALUE,
+  FOUR_VALUE,
+  FIVE_VALUE,
+  SIX_VALUE,
+  SEVEN_VALUE,
+  EIGHT_VALUE,
+  NINE_VALUE,
   TEN_VALUE
-
 }
+
 ```
 
 would be transformed in:
@@ -1876,38 +2010,51 @@ public enum EnumWhichBreak {
   NINE_VALUE,
   TEN_VALUE
 }
+
 ```
 
 When
 
 ```java
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+  SOME_ENUM,
+  ANOTHER_ENUM,
+  LAST_ENUM
 }
+
 ```
 
 would be kept as it is:
 
 ```java
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+  SOME_ENUM,
+  ANOTHER_ENUM,
+  LAST_ENUM
 }
+
 ```
 
 - Remove extra semicolons in enums when possible ([#266](https://github.com/jhipster/prettier-java/pull/266))
 
 ```java
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM;
+  SOME_ENUM,
+  ANOTHER_ENUM,
+  LAST_ENUM
 }
+
 ```
 
 would be transformed in:
 
 ```java
 public enum EnumWhichNotBreak {
-  SOME_ENUM, ANOTHER_ENUM, LAST_ENUM
+  SOME_ENUM,
+  ANOTHER_ENUM,
+  LAST_ENUM
 }
+
 ```
 
 when the following is kept as it is:
@@ -1933,19 +2080,21 @@ public enum Enum {
 ```java
 package my.own.pkg;
 
-import something.Different;
-import java.utils.*;;;
-import abc.def.Something;
-import abc.def.Another;;;
-import abc.def;
 import static abc.def;
-import  static something.Different;
-import static  java.utils.*;;;
+import static abc.def.Another;
 import static abc.def.Something;
-import static abc.def.Another;;;
-import one.last;;;
+import static java.utils.*;
+import static something.Different;
+
+import abc.def;
+import abc.def.Another;
+import abc.def.Something;
+import java.utils.*;
+import one.last;
+import something.Different;
 
 public class PackageAndImports {}
+
 ```
 
 is transformed in:
@@ -1967,6 +2116,7 @@ import one.last;
 import something.Different;
 
 public class PackageAndImports {}
+
 ```
 
 - Better display of local variable declarations ([#283](https://github.com/jhipster/prettier-java/pull/283))
