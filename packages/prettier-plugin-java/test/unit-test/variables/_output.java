@@ -20,10 +20,15 @@ public class Variables {
     "ghi",
     "jkl"
   );
-  private Map<Integer, String> genericVariable4 =
-    new HashMap<Integer, String>();
-  private Map<Integer, String, Integer, String> genericVariable5 =
-    new HashMap<Integer, String, Integer>();
+  private Map<Integer, String> genericVariable4 = new HashMap<
+    Integer,
+    String
+  >();
+  private Map<Integer, String, Integer, String> genericVariable5 = new HashMap<
+    Integer,
+    String,
+    Integer
+  >();
 
   private Object variableWithComment1 /* comment */= new Object();
   private Object variableWithComment2 = /* comment */new Object();
@@ -222,6 +227,94 @@ public class Variables {
       anotherVeryLongNameForIllustrativePurposes != null
         ? anotherVeryLongNameForIllustrativePurposes
         : new Object();
+  }
+
+  public <
+    A extends ShortClassName & ShortClassName & ShortClassName & ShortClassName,
+    B extends ShortClassName
+      & ShortClassName
+      & ShortClassName
+      & ShortClassName
+      & ShortClassName,
+    C extends ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    >
+      & ExtremelyLongAndObnoxiousInterfaceName
+      & ExtremelyLongAndObnoxiousInterfaceName
+      & ExtremelyLongAndObnoxiousInterfaceName
+  > void breakOnTypeArguments(
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName
+    > parameter,
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    > parameter
+  ) {
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName
+    > variable;
+
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    > variable;
+
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    > variable = new MyExtremelyLongAndObnoxiousClassName<>();
+
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    > variable = new MyExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    >();
+
+    ExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    > aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
+      new MyExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName<
+          ExtremelyLongAndObnoxiousClassName,
+          ExtremelyLongAndObnoxiousClassName
+        >,
+        ExtremelyLongAndObnoxiousClassName
+      >();
+
+    new MyExtremelyLongAndObnoxiousClassName<
+      ExtremelyLongAndObnoxiousClassName<
+        ExtremelyLongAndObnoxiousClassName,
+        ExtremelyLongAndObnoxiousClassName
+      >,
+      ExtremelyLongAndObnoxiousClassName
+    >()
+      .method();
   }
 
   public methodWithVariableInitializationWithComments() {

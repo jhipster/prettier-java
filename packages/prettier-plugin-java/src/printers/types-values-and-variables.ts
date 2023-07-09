@@ -1,10 +1,12 @@
 "use strict";
 
 import forEach from "lodash/forEach";
+import { builders } from "prettier/doc";
 
-import { concat, join } from "./prettier-builder";
+import { concat, group, indent, join } from "./prettier-builder";
 import { printTokenWithComments } from "./comments/format-comments";
 import {
+  putIntoBraces,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
@@ -40,6 +42,8 @@ import {
   isCstNode,
   isTypeArgumentsCstNode
 } from "../types/utils";
+
+const { line, softline } = builders;
 
 export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrinter {
   primitiveType(ctx: PrimitiveTypeCtx) {
@@ -180,10 +184,16 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
     const classOrInterfaceType = this.visit(ctx.classOrInterfaceType);
     const additionalBound = this.mapVisit(ctx.additionalBound);
 
-    return rejectAndJoin(" ", [
-      ctx.Extends[0],
-      classOrInterfaceType,
-      join(" ", additionalBound)
+    return concat([
+      rejectAndJoin(" ", [ctx.Extends[0], classOrInterfaceType]),
+      indent(
+        group(
+          concat([
+            additionalBound.length ? line : "",
+            rejectAndJoin(line, additionalBound)
+          ])
+        )
+      )
     ]);
   }
 
@@ -196,12 +206,17 @@ export class TypesValuesAndVariablesPrettierVisitor extends BaseCstPrettierPrint
   typeArguments(ctx: TypeArgumentsCtx) {
     const typeArgumentList = this.visit(ctx.typeArgumentList);
 
-    return rejectAndConcat([ctx.Less[0], typeArgumentList, ctx.Greater[0]]);
+    return putIntoBraces(
+      typeArgumentList,
+      softline,
+      ctx.Less[0],
+      ctx.Greater[0]
+    );
   }
 
   typeArgumentList(ctx: TypeArgumentListCtx) {
     const typeArguments = this.mapVisit(ctx.typeArgument);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
     return rejectAndJoinSeps(commas, typeArguments);
   }
 
