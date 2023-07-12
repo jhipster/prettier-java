@@ -671,8 +671,7 @@ public final class ArrayTable<R, C, V>
     return columnKeyToIndex.keySet();
   }
 
-  @MonotonicNonNull
-  private transient ColumnMap columnMap;
+  private transient @MonotonicNonNull ColumnMap columnMap;
 
   @Override
   public Map<C, Map<R, V>> columnMap() {
@@ -762,8 +761,7 @@ public final class ArrayTable<R, C, V>
     return rowKeyToIndex.keySet();
   }
 
-  @MonotonicNonNull
-  private transient RowMap rowMap;
+  private transient @MonotonicNonNull RowMap rowMap;
 
   @Override
   public Map<R, Map<C, V>> rowMap() {

@@ -49,6 +49,18 @@ public static final class ClassWithModifiers {
 
   @AnnotationOne
   @AnnotationTwo
+  protected static final @AnnotationThree String CONSTANT_2 = "123";
+
+  @AnnotationOne
+  public static @AnnotationTwo String staticField;
+
+  public @AnnotationOne @AnnotationTwo String twoTrailingAnnotations;
+
+  @AnnotationOne
+  String onlyAnnotations;
+
+  @AnnotationOne
+  @AnnotationTwo
   protected static final synchronized @AnnotationThree String method() {
     return CONSTANT;
   }

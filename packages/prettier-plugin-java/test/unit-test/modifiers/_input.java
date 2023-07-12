@@ -31,6 +31,14 @@
 final @AnnotationOne static public @AnnotationTwo class ClassWithModifiers {
   transient @AnnotationOne final private @AnnotationTwo static String CONSTANT = "abc";
 
+  final @AnnotationOne static @AnnotationTwo protected @AnnotationThree String CONSTANT_2 = "123";
+
+  static @AnnotationOne public @AnnotationTwo String staticField;
+
+  public @AnnotationOne @AnnotationTwo String twoTrailingAnnotations;
+
+  @AnnotationOne String onlyAnnotations;
+
   final @AnnotationOne static @AnnotationTwo synchronized protected @AnnotationThree String method() {
     return CONSTANT;
   }
