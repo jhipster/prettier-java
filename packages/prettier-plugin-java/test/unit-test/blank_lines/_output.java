@@ -16,6 +16,12 @@ public class BlankLines {
   private String fieldThree;
   private String fieldFour;
 
+  private String a;
+  private String b;
+  private @Nullable String shouldNotAddBlankLines;
+  private String d;
+  private String e;
+
   public int m = 4;
 
   public Constructors() {

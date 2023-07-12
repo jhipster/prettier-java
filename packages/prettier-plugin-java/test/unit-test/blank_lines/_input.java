@@ -11,9 +11,15 @@ public class BlankLines {
   // Bug Fix: https://github.com/jhipster/prettier-java/issues/368
   private String fieldOne;
   private String fieldTwo;
-  private @Nullable String shouldAddLineBeforeAndAfter;
+  @Nullable private String shouldAddLineBeforeAndAfter;
   private String fieldThree;
   private String fieldFour;
+
+  private String a;
+  private String b;
+  private @Nullable String shouldNotAddBlankLines;
+  private String d;
+  private String e;
 
   public int m = 4;
   public Constructors() {

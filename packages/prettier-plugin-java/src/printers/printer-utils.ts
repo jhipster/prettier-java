@@ -225,18 +225,19 @@ export function sortModifiers(modifiers: CstNode[] | undefined) {
 
   /**
    * iterate in reverse order because we special-case
-   * method annotations which come after all other
+   * type annotations which come after all other
    * modifiers
    */
   forEachRight(modifiers, modifier => {
     const isAnnotation = modifier.children.annotation !== undefined;
-    const isMethodAnnotation =
+    const isTypeAnnotation =
       isAnnotation &&
       (modifier.name === "methodModifier" ||
-        modifier.name === "interfaceMethodModifier");
+        modifier.name === "interfaceMethodModifier" ||
+        modifier.name === "fieldModifier");
 
     if (isAnnotation) {
-      if (isMethodAnnotation && !hasOtherModifier) {
+      if (isTypeAnnotation && !hasOtherModifier) {
         lastAnnotations.unshift(modifier);
       } else {
         firstAnnotations.unshift(modifier);
@@ -424,7 +425,8 @@ function needLineClassBodyDeclaration(
       classMemberDeclaration.children.fieldDeclaration[0];
     if (
       fieldDeclaration.children.fieldModifier !== undefined &&
-      hasAnnotation(fieldDeclaration.children.fieldModifier)
+      hasAnnotation(fieldDeclaration.children.fieldModifier) &&
+      hasNonTrailingAnnotation(fieldDeclaration.children.fieldModifier)
     ) {
       return true;
     }
@@ -443,7 +445,8 @@ function needLineInterfaceMemberDeclaration(
     const constantDeclaration = declaration.children.constantDeclaration[0];
     if (
       constantDeclaration.children.constantModifier !== undefined &&
-      hasAnnotation(constantDeclaration.children.constantModifier)
+      hasAnnotation(constantDeclaration.children.constantModifier) &&
+      hasNonTrailingAnnotation(constantDeclaration.children.constantModifier)
     ) {
       return true;
     }
@@ -487,27 +490,37 @@ function isInterfaceMemberASemicolon(
 }
 
 function hasAnnotation(
-  modifiers: FieldModifierCstNode[] | ConstantModifierCstNode[]
+  modifiers: (
+    | MethodModifierCstNode
+    | InterfaceMethodModifierCstNode
+    | FieldModifierCstNode
+    | ConstantModifierCstNode
+  )[]
 ) {
   return modifiers.some(modifier => modifier.children.annotation !== undefined);
 }
 
 /**
- * Return true if there is a method modifier that does not come after all other modifiers
+ * Return true if there is a modifier that does not come after all other modifiers
  * It is useful to know if sortModifiers will add an annotation before other modifiers
  *
- * @param methodModifiers
+ * @param modifiers
  * @returns {boolean}
  */
 function hasNonTrailingAnnotation(
-  methodModifiers: (MethodModifierCstNode | InterfaceMethodModifierCstNode)[]
+  modifiers: (
+    | MethodModifierCstNode
+    | InterfaceMethodModifierCstNode
+    | FieldModifierCstNode
+    | ConstantModifierCstNode
+  )[]
 ) {
   const firstAnnotationIndex = findIndex(
-    methodModifiers,
+    modifiers,
     modifier => modifier.children.annotation !== undefined
   );
   const lastNonAnnotationIndex = findLastIndex(
-    methodModifiers,
+    modifiers,
     modifier => modifier.children.annotation === undefined
   );
 
