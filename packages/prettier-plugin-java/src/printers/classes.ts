@@ -345,15 +345,17 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
         ctx.variableInitializer![0].children.expression![0].children
           .ternaryExpression !== undefined
       ) {
-        const firstPrimary =
+        const unaryExpressions =
           ctx.variableInitializer![0].children.expression![0].children
             .ternaryExpression[0].children.binaryExpression[0].children
-            .unaryExpression[0].children.primary[0];
+            .unaryExpression;
+        const firstPrimary = unaryExpressions[0].children.primary[0];
 
         // Cast Expression
         if (
           firstPrimary.children.primaryPrefix[0].children.castExpression !==
-          undefined
+            undefined &&
+          unaryExpressions.length === 1
         ) {
           const groupId = Symbol("assignment");
           return group([
