@@ -82,4 +82,9 @@ public class BinaryOperations {
     foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
       .bar(10);
   }
+
+  public void binaryExpressionWithCast() {
+    double availability =
+      (double) successfulCount / (successfulCount + failureCount);
+  }
 }

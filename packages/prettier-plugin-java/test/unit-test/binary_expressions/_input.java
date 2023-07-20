@@ -58,4 +58,8 @@ public class BinaryOperations {
         new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more").bar(10);
         foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(10);
     }
+
+  public void binaryExpressionWithCast() {
+    double availability = (double) successfulCount / (successfulCount + failureCount);
+  }
 }
