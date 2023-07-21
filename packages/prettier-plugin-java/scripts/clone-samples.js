@@ -9,7 +9,7 @@ const samplesDir = path.resolve(__dirname, "../samples");
 const core = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster",
@@ -28,46 +28,46 @@ const core = [
 const jhipster1 = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-microservice",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-oauth2",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-websocket",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-noi18n",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
-    branch: "main"
+    branch: "v7.9.3"
   }
 ];
 
 const jhipster2 = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-elasticsearch",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-dto",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-cassandra",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-mongodb",
-    branch: "main"
+    branch: "v7.9.3"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-react",
-    branch: "main"
+    branch: "v7.9.3"
   }
 ];
 
