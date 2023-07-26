@@ -5,7 +5,8 @@
 
 # Prettier Java
 
-![Prettier-java Banner](./logo/prettier-java-logo-light.bmp)
+![Prettier Java Banner](./logo/prettier-java-wide-dark.svg#gh-dark-mode-only)
+![Prettier Java Banner](./logo/prettier-java-wide-light.svg#gh-light-mode-only)
 
 ## Intro
 
