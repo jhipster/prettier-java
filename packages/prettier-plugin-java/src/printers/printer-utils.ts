@@ -1,6 +1,5 @@
 import {
   AnnotationCstNode,
-  BinaryExpressionCtx,
   ClassBodyDeclarationCstNode,
   ConstantModifierCstNode,
   CstElement,
@@ -144,7 +143,7 @@ export function sortAnnotationIdentifier(
   });
 }
 
-function sortTokens(values: (IToken[] | undefined)[]): IToken[] {
+export function sortTokens(values: (IToken[] | undefined)[]): IToken[] {
   let tokens: IToken[] = [];
 
   forEach(values, argument => {
@@ -594,73 +593,121 @@ export function putIntoBraces(
   );
 }
 
-const andOrBinaryOperators = ["&&", "||", "&", "|", "^"];
+export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
+  let levelOperator: string | undefined;
+  let levelPrecedence: number | undefined;
+  let level: Doc[] = [];
+  while (tokens.length) {
+    const nextOperator = getOperator(tokens);
+    const nextPrecedence = getOperatorPrecedence(nextOperator);
 
-export function separateTokensIntoGroups(ctx: BinaryExpressionCtx) {
-  /**
-   * separate tokens into groups by andOrBinaryOperators ("&&", "||", "&", "|", "^")
-   * in order to break those operators in priority.
-   */
-  const tokens = sortTokens([
-    ctx.Instanceof,
-    ctx.AssignmentOperator,
-    ctx.Less,
-    ctx.Greater,
-    ctx.BinaryOperator
-  ]);
-
-  const groupsOfOperator: IToken[][] = [];
-  const sortedBinaryOperators: IToken[] = [];
-  let tmpGroup: IToken[] = [];
-  tokens.forEach(token => {
-    if (
-      matchCategory(token, "'BinaryOperator'") &&
-      includes(andOrBinaryOperators, token.image)
-    ) {
-      sortedBinaryOperators.push(token);
-      groupsOfOperator.push(tmpGroup);
-      tmpGroup = [];
+    if (levelPrecedence === undefined || nextPrecedence === levelPrecedence) {
+      const tokenLength = ["<<", ">>", ">>>"].includes(nextOperator)
+        ? nextOperator.length
+        : 1;
+      const operator = concat(tokens.splice(0, tokenLength));
+      if (
+        levelOperator !== undefined &&
+        needsParentheses(levelOperator, nextOperator)
+      ) {
+        level.push(nodes.shift()!);
+        level = [
+          concat(["(", group(indent(join(line, level))), ") ", operator])
+        ];
+      } else {
+        level.push(join(" ", [nodes.shift()!, operator]));
+      }
+      levelOperator = nextOperator;
+      levelPrecedence = nextPrecedence;
+    } else if (nextPrecedence < levelPrecedence) {
+      level.push(nodes.shift()!);
+      if (isRoot) {
+        const content = group(indent(join(line, level)));
+        nodes.unshift(
+          levelOperator !== undefined &&
+            needsParentheses(levelOperator, nextOperator)
+            ? concat(["(", content, ")"])
+            : content
+        );
+        level = [];
+        levelOperator = undefined;
+        levelPrecedence = undefined;
+      } else {
+        return group(join(line, level));
+      }
     } else {
-      tmpGroup.push(token);
+      const content = indent(binary(nodes, tokens));
+      nodes.unshift(
+        levelOperator !== undefined &&
+          needsParentheses(nextOperator, levelOperator)
+          ? concat(["(", content, ")"])
+          : content
+      );
     }
-  });
-
-  groupsOfOperator.push(tmpGroup);
-
-  return {
-    groupsOfOperator,
-    sortedBinaryOperators
-  };
+  }
+  level.push(nodes.shift()!);
+  return group(join(line, level));
 }
 
-export function isShiftOperator(tokens: IToken[], index: number) {
-  if (tokens.length <= index + 1) {
-    return "none";
+function getOperator(tokens: IToken[]) {
+  if (!tokens.length) {
+    return "";
   }
-
-  if (
-    tokens[index].image === "<" &&
-    tokens[index + 1].image === "<" &&
-    tokens[index].startOffset === tokens[index + 1].startOffset - 1
-  ) {
-    return "leftShift";
+  const [{ image, startOffset }] = tokens;
+  if (!["<", ">"].includes(image)) {
+    return image;
   }
-  if (
-    tokens[index].image === ">" &&
-    tokens[index + 1].image === ">" &&
-    tokens[index].startOffset === tokens[index + 1].startOffset - 1
-  ) {
-    if (
-      tokens.length > index + 2 &&
-      tokens[index + 2].image === ">" &&
-      tokens[index + 1].startOffset === tokens[index + 2].startOffset - 1
-    ) {
-      return "doubleRightShift";
+  let repeatedTokenCount = 1;
+  for (let i = 1; i < Math.min(3, tokens.length); i++) {
+    const token = tokens[i];
+    if (token.image !== image || token.startOffset !== startOffset + i) {
+      break;
     }
-    return "rightShift";
+    repeatedTokenCount++;
   }
+  if (repeatedTokenCount === 1) {
+    return image;
+  }
+  if (image === "<") {
+    return "<<";
+  } else if (repeatedTokenCount == 2) {
+    return ">>";
+  } else {
+    return ">>>";
+  }
+}
 
-  return "none";
+const PRECEDENCES_BY_OPERATOR = new Map(
+  [
+    ["||"],
+    ["&&"],
+    ["|"],
+    ["^"],
+    ["&"],
+    ["==", "!="],
+    ["<", ">", "<=", ">=", "instanceof"],
+    ["<<", ">>", ">>>"],
+    ["+", "-"],
+    ["*", "/", "%"]
+  ].flatMap((operators, index) => operators.map(operator => [operator, index]))
+);
+function getOperatorPrecedence(operator: string) {
+  return PRECEDENCES_BY_OPERATOR.get(operator) ?? -1;
+}
+
+function needsParentheses(operator: string, parentOperator: string) {
+  return (
+    (operator === "&&" && parentOperator === "||") ||
+    (["|", "^", "&", "<<", ">>", ">>>"].includes(parentOperator) &&
+      getOperatorPrecedence(operator) >
+        getOperatorPrecedence(parentOperator)) ||
+    [operator, parentOperator].every(o => ["==", "!="].includes(o)) ||
+    [operator, parentOperator].every(o => ["<<", ">>", ">>>"].includes(o)) ||
+    (operator === "*" && parentOperator === "/") ||
+    (operator === "/" && parentOperator === "*") ||
+    (operator === "%" && ["+", "-", "*", "/"].includes(parentOperator)) ||
+    (["*", "/"].includes(operator) && parentOperator === "%")
+  );
 }
 
 export function isStatementEmptyStatement(statement: Doc) {

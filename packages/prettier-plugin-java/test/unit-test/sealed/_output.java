@@ -34,7 +34,7 @@ public non-sealed class RightTriangle implements Triangle {
 
     People p = new Person("John Doe");
 
-    return adjacent * opposite / 2;
+    return (adjacent * opposite) / 2;
   }
 }
 
