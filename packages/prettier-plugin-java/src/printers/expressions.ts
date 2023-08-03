@@ -41,7 +41,6 @@ import {
   ReferenceTypeCastExpressionCtx,
   RegularLambdaParameterCtx,
   TernaryExpressionCtx,
-  TypeArgumentListCtx,
   TypeArgumentsOrDiamondCtx,
   TypePatternCtx,
   UnaryExpressionCtx,
@@ -50,7 +49,6 @@ import {
 } from "java-parser/api";
 
 import forEach from "lodash/forEach";
-import { Doc } from "prettier";
 import { builders } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer";
 import { isAnnotationCstNode } from "../types/utils";
@@ -63,20 +61,18 @@ import { printTokenWithComments } from "./comments/format-comments";
 import { handleCommentsBinaryExpression } from "./comments/handle-comments";
 import { concat, dedent, group, indent } from "./prettier-builder";
 import {
+  binary,
   findDeepElementInPartsArray,
   isExplicitLambdaParameter,
-  isShiftOperator,
   isUniqueMethodInvocation,
-  matchCategory,
   putIntoBraces,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
-  separateTokensIntoGroups,
   sortAnnotationIdentifier,
-  sortNodes
+  sortNodes,
+  sortTokens
 } from "./printer-utils";
-import join = builders.join;
 
 const { ifBreak, line, softline, indentIfBreak } = builders;
 
@@ -244,104 +240,54 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return binaryExpression;
   }
 
-  binaryExpression(ctx: BinaryExpressionCtx, params: any) {
+  binaryExpression(
+    ctx: BinaryExpressionCtx,
+    params?: { addParenthesisToWrapStatement?: boolean }
+  ) {
     handleCommentsBinaryExpression(ctx);
 
-    const instanceofReferences = this.mapVisit(
-      sortNodes([ctx.pattern, ctx.referenceType])
+    const sortedNodes = sortNodes([
+      ctx.pattern,
+      ctx.referenceType,
+      ctx.expression,
+      ctx.unaryExpression
+    ]);
+
+    const nodes = this.mapVisit(
+      sortedNodes,
+      sortedNodes.length === 1 ? params : undefined
     );
-    const expression = this.mapVisit(ctx.expression);
-    const unaryExpression = this.mapVisit(ctx.unaryExpression);
+    const tokens = sortTokens([
+      ctx.Instanceof,
+      ctx.AssignmentOperator,
+      ctx.Less,
+      ctx.Greater,
+      ctx.BinaryOperator
+    ]);
+    const hasTokens = tokens.length > 0;
 
-    const { groupsOfOperator, sortedBinaryOperators } =
-      separateTokensIntoGroups(ctx);
-    const segmentsSplitByBinaryOperator: any[] = [];
-    let currentSegment = [];
+    const content = binary(nodes, tokens, true);
 
-    if (groupsOfOperator.length === 1 && groupsOfOperator[0].length === 0) {
-      return unaryExpression.shift();
-    }
-
-    groupsOfOperator.forEach(subgroup => {
-      currentSegment = [unaryExpression.shift()];
-      for (let i = 0; i < subgroup.length; i++) {
-        const token = subgroup[i];
-        const shiftOperator = isShiftOperator(subgroup, i);
-        if (token.tokenType.name === "Instanceof") {
-          currentSegment.push(
-            rejectAndJoin(" ", [
-              ctx.Instanceof![0],
-              instanceofReferences.shift()
-            ])
-          );
-        } else if (matchCategory(token, "'AssignmentOperator'")) {
-          currentSegment.push(
-            indent(rejectAndJoin(line, [token, expression.shift()]))
-          );
-        } else if (
-          shiftOperator === "leftShift" ||
-          shiftOperator === "rightShift"
-        ) {
-          currentSegment.push(
-            rejectAndJoin(" ", [
-              rejectAndConcat([token, subgroup[i + 1]]),
-              unaryExpression.shift()
-            ])
-          );
-          i++;
-        } else if (shiftOperator === "doubleRightShift") {
-          currentSegment.push(
-            rejectAndJoin(" ", [
-              rejectAndConcat([token, subgroup[i + 1], subgroup[i + 2]]),
-              unaryExpression.shift()
-            ])
-          );
-          i += 2;
-        } else if (matchCategory(token, "'BinaryOperator'")) {
-          currentSegment.push(
-            rejectAndJoin(line, [token, unaryExpression.shift()])
-          );
-        }
-      }
-      segmentsSplitByBinaryOperator.push(
-        group(rejectAndJoin(" ", currentSegment))
-      );
-    });
-
-    if (params !== undefined && params.addParenthesisToWrapStatement) {
-      return group(
-        concat([
-          ifBreak("(", ""),
-          indent(
-            concat([
-              softline,
-              group(
-                rejectAndJoinSeps(
-                  sortedBinaryOperators.map(elt => concat([" ", elt, line])),
-                  segmentsSplitByBinaryOperator
-                )
-              )
-            ])
-          ),
-          softline,
-          ifBreak(")")
-        ])
-      );
-    }
-
-    return group(
-      rejectAndJoinSeps(
-        sortedBinaryOperators.map(elt => concat([" ", elt, line])),
-        segmentsSplitByBinaryOperator
-      )
-    );
+    return hasTokens && params?.addParenthesisToWrapStatement
+      ? group(
+          concat([
+            ifBreak("("),
+            indent(concat([softline, content])),
+            softline,
+            ifBreak(")")
+          ])
+        )
+      : content;
   }
 
-  unaryExpression(ctx: UnaryExpressionCtx) {
+  unaryExpression(
+    ctx: UnaryExpressionCtx,
+    params?: { addParenthesisToWrapStatement?: boolean }
+  ) {
     const unaryPrefixOperator = ctx.UnaryPrefixOperator
       ? ctx.UnaryPrefixOperator
       : [];
-    const primary = this.visit(ctx.primary);
+    const primary = this.visit(ctx.primary, params);
     const unarySuffixOperator = ctx.UnarySuffixOperator
       ? ctx.UnarySuffixOperator
       : [];
@@ -369,10 +315,14 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     ]);
   }
 
-  primary(ctx: PrimaryCtx) {
+  primary(
+    ctx: PrimaryCtx,
+    params?: { addParenthesisToWrapStatement?: boolean }
+  ) {
     const countMethodInvocation = isUniqueMethodInvocation(ctx.primarySuffix);
 
     const primaryPrefix = this.visit(ctx.primaryPrefix, {
+      ...params,
       shouldBreakBeforeFirstMethodInvocation: countMethodInvocation > 1
     });
 
@@ -561,9 +511,13 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return rejectAndConcat([keyWord, typeArguments]);
   }
 
-  parenthesisExpression(ctx: ParenthesisExpressionCtx) {
+  parenthesisExpression(
+    ctx: ParenthesisExpressionCtx,
+    params?: { addParenthesisToWrapStatement?: boolean }
+  ) {
     const expression = this.visit(ctx.expression);
-    return putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]);
+    const separator = params?.addParenthesisToWrapStatement ? softline : "";
+    return putIntoBraces(expression, separator, ctx.LBrace[0], ctx.RBrace[0]);
   }
 
   castExpression(ctx: CastExpressionCtx) {
