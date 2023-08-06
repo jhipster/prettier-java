@@ -1,4 +1,5 @@
 import { printTokenWithComments } from "./comments/format-comments";
+import { join } from "./prettier-builder";
 import { BaseCstPrettierPrinter } from "../base-cst-printer";
 import {
   BooleanLiteralCtx,
@@ -7,10 +8,24 @@ import {
   IToken,
   LiteralCtx
 } from "java-parser";
+import { builders } from "prettier/doc";
+
+const { hardline } = builders;
 
 export class LexicalStructurePrettierVisitor extends BaseCstPrettierPrinter {
   literal(ctx: LiteralCtx) {
-    if (ctx.CharLiteral || ctx.TextBlock || ctx.StringLiteral || ctx.Null) {
+    if (ctx.TextBlock) {
+      const lines = ctx.TextBlock[0].image.split("\n");
+      const open = lines.shift()!;
+      const baseIndent = Math.min(
+        ...lines.map(line => line.search(/\S/)).filter(indent => indent >= 0)
+      );
+      return join(hardline, [
+        open,
+        ...lines.map(line => line.slice(baseIndent))
+      ]);
+    }
+    if (ctx.CharLiteral || ctx.StringLiteral || ctx.Null) {
       return printTokenWithComments(this.getSingle(ctx) as IToken);
     }
     return this.visitSingle(ctx);

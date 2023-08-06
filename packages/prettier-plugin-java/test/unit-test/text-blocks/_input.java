@@ -24,6 +24,27 @@ public class TextBlock {
                   </body>\r
               </html>\r
               """;
+
+    System.out.println(
+      // leading comment
+        """
+               abaoeu
+                 euaoeu
+              aoeu
+
+               oaeu
+                    abc""" // trailing comment
+    );
+
+    System.out.println(
+        """
+ abaoeu
+   euaoeu
+aoeu
+
+ oaeu
+      abc"""
+    );
   }
 
 }
