@@ -68,4 +68,42 @@ public class TryCatch {
       System.out.println("Warning: Not breaking multi exceptions");
     }
   }
+
+  void catchComments() {
+    try {} catch (Exception e) {
+      // comment
+    }
+
+    try {} catch (
+      Exception e // comment
+    ) {}
+
+    try {} catch (
+      Exception e // comment
+    ) {
+      System.out.println("Oops");
+    }
+
+    try {} catch (
+      Exception e // comment
+    ) {
+      if (true) {}
+    }
+  }
+
+  void resourcesComments() {
+    try (InputStream in = getClass().getResourceAsStream("file.txt")) {
+      // comment
+    }
+
+    try (InputStream in = getClass().getResourceAsStream("file.txt")) {} // comment
+
+    try (InputStream in = getClass().getResourceAsStream("file.txt")) { // comment
+      System.out.println("Oops");
+    }
+
+    try (InputStream in = getClass().getResourceAsStream("file.txt")) { // comment
+      if (true) {}
+    }
+  }
 }

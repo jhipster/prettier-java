@@ -23,9 +23,8 @@ public class PrettierTest {
     /* axis y */int arg2,
     /* axis z */int arg3
   ) {
-    if (arg1 == 0 && arg2 == 0 && arg == 3) throw new RuntimeException(
-      "X Y Z cannot be all 0"
-    );
+    if (arg1 == 0 && arg2 == 0 && arg == 3)
+      throw new RuntimeException("X Y Z cannot be all 0");
 
     int /*variable name is of value var */var = arg1 + arg2 + arg3;
     if /*true*/(var == 0) {
@@ -66,13 +65,14 @@ public class PrettierTest {
   }
 
   private synchronized void myFunction(int arg1, int arg2/*overloading*/) {
-    for (int i = 0; i < /*=*/arg1; i++) do /*dodododo*/{ //do whiles
-      //asserting
-      assert /*true*/true == true;
-      continue;
-      break/*dead code*/;
-      return/*dead code*/;
-    } /*at least one iteration !*/while (false);
+    for (int i = 0; i < /*=*/arg1; i++)
+      do /*dodododo*/{ //do whiles
+        //asserting
+        assert /*true*/true == true;
+        continue;
+        break/*dead code*/;
+        return/*dead code*/;
+      } /*at least one iteration !*/while (false);
     synchronized /*declares synchronizd statement*/(this) {
       while /*infinite*/(true) /*stop the program*/throw new RuntimeException();
     }

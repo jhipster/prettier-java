@@ -151,4 +151,21 @@ class Switch {
 
     log.info("Done !");
   }
+
+  void comments() {
+    switch (value) {
+      // comment
+    }
+
+    switch (
+      value // comment
+    ) {}
+
+    switch (
+      value // comment
+    ) {
+      case "a":
+        System.out.println("Oops");
+    }
+  }
 }

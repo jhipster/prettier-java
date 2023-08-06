@@ -49,4 +49,34 @@ public class Constructors {
 
   public <T> GenericConstructor(T genericParameter) {}
   public <T>GenericConstructor(T genericParameter) {}
+
+  Constructors() {
+    // comment
+  }
+
+  Constructors() // comment
+  {}
+
+  Constructors(String arg) // comment
+  {}
+
+  Constructors() // comment
+  {
+    System.out.println("Oops");
+  }
+
+  Constructors(String arg) // comment
+  {
+    System.out.println("Oops");
+  }
+
+  Constructors() // comment
+  {
+    if (true) {}
+  }
+
+  Constructors(String arg) // comment
+  {
+    if (true) {}
+  }
 }

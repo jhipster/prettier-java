@@ -1,8 +1,14 @@
 "use strict";
 
 import { builders } from "prettier/doc";
-import { concat, dedent, group, indent, join } from "./prettier-builder";
+import { concat, group, indent, join } from "./prettier-builder";
 import { printTokenWithComments } from "./comments/format-comments";
+import {
+  handleCommentsBasicForStatement,
+  handleCommentsCatchClauseOrSwitchStatement,
+  handleCommentsDoStatement,
+  handleCommentsEnhancedForOrIfOrWhileStatement
+} from "./comments/handle-comments";
 import {
   hasLeadingLineComments,
   hasTrailingLineComments
@@ -192,12 +198,19 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   ifStatement(ctx: IfStatementCtx) {
+    handleCommentsEnhancedForOrIfOrWhileStatement(ctx);
+
     const expression = this.visit(ctx.expression);
 
     const ifStatement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const ifSeparator = isStatementEmptyStatement(ifStatement) ? "" : " ";
+    const ifStatementCtx =
+      ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
+        .children;
+    const emptyIfStatement = ifStatementCtx?.emptyStatement !== undefined;
+    const hasIfBlock = ifStatementCtx?.block !== undefined;
+    const ifSeparator = emptyIfStatement ? "" : hasIfBlock ? " " : indent(line);
 
     let elsePart: Doc = "";
     if (ctx.Else !== undefined) {
@@ -208,7 +221,9 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
 
       const elseOnSameLine =
         hasTrailingLineComments(ctx.statement[0]) ||
-        hasLeadingLineComments(ctx.Else[0])
+        hasLeadingLineComments(ctx.Else[0]) ||
+        emptyIfStatement ||
+        !hasIfBlock
           ? hardline
           : " ";
 
@@ -226,7 +241,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
           ifSeparator
         ])
       ]),
-      ifStatement,
+      hasIfBlock ? ifStatement : indent(ifStatement),
       elsePart
     ]);
   }
@@ -242,6 +257,8 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   switchStatement(ctx: SwitchStatementCtx) {
+    handleCommentsCatchClauseOrSwitchStatement(ctx);
+
     const expression = this.visit(ctx.expression);
     const switchBlock = this.visit(ctx.switchBlock);
 
@@ -340,22 +357,36 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   whileStatement(ctx: WhileStatementCtx) {
+    handleCommentsEnhancedForOrIfOrWhileStatement(ctx);
+
     const expression = this.visit(ctx.expression);
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
-    return rejectAndJoin(" ", [
-      ctx.While[0],
-      rejectAndJoin(statementSeparator, [
-        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-        statement
+    const hasBlock =
+      ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
+        .children.block !== undefined;
+    const statementSeparator = isStatementEmptyStatement(statement)
+      ? ""
+      : hasBlock
+      ? " "
+      : indent(line);
+
+    return group(
+      rejectAndJoin(" ", [
+        ctx.While[0],
+        rejectAndJoin(statementSeparator, [
+          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
+          hasBlock ? statement : indent(statement)
+        ])
       ])
-    ]);
+    );
   }
 
   doStatement(ctx: DoStatementCtx) {
+    handleCommentsDoStatement(ctx);
+
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
@@ -378,31 +409,44 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   basicForStatement(ctx: BasicForStatementCtx) {
+    handleCommentsBasicForStatement(ctx);
+
     const forInit = this.visit(ctx.forInit);
     const expression = this.visit(ctx.expression);
     const forUpdate = this.visit(ctx.forUpdate);
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
+    const headerSeparator =
+      ctx.forInit || ctx.expression || ctx.forUpdate ? line : "";
+    const hasBlock =
+      ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
+        .children.block !== undefined;
+    const statementSeparator = isStatementEmptyStatement(statement)
+      ? ""
+      : hasBlock
+      ? " "
+      : indent(line);
+
+    return group(
+      join(" ", [
         ctx.For[0],
-        putIntoBraces(
-          rejectAndConcat([
-            forInit,
-            rejectAndJoin(line, [ctx.Semicolon[0], expression]),
-            rejectAndJoin(line, [ctx.Semicolon[1], forUpdate])
-          ]),
-          softline,
-          ctx.LBrace[0],
-          ctx.RBrace[0]
-        )
-      ]),
-      statementSeparator,
-      statement
-    ]);
+        join(statementSeparator, [
+          putIntoBraces(
+            join(headerSeparator, [
+              rejectAndConcat([forInit, ctx.Semicolon[0]]),
+              rejectAndConcat([expression, ctx.Semicolon[1]]),
+              forUpdate
+            ]),
+            softline,
+            ctx.LBrace[0],
+            ctx.RBrace[0]
+          ),
+          hasBlock ? statement : indent(statement)
+        ])
+      ])
+    );
   }
 
   forInit(ctx: ForInitCtx) {
@@ -424,6 +468,8 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   enhancedForStatement(ctx: EnhancedForStatementCtx) {
+    handleCommentsEnhancedForOrIfOrWhileStatement(ctx);
+
     const variableModifiers = this.mapVisit(ctx.variableModifier);
     const localVariableType = this.visit(ctx.localVariableType);
     const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
@@ -431,20 +477,36 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
     });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
 
-    return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", variableModifiers),
-        localVariableType,
-        variableDeclaratorId
-      ]),
-      concat([" ", ctx.Colon[0], " "]),
-      expression,
-      concat([ctx.RBrace[0], statementSeparator]),
-      statement
-    ]);
+    const hasBlock =
+      ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
+        .children.block !== undefined;
+    const statementSeparator = isStatementEmptyStatement(statement)
+      ? ""
+      : hasBlock
+      ? " "
+      : indent(line);
+
+    return group(
+      join(" ", [
+        ctx.For[0],
+        join(statementSeparator, [
+          putIntoBraces(
+            join(" ", [
+              ...variableModifiers,
+              localVariableType,
+              variableDeclaratorId,
+              ctx.Colon[0],
+              expression
+            ]),
+            "",
+            ctx.LBrace[0],
+            ctx.RBrace[0]
+          ),
+          hasBlock ? statement : indent(statement)
+        ])
+      ])
+    );
   }
 
   breakStatement(ctx: BreakStatementCtx) {
@@ -534,6 +596,8 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   catchClause(ctx: CatchClauseCtx) {
+    handleCommentsCatchClauseOrSwitchStatement(ctx);
+
     const catchFormalParameter = this.visit(ctx.catchFormalParameter);
     const block = this.visit(ctx.block);
 
