@@ -2,7 +2,7 @@
 
 # prettier-plugin-java
 
-![Prettier Java Banner](https://raw.githubusercontent.com/jhipster/prettier-java/master/logo/prettier-java-banner-light.svg)
+![Prettier Java Banner](https://raw.githubusercontent.com/jhipster/prettier-java/main/logo/prettier-java-banner-light.svg)
 
 Prettier is an opinionated code formatter which forces a certain coding style. It makes the code consistent through an entire project.
 
