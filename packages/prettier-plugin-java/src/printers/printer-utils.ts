@@ -659,7 +659,8 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
     }
   }
   level.push(nodes.shift()!);
-  return group(join(line, level));
+  const content = group(join(line, level));
+  return levelOperator === "=" ? indent(content) : content;
 }
 
 function getOperator(tokens: IToken[]) {
