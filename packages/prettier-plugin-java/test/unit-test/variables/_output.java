@@ -325,4 +325,24 @@ public class Variables {
         someRandomMethodThatReturnsTheInitialMapThatWeWantToMutate()
       );
   }
+
+  void assignment() {
+    fileSystemDetails =
+      FileHandlerDetails
+        .builder()
+        .fileSystemType(
+          EntityUtils.update(
+            entity.getFileSystemDetails().getFileSystemType(),
+            update.getFileSystemDetails().getFileSystemType()
+          )
+        );
+
+    aaaaaaaaaaaaaaaaa =
+      bbbbbbbbbbbbbbbbb ? ccccccccccccccccc : ddddddddddddddddd;
+
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
+      bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb =
+        ccccccccccccccccccccccccccccccccccccccc +
+        ddddddddddddddddddddddddddddddddd;
+  }
 }
