@@ -1,4 +1,10 @@
-# Latest v2.3.0
+# Latest v2.3.1
+
+## Fixes
+
+- Correct indentation of assignment operations ([#602](https://github.com/jhipster/prettier-java/pull/602) by [@jtkiesel](https://github.com/jtkiesel))
+
+# v2.3.0
 
 ## Enhancements
 
@@ -15,15 +21,13 @@ Thanks to [@jtkiesel](https://github.com/jtkiesel) for all of these contribution
 - Fix browser compatibility issue when run in browser (Issue [#597](https://github.com/jhipster/prettier-java/pull/597) fixed with [#598](https://github.com/jhipster/prettier-java/pull/598))
   Thanks to [@magic-akari](https://github.com/magic-akari) for the contribution
 
-# Latest v2.2.0
+# v2.2.0
 
 ## Enhancements
 
 - Upgrade prettier version to Prettier v3
 
 # v2.1.0
-
-# Latest v2.1.0
 
 ## Enhancements
 
