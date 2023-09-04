@@ -11,7 +11,7 @@
   "dependencies": {
     "java-parser": "2.0.5",
     "lodash": "4.17.21",
-    "prettier": "3.0.2"
+    "prettier": "3.0.3"
   },
   "scripts": {
     "test": "yarn run test:unit && yarn run test:e2e-core",
