@@ -238,7 +238,12 @@ function attachComments(
       // prettier ignore support
       for (let i = 0; i < nodeLeadingComments.length; i++) {
         if (isPrettierIgnoreComment(nodeLeadingComments[i])) {
-          mostEnclosiveCstNodeByStartOffset[startOffset].ignore = true;
+          const node = mostEnclosiveCstNodeByStartOffset[startOffset];
+          const ignoreNode =
+            node.name === "blockStatements"
+              ? node.children.blockStatement[0]
+              : node;
+          ignoreNode.ignore = true;
           break;
         }
       }
