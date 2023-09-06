@@ -208,6 +208,26 @@ public class Lambda {
             return f;
         }, g);
     }
+
+    void lambdaWithLeadingComments() {
+        System.out.println(
+            List.of(1, 2, 3).stream().map(
+                // a very long comment which explains the beatifullness of multiplication by 2
+                // yes this is very important
+                v -> v * 2
+            ).collect(Collectors.summingInt(v -> v))
+        );
+    }
+
+    void lambdaWithTrailingComments() {
+        System.out.println(
+            List.of(1, 2, 3).stream().map(
+                v -> v * 2
+                // a very long comment which explains the beatifullness of multiplication by 2
+                // yes this is very important
+            ).collect(Collectors.summingInt(v -> v))
+        );
+    }
 }
 
 class T {

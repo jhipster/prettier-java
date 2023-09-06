@@ -54,7 +54,6 @@ import forEach from "lodash/forEach.js";
 import { builders } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import { isAnnotationCstNode } from "../types/utils.js";
-import { isArgumentListHuggable } from "../utils/expressions-utils.js";
 import { printArgumentListWithBraces } from "../utils/index.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
 import { handleCommentsBinaryExpression } from "./comments/handle-comments.js";
@@ -625,7 +624,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     );
   }
 
-  argumentList(ctx: ArgumentListCtx, params?: { shouldBreak?: boolean }) {
+  argumentList(
+    ctx: ArgumentListCtx,
+    params?: { isHuggable?: boolean; shouldBreak?: boolean }
+  ) {
     const shouldBreak = params?.shouldBreak;
     const expressions = this.mapVisit(ctx.expression, params);
 
@@ -635,7 +637,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const commas = ctx.Comma?.map(comma => concat([comma, commaSuffix]));
     const otherArguments = rejectAndJoinSeps(commas, expressions);
 
-    if (lastArgument && isArgumentListHuggable(ctx)) {
+    if (lastArgument && params?.isHuggable) {
       const argumentListGroupId = Symbol("argumentList");
       const separator =
         shouldBreak === true ? hardline : shouldBreak === false ? "" : softline;
