@@ -13,6 +13,10 @@ class T {
         return formatted;
     }
 
+    public boolean test(final Object obj) {
+        return obj instanceof final Integer x && (x == 5 || x == 6 || x == 7 || x == 8 || x == 9 || x == 10 || x == 11);
+    }
+
     void test(Buyer other) {
         return switch (other) {
             case null -> true;

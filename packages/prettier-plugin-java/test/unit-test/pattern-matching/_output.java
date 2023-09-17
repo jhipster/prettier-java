@@ -19,6 +19,13 @@ class T {
     return formatted;
   }
 
+  public boolean test(final Object obj) {
+    return (
+      obj instanceof final Integer x &&
+      (x == 5 || x == 6 || x == 7 || x == 8 || x == 9 || x == 10 || x == 11)
+    );
+  }
+
   void test(Buyer other) {
     return switch (other) {
       case null -> true;
@@ -39,20 +46,16 @@ class T {
         this.bestPrice > b.bestPrice -> {
         return true;
       }
-      case (
-          Buyer b &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice
-        ) -> true;
-      case (
-          Buyer b &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice &&
-          this.bestPrice > b.bestPrice
-        ) -> {
+      case (Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice) -> true;
+      case (Buyer b &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice &&
+        this.bestPrice > b.bestPrice) -> {
         return true;
       }
       default -> false;

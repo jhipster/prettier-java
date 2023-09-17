@@ -715,19 +715,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   pattern(ctx: PatternCtx) {
-    const primaryPattern = this.visit(ctx.primaryPattern);
-    if (ctx.AndAnd === undefined) {
-      return primaryPattern;
-    }
-
-    const binaryExpression = this.visit(ctx.binaryExpression);
-    return rejectAndConcat([
-      primaryPattern,
-      " ",
-      ctx.AndAnd[0],
-      line,
-      binaryExpression
-    ]);
+    return this.visit(ctx.primaryPattern);
   }
 
   primaryPattern(ctx: PrimaryPatternCtx) {

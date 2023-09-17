@@ -3498,8 +3498,6 @@ export interface PatternCstNode extends CstNode {
 
 export type PatternCtx = {
   primaryPattern: PrimaryPatternCstNode[];
-  AndAnd?: IToken[];
-  binaryExpression?: BinaryExpressionCstNode[];
 };
 
 export interface PrimaryPatternCstNode extends CstNode {

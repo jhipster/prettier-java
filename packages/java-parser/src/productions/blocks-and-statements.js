@@ -245,10 +245,6 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Null) },
       { ALT: () => $.CONSUME(t.Default) },
       {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
-        ALT: () => $.SUBRULE($.pattern)
-      },
-      {
         GATE: () => tokenMatcher($.LA(1).tokenType, t.Null) === false,
         ALT: () => $.SUBRULE($.caseConstant)
       }

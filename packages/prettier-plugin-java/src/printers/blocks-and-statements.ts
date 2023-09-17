@@ -336,7 +336,12 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   caseConstant(ctx: CaseConstantCtx) {
-    return this.visitSingle(ctx);
+    const constant = this.visitSingle(ctx);
+    const isParenthesisExpression =
+      ctx.ternaryExpression[0].children.binaryExpression[0].children
+        .unaryExpression?.[0].children.primary[0].children.primaryPrefix[0]
+        .children.parenthesisExpression !== undefined;
+    return isParenthesisExpression ? dedent(constant) : constant;
   }
 
   whileStatement(ctx: WhileStatementCtx) {

@@ -116,17 +116,23 @@ function defineRules($, t) {
   });
 
   $.RULE("binaryExpression", () => {
-    $.SUBRULE($.unaryExpression);
+    $.OR([
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
+        ALT: () => $.SUBRULE($.pattern)
+      },
+      { ALT: () => $.SUBRULE($.unaryExpression) }
+    ]);
     $.MANY(() => {
-      $.OR({
+      $.OR1({
         DEF: [
           {
             ALT: () => {
               $.CONSUME(t.Instanceof);
-              $.OR1([
+              $.OR2([
                 {
                   GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
-                  ALT: () => $.SUBRULE($.pattern)
+                  ALT: () => $.SUBRULE2($.pattern)
                 },
                 {
                   ALT: () => $.SUBRULE($.referenceType)
@@ -150,7 +156,7 @@ function defineRules($, t) {
               tokenMatcher($.LA(2).tokenType, t.Less) ||
               tokenMatcher($.LA(2).tokenType, t.Greater),
             ALT: () => {
-              $.OR2([
+              $.OR3([
                 {
                   GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
                   ALT: () => {
@@ -563,10 +569,6 @@ function defineRules($, t) {
 
   $.RULE("pattern", () => {
     $.SUBRULE($.primaryPattern);
-    $.OPTION(() => {
-      $.CONSUME(t.AndAnd);
-      $.SUBRULE($.binaryExpression);
-    });
   });
 
   $.RULE("primaryPattern", () => {
