@@ -359,11 +359,23 @@ function defineRules($, t) {
   $.RULE("methodDeclarator", () => {
     $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
-    $.OPTION(() => {
+    $.OPTION({
+      // a "formalParameterList" and a "receiverParameter"
+      // cannot be distinguished using fixed lookahead.
+      GATE: $.BACKTRACK($.receiverParameter),
+      DEF: () => {
+        $.SUBRULE($.receiverParameter);
+        $.OPTION2({
+          GATE: () => $.LA(1).tokenType !== t.RBrace,
+          DEF: () => $.CONSUME(t.Comma)
+        });
+      }
+    });
+    $.OPTION3(() => {
       $.SUBRULE($.formalParameterList);
     });
     $.CONSUME(t.RBrace);
-    $.OPTION2(() => {
+    $.OPTION4(() => {
       $.SUBRULE($.dims);
     });
   });
@@ -508,10 +520,13 @@ function defineRules($, t) {
       GATE: $.BACKTRACK($.receiverParameter),
       DEF: () => {
         $.SUBRULE($.receiverParameter);
-        $.CONSUME(t.Comma);
+        $.OPTION3({
+          GATE: () => $.LA(1).tokenType !== t.RBrace,
+          DEF: () => $.CONSUME(t.Comma)
+        });
       }
     });
-    $.OPTION3(() => {
+    $.OPTION4(() => {
       $.SUBRULE($.formalParameterList);
     });
     $.CONSUME(t.RBrace);

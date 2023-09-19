@@ -99,4 +99,19 @@ describe("The Java Parser fixed bugs", () => {
       expect(() => javaParser.parse(input, "statement")).to.not.throw();
     });
   });
+
+  it("issue #607 - should support receiver parameter", () => {
+    const input = `
+      class Foo {
+          public Foo(Foo this) {}
+          public Foo(Foo this, int x) {}
+          public void bar(Foo this) {}
+          public void bar(Foo this, int y) {}
+          public void baz(@SomeAnnot Foo this) {}
+          public void baz(@SomeAnnot Foo this, int y) {}
+      }
+    `;
+
+    expect(() => javaParser.parse(input, "classDeclaration")).to.not.throw();
+  });
 });
