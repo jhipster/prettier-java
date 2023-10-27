@@ -9,65 +9,65 @@ const samplesDir = path.resolve(__dirname, "../samples");
 const core = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
-    repoUrl: "https://github.com/jhipster/jhipster",
-    branch: "main"
+    repoUrl: "https://github.com/jhipster/jhipster-bom",
+    branch: "8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/spring-projects/spring-boot.git",
-    branch: "v2.1.0.RELEASE"
+    branch: "v3.1.5"
   },
   {
     repoUrl: "https://github.com/iluwatar/java-design-patterns.git",
-    branch: "1.20.0"
+    branch: "1.25.0"
   }
 ];
 
 const jhipster1 = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-microservice",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-oauth2",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-websocket",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-noi18n",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-hazelcast",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   }
 ];
 
 const jhipster2 = [
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-elasticsearch",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-dto",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-cassandra",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-mongodb",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   },
   {
     repoUrl: "https://github.com/jhipster/jhipster-sample-app-react",
-    branch: "v7.9.3"
+    branch: "v8.0.0-rc.1"
   }
 ];
 

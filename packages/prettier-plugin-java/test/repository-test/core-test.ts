@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import { testRepositorySample } from "../test-utils";
 
-const jhipsterRepository = ["jhipster", "jhipster-sample-app"];
+const jhipsterRepository = ["jhipster-bom", "jhipster-sample-app"];
 
 describe("prettier-java", () => {
   testRepositorySample(
@@ -12,8 +12,8 @@ describe("prettier-java", () => {
 
   testRepositorySample(
     resolve(__dirname, "../../samples/spring-boot"),
-    "./mvnw",
-    ["clean", "install", "-Ddisable.checks", "-DskipTests"]
+    "./gradlew",
+    ["clean", "build", "-Ddisable.checks", "-xtest", "--no-scan"]
   );
 
   jhipsterRepository.forEach(repository => {

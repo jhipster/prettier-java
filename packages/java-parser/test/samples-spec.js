@@ -11,7 +11,7 @@ describe("The Java Parser", () => {
   createSampleSpecs("java-design-patterns");
   createSampleSpecs("spring-boot");
   createSampleSpecs("spring-framework");
-  createSampleSpecs("jhipster");
+  createSampleSpecs("jhipster-bom");
   createSampleSpecs("jhipster-online");
   createSampleSpecs("jhipster-sample-app");
   createSampleSpecs("jhipster-sample-app-cassandra");

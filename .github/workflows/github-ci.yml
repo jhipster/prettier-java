@@ -8,17 +8,17 @@ jobs:
     strategy:
       matrix:
         node_version:
-          - 14.x
-          - 16.x
           - 18.x
+          - 20.x
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
-          java-version: '11.x'
+          java-version: 17.x
+          distribution: zulu
       - name: Install dependencies
         run: yarn
       - name: Run CI
@@ -33,15 +33,16 @@ jobs:
         test_repository:
           - e2e-jhipster1
           - e2e-jhipster2
-        node_version: [14.x]
+        node_version: [18.x]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
-          java-version: '11.x'
+          java-version: 17.x
+          distribution: zulu
       - name: Install dependencies
         run: yarn
       - name: Build prettier-plugin-java
