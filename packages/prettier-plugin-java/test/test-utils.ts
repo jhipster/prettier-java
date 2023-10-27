@@ -115,7 +115,8 @@ export function testRepositorySample(
       });
       if (code.status !== 0) {
         expect.fail(
-          `Cannot build ${testFolder}, please check the output below:\n ${code.stdout.toString()}`
+          `Cannot build ${testFolder}, please check the output below:\n` +
+            code.error ?? code.stderr
         );
       }
     });
