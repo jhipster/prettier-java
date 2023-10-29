@@ -1969,9 +1969,11 @@ export interface TypeDeclarationCstNode extends CstNode {
 }
 
 export type TypeDeclarationCtx = {
+  Semicolon?: IToken[];
   classDeclaration?: ClassDeclarationCstNode[];
   interfaceDeclaration?: InterfaceDeclarationCstNode[];
-  Semicolon?: IToken[];
+  fieldDeclaration?: FieldDeclarationCstNode[];
+  methodDeclaration?: MethodDeclarationCstNode[];
 };
 
 export interface ModuleDeclarationCstNode extends CstNode {
