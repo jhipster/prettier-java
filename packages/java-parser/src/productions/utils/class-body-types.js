@@ -14,4 +14,4 @@ const classBodyTypes = {
 
 module.exports = {
   classBodyTypes
-}
+};

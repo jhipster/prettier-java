@@ -3,7 +3,6 @@ const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
 const { classBodyTypes } = require("./utils/class-body-types");
 
 function defineRules($, t) {
-
   /**
    * Spec Deviation: As OrdinaryCompilationUnit and UnnamedClassCompilationUnit
    * both can have multiple class or interface declarations, both were combined
@@ -103,7 +102,6 @@ function defineRules($, t) {
       }
     ]);
   });
-
 
   /**
    * Spec Deviation: As OrdinaryCompilationUnit and UnnamedClassCompilationUnit
