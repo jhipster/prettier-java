@@ -10,6 +10,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println("Hello, World!");
       }
     `;
+    javaParser.parse(input, "compilationUnit");
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
@@ -19,7 +20,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println("Hello, World!");
       }
     `;
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with fields", () => {
@@ -32,7 +33,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println(hourra);
       }
     `;
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with class declaration", () => {
@@ -43,7 +44,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println(Test.greetings());
       }
     `;
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with interface declaration", () => {
@@ -54,7 +55,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println(Test.greetings());
       }
     `;
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with semicolons", () => {
@@ -65,7 +66,7 @@ describe("Unnamed Class Compilation Unit", () => {
           System.out.println("Hello World!");
       }
     `;
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with class member declarations", () => {
@@ -77,7 +78,7 @@ describe("Unnamed Class Compilation Unit", () => {
       }
     `;
 
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 
   it("should handle UnnamedClassCompilationUnit with imports", () => {
@@ -90,6 +91,6 @@ describe("Unnamed Class Compilation Unit", () => {
       }
     `;
 
-    expect(() => javaParser.parse(input, "unnamedClassCompilationUnit")).to.not.throw();
+    expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
   });
 });
