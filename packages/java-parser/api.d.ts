@@ -375,8 +375,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
-  primaryPattern(ctx: PrimaryPatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
+  recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
+  patternList(ctx: PatternListCtx, param?: IN): OUT;
+  guard(ctx: GuardCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
@@ -731,8 +733,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
-  primaryPattern(ctx: PrimaryPatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
+  recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
+  patternList(ctx: PatternListCtx, param?: IN): OUT;
+  guard(ctx: GuardCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
   isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
@@ -2663,6 +2667,7 @@ export type CaseLabelElementCtx = {
   Null?: IToken[];
   Default?: IToken[];
   pattern?: PatternCstNode[];
+  guard?: GuardCstNode[];
   caseConstant?: CaseConstantCstNode[];
 };
 
@@ -3497,21 +3502,8 @@ export interface PatternCstNode extends CstNode {
 }
 
 export type PatternCtx = {
-  primaryPattern: PrimaryPatternCstNode[];
-  AndAnd?: IToken[];
-  binaryExpression?: BinaryExpressionCstNode[];
-};
-
-export interface PrimaryPatternCstNode extends CstNode {
-  name: "primaryPattern";
-  children: PrimaryPatternCtx;
-}
-
-export type PrimaryPatternCtx = {
-  LBrace?: IToken[];
-  pattern?: PatternCstNode[];
-  RBrace?: IToken[];
   typePattern?: TypePatternCstNode[];
+  recordPattern?: RecordPatternCstNode[];
 };
 
 export interface TypePatternCstNode extends CstNode {
@@ -3521,6 +3513,38 @@ export interface TypePatternCstNode extends CstNode {
 
 export type TypePatternCtx = {
   localVariableDeclaration: LocalVariableDeclarationCstNode[];
+};
+
+export interface RecordPatternCstNode extends CstNode {
+  name: "recordPattern";
+  children: RecordPatternCtx;
+}
+
+export type RecordPatternCtx = {
+  referenceType: ReferenceTypeCstNode[];
+  LBrace: IToken[];
+  patternList?: PatternListCstNode[];
+  RBrace: IToken[];
+};
+
+export interface PatternListCstNode extends CstNode {
+  name: "patternList";
+  children: PatternListCtx;
+}
+
+export type PatternListCtx = {
+  pattern: PatternCstNode[];
+  Comma?: IToken[];
+};
+
+export interface GuardCstNode extends CstNode {
+  name: "guard";
+  children: GuardCtx;
+}
+
+export type GuardCtx = {
+  When: IToken[];
+  expression: ExpressionCstNode[];
 };
 
 export interface IdentifyNewExpressionTypeCstNode extends CstNode {

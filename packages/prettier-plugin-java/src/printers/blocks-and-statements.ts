@@ -316,8 +316,12 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   caseLabelElement(ctx: CaseLabelElementCtx) {
     if (ctx.Default || ctx.Null) {
       return this.getSingle(ctx);
+    } else if (ctx.pattern) {
+      const pattern = this.visit(ctx.pattern);
+      const guard = this.visit(ctx.guard);
+      return rejectAndJoin(" ", [dedent(pattern), guard]);
     }
-    return this.visitSingle(ctx);
+    return this.visit(ctx.caseConstant);
   }
 
   switchRule(ctx: SwitchRuleCtx) {
@@ -332,7 +336,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
       caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon![0]]);
     }
 
-    return join(" ", [switchLabel, ctx.Arrow[0], caseInstruction]);
+    return concat([switchLabel, " ", ctx.Arrow[0], " ", caseInstruction]);
   }
 
   caseConstant(ctx: CaseConstantCtx) {

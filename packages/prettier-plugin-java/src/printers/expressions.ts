@@ -19,6 +19,7 @@ import {
   FqnOrRefTypePartCommonCtx,
   FqnOrRefTypePartFirstCtx,
   FqnOrRefTypePartRestCtx,
+  GuardCtx,
   InferredLambdaParameterListCtx,
   IToken,
   LambdaBodyCtx,
@@ -33,11 +34,12 @@ import {
   NewExpressionCtx,
   ParenthesisExpressionCtx,
   PatternCtx,
+  PatternListCtx,
   PrimaryCtx,
-  PrimaryPatternCtx,
   PrimaryPrefixCtx,
   PrimarySuffixCtx,
   PrimitiveCastExpressionCtx,
+  RecordPatternCtx,
   ReferenceTypeCastExpressionCtx,
   RegularLambdaParameterCtx,
   TernaryExpressionCtx,
@@ -715,32 +717,34 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   pattern(ctx: PatternCtx) {
-    const primaryPattern = this.visit(ctx.primaryPattern);
-    if (ctx.AndAnd === undefined) {
-      return primaryPattern;
-    }
-
-    const binaryExpression = this.visit(ctx.binaryExpression);
-    return rejectAndConcat([
-      primaryPattern,
-      " ",
-      ctx.AndAnd[0],
-      line,
-      binaryExpression
-    ]);
-  }
-
-  primaryPattern(ctx: PrimaryPatternCtx) {
-    if (ctx.LBrace === undefined) {
-      return this.visitSingle(ctx);
-    }
-
-    const pattern = this.visit(ctx.pattern);
-    return putIntoBraces(pattern, softline, ctx.LBrace[0], ctx.RBrace![0]);
+    return this.visitSingle(ctx);
   }
 
   typePattern(ctx: TypePatternCtx) {
     return this.visitSingle(ctx);
+  }
+
+  recordPattern(ctx: RecordPatternCtx) {
+    const referenceType = this.visit(ctx.referenceType);
+    const patternList = this.visit(ctx.patternList);
+    return concat([
+      referenceType,
+      putIntoBraces(patternList, softline, ctx.LBrace[0], ctx.RBrace[0])
+    ]);
+  }
+
+  patternList(ctx: PatternListCtx) {
+    const patterns = this.mapVisit(ctx.pattern);
+    const commas = ctx.Comma?.map(elt => concat([elt, line])) ?? [];
+    return rejectAndJoinSeps(commas, patterns);
+  }
+
+  guard(ctx: GuardCtx) {
+    const expression = this.visit(ctx.expression, {
+      addParenthesisToWrapStatement: true
+    });
+
+    return concat([ctx.When[0], " ", dedent(expression)]);
   }
 
   identifyNewExpressionType() {

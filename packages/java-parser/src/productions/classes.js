@@ -202,9 +202,13 @@ function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-VariableDeclaratorList
   $.RULE("variableDeclaratorList", () => {
     $.SUBRULE($.variableDeclarator);
-    $.MANY(() => {
-      $.CONSUME(t.Comma);
-      $.SUBRULE2($.variableDeclarator);
+    $.MANY({
+      // required to distinguish from patternList
+      GATE: () => !tokenMatcher(this.LA(3).tokenType, t.Identifier),
+      DEF: () => {
+        $.CONSUME(t.Comma);
+        $.SUBRULE2($.variableDeclarator);
+      }
     });
   });
 
