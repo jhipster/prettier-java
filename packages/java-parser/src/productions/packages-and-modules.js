@@ -1,5 +1,6 @@
 "use strict";
 const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
+const { classBodyTypes } = require("./utils/class-body-types");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#CompilationUnit
@@ -224,6 +225,46 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Transitive) },
       { ALT: () => $.CONSUME(t.Static) }
     ]);
+  });
+
+  $.RULE("unnamedClassCompilationUnit", () => {
+    $.MANY(() => $.SUBRULE($.importDeclaration));
+
+    const nextRuleType = $.BACKTRACK_LOOKAHEAD(
+      $.identifyClassBodyDeclarationType
+    );
+    $.MANY1({
+      GATE: () => nextRuleType !== classBodyTypes.methodDeclaration,
+      DEF: () => $.SUBRULE($.classMemberDeclarationNoMethod, {
+        ARGS: [nextRuleType]
+      })
+    });
+    $.SUBRULE($.methodDeclaration);
+    $.MANY2(() => {
+      const nextRuleType = $.BACKTRACK_LOOKAHEAD($.identifyClassBodyDeclarationType);
+      $.SUBRULE($.classMemberDeclaration, {
+        ARGS: [nextRuleType]
+      });
+    });
+  });
+
+  $.RULE("classMemberDeclarationNoMethod", nextRuleType => {
+    $.OR([
+      {
+        GATE: () => nextRuleType === classBodyTypes.fieldDeclaration,
+        ALT: () => $.SUBRULE($.fieldDeclaration)
+      },
+      {
+        GATE: () => nextRuleType === classBodyTypes.classDeclaration,
+        ALT: () => $.SUBRULE($.classDeclaration)
+      },
+      { ALT: () => $.CONSUME(t.Semicolon) },
+      {
+        GATE: () => nextRuleType === classBodyTypes.interfaceDeclaration,
+        ALT: () => $.SUBRULE($.interfaceDeclaration)
+      }
+    ]);
+
   });
 
   $.RULE("isModuleCompilationUnit", () => {

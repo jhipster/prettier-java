@@ -1,6 +1,7 @@
 "use strict";
 
 const { isRecognitionException, tokenMatcher } = require("chevrotain");
+const { classBodyTypes } = require("./utils/class-body-types");
 
 function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassDeclaration
@@ -109,18 +110,6 @@ function defineRules($, t) {
     });
     $.CONSUME(t.RCurly);
   });
-
-  const classBodyTypes = {
-    unknown: 0,
-    fieldDeclaration: 1,
-    methodDeclaration: 2,
-    classDeclaration: 3,
-    interfaceDeclaration: 4,
-    semiColon: 5,
-    instanceInitializer: 6,
-    staticInitializer: 7,
-    constructorDeclaration: 8
-  };
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassBodyDeclaration
   $.RULE("classBodyDeclaration", () => {
