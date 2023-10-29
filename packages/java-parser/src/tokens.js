@@ -237,7 +237,7 @@ createToken({
   pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
 });
 
-// https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.9
+// https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html#jls-3.9
 // TODO: how to handle the special rule (see spec above) for "requires" and "transitive"
 const restrictedKeywords = [
   "open",
@@ -249,6 +249,7 @@ const restrictedKeywords = [
   "to",
   "uses",
   "provides",
+  "when",
   "with",
   "sealed",
   "non-sealed",

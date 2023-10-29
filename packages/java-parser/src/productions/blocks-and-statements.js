@@ -246,7 +246,12 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.Default) },
       {
         GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
-        ALT: () => $.SUBRULE($.pattern)
+        ALT: () => {
+          $.SUBRULE($.pattern);
+          $.OPTION(() => {
+            $.SUBRULE($.guard);
+          });
+        }
       },
       {
         GATE: () => tokenMatcher($.LA(1).tokenType, t.Null) === false,

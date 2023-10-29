@@ -561,31 +561,47 @@ function defineRules($, t) {
     ]);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Pattern
   $.RULE("pattern", () => {
-    $.SUBRULE($.primaryPattern);
-    $.OPTION(() => {
-      $.CONSUME(t.AndAnd);
-      $.SUBRULE($.binaryExpression);
-    });
-  });
-
-  $.RULE("primaryPattern", () => {
     $.OR([
       {
-        ALT: () => {
-          $.CONSUME(t.LBrace);
-          $.SUBRULE($.pattern);
-          $.CONSUME(t.RBrace);
-        }
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.typePattern),
+        ALT: () => $.SUBRULE($.typePattern)
       },
       {
-        ALT: () => $.SUBRULE($.typePattern)
+        ALT: () => $.SUBRULE($.recordPattern)
       }
     ]);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-TypePattern
   $.RULE("typePattern", () => {
     $.SUBRULE($.localVariableDeclaration);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-RecordPattern
+  $.RULE("recordPattern", () => {
+    $.SUBRULE($.referenceType);
+    $.CONSUME(t.LBrace);
+    $.OPTION(() => {
+      $.SUBRULE($.patternList);
+    });
+    $.CONSUME(t.RBrace);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-PatternList
+  $.RULE("patternList", () => {
+    $.SUBRULE($.pattern);
+    $.MANY(() => {
+      $.CONSUME(t.Comma);
+      $.SUBRULE2($.pattern);
+    });
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Guard
+  $.RULE("guard", () => {
+    $.CONSUME(t.When);
+    $.SUBRULE($.expression);
   });
 
   // backtracking lookahead logic

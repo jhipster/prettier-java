@@ -41,12 +41,17 @@ describe("Pattern matching", () => {
       public boolean hasBestOffer(Buyer other) {
           return switch (other) {
             case null -> true;
-            case Buyer b && this.bestPrice > b.bestPrice -> true;
+            case Buyer b when this.bestPrice > b.bestPrice -> true;
             default -> false;
           };
         }
     }
     `;
     expect(() => javaParser.parse(input, "compilationUnit")).to.not.throw();
+  });
+
+  it("should parse pattern list", () => {
+    const input = `A a, B b`;
+    expect(() => javaParser.parse(input, "patternList")).to.not.throw();
   });
 });
