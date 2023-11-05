@@ -1,12 +1,10 @@
-"use strict";
-
 import { builders } from "prettier/doc";
-import { concat, dedent, group, indent, join } from "./prettier-builder";
-import { printTokenWithComments } from "./comments/format-comments";
+import { concat, dedent, group, indent, join } from "./prettier-builder.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   hasLeadingLineComments,
   hasTrailingLineComments
-} from "./comments/comments-utils";
+} from "./comments/comments-utils.js";
 import {
   displaySemicolon,
   getBlankLinesSeparator,
@@ -17,8 +15,8 @@ import {
   rejectAndJoinSeps,
   rejectSeparators,
   sortModifiers
-} from "./printer-utils";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+} from "./printer-utils.js";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   AssertStatementCtx,
   BasicForStatementCtx,

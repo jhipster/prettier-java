@@ -1,8 +1,6 @@
-"use strict";
-
-import { buildFqn } from "./printer-utils";
-import { printTokenWithComments } from "./comments/format-comments";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { buildFqn } from "./printer-utils.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   AmbiguousNameCtx,
   ExpressionNameCtx,

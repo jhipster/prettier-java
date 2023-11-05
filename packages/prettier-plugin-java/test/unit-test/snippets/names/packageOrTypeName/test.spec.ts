@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../../test-utils";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
 
 describe("PackageOrTypeName", () => {
   it("can format a PackageOrTypeName without dots", () => {

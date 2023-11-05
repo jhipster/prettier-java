@@ -1,5 +1,3 @@
-"use strict";
-
 import {
   ArgumentListCtx,
   ArrayAccessSuffixCtx,
@@ -52,18 +50,18 @@ import {
   UnqualifiedClassInstanceCreationExpressionCtx
 } from "java-parser/api";
 
-import forEach from "lodash/forEach";
+import forEach from "lodash/forEach.js";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
-import { isAnnotationCstNode } from "../types/utils";
-import { isArgumentListSingleLambda } from "../utils/expressions-utils";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
+import { isAnnotationCstNode } from "../types/utils.js";
+import { isArgumentListSingleLambda } from "../utils/expressions-utils.js";
 import {
   printSingleLambdaInvocation,
   printArgumentListWithBraces
-} from "../utils";
-import { printTokenWithComments } from "./comments/format-comments";
-import { handleCommentsBinaryExpression } from "./comments/handle-comments";
-import { concat, dedent, group, indent } from "./prettier-builder";
+} from "../utils/index.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
+import { handleCommentsBinaryExpression } from "./comments/handle-comments.js";
+import { concat, dedent, group, indent } from "./prettier-builder.js";
 import {
   binary,
   findDeepElementInPartsArray,
@@ -76,7 +74,7 @@ import {
   sortAnnotationIdentifier,
   sortNodes,
   sortTokens
-} from "./printer-utils";
+} from "./printer-utils.js";
 
 const { ifBreak, line, softline, indentIfBreak } = builders;
 

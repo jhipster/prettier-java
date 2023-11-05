@@ -1,9 +1,9 @@
 import { builders } from "prettier/doc";
 import { CstElement, CstNode, IToken } from "java-parser";
 import { CstNodeLocation } from "@chevrotain/types";
-import { isCstElementOrUndefinedIToken } from "../../types/utils";
+import { isCstElementOrUndefinedIToken } from "../../types/utils.js";
 import { Doc } from "prettier";
-import isEmptyDoc from "../../utils/isEmptyDoc";
+import isEmptyDoc from "../../utils/isEmptyDoc.js";
 
 const { hardline, lineSuffix, breakParent, literalline } = builders;
 
@@ -98,7 +98,7 @@ function getLeadingComments(
       previousEndLine = nodeOrToken.leadingComments[i].endLine;
     }
 
-    step = location.startLine - previousEndLine;
+    step = location.startLine! - previousEndLine;
     if (
       step === 1 ||
       nodeOrToken.leadingComments[nodeOrToken.leadingComments.length - 1]

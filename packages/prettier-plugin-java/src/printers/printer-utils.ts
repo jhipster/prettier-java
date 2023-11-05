@@ -13,26 +13,26 @@ import {
   MethodModifierCstNode,
   TypeArgumentsCstNode
 } from "java-parser";
-import findIndex from "lodash/findIndex";
-import findLastIndex from "lodash/findLastIndex";
-import forEach from "lodash/forEach";
-import forEachRight from "lodash/forEachRight";
-import includes from "lodash/includes";
+import findIndex from "lodash/findIndex.js";
+import findLastIndex from "lodash/findLastIndex.js";
+import forEach from "lodash/forEach.js";
+import forEachRight from "lodash/forEachRight.js";
+import includes from "lodash/includes.js";
 import { Doc, doc } from "prettier";
 import { builders } from "prettier/doc";
-import { isCstNode } from "../types/utils";
-import { isEmptyDoc } from "../utils";
+import { isCstNode } from "../types/utils.js";
+import { isEmptyDoc } from "../utils/index.js";
 import {
   hasComments,
   hasLeadingComments,
   hasTrailingComments
-} from "./comments/comments-utils";
+} from "./comments/comments-utils.js";
 import {
   getTokenLeadingComments,
   printTokenWithComments
-} from "./comments/format-comments";
+} from "./comments/format-comments.js";
 
-import { concat, group, ifBreak, join } from "./prettier-builder";
+import { concat, group, ifBreak, join } from "./prettier-builder.js";
 import Indent = builders.Indent;
 import IfBreak = builders.IfBreak;
 
@@ -333,7 +333,7 @@ export function getBlankLinesSeparator(
       ? nextNode.leadingComments[0].startLine
       : nextNode.location.startLine;
 
-    if (nextRuleStartLineWithComment - previousRuleEndLineWithComment > 1) {
+    if (nextRuleStartLineWithComment! - previousRuleEndLineWithComment > 1) {
       separators.push([hardline, hardline]);
     } else {
       separators.push(separator);

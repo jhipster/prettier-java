@@ -1,6 +1,4 @@
-"use strict";
-
-const findLast = require("lodash/findLast");
+import findLast from "lodash/findLast.js";
 
 /**
  * Search where is the position of the comment in the token array by
@@ -165,7 +163,7 @@ function shouldAttachTrailingComments(
  * @param {{[startOffset: number]: CSTNode}} mostEnclosiveCstNodeByStartOffset
  * @param {{[endOffset: number]: CSTNode}} mostEnclosiveCstNodeByEndOffset
  */
-function attachComments(
+export function attachComments(
   tokens,
   comments,
   mostEnclosiveCstNodeByStartOffset,
@@ -256,7 +254,7 @@ function attachComments(
  * @param comments
  * @returns pairs of formatter:off and formatter:on
  */
-function matchFormatterOffOnPairs(comments) {
+export function matchFormatterOffOnPairs(comments) {
   const onOffComments = comments.filter(comment =>
     isFormatterOffOnComment(comment)
   );
@@ -295,7 +293,7 @@ function matchFormatterOffOnPairs(comments) {
  * @param node
  * @param commentPairs
  */
-function shouldNotFormat(node, commentPairs) {
+export function shouldNotFormat(node, commentPairs) {
   const matchingPair = findLast(
     commentPairs,
     comment => comment.off.endOffset < node.location.startOffset
@@ -308,9 +306,3 @@ function shouldNotFormat(node, commentPairs) {
     node.ignore = true;
   }
 }
-
-module.exports = {
-  matchFormatterOffOnPairs,
-  shouldNotFormat,
-  attachComments
-};

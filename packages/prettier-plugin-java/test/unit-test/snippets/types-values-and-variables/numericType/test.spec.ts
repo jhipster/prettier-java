@@ -1,6 +1,6 @@
-import { BaseCstPrettierPrinter } from "../../../../../src/base-cst-printer";
+import { BaseCstPrettierPrinter } from "../../../../../src/base-cst-printer.js";
 import { assert, spy } from "sinon";
-import { formatJavaSnippet } from "../../../../test-utils";
+import { formatJavaSnippet } from "../../../../test-utils.js";
 
 describe("numericType", () => {
   let integralTypeSpy: any;

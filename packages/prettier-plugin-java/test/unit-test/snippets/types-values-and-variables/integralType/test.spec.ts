@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../../test-utils";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
 
 describe("integralType", () => {
   it("can format byte keyword", () => {

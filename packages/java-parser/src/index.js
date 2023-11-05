@@ -1,15 +1,14 @@
-"use strict";
-const JavaLexer = require("./lexer");
-const JavaParser = require("./parser");
-const { attachComments, matchFormatterOffOnPairs } = require("./comments");
+import JavaLexer from "./lexer.js";
+import JavaParser from "./parser.js";
+import { attachComments, matchFormatterOffOnPairs } from "./comments.js";
 
 const parser = new JavaParser();
 
-const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
-const BaseJavaCstVisitorWithDefaults =
+export const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
+export const BaseJavaCstVisitorWithDefaults =
   parser.getBaseCstVisitorConstructorWithDefaults();
 
-function lexAndParse(inputText, entryPoint = "compilationUnit") {
+export function lexAndParse(inputText, entryPoint = "compilationUnit") {
   // Lex
   const lexResult = JavaLexer.tokenize(inputText);
 
@@ -61,11 +60,11 @@ function lexAndParse(inputText, entryPoint = "compilationUnit") {
   return { cst, tokens };
 }
 
-function parse(inputText, entryPoint = "compilationUnit") {
+export function parse(inputText, entryPoint = "compilationUnit") {
   return lexAndParse(inputText, entryPoint).cst;
 }
 
-module.exports = {
+export default {
   lexAndParse,
   parse,
   BaseJavaCstVisitor,

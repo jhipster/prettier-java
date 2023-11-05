@@ -1,6 +1,5 @@
-"use strict";
-const { tokenMatcher } = require("chevrotain");
-function defineRules($, t) {
+import { tokenMatcher } from "chevrotain";
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-6.html#jls-ModuleName
   $.RULE("moduleName", () => {
     $.CONSUME(t.Identifier);
@@ -80,7 +79,3 @@ function defineRules($, t) {
     });
   });
 }
-
-module.exports = {
-  defineRules
-};

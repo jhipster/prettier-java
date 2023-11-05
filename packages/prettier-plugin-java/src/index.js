@@ -1,8 +1,6 @@
-"use strict";
-
-const parse = require("./parser");
-const print = require("./printer");
-const options = require("./options");
+import parse from "./parser.js";
+import print from "./printer.js";
+import options from "./options.js";
 
 const languages = [
   {
@@ -71,7 +69,7 @@ const printers = {
   }
 };
 
-module.exports = {
+export default {
   languages,
   printers,
   parsers,

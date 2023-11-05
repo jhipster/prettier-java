@@ -1,9 +1,9 @@
-"use strict";
 import { IToken } from "java-parser";
 import { builders } from "prettier/doc";
 import Doc = builders.Doc;
+import * as formatComments from "./comments/format-comments.js";
 
-const { processComments } = require("./comments/format-comments");
+const processComments = formatComments.processComments as any;
 /*
  * ------------------------------------------------------------------
  * Wraps the Prettier builder functions to print tokens with comments

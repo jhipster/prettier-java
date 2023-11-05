@@ -1,9 +1,7 @@
-"use strict";
+import { isRecognitionException, tokenMatcher } from "chevrotain";
+import { classBodyTypes } from "./utils/class-body-types.js";
 
-const { isRecognitionException, tokenMatcher } = require("chevrotain");
-const { classBodyTypes } = require("./utils/class-body-types");
-
-function defineRules($, t) {
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassDeclaration
   $.RULE("classDeclaration", () => {
     // Spec Deviation: extracted common "{classModifier}" prefix
@@ -944,7 +942,3 @@ function defineRules($, t) {
     $.CONSUME(t.LCurly);
   });
 }
-
-module.exports = {
-  defineRules
-};

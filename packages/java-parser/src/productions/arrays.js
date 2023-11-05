@@ -1,8 +1,6 @@
-"use strict";
+import { tokenMatcher } from "chevrotain";
 
-const { tokenMatcher } = require("chevrotain");
-
-function defineRules($, t) {
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-10.html#jls-ArrayInitializer
   $.RULE("arrayInitializer", () => {
     $.CONSUME(t.LCurly);
@@ -28,7 +26,3 @@ function defineRules($, t) {
     });
   });
 }
-
-module.exports = {
-  defineRules
-};

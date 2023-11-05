@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
-"use strict";
-const klawSync = require("klaw-sync");
-const path = require("path");
-const fs = require("fs-extra");
-const prettier = require("prettier");
+import klawSync from "klaw-sync";
+import path from "path";
+import fs from "fs-extra";
+import prettier from "prettier";
+import url from "url";
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const updateTestOutput = async () => {
   let samplesDir = path.resolve(__dirname, "../test/unit-test");

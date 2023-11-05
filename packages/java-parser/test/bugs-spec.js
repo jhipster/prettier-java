@@ -1,7 +1,5 @@
-"use strict";
-
-const { expect } = require("chai");
-const javaParser = require("../src/index");
+import { expect } from "chai";
+import * as javaParser from "../src/index.js";
 
 describe("The Java Parser fixed bugs", () => {
   it("issue #112 - Special handling of transitive keyword in module requires statement", () => {

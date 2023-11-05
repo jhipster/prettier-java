@@ -1,4 +1,4 @@
 {
   "extension": ["ts"],
-  "require": "test/babel-register.js"
+  "node-option": ["loader=ts-node/esm", "no-warnings"]
 }

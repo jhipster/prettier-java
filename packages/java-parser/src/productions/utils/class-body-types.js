@@ -1,6 +1,4 @@
-"use strict";
-
-const classBodyTypes = {
+export const classBodyTypes = {
   unknown: 0,
   fieldDeclaration: 1,
   methodDeclaration: 2,
@@ -10,8 +8,4 @@ const classBodyTypes = {
   instanceInitializer: 6,
   staticInitializer: 7,
   constructorDeclaration: 8
-};
-
-module.exports = {
-  classBodyTypes
 };

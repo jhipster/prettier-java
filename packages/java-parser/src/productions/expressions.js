@@ -1,6 +1,5 @@
-"use strict";
-const { tokenMatcher } = require("chevrotain");
-function defineRules($, t) {
+import { tokenMatcher } from "chevrotain";
+export function defineRules($, t) {
   $.RULE("expression", () => {
     $.OR([
       {
@@ -735,7 +734,7 @@ function defineRules($, t) {
   });
 }
 
-function computeFirstForUnaryExpressionNotPlusMinus() {
+export function computeFirstForUnaryExpressionNotPlusMinus() {
   const firstUnaryExpressionNotPlusMinus = this.computeContentAssist(
     "unaryExpressionNotPlusMinus",
     []
@@ -746,8 +745,3 @@ function computeFirstForUnaryExpressionNotPlusMinus() {
   // uniq
   return nextTokTypes.filter((v, i, a) => a.indexOf(v) === i);
 }
-
-module.exports = {
-  defineRules,
-  computeFirstForUnaryExpressionNotPlusMinus
-};

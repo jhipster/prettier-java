@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
-"use strict";
-const klawSync = require("klaw-sync");
-const path = require("path");
-const fs = require("fs");
-const javaParser = require("../src/index");
-const _ = require("lodash");
+import klawSync from "klaw-sync";
+import path from "path";
+import fs from "fs";
+import javaParser from "../src/index";
+import _ from "lodash";
 
 const options = {
   failFast: false,

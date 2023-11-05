@@ -1,9 +1,7 @@
 /**
  * This Script is used to debug the parsing of **small** code snippets.
  */
-"use strict";
-
-const javaParserChev = require("../src/index");
+import javaParserChev from "../src/index";
 
 const input = `
 @Anno byte @Nullable ... test

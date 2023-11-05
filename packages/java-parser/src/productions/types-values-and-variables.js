@@ -1,8 +1,6 @@
-"use strict";
+import { tokenMatcher } from "chevrotain";
 
-const { tokenMatcher } = require("chevrotain");
-
-function defineRules($, t) {
+export function defineRules($, t) {
   // ---------------------
   // Productions from §4 (Types, Values, and Variables)
   // ---------------------
@@ -230,7 +228,3 @@ function defineRules($, t) {
     $.SUBRULE($.referenceType);
   });
 }
-
-module.exports = {
-  defineRules
-};

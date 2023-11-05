@@ -1,8 +1,7 @@
-"use strict";
-const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
-const { classBodyTypes } = require("./utils/class-body-types");
+import { isRecognitionException, tokenMatcher, EOF } from "chevrotain";
+import { classBodyTypes } from "./utils/class-body-types.js";
 
-function defineRules($, t) {
+export function defineRules($, t) {
   /**
    * Spec Deviation: As OrdinaryCompilationUnit and UnnamedClassCompilationUnit
    * both can have multiple class or interface declarations, both were combined
@@ -297,7 +296,3 @@ function defineRules($, t) {
     );
   });
 }
-
-module.exports = {
-  defineRules
-};

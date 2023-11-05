@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../test-utils";
+import { expectSnippetToBeFormatted } from "../../../test-utils.js";
 
 describe("element Value Array Initializer", () => {
   it("can format a elementValueArrayInitializer", () => {

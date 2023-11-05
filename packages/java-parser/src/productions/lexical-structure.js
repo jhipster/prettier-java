@@ -1,5 +1,4 @@
-"use strict";
-function defineRules($, t) {
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-Literal
   $.RULE("literal", () => {
     $.OR([
@@ -36,7 +35,3 @@ function defineRules($, t) {
     $.OR([{ ALT: () => $.CONSUME(t.True) }, { ALT: () => $.CONSUME(t.False) }]);
   });
 }
-
-module.exports = {
-  defineRules
-};

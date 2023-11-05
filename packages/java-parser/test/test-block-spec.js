@@ -1,8 +1,6 @@
-"use strict";
+import { expect } from "chai";
 
-const { expect } = require("chai");
-
-const javaParser = require("../src/index");
+import * as javaParser from "../src/index.js";
 
 describe("The Java Parser should parse TextBlocks", () => {
   it("should not parse a one word 'TextBlock'", () => {

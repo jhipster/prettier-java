@@ -1,17 +1,9 @@
-"use strict";
-const { createToken: createTokenOrg, Lexer } = require("chevrotain");
-const camelCase = require("lodash/camelCase");
+import { createToken as createTokenOrg, Lexer } from "chevrotain";
+import camelCase from "lodash/camelCase.js";
+import * as chars from "./unicodesets.js";
 
-let chars;
 // A little mini DSL for easier lexer definition.
 const fragments = {};
-try {
-  chars = require("./unicodesets");
-} catch (e) {
-  throw Error(
-    "unicodesets.js file could not be found. Did you try to run the command: yarn run build ?"
-  );
-}
 
 function inlineFragments(def) {
   let inlinedDef = def;
@@ -531,7 +523,5 @@ function sortDescLength(arr) {
     return b.length - a.length;
   });
 }
-module.exports = {
-  allTokens,
-  tokens: tokenDictionary
-};
+
+export { allTokens, tokenDictionary as tokens };
