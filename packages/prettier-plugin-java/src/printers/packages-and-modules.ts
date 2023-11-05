@@ -1,5 +1,5 @@
-import { concat, join } from "./prettier-builder";
-import { printTokenWithComments } from "./comments/format-comments";
+import { concat, join } from "./prettier-builder.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   buildFqn,
   displaySemicolon,
@@ -9,9 +9,9 @@ import {
   rejectAndJoin,
   rejectAndJoinSeps,
   sortImports
-} from "./printer-utils";
+} from "./printer-utils.js";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   CompilationUnitCtx,
   ExportsModuleDirectiveCtx,
@@ -30,7 +30,7 @@ import {
   TypeDeclarationCtx,
   UsesModuleDirectiveCtx
 } from "java-parser";
-import { isOrdinaryCompilationUnitCtx } from "../types/utils";
+import { isOrdinaryCompilationUnitCtx } from "../types/utils.js";
 
 const { line, hardline, indent, group } = builders;
 

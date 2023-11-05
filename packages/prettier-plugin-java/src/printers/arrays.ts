@@ -6,9 +6,9 @@ import {
   printArrayList,
   rejectAndConcat,
   rejectAndJoinSeps
-} from "./printer-utils";
+} from "./printer-utils.js";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 
 const { line } = builders;
 

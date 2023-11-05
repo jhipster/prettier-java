@@ -3,6 +3,6 @@ docs
 samples
 scripts
 test
-.mocharc.js
+.mocharc.cjs
 diagrams.html
 *.log

@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
-"use strict";
-
-const _ = require("lodash");
-const path = require("path");
-const fs = require("fs");
-const JavaParser = require("../src/parser");
+import _ from "lodash";
+import path from "path";
+import fs from "fs";
+import JavaParser from "../src/parser";
 
 const parseRule = rule => {
   const children = {};

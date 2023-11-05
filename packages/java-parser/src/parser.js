@@ -1,17 +1,16 @@
-"use strict";
-const { Parser, isRecognitionException } = require("chevrotain");
-const { allTokens, tokens: t } = require("./tokens");
-const lexicalStructure = require("./productions/lexical-structure");
-const typesValuesVariables = require("./productions/types-values-and-variables");
-const names = require("./productions/names");
-const packagesModules = require("./productions/packages-and-modules");
-const classes = require("./productions/classes");
-const interfaces = require("./productions/interfaces");
-const arrays = require("./productions/arrays");
-const blocksStatements = require("./productions/blocks-and-statements");
-const expressions = require("./productions/expressions");
-const { getSkipValidations } = require("./utils");
-const { shouldNotFormat } = require("./comments");
+import { Parser, isRecognitionException } from "chevrotain";
+import { allTokens, tokens as t } from "./tokens.js";
+import * as lexicalStructure from "./productions/lexical-structure.js";
+import * as typesValuesVariables from "./productions/types-values-and-variables.js";
+import * as names from "./productions/names.js";
+import * as packagesModules from "./productions/packages-and-modules.js";
+import * as classes from "./productions/classes.js";
+import * as interfaces from "./productions/interfaces.js";
+import * as arrays from "./productions/arrays.js";
+import * as blocksStatements from "./productions/blocks-and-statements.js";
+import * as expressions from "./productions/expressions.js";
+import { getSkipValidations } from "./utils.js";
+import { shouldNotFormat } from "./comments.js";
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -36,7 +35,7 @@ const { shouldNotFormat } = require("./comments");
  * TODO: document guide lines for using back tracking
  *
  */
-class JavaParser extends Parser {
+export default class JavaParser extends Parser {
   constructor() {
     super(allTokens, {
       maxLookahead: 1,
@@ -115,5 +114,3 @@ class JavaParser extends Parser {
     this.onOffCommentPairs = onOffCommentPairs;
   }
 }
-
-module.exports = JavaParser;

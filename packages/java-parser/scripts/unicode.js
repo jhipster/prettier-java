@@ -1,8 +1,10 @@
-"use strict";
 const unicode = {};
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import url from "url";
 const args = process.argv.slice(2)[0];
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 let categories; // Variable that stores every category we are going to parse
 let restIdentCharCategories; // Variable that stores categories used for javaIdentfierPart
@@ -160,7 +162,6 @@ function generateFile() {
   *   https://github.com/jhipster/prettier-java/issues/116
   *   https://github.com/jhipster/prettier-java/pull/155
   */
-  "use strict"
   const addRanges = (set, rangesArr) => {
     for (let i = 0; i < rangesArr.length; i++) {
       const range = rangesArr[i];
@@ -221,9 +222,9 @@ function generateFile() {
 
   data += `const ric = new Set(function*() { yield* fic; yield* ricd; }());`;
 
-  data += `module.exports = {
-    firstIdentChar: fic,
-    restIdentChar: ric
+  data += `export {
+    fic as firstIdentChar,
+    ric as restIdentChar
   }`;
   fs.writeFileSync(
     path.resolve(__dirname, "../src/unicodesets.js"),

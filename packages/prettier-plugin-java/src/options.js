@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = {
+export default {
   entrypoint: {
     type: "choice",
     category: "Global",

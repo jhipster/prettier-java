@@ -1,6 +1,6 @@
-import { BaseCstPrettierPrinter } from "../../../../../src/base-cst-printer";
 import { assert, spy } from "sinon";
-import { expectSnippetToBeFormatted } from "../../../../test-utils";
+import { BaseCstPrettierPrinter } from "../../../../../src/base-cst-printer.js";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
 
 describe("Wildcard Bounds", () => {
   let referenceTypeSpy: any;

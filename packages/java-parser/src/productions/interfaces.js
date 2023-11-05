@@ -1,7 +1,6 @@
-"use strict";
-const { tokenMatcher } = require("chevrotain");
+import { tokenMatcher } from "chevrotain";
 
-function defineRules($, t) {
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
     // Spec Deviation: extracted the common "interfaceModifier" prefix to avoid backtracking.
@@ -503,7 +502,3 @@ function defineRules($, t) {
     }
   });
 }
-
-module.exports = {
-  defineRules
-};

@@ -1,17 +1,15 @@
-"use strict";
-
-import forEach from "lodash/forEach";
+import forEach from "lodash/forEach.js";
 import { builders } from "prettier/doc";
 
-import { concat, group, indent, join } from "./prettier-builder";
-import { printTokenWithComments } from "./comments/format-comments";
+import { concat, group, indent, join } from "./prettier-builder.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   putIntoBraces,
   rejectAndConcat,
   rejectAndJoin,
   rejectAndJoinSeps,
   sortClassTypeChildren
-} from "./printer-utils";
+} from "./printer-utils.js";
 import {
   AdditionalBoundCtx,
   AnnotationCstNode,
@@ -36,12 +34,12 @@ import {
   WildcardBoundsCtx,
   WildcardCtx
 } from "java-parser/api";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   isAnnotationCstNode,
   isCstNode,
   isTypeArgumentsCstNode
-} from "../types/utils";
+} from "../types/utils.js";
 
 const { line, softline } = builders;
 

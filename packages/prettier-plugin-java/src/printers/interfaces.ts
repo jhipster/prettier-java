@@ -1,5 +1,5 @@
-import { concat, group, indent } from "./prettier-builder";
-import { printTokenWithComments } from "./comments/format-comments";
+import { concat, group, indent } from "./prettier-builder.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   displaySemicolon,
   getInterfaceBodyDeclarationsSeparator,
@@ -10,10 +10,10 @@ import {
   rejectAndJoin,
   rejectAndJoinSeps,
   sortModifiers
-} from "./printer-utils";
+} from "./printer-utils.js";
 
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   AnnotationCtx,
   AnnotationTypeBodyCtx,

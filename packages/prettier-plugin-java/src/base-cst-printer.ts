@@ -5,7 +5,7 @@ import {
   CstNode
 } from "java-parser";
 import { Doc } from "prettier";
-import { printNodeWithComments } from "./printers/comments/format-comments";
+import { printNodeWithComments } from "./printers/comments/format-comments.js";
 
 export class BaseCstPrettierPrinter extends BaseJavaCstVisitor {
   prettierOptions: any;

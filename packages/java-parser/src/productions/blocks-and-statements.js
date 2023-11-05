@@ -1,11 +1,9 @@
-"use strict";
-
-const { tokenMatcher } = require("chevrotain");
+import { tokenMatcher } from "chevrotain";
 
 // Spec Deviation: The "*NoShortIf" variations were removed as the ambiguity of
 //                 the dangling else is resolved by attaching an "else" block
 //                 to the nearest "if"
-function defineRules($, t) {
+export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Block
   $.RULE("block", () => {
     $.CONSUME(t.LCurly);
@@ -576,7 +574,3 @@ function defineRules($, t) {
     $.CONSUME(t.Colon);
   });
 }
-
-module.exports = {
-  defineRules
-};

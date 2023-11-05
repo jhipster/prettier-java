@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-"use strict";
-const cp = require("child_process");
-const path = require("path");
-const fs = require("fs-extra");
+import cp from "child_process";
+import path from "path";
+import fs from "fs-extra";
+import url from "url";
 
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const samplesDir = path.resolve(__dirname, "../samples");
 
 const sampleRepos = [

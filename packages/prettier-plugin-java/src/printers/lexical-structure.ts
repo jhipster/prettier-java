@@ -1,6 +1,6 @@
-import { printTokenWithComments } from "./comments/format-comments";
-import { join } from "./prettier-builder";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { printTokenWithComments } from "./comments/format-comments.js";
+import { join } from "./prettier-builder.js";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   BooleanLiteralCtx,
   FloatingPointLiteralCtx,

@@ -1,4 +1,4 @@
-import forEach from "lodash/forEach";
+import forEach from "lodash/forEach.js";
 import {
   displaySemicolon,
   getBlankLinesSeparator,
@@ -11,15 +11,21 @@ import {
   rejectAndJoinSeps,
   sortClassTypeChildren,
   sortModifiers
-} from "./printer-utils";
-import { concat, group, indent, join, indentIfBreak } from "./prettier-builder";
-import { printTokenWithComments } from "./comments/format-comments";
+} from "./printer-utils.js";
+import {
+  concat,
+  group,
+  indent,
+  join,
+  indentIfBreak
+} from "./prettier-builder.js";
+import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   hasLeadingComments,
   hasLeadingLineComments
-} from "./comments/comments-utils";
+} from "./comments/comments-utils.js";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer";
+import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   ClassBodyCtx,
   ClassBodyDeclarationCtx,
@@ -90,8 +96,8 @@ import {
   VariableParaRegularParameterCtx
 } from "java-parser";
 import { Doc } from "prettier";
-import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils";
-import { printArgumentListWithBraces } from "../utils";
+import { isAnnotationCstNode, isTypeArgumentsCstNode } from "../types/utils.js";
+import { printArgumentListWithBraces } from "../utils/index.js";
 
 const { line, softline, hardline, lineSuffixBoundary } = builders;
 

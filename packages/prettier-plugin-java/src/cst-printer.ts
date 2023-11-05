@@ -1,13 +1,13 @@
-import { BaseCstPrettierPrinter } from "./base-cst-printer";
-import { ArraysPrettierVisitor } from "./printers/arrays";
-import { BlocksAndStatementPrettierVisitor } from "./printers/blocks-and-statements";
-import { ClassesPrettierVisitor } from "./printers/classes";
-import { ExpressionsPrettierVisitor } from "./printers/expressions";
-import { InterfacesPrettierVisitor } from "./printers/interfaces";
-import { LexicalStructurePrettierVisitor } from "./printers/lexical-structure";
-import { NamesPrettierVisitor } from "./printers/names";
-import { TypesValuesAndVariablesPrettierVisitor } from "./printers/types-values-and-variables";
-import { PackagesAndModulesPrettierVisitor } from "./printers/packages-and-modules";
+import { BaseCstPrettierPrinter } from "./base-cst-printer.js";
+import { ArraysPrettierVisitor } from "./printers/arrays.js";
+import { BlocksAndStatementPrettierVisitor } from "./printers/blocks-and-statements.js";
+import { ClassesPrettierVisitor } from "./printers/classes.js";
+import { ExpressionsPrettierVisitor } from "./printers/expressions.js";
+import { InterfacesPrettierVisitor } from "./printers/interfaces.js";
+import { LexicalStructurePrettierVisitor } from "./printers/lexical-structure.js";
+import { NamesPrettierVisitor } from "./printers/names.js";
+import { TypesValuesAndVariablesPrettierVisitor } from "./printers/types-values-and-variables.js";
+import { PackagesAndModulesPrettierVisitor } from "./printers/packages-and-modules.js";
 
 // Mixins for the win
 mixInMethods(

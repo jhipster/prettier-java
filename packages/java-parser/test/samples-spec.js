@@ -1,11 +1,12 @@
-"use strict";
+import _ from "lodash";
+import path from "path";
+import klawSync from "klaw-sync";
+import { expect } from "chai";
+import fs from "fs";
+import url from "url";
+import * as javaParser from "../src/index.js";
 
-const _ = require("lodash");
-const path = require("path");
-const klawSync = require("klaw-sync");
-const { expect } = require("chai");
-const fs = require("fs");
-const javaParser = require("../src/index");
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 describe("The Java Parser", () => {
   createSampleSpecs("java-design-patterns");

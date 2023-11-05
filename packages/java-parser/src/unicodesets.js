@@ -8,7 +8,6 @@
  *   https://github.com/jhipster/prettier-java/issues/116
  *   https://github.com/jhipster/prettier-java/pull/155
  */
-"use strict";
 const addRanges = (set, rangesArr) => {
   for (let i = 0; i < rangesArr.length; i++) {
     const range = rangesArr[i];
@@ -999,7 +998,4 @@ const ric = new Set(
     yield* ricd;
   })()
 );
-module.exports = {
-  firstIdentChar: fic,
-  restIdentChar: ric
-};
+export { fic as firstIdentChar, ric as restIdentChar };

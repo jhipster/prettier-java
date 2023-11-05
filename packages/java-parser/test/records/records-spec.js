@@ -1,7 +1,5 @@
-"use strict";
-
-const { expect } = require("chai");
-const javaParser = require("../../src/index");
+import { expect } from "chai";
+import * as javaParser from "../../src/index.js";
 
 describe("Records", () => {
   it("should handle Java records without body", () => {
@@ -34,7 +32,7 @@ describe("Records", () => {
             if (age < 0) {
               throw new IllegalArgumentException("Age cannot be negative");
             }
-    
+
             if (name == null || name.isBlank()) {
               throw new IllegalArgumentException("Name cannot be blank");
             }
@@ -53,7 +51,7 @@ describe("Records", () => {
             if (age < 0) {
               throw new IllegalArgumentException("Age cannot be negative");
             }
-    
+
             if (name == null || name.isBlank()) {
               throw new IllegalArgumentException("Name cannot be blank");
             }
@@ -74,7 +72,7 @@ describe("Records", () => {
             if (age < 0) {
               throw new IllegalArgumentException("Age cannot be negative");
             }
-    
+
             if (name == null || name.isBlank()) {
               throw new IllegalArgumentException("Name cannot be blank");
             }

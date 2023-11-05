@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Should Parser / Lexer Validations be skipped?
  *
@@ -8,14 +6,10 @@
  *
  * @returns {boolean}
  */
-function getSkipValidations() {
+export function getSkipValidations() {
   return (
     (typeof process !== "undefined" && // (not every runtime has a global `process` object
       process.env &&
       process.env["prettier-java-development-mode"] === "enabled") === false
   );
 }
-
-module.exports = {
-  getSkipValidations
-};

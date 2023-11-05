@@ -30,7 +30,6 @@
     ]
   },
   "devDependencies": {
-    "benchmark": "^2.1.4",
     "chai": "^4.3.7",
     "eslint": "8.28.0",
     "eslint-config-google": "0.14.0",
@@ -42,8 +41,8 @@
     "lint-staged": "13.0.4",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
-    "prettier": "2.8.0",
-    "sinon": "^9.2.1"
+    "prettier": "3.0.3",
+    "sinon": "^17.0.1"
   },
   "dependencies": {}
 }

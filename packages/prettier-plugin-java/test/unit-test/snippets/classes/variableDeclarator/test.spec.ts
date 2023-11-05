@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { formatJavaSnippet } from "../../../../test-utils";
+import { formatJavaSnippet } from "../../../../test-utils.js";
 
 describe("VariableDeclarator", () => {
   it("should format a variable declaration", async () => {

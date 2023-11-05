@@ -1,7 +1,5 @@
-"use strict";
-
-const { expect } = require("chai");
-const javaParser = require("../src/index");
+import { expect } from "chai";
+import javaParser from "../src/index.js";
 
 describe("String literals", () => {
   it("should parse unicode", () => {

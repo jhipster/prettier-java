@@ -1,18 +1,21 @@
 /*eslint no-console: ["error", { allow: ["error"] }] */
 
 import { expect } from "chai";
-import { readFileSync, existsSync, removeSync, copySync } from "fs-extra";
-import { resolve, relative, basename } from "path";
+import fs from "fs-extra";
+import { resolve, relative, basename, dirname } from "path";
 import klawSync from "klaw-sync";
 import { spawnSync } from "child_process";
 
-import { createPrettierDoc } from "../src/cst-printer";
+import { createPrettierDoc } from "../src/cst-printer.js";
 import { parse } from "java-parser";
 import { format, doc } from "prettier";
+import url from "url";
 
 const { printDocToString } = doc.printer;
+const { readFileSync, existsSync, removeSync, copySync } = fs;
 
-const pluginPath = resolve(__dirname, "../dist/index.js");
+const __dirname = dirname(url.fileURLToPath(import.meta.url));
+const pluginPath = resolve(__dirname, "../src/index.js");
 export function testSampleWithOptions({
   testFolder,
   exclusive,

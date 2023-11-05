@@ -1,9 +1,9 @@
 import { ArgumentListCstNode, IToken } from "java-parser";
 import { builders } from "prettier/doc";
-import { isSingleArgumentLambdaExpressionWithBlock } from "./expressions-utils";
-import { printTokenWithComments } from "../printers/comments/format-comments";
-import { concat, dedent, indent } from "../printers/prettier-builder";
-import { putIntoBraces } from "../printers/printer-utils";
+import { isSingleArgumentLambdaExpressionWithBlock } from "./expressions-utils.js";
+import { printTokenWithComments } from "../printers/comments/format-comments.js";
+import { concat, dedent, indent } from "../printers/prettier-builder.js";
+import { putIntoBraces } from "../printers/printer-utils.js";
 
 const { softline, ifBreak } = builders;
 

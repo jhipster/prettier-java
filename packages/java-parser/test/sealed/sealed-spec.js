@@ -1,7 +1,5 @@
-"use strict";
-
-const { expect } = require("chai");
-const javaParser = require("../../src/index");
+import { expect } from "chai";
+import * as javaParser from "../../src/index.js";
 
 describe("Sealed Classes & Interfaces", () => {
   it("should handle sealed interfaces", () => {

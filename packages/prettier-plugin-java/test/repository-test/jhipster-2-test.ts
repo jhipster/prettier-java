@@ -1,6 +1,8 @@
-import { resolve } from "path";
-import { testRepositorySample } from "../test-utils";
+import { dirname, resolve } from "path";
+import url from "url";
+import { testRepositorySample } from "../test-utils.js";
 
+const __dirname = dirname(url.fileURLToPath(import.meta.url));
 const jhipsterRepository = [
   "jhipster-sample-app-elasticsearch",
   "jhipster-sample-app-dto",

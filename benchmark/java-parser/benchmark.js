@@ -1,22 +1,13 @@
 /* eslint no-console: 0 */
-"use strict";
-const path = require("path");
-const klawSync = require("klaw-sync");
-const _ = require("lodash");
-const fs = require("fs");
-const benchmark = require("benchmark");
-const cp = require("child_process");
-const niv = require("npm-install-version");
+import path from "path";
+import klawSync from "klaw-sync";
+import fs from "fs";
+import * as npmparser from "java-parser-npm";
+import { performance } from "perf_hooks";
+import url from "url";
+import * as currentparser from "../../packages/java-parser/src/index.js";
 
-const version = cp
-  .execSync("npm show java-parser version")
-  .toString()
-  .replace("\n", "");
-niv.install(`java-parser@${version}`);
-
-const npmparser = require(`java-parser@${version}`);
-const currentparser = require("../../packages/java-parser/src/index");
-
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const samplesDir = path.resolve(
   __dirname,
   "../../packages/java-parser/samples/java-design-patterns/flux"
@@ -26,7 +17,7 @@ const javaSampleFiles = sampleFiles.filter(fileDesc =>
   fileDesc.path.endsWith(".java")
 );
 
-const javaPathAndText = _.map(javaSampleFiles, fileDesc => {
+const javaPathAndText = javaSampleFiles.map(fileDesc => {
   const currJavaFileString = fs.readFileSync(fileDesc.path, "utf8");
   const relativePath = path.relative(__dirname, fileDesc.path);
 
@@ -34,24 +25,21 @@ const javaPathAndText = _.map(javaSampleFiles, fileDesc => {
 });
 
 function benchmarkParser(parser) {
-  _.forEach(javaPathAndText, javaText => {
+  const start = performance.now();
+  javaPathAndText.forEach(javaText => {
     try {
       parser(javaText.text);
     } catch (e) {
       console.log(e);
     }
   });
+  const end = performance.now();
+  return `${end - start}ms`;
 }
 
-new benchmark.Suite("Java parser benchmark", {
-  onStart: () => console.log(`Java parser benchmark`),
-  onCycle: event => console.log(String(event.target)),
-  onComplete: function () {
-    console.log("Fastest is " + this.filter("fastest").map("name"));
-  }
-})
-  .add(`NPM Java Parser (v${version})`, () => benchmarkParser(npmparser.parse))
-  .add("Local Repository Java Parser", () =>
-    benchmarkParser(currentparser.parse)
-  )
-  .run();
+for (let i = 0; i < 3; i++) {
+  console.log(`NPM Java Parser (${benchmarkParser(npmparser.parse)})`);
+  console.log(
+    `Local Repository Java Parser (${benchmarkParser(currentparser.parse)})`
+  );
+}

@@ -1,9 +1,5 @@
-"use strict";
+import javaParser from "java-parser";
 
-const javaParser = require("java-parser");
-
-function parse(text, parsers, opts) {
+export default function parse(text, parsers, opts) {
   return javaParser.parse(text, opts.entrypoint);
 }
-
-module.exports = parse;

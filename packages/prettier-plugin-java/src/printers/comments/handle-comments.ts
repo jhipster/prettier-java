@@ -1,4 +1,4 @@
-import { hasLeadingComments, hasTrailingComments } from "./comments-utils";
+import { hasLeadingComments, hasTrailingComments } from "./comments-utils.js";
 import {
   BinaryExpressionCtx,
   IToken,
@@ -73,7 +73,7 @@ function moveExpressionTrailingCommentsToNextOperator(
         const shiftUp =
           unaryExpression.trailingComments[0].startLine -
           1 -
-          unaryExpression.location.startLine;
+          unaryExpression.location.startLine!;
 
         if (unaryExpression.location.startLine !== binaryOperator.startLine) {
           unaryExpression.trailingComments.forEach(comment => {
@@ -81,7 +81,7 @@ function moveExpressionTrailingCommentsToNextOperator(
             comment.endLine += 1;
           });
         }
-        unaryExpression.location.startLine += shiftUp;
+        unaryExpression.location.startLine! += shiftUp;
         if (unaryExpression.location.endLine !== undefined) {
           unaryExpression.location.endLine += shiftUp;
         }

@@ -1,8 +1,8 @@
 import { ArgumentListCstNode, IToken } from "java-parser";
 import { builders } from "prettier/doc";
-import { isArgumentListSingleLambda } from "./expressions-utils";
-import { putIntoBraces } from "../printers/printer-utils";
-import printSingleLambdaInvocation from "./printSingleLambdaInvocation";
+import { isArgumentListSingleLambda } from "./expressions-utils.js";
+import { putIntoBraces } from "../printers/printer-utils.js";
+import printSingleLambdaInvocation from "./printSingleLambdaInvocation.js";
 
 const { softline } = builders;
 
