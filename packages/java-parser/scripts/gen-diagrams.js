@@ -10,7 +10,7 @@
  */
 import path from "path";
 import fs from "fs";
-import chevrotain from "chevrotain";
+import * as chevrotain from "chevrotain";
 import url from "url";
 import JavaParser from "../src/parser.js";
 
