@@ -334,16 +334,4 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
 
     return group(rejectAndConcat([rejectAndJoinSeps(commas, elementValues)]));
   }
-
-  identifyInterfaceBodyDeclarationType() {
-    return "identifyInterfaceBodyDeclarationType";
-  }
-
-  identifyAnnotationBodyDeclarationType() {
-    return "identifyAnnotationBodyDeclarationType";
-  }
-
-  isSimpleElementValueAnnotation() {
-    return "isSimpleElementValueAnnotation";
-  }
 }
