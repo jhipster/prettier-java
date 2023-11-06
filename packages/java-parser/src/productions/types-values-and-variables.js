@@ -1,5 +1,3 @@
-import { tokenMatcher } from "chevrotain";
-
 export function defineRules($, t) {
   // ---------------------
   // Productions from §4 (Types, Values, and Variables)
@@ -102,15 +100,7 @@ export function defineRules($, t) {
       });
       // TODO: Semantic Check: This Identifier cannot be "var"
       $.CONSUME2(t.Identifier);
-      $.OPTION2({
-        // To avoid confusion with "TypeArgumentsOrDiamond" rule
-        // as we use the "classType" rule in the "identifyNewExpressionType"
-        // optimized lookahead rule.
-        GATE: () => tokenMatcher($.LA(2).tokenType, t.Greater) === false,
-        DEF: () => {
-          $.SUBRULE2($.typeArguments);
-        }
-      });
+      $.OPTION2(() => $.SUBRULE2($.typeArguments));
     });
   });
 
@@ -199,10 +189,7 @@ export function defineRules($, t) {
   $.RULE("typeArgument", () => {
     // TODO: performance: evaluate flipping the order of alternatives
     $.OR([
-      {
-        GATE: $.BACKTRACK($.referenceType),
-        ALT: () => $.SUBRULE($.referenceType)
-      },
+      { ALT: () => $.SUBRULE($.referenceType) },
       { ALT: () => $.SUBRULE($.wildcard) }
     ]);
   });

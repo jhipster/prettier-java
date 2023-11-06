@@ -23,25 +23,11 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-BlockStatement
   $.RULE("blockStatement", () => {
-    const isLocalVariableDeclaration = this.BACKTRACK_LOOKAHEAD(
-      $.isLocalVariableDeclaration
-    );
-
-    const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
-
     $.OR({
       DEF: [
-        {
-          GATE: () => isLocalVariableDeclaration,
-          ALT: () => $.SUBRULE($.localVariableDeclarationStatement)
-        },
-        {
-          GATE: () => isClassDeclaration,
-          ALT: () => $.SUBRULE($.classDeclaration)
-        },
-        {
-          ALT: () => $.SUBRULE($.interfaceDeclaration)
-        },
+        { ALT: () => $.SUBRULE($.localVariableDeclarationStatement) },
+        { ALT: () => $.SUBRULE($.classDeclaration) },
+        { ALT: () => $.SUBRULE($.interfaceDeclaration) },
         { ALT: () => $.SUBRULE($.statement) }
       ],
       IGNORE_AMBIGUITIES: true
@@ -76,19 +62,14 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Statement
   $.RULE("statement", () => {
-    $.OR({
-      DEF: [
-        {
-          ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement)
-        },
-        { ALT: () => $.SUBRULE($.labeledStatement) },
-        // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
-        { ALT: () => $.SUBRULE($.ifStatement) },
-        { ALT: () => $.SUBRULE($.whileStatement) },
-        { ALT: () => $.SUBRULE($.forStatement) }
-      ],
-      MAX_LOOKAHEAD: 2
-    });
+    $.OR([
+      { ALT: () => $.SUBRULE($.statementWithoutTrailingSubstatement) },
+      { ALT: () => $.SUBRULE($.labeledStatement) },
+      // Spec deviation: combined "IfThenStatement" and "IfThenElseStatement"
+      { ALT: () => $.SUBRULE($.ifStatement) },
+      { ALT: () => $.SUBRULE($.whileStatement) },
+      { ALT: () => $.SUBRULE($.forStatement) }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-StatementWithoutTrailingSubstatement
@@ -96,10 +77,7 @@ export function defineRules($, t) {
     $.OR({
       DEF: [
         { ALT: () => $.SUBRULE($.block) },
-        {
-          GATE: () => this.BACKTRACK_LOOKAHEAD($.yieldStatement),
-          ALT: () => $.SUBRULE($.yieldStatement)
-        },
+        { ALT: () => $.SUBRULE($.yieldStatement) },
         { ALT: () => $.SUBRULE($.emptyStatement) },
         {
           GATE: () => !tokenMatcher(this.LA(1).tokenType, t.Switch),
@@ -186,13 +164,8 @@ export function defineRules($, t) {
   $.RULE("switchBlock", () => {
     $.CONSUME(t.LCurly);
     $.OR([
-      {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.isClassicSwitchLabel),
-        ALT: () => $.MANY(() => $.SUBRULE($.switchBlockStatementGroup))
-      },
-      {
-        ALT: () => $.MANY2(() => $.SUBRULE($.switchRule))
-      }
+      { ALT: () => $.MANY(() => $.SUBRULE($.switchBlockStatementGroup)) },
+      { ALT: () => $.MANY2(() => $.SUBRULE($.switchRule)) }
     ]);
     $.CONSUME(t.RCurly);
   });
@@ -222,7 +195,6 @@ export function defineRules($, t) {
               }
             },
             {
-              GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
               ALT: () => {
                 $.SUBRULE($.pattern);
                 $.MANY(() => {
@@ -294,10 +266,7 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ForStatement
   $.RULE("forStatement", () => {
     $.OR([
-      {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.isBasicForStatement),
-        ALT: () => $.SUBRULE($.basicForStatement)
-      },
+      { ALT: () => $.SUBRULE($.basicForStatement) },
       { ALT: () => $.SUBRULE($.enhancedForStatement) }
     ]);
   });
@@ -324,10 +293,7 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-ForInit
   $.RULE("forInit", () => {
     $.OR([
-      {
-        GATE: () => $.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration),
-        ALT: () => $.SUBRULE($.localVariableDeclaration)
-      },
+      { ALT: () => $.SUBRULE($.localVariableDeclaration) },
       { ALT: () => $.SUBRULE($.statementExpressionList) }
     ]);
   });
@@ -406,29 +372,26 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-TryStatement
   $.RULE("tryStatement", () => {
-    $.OR({
-      DEF: [
-        {
-          ALT: () => {
-            $.CONSUME(t.Try);
-            $.SUBRULE($.block);
-            $.OR2([
-              {
-                ALT: () => {
-                  $.SUBRULE($.catches);
-                  $.OPTION(() => {
-                    $.SUBRULE($.finally);
-                  });
-                }
-              },
-              { ALT: () => $.SUBRULE2($.finally) }
-            ]);
-          }
-        },
-        { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
-      ],
-      MAX_LOOKAHEAD: 2
-    });
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(t.Try);
+          $.SUBRULE($.block);
+          $.OR2([
+            {
+              ALT: () => {
+                $.SUBRULE($.catches);
+                $.OPTION(() => {
+                  $.SUBRULE($.finally);
+                });
+              }
+            },
+            { ALT: () => $.SUBRULE2($.finally) }
+          ]);
+        }
+      },
+      { ALT: () => $.SUBRULE($.tryWithResourcesStatement) }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Catches
@@ -510,10 +473,7 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Resource
   $.RULE("resource", () => {
     $.OR([
-      {
-        GATE: () => $.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration),
-        ALT: () => $.SUBRULE($.localVariableDeclaration)
-      },
+      { ALT: () => $.SUBRULE($.localVariableDeclaration) },
       { ALT: () => $.SUBRULE($.variableAccess) }
     ]);
   });
@@ -531,46 +491,5 @@ export function defineRules($, t) {
     //                 by the "primary" rule
     // TODO: verify that the primary is a fieldAccess or an expressionName.
     $.SUBRULE($.primary);
-  });
-
-  // ------------------------------------
-  // Special optimized backtracking rules.
-  // ------------------------------------
-  $.RULE("isBasicForStatement", () => {
-    $.CONSUME(t.For);
-    $.CONSUME(t.LBrace);
-    $.OPTION(() => {
-      $.SUBRULE($.forInit);
-    });
-    $.CONSUME(t.Semicolon);
-    // consuming the first semiColon distinguishes between
-    // "basic" and "enhanced" for statements
-    return true;
-  });
-
-  $.RULE("isLocalVariableDeclaration", () => {
-    $.MANY(() => {
-      $.SUBRULE($.variableModifier);
-    });
-    $.SUBRULE($.localVariableType);
-    $.SUBRULE($.variableDeclaratorId);
-
-    const nextTokenType = this.LA(1).tokenType;
-    switch (nextTokenType) {
-      // Int x;
-      case t.Semicolon:
-      // Int x, y, z;
-      case t.Comma:
-      // Int x = 5;
-      case t.Equals:
-        return true;
-      default:
-        return false;
-    }
-  });
-
-  $.RULE("isClassicSwitchLabel", () => {
-    $.SUBRULE($.switchLabel);
-    $.CONSUME(t.Colon);
   });
 }

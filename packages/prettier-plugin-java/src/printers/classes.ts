@@ -1052,19 +1052,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     ]);
   }
 
-  isClassDeclaration() {
-    return "isClassDeclaration";
-  }
-
-  identifyClassBodyDeclarationType() {
-    return "identifyClassBodyDeclarationType";
-  }
-
   isDims() {
     return "isDims";
-  }
-
-  isCompactConstructorDeclaration() {
-    return "isCompactConstructorDeclaration";
   }
 }

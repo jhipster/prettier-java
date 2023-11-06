@@ -1,5 +1,4 @@
-import { isRecognitionException, tokenMatcher } from "chevrotain";
-import { classBodyTypes } from "./utils/class-body-types.js";
+import { tokenMatcher } from "chevrotain";
 
 export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassDeclaration
@@ -111,54 +110,22 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassBodyDeclaration
   $.RULE("classBodyDeclaration", () => {
-    const nextRuleType = $.BACKTRACK_LOOKAHEAD(
-      $.identifyClassBodyDeclarationType
-    );
-
     $.OR([
-      {
-        GATE: () =>
-          nextRuleType >= classBodyTypes.fieldDeclaration &&
-          nextRuleType <= classBodyTypes.semiColon,
-        ALT: () =>
-          $.SUBRULE($.classMemberDeclaration, {
-            ARGS: [nextRuleType]
-          })
-      },
-      // no gate needed for the initializers because these are LL(1) rules.
+      { ALT: () => $.SUBRULE($.classMemberDeclaration) },
       { ALT: () => $.SUBRULE($.instanceInitializer) },
       { ALT: () => $.SUBRULE($.staticInitializer) },
-      {
-        GATE: () =>
-          tokenMatcher(nextRuleType, classBodyTypes.constructorDeclaration),
-        ALT: () => $.SUBRULE($.constructorDeclaration)
-      }
+      { ALT: () => $.SUBRULE($.constructorDeclaration) }
     ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ClassMemberDeclaration
-  $.RULE("classMemberDeclaration", nextRuleType => {
+  $.RULE("classMemberDeclaration", () => {
     $.OR([
-      {
-        GATE: () => nextRuleType === classBodyTypes.fieldDeclaration,
-        ALT: () => $.SUBRULE($.fieldDeclaration)
-      },
-      {
-        GATE: () => nextRuleType === classBodyTypes.methodDeclaration,
-        ALT: () => $.SUBRULE($.methodDeclaration)
-      },
-      {
-        GATE: () => nextRuleType === classBodyTypes.classDeclaration,
-        ALT: () => $.SUBRULE($.classDeclaration)
-      },
-      {
-        GATE: () => nextRuleType === classBodyTypes.interfaceDeclaration,
-        ALT: () => $.SUBRULE($.interfaceDeclaration)
-      },
-      {
-        // No GATE is needed as this is LL(1)
-        ALT: () => $.CONSUME(t.Semicolon)
-      }
+      { ALT: () => $.SUBRULE($.fieldDeclaration) },
+      { ALT: () => $.SUBRULE($.methodDeclaration) },
+      { ALT: () => $.SUBRULE($.classDeclaration) },
+      { ALT: () => $.SUBRULE($.interfaceDeclaration) },
+      { ALT: () => $.CONSUME(t.Semicolon) }
     ]);
   });
 
@@ -392,10 +359,7 @@ export function defineRules($, t) {
   $.RULE("formalParameter", () => {
     $.OR([
       // Spec Deviation: extracted to "variableParaRegularParameter"
-      {
-        GATE: $.BACKTRACK($.variableParaRegularParameter),
-        ALT: () => $.SUBRULE($.variableParaRegularParameter)
-      },
+      { ALT: () => $.SUBRULE($.variableParaRegularParameter) },
       { ALT: () => $.SUBRULE($.variableArityParameter) }
     ]);
   });
@@ -500,14 +464,9 @@ export function defineRules($, t) {
     });
     $.SUBRULE($.simpleTypeName);
     $.CONSUME(t.LBrace);
-    $.OPTION2({
-      // a "formalParameterList" and a "receiverParameter"
-      // cannot be distinguished using fixed lookahead.
-      GATE: $.BACKTRACK($.receiverParameter),
-      DEF: () => {
-        $.SUBRULE($.receiverParameter);
-        $.CONSUME(t.Comma);
-      }
+    $.OPTION2(() => {
+      $.SUBRULE($.receiverParameter);
+      $.CONSUME(t.Comma);
     });
     $.OPTION3(() => {
       $.SUBRULE($.formalParameterList);
@@ -524,11 +483,8 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-ConstructorBody
   $.RULE("constructorBody", () => {
     $.CONSUME(t.LCurly);
-    $.OPTION({
-      GATE: $.BACKTRACK($.explicitConstructorInvocation),
-      DEF: () => {
-        $.SUBRULE($.explicitConstructorInvocation);
-      }
+    $.OPTION(() => {
+      $.SUBRULE($.explicitConstructorInvocation);
     });
     $.OPTION2(() => {
       $.SUBRULE($.blockStatements);
@@ -739,10 +695,7 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-RecordBodyDeclaration
   $.RULE("recordBodyDeclaration", () => {
     $.OR([
-      {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.isCompactConstructorDeclaration),
-        ALT: () => $.SUBRULE($.compactConstructorDeclaration)
-      },
+      { ALT: () => $.SUBRULE($.compactConstructorDeclaration) },
       { ALT: () => $.SUBRULE($.classBodyDeclaration) }
     ]);
   });
@@ -756,189 +709,11 @@ export function defineRules($, t) {
     $.SUBRULE($.constructorBody);
   });
 
-  $.RULE("isClassDeclaration", () => {
-    let isEmptyTypeDeclaration = false;
-
-    if (
-      $.OPTION(() => {
-        $.CONSUME(t.Semicolon);
-      })
-    ) {
-      // an empty "TypeDeclaration"
-      isEmptyTypeDeclaration = true;
-    }
-
-    try {
-      // The {classModifier} is a super grammar of the "interfaceModifier"
-      // So we must parse all the "{classModifier}" before we can distinguish
-      // between the alternatives.
-      $.MANY({
-        GATE: () =>
-          (tokenMatcher($.LA(1).tokenType, t.At) &&
-            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-        DEF: () => {
-          $.SUBRULE($.classModifier);
-        }
-      });
-    } catch (e) {
-      if (isRecognitionException(e)) {
-        // TODO: add original syntax error?
-        throw "Cannot Identify if the <TypeDeclaration> is a <ClassDeclaration> or an <InterfaceDeclaration>";
-      } else {
-        throw e;
-      }
-    }
-
-    if (isEmptyTypeDeclaration) {
-      return false;
-    }
-
-    const nextTokenType = this.LA(1).tokenType;
-    return (
-      tokenMatcher(nextTokenType, t.Class) ||
-      tokenMatcher(nextTokenType, t.Enum) ||
-      (tokenMatcher(nextTokenType, t.Record) &&
-        tokenMatcher(this.LA(2).tokenType, t.Identifier))
-    );
-  });
-
-  $.RULE("identifyClassBodyDeclarationType", () => {
-    try {
-      let nextTokenType = this.LA(1).tokenType;
-      let nextNextTokenType = this.LA(2).tokenType;
-
-      switch (nextTokenType) {
-        case t.Semicolon:
-          return classBodyTypes.semiColon;
-        case t.LCurly:
-          return classBodyTypes.instanceInitializer;
-        case t.Static:
-          switch (nextNextTokenType) {
-            case t.LCurly:
-              return classBodyTypes.staticInitializer;
-          }
-      }
-
-      // We have to look beyond the modifiers to distinguish between the declaration types.
-      $.MANY({
-        GATE: () =>
-          (tokenMatcher($.LA(1).tokenType, t.At) &&
-            tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-        DEF: () => {
-          // This alternation includes all possible modifiers for all types of "ClassBodyDeclaration"
-          // Certain combinations are syntactically invalid, this is **not** checked here,
-          // Invalid combinations will cause a descriptive parsing error message to be
-          // Created inside the relevant parsing rules **after** this lookahead
-          // analysis.
-          $.OR([
-            {
-              GATE: () =>
-                (tokenMatcher($.LA(1).tokenType, t.At) &&
-                  tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-              ALT: () => $.SUBRULE($.annotation)
-            },
-            { ALT: () => $.CONSUME(t.Public) },
-            { ALT: () => $.CONSUME(t.Protected) },
-            { ALT: () => $.CONSUME(t.Private) },
-            { ALT: () => $.CONSUME(t.Abstract) },
-            { ALT: () => $.CONSUME(t.Static) },
-            { ALT: () => $.CONSUME(t.Final) },
-            { ALT: () => $.CONSUME(t.Transient) },
-            { ALT: () => $.CONSUME(t.Volatile) },
-            { ALT: () => $.CONSUME(t.Synchronized) },
-            { ALT: () => $.CONSUME(t.Native) },
-            { ALT: () => $.CONSUME(t.Sealed) },
-            { ALT: () => $.CONSUME(t.NonSealed) },
-            { ALT: () => $.CONSUME(t.Strictfp) }
-          ]);
-        }
-      });
-
-      nextTokenType = this.LA(1).tokenType;
-      nextNextTokenType = this.LA(2).tokenType;
-      if (
-        tokenMatcher(nextTokenType, t.Identifier) &&
-        tokenMatcher(nextNextTokenType, t.LBrace)
-      ) {
-        return classBodyTypes.constructorDeclaration;
-      }
-
-      if (
-        tokenMatcher(nextTokenType, t.Class) ||
-        tokenMatcher(nextTokenType, t.Enum) ||
-        tokenMatcher(nextTokenType, t.Record)
-      ) {
-        return classBodyTypes.classDeclaration;
-      }
-
-      if (
-        tokenMatcher(nextTokenType, t.Interface) ||
-        tokenMatcher(nextTokenType, t.At)
-      ) {
-        return classBodyTypes.interfaceDeclaration;
-      }
-
-      if (tokenMatcher(nextTokenType, t.Void)) {
-        // method with result type "void"
-        return classBodyTypes.methodDeclaration;
-      }
-
-      // Type Arguments common prefix
-      if (tokenMatcher(nextTokenType, t.Less)) {
-        this.SUBRULE($.typeParameters);
-        const nextTokenType = this.LA(1).tokenType;
-        const nextNextTokenType = this.LA(2).tokenType;
-        // "<T> foo(" -> constructor
-        if (
-          tokenMatcher(nextTokenType, t.Identifier) &&
-          tokenMatcher(nextNextTokenType, t.LBrace)
-        ) {
-          return classBodyTypes.constructorDeclaration;
-        }
-        // typeParameters can only appear in method or constructor
-        // declarations, so if it is not a constructor it must be a method
-        return classBodyTypes.methodDeclaration;
-      }
-
-      // Only field or method declarations may be valid at this point.
-      // All other alternatives should have been attempted.
-      // **both** start with "unannType"
-      this.SUBRULE($.unannType);
-
-      const nextToken = this.LA(1);
-      nextNextTokenType = this.LA(2).tokenType;
-      // "foo(..." --> look like method start
-      if (
-        tokenMatcher(nextToken, t.Identifier) &&
-        tokenMatcher(nextNextTokenType, t.LBrace)
-      ) {
-        return classBodyTypes.methodDeclaration;
-      }
-
-      // a valid field
-      // TODO: because we use token categories we should use tokenMatcher everywhere.
-      if (tokenMatcher(nextToken, t.Identifier)) {
-        return classBodyTypes.fieldDeclaration;
-      }
-
-      return classBodyTypes.unknown;
-    } catch (e) {
-      // TODO: add info from the original error
-      throw Error("Cannot Identify the type of a <classBodyDeclaration>");
-    }
-  });
-
   $.RULE("isDims", () => {
     $.MANY($.annotation);
     return (
       tokenMatcher(this.LA(1).tokenType, t.LSquare) &&
       tokenMatcher(this.LA(2).tokenType, t.RSquare)
     );
-  });
-
-  $.RULE("isCompactConstructorDeclaration", () => {
-    $.MANY($.constructorModifier);
-    $.SUBRULE($.simpleTypeName);
-    $.CONSUME(t.LCurly);
   });
 }

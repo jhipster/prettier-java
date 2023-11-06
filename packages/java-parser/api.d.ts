@@ -170,16 +170,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     ctx: CompactConstructorDeclarationCtx,
     param?: IN
   ): OUT;
-  isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
-  identifyClassBodyDeclarationType(
-    ctx: IdentifyClassBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
-  isCompactConstructorDeclaration(
-    ctx: IsCompactConstructorDeclarationCtx,
-    param?: IN
-  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -195,7 +186,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   usesModuleDirective(ctx: UsesModuleDirectiveCtx, param?: IN): OUT;
   providesModuleDirective(ctx: ProvidesModuleDirectiveCtx, param?: IN): OUT;
   requiresModifier(ctx: RequiresModifierCtx, param?: IN): OUT;
-  isModuleCompilationUnit(ctx: IsModuleCompilationUnitCtx, param?: IN): OUT;
   interfaceDeclaration(ctx: InterfaceDeclarationCtx, param?: IN): OUT;
   normalInterfaceDeclaration(
     ctx: NormalInterfaceDeclarationCtx,
@@ -240,18 +230,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   elementValueList(ctx: ElementValueListCtx, param?: IN): OUT;
-  identifyInterfaceBodyDeclarationType(
-    ctx: IdentifyInterfaceBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
-  identifyAnnotationBodyDeclarationType(
-    ctx: IdentifyAnnotationBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
-  isSimpleElementValueAnnotation(
-    ctx: IsSimpleElementValueAnnotationCtx,
-    param?: IN
-  ): OUT;
   arrayInitializer(ctx: ArrayInitializerCtx, param?: IN): OUT;
   variableInitializerList(ctx: VariableInitializerListCtx, param?: IN): OUT;
   block(ctx: BlockCtx, param?: IN): OUT;
@@ -305,12 +283,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   resource(ctx: ResourceCtx, param?: IN): OUT;
   yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
-  isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
-  isLocalVariableDeclaration(
-    ctx: IsLocalVariableDeclarationCtx,
-    param?: IN
-  ): OUT;
-  isClassicSwitchLabel(ctx: IsClassicSwitchLabelCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -386,14 +358,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
   unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
-  identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
-  isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
-  isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
-  isPrimitiveCastExpression(ctx: IsPrimitiveCastExpressionCtx, param?: IN): OUT;
-  isReferenceTypeCastExpression(
-    ctx: IsReferenceTypeCastExpressionCtx,
-    param?: IN
-  ): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
 
@@ -527,16 +491,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     ctx: CompactConstructorDeclarationCtx,
     param?: IN
   ): OUT;
-  isClassDeclaration(ctx: IsClassDeclarationCtx, param?: IN): OUT;
-  identifyClassBodyDeclarationType(
-    ctx: IdentifyClassBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
-  isCompactConstructorDeclaration(
-    ctx: IsCompactConstructorDeclarationCtx,
-    param?: IN
-  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -552,7 +507,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   usesModuleDirective(ctx: UsesModuleDirectiveCtx, param?: IN): OUT;
   providesModuleDirective(ctx: ProvidesModuleDirectiveCtx, param?: IN): OUT;
   requiresModifier(ctx: RequiresModifierCtx, param?: IN): OUT;
-  isModuleCompilationUnit(ctx: IsModuleCompilationUnitCtx, param?: IN): OUT;
   interfaceDeclaration(ctx: InterfaceDeclarationCtx, param?: IN): OUT;
   normalInterfaceDeclaration(
     ctx: NormalInterfaceDeclarationCtx,
@@ -597,18 +551,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   elementValueList(ctx: ElementValueListCtx, param?: IN): OUT;
-  identifyInterfaceBodyDeclarationType(
-    ctx: IdentifyInterfaceBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
-  identifyAnnotationBodyDeclarationType(
-    ctx: IdentifyAnnotationBodyDeclarationTypeCtx,
-    param?: IN
-  ): OUT;
-  isSimpleElementValueAnnotation(
-    ctx: IsSimpleElementValueAnnotationCtx,
-    param?: IN
-  ): OUT;
   arrayInitializer(ctx: ArrayInitializerCtx, param?: IN): OUT;
   variableInitializerList(ctx: VariableInitializerListCtx, param?: IN): OUT;
   block(ctx: BlockCtx, param?: IN): OUT;
@@ -662,12 +604,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   resource(ctx: ResourceCtx, param?: IN): OUT;
   yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
-  isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
-  isLocalVariableDeclaration(
-    ctx: IsLocalVariableDeclarationCtx,
-    param?: IN
-  ): OUT;
-  isClassicSwitchLabel(ctx: IsClassicSwitchLabelCtx, param?: IN): OUT;
   expression(ctx: ExpressionCtx, param?: IN): OUT;
   lambdaExpression(ctx: LambdaExpressionCtx, param?: IN): OUT;
   lambdaParameters(ctx: LambdaParametersCtx, param?: IN): OUT;
@@ -743,14 +679,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
   unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
-  identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
-  isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
-  isCastExpression(ctx: IsCastExpressionCtx, param?: IN): OUT;
-  isPrimitiveCastExpression(ctx: IsPrimitiveCastExpressionCtx, param?: IN): OUT;
-  isReferenceTypeCastExpression(
-    ctx: IsReferenceTypeCastExpressionCtx,
-    param?: IN
-  ): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
 
@@ -1836,39 +1764,6 @@ export type CompactConstructorDeclarationCtx = {
   constructorBody: ConstructorBodyCstNode[];
 };
 
-export interface IsClassDeclarationCstNode extends CstNode {
-  name: "isClassDeclaration";
-  children: IsClassDeclarationCtx;
-}
-
-export type IsClassDeclarationCtx = {
-  Semicolon?: IToken[];
-  classModifier?: ClassModifierCstNode[];
-};
-
-export interface IdentifyClassBodyDeclarationTypeCstNode extends CstNode {
-  name: "identifyClassBodyDeclarationType";
-  children: IdentifyClassBodyDeclarationTypeCtx;
-}
-
-export type IdentifyClassBodyDeclarationTypeCtx = {
-  annotation?: AnnotationCstNode[];
-  Public?: IToken[];
-  Protected?: IToken[];
-  Private?: IToken[];
-  Abstract?: IToken[];
-  Static?: IToken[];
-  Final?: IToken[];
-  Transient?: IToken[];
-  Volatile?: IToken[];
-  Synchronized?: IToken[];
-  Native?: IToken[];
-  Sealed?: IToken[];
-  NonSealed?: IToken[];
-  Strictfp?: IToken[];
-  unannType: UnannTypeCstNode[];
-};
-
 export interface IsDimsCstNode extends CstNode {
   name: "isDims";
   children: IsDimsCtx;
@@ -1881,20 +1776,6 @@ export type IsDimsCtx = {
   elementValuePairList?: ElementValuePairListCstNode[];
   elementValue?: ElementValueCstNode[];
   RBrace?: IToken[];
-};
-
-export interface IsCompactConstructorDeclarationCstNode extends CstNode {
-  name: "isCompactConstructorDeclaration";
-  children: IsCompactConstructorDeclarationCtx;
-}
-
-export type IsCompactConstructorDeclarationCtx = {
-  annotation?: AnnotationCstNode[];
-  Public?: IToken[];
-  Protected?: IToken[];
-  Private?: IToken[];
-  simpleTypeName: SimpleTypeNameCstNode[];
-  LCurly: IToken[];
 };
 
 export interface CompilationUnitCstNode extends CstNode {
@@ -2088,17 +1969,6 @@ export interface RequiresModifierCstNode extends CstNode {
 export type RequiresModifierCtx = {
   Transitive?: IToken[];
   Static?: IToken[];
-};
-
-export interface IsModuleCompilationUnitCstNode extends CstNode {
-  name: "isModuleCompilationUnit";
-  children: IsModuleCompilationUnitCtx;
-}
-
-export type IsModuleCompilationUnitCtx = {
-  packageDeclaration?: PackageDeclarationCstNode[];
-  importDeclaration?: ImportDeclarationCstNode[];
-  annotation?: AnnotationCstNode[];
 };
 
 export interface InterfaceDeclarationCstNode extends CstNode {
@@ -2377,52 +2247,6 @@ export interface ElementValueListCstNode extends CstNode {
 export type ElementValueListCtx = {
   elementValue: ElementValueCstNode[];
   Comma?: IToken[];
-};
-
-export interface IdentifyInterfaceBodyDeclarationTypeCstNode extends CstNode {
-  name: "identifyInterfaceBodyDeclarationType";
-  children: IdentifyInterfaceBodyDeclarationTypeCtx;
-}
-
-export type IdentifyInterfaceBodyDeclarationTypeCtx = {
-  annotation?: AnnotationCstNode[];
-  Public?: IToken[];
-  Protected?: IToken[];
-  Private?: IToken[];
-  Abstract?: IToken[];
-  Static?: IToken[];
-  Sealed?: IToken[];
-  NonSealed?: IToken[];
-  Strictfp?: IToken[];
-  Final?: IToken[];
-  Default?: IToken[];
-  unannType: UnannTypeCstNode[];
-};
-
-export interface IdentifyAnnotationBodyDeclarationTypeCstNode extends CstNode {
-  name: "identifyAnnotationBodyDeclarationType";
-  children: IdentifyAnnotationBodyDeclarationTypeCtx;
-}
-
-export type IdentifyAnnotationBodyDeclarationTypeCtx = {
-  annotation?: AnnotationCstNode[];
-  Public?: IToken[];
-  Protected?: IToken[];
-  Private?: IToken[];
-  Abstract?: IToken[];
-  Static?: IToken[];
-  Final?: IToken[];
-  Strictfp?: IToken[];
-  unannType: UnannTypeCstNode[];
-};
-
-export interface IsSimpleElementValueAnnotationCstNode extends CstNode {
-  name: "isSimpleElementValueAnnotation";
-  children: IsSimpleElementValueAnnotationCtx;
-}
-
-export type IsSimpleElementValueAnnotationCtx = {
-  annotation: AnnotationCstNode[];
 };
 
 export interface ArrayInitializerCstNode extends CstNode {
@@ -2972,39 +2796,6 @@ export type VariableAccessCtx = {
   primary: PrimaryCstNode[];
 };
 
-export interface IsBasicForStatementCstNode extends CstNode {
-  name: "isBasicForStatement";
-  children: IsBasicForStatementCtx;
-}
-
-export type IsBasicForStatementCtx = {
-  For: IToken[];
-  LBrace: IToken[];
-  forInit?: ForInitCstNode[];
-  Semicolon: IToken[];
-};
-
-export interface IsLocalVariableDeclarationCstNode extends CstNode {
-  name: "isLocalVariableDeclaration";
-  children: IsLocalVariableDeclarationCtx;
-}
-
-export type IsLocalVariableDeclarationCtx = {
-  variableModifier?: VariableModifierCstNode[];
-  localVariableType: LocalVariableTypeCstNode[];
-  variableDeclaratorId: VariableDeclaratorIdCstNode[];
-};
-
-export interface IsClassicSwitchLabelCstNode extends CstNode {
-  name: "isClassicSwitchLabel";
-  children: IsClassicSwitchLabelCtx;
-}
-
-export type IsClassicSwitchLabelCtx = {
-  switchLabel: SwitchLabelCstNode[];
-  Colon: IToken[];
-};
-
 export interface ExpressionCstNode extends CstNode {
   name: "expression";
   children: ExpressionCtx;
@@ -3541,53 +3332,6 @@ export interface GuardCstNode extends CstNode {
 export type GuardCtx = {
   When: IToken[];
   expression: ExpressionCstNode[];
-};
-
-export interface IdentifyNewExpressionTypeCstNode extends CstNode {
-  name: "identifyNewExpressionType";
-  children: IdentifyNewExpressionTypeCtx;
-}
-
-export type IdentifyNewExpressionTypeCtx = {
-  New: IToken[];
-  classOrInterfaceTypeToInstantiate: ClassOrInterfaceTypeToInstantiateCstNode[];
-};
-
-export interface IsLambdaExpressionCstNode extends CstNode {
-  name: "isLambdaExpression";
-  children: IsLambdaExpressionCtx;
-}
-
-export type IsLambdaExpressionCtx = {};
-
-export interface IsCastExpressionCstNode extends CstNode {
-  name: "isCastExpression";
-  children: IsCastExpressionCtx;
-}
-
-export type IsCastExpressionCtx = {};
-
-export interface IsPrimitiveCastExpressionCstNode extends CstNode {
-  name: "isPrimitiveCastExpression";
-  children: IsPrimitiveCastExpressionCtx;
-}
-
-export type IsPrimitiveCastExpressionCtx = {
-  LBrace: IToken[];
-  primitiveType: PrimitiveTypeCstNode[];
-  RBrace: IToken[];
-};
-
-export interface IsReferenceTypeCastExpressionCstNode extends CstNode {
-  name: "isReferenceTypeCastExpression";
-  children: IsReferenceTypeCastExpressionCtx;
-}
-
-export type IsReferenceTypeCastExpressionCtx = {
-  LBrace: IToken[];
-  referenceType: ReferenceTypeCstNode[];
-  additionalBound?: AdditionalBoundCstNode[];
-  RBrace: IToken[];
 };
 
 export interface IsRefTypeInMethodRefCstNode extends CstNode {

@@ -1,4 +1,5 @@
 import { CstParser, isRecognitionException } from "chevrotain";
+import { LLStarLookaheadStrategy } from "chevrotain-allstar";
 import { allTokens, tokens as t } from "./tokens.js";
 import * as lexicalStructure from "./productions/lexical-structure.js";
 import * as typesValuesVariables from "./productions/types-values-and-variables.js";
@@ -38,7 +39,9 @@ import { shouldNotFormat } from "./comments.js";
 export default class JavaParser extends CstParser {
   constructor() {
     super(allTokens, {
-      maxLookahead: 1,
+      lookaheadStrategy: new LLStarLookaheadStrategy({
+        logging: getSkipValidations() ? () => {} : undefined
+      }),
       nodeLocationTracking: "full",
       // traceInitPerf: 2,
       skipValidations: getSkipValidations()

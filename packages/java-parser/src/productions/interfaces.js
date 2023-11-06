@@ -4,11 +4,8 @@ export function defineRules($, t) {
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceDeclaration
   $.RULE("interfaceDeclaration", () => {
     // Spec Deviation: extracted the common "interfaceModifier" prefix to avoid backtracking.
-    $.MANY({
-      DEF: () => {
-        $.SUBRULE($.interfaceModifier);
-      },
-      MAX_LOOKAHEAD: 2
+    $.MANY(() => {
+      $.SUBRULE($.interfaceModifier);
     });
 
     $.OR([
@@ -74,43 +71,14 @@ export function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  const InterfaceBodyTypes = {
-    unknown: 0,
-    constantDeclaration: 1,
-    interfaceMethodDeclaration: 2,
-    classDeclaration: 3,
-    interfaceDeclaration: 4,
-    semiColon: 5
-  };
-
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("interfaceMemberDeclaration", () => {
-    const detectedType = this.BACKTRACK_LOOKAHEAD(
-      $.identifyInterfaceBodyDeclarationType
-    );
-
     $.OR([
-      {
-        GATE: () => detectedType === InterfaceBodyTypes.constantDeclaration,
-        ALT: () => $.SUBRULE($.constantDeclaration)
-      },
-      {
-        GATE: () =>
-          detectedType === InterfaceBodyTypes.interfaceMethodDeclaration,
-        ALT: () => $.SUBRULE($.interfaceMethodDeclaration)
-      },
-      {
-        GATE: () => detectedType === InterfaceBodyTypes.classDeclaration,
-        ALT: () => $.SUBRULE($.classDeclaration)
-      },
-      {
-        GATE: () => detectedType === InterfaceBodyTypes.interfaceDeclaration,
-        ALT: () => $.SUBRULE($.interfaceDeclaration)
-      },
-      {
-        // No GATE is needed as this is LL(1)
-        ALT: () => $.CONSUME(t.Semicolon)
-      }
+      { ALT: () => $.SUBRULE($.constantDeclaration) },
+      { ALT: () => $.SUBRULE($.interfaceMethodDeclaration) },
+      { ALT: () => $.SUBRULE($.classDeclaration) },
+      { ALT: () => $.SUBRULE($.interfaceDeclaration) },
+      { ALT: () => $.CONSUME(t.Semicolon) }
     ]);
   });
 
@@ -174,43 +142,14 @@ export function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  const AnnotationBodyTypes = {
-    unknown: 0,
-    annotationTypeElementDeclaration: 2,
-    constantDeclaration: 1,
-    classDeclaration: 3,
-    interfaceDeclaration: 4,
-    semiColon: 5
-  };
-
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-InterfaceMemberDeclaration
   $.RULE("annotationTypeMemberDeclaration", () => {
-    const detectedType = this.BACKTRACK_LOOKAHEAD(
-      $.identifyAnnotationBodyDeclarationType
-    );
-
     $.OR([
-      {
-        GATE: () =>
-          detectedType === AnnotationBodyTypes.annotationTypeElementDeclaration,
-        ALT: () => $.SUBRULE($.annotationTypeElementDeclaration)
-      },
-      {
-        GATE: () => detectedType === AnnotationBodyTypes.constantDeclaration,
-        ALT: () => $.SUBRULE($.constantDeclaration)
-      },
-      {
-        GATE: () => detectedType === AnnotationBodyTypes.classDeclaration,
-        ALT: () => $.SUBRULE($.classDeclaration)
-      },
-      {
-        GATE: () => detectedType === AnnotationBodyTypes.interfaceDeclaration,
-        ALT: () => $.SUBRULE($.interfaceDeclaration)
-      },
-      {
-        // No GATE is needed as this is LL(1)
-        ALT: () => $.CONSUME(t.Semicolon)
-      }
+      { ALT: () => $.SUBRULE($.annotationTypeElementDeclaration) },
+      { ALT: () => $.SUBRULE($.constantDeclaration) },
+      { ALT: () => $.SUBRULE($.classDeclaration) },
+      { ALT: () => $.SUBRULE($.interfaceDeclaration) },
+      { ALT: () => $.CONSUME(t.Semicolon) }
     ]);
   });
 
@@ -272,8 +211,7 @@ export function defineRules($, t) {
             }
           }
         ],
-        IGNORE_AMBIGUITIES: true,
-        MAX_LOOKAHEAD: 2
+        IGNORE_AMBIGUITIES: true
       });
       $.CONSUME(t.RBrace);
     });
@@ -296,22 +234,12 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-ElementValue
   $.RULE("elementValue", () => {
-    const isSimpleElementValueAnnotation = this.BACKTRACK_LOOKAHEAD(
-      $.isSimpleElementValueAnnotation
-    );
-
     $.OR([
       // Spec Deviation: "conditionalExpression" replaced with "expression"
       // Because we cannot differentiate between the two using fixed lookahead.
-      {
-        GATE: () => isSimpleElementValueAnnotation === false,
-        ALT: () => $.SUBRULE($.expression)
-      },
+      { ALT: () => $.SUBRULE($.expression) },
       { ALT: () => $.SUBRULE($.elementValueArrayInitializer) },
-      {
-        GATE: () => isSimpleElementValueAnnotation === true,
-        ALT: () => $.SUBRULE($.annotation)
-      }
+      { ALT: () => $.SUBRULE($.annotation) }
     ]);
   });
 
@@ -337,168 +265,5 @@ export function defineRules($, t) {
         $.SUBRULE2($.elementValue);
       }
     });
-  });
-
-  // ------------------------------------
-  // Special optimized backtracking rules.
-  // ------------------------------------
-  $.RULE("identifyInterfaceBodyDeclarationType", () => {
-    let nextTokenType = this.LA(1).tokenType;
-    if (tokenMatcher(nextTokenType, t.Semicolon)) {
-      return InterfaceBodyTypes.semiColon;
-    }
-
-    // We have to look beyond the modifiers to distinguish between the declaration types.
-    $.MANY({
-      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
-      GATE: () =>
-        (tokenMatcher($.LA(1).tokenType, t.At) &&
-          tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-      DEF: () => {
-        // This alternation includes all possible modifiers for all types of "interfaceMemberDeclaration"
-        // Certain combinations are syntactically invalid, this is **not** checked here,
-        // Invalid combinations will cause a descriptive parsing error message to be
-        // Created inside the relevant parsing rules **after** this lookahead
-        // analysis.
-        $.OR([
-          { ALT: () => $.SUBRULE($.annotation) },
-          { ALT: () => $.CONSUME(t.Public) },
-          { ALT: () => $.CONSUME(t.Protected) },
-          { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Sealed) },
-          { ALT: () => $.CONSUME(t.NonSealed) },
-          { ALT: () => $.CONSUME(t.Strictfp) },
-          { ALT: () => $.CONSUME(t.Final) },
-          { ALT: () => $.CONSUME(t.Default) }
-        ]);
-      }
-    });
-
-    nextTokenType = this.LA(1).tokenType;
-    if (
-      tokenMatcher(nextTokenType, t.Class) ||
-      tokenMatcher(nextTokenType, t.Enum) ||
-      tokenMatcher(nextTokenType, t.Record)
-    ) {
-      return InterfaceBodyTypes.classDeclaration;
-    }
-    if (
-      tokenMatcher(nextTokenType, t.Interface) ||
-      tokenMatcher(nextTokenType, t.At)
-    ) {
-      return InterfaceBodyTypes.interfaceDeclaration;
-    }
-    if (
-      tokenMatcher(nextTokenType, t.Void) ||
-      tokenMatcher(nextTokenType, t.Less)
-    ) {
-      // method with result type "void"
-      return InterfaceBodyTypes.interfaceMethodDeclaration;
-    }
-
-    // Only constant or interfaceMethod declarations may be valid at this point.
-    // All other alternatives should have been attempted.
-    // **both** start with "unannType"
-    this.SUBRULE($.unannType);
-
-    const nextToken = this.LA(1);
-    const nextNextTokenType = this.LA(2).tokenType;
-    // "foo(..." --> look like method start
-    if (
-      tokenMatcher(nextToken, t.Identifier) &&
-      tokenMatcher(nextNextTokenType, t.LBrace)
-    ) {
-      return InterfaceBodyTypes.interfaceMethodDeclaration;
-    }
-    // a valid constant
-    if (tokenMatcher(nextToken, t.Identifier)) {
-      return InterfaceBodyTypes.constantDeclaration;
-    }
-    return InterfaceBodyTypes.unknown;
-  });
-
-  $.RULE("identifyAnnotationBodyDeclarationType", () => {
-    let nextTokenType = this.LA(1).tokenType;
-    if (tokenMatcher(nextTokenType, t.Semicolon)) {
-      return AnnotationBodyTypes.semiColon;
-    }
-
-    // We have to look beyond the modifiers to distinguish between the declaration types.
-    $.MANY({
-      // To avoid ambiguity with @interface ("AnnotationTypeDeclaration" vs "Annotaion")
-      GATE: () =>
-        (tokenMatcher($.LA(1).tokenType, t.At) &&
-          tokenMatcher($.LA(2).tokenType, t.Interface)) === false,
-      DEF: () => {
-        // This alternation includes all possible modifiers for all types of "annotationTypeMemberDeclaration"
-        // Certain combinations are syntactically invalid, this is **not** checked here,
-        // Invalid combinations will cause a descriptive parsing error message to be
-        // Created inside the relevant parsing rules **after** this lookahead
-        // analysis.
-        $.OR([
-          { ALT: () => $.SUBRULE($.annotation) },
-          { ALT: () => $.CONSUME(t.Public) },
-          { ALT: () => $.CONSUME(t.Protected) },
-          { ALT: () => $.CONSUME(t.Private) },
-          { ALT: () => $.CONSUME(t.Abstract) },
-          { ALT: () => $.CONSUME(t.Static) },
-          { ALT: () => $.CONSUME(t.Final) },
-          { ALT: () => $.CONSUME(t.Strictfp) }
-        ]);
-      }
-    });
-
-    nextTokenType = this.LA(1).tokenType;
-    if (
-      tokenMatcher(nextTokenType, t.Class) ||
-      tokenMatcher(nextTokenType, t.Enum)
-    ) {
-      return AnnotationBodyTypes.classDeclaration;
-    }
-    if (
-      tokenMatcher(nextTokenType, t.Interface) ||
-      tokenMatcher(nextTokenType, t.At)
-    ) {
-      return AnnotationBodyTypes.interfaceDeclaration;
-    }
-
-    // Only constant or annotationTypeElement declarations may be valid at this point.
-    // All other alternatives should have been attempted.
-    // **both** start with "unannType"
-    this.SUBRULE($.unannType);
-
-    nextTokenType = this.LA(1).tokenType;
-    const nextNextTokenType = this.LA(2).tokenType;
-    // "foo(..." --> look like annotationTypeElement start
-    if (
-      tokenMatcher(nextTokenType, t.Identifier) &&
-      tokenMatcher(nextNextTokenType, t.LBrace)
-    ) {
-      return AnnotationBodyTypes.annotationTypeElementDeclaration;
-    }
-    // a valid constant
-    if (tokenMatcher(nextTokenType, t.Identifier)) {
-      return AnnotationBodyTypes.constantDeclaration;
-    }
-    return AnnotationBodyTypes.unknown;
-  });
-
-  $.RULE("isSimpleElementValueAnnotation", () => {
-    $.SUBRULE($.annotation);
-    const nextTokenType = this.LA(1).tokenType;
-    switch (nextTokenType) {
-      // annotation in "ElementValue" would be followed by one of those
-      // any other TokenType would indicate it is an annotation in a "referenceType"
-      // as part of a "methodReference" in "primary"
-      case t.Comma:
-      case t.Semicolon:
-      case t.RCurly:
-      case t.RBrace:
-        return true;
-      default:
-        return false;
-    }
   });
 }

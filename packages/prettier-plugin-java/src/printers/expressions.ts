@@ -760,26 +760,6 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return concat([ctx.When[0], " ", expression]);
   }
 
-  identifyNewExpressionType() {
-    return "identifyNewExpressionType";
-  }
-
-  isLambdaExpression() {
-    return "isLambdaExpression";
-  }
-
-  isCastExpression() {
-    return "isCastExpression";
-  }
-
-  isPrimitiveCastExpression() {
-    return "isPrimitiveCastExpression";
-  }
-
-  isReferenceTypeCastExpression() {
-    return "isReferenceTypeCastExpression";
-  }
-
   isRefTypeInMethodRef() {
     return "isRefTypeInMethodRef";
   }

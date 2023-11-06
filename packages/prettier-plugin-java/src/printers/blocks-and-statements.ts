@@ -607,16 +607,4 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   variableAccess(ctx: VariableAccessCtx) {
     return this.visitSingle(ctx);
   }
-
-  isBasicForStatement() {
-    return "isBasicForStatement";
-  }
-
-  isLocalVariableDeclaration() {
-    return "isLocalVariableDeclaration";
-  }
-
-  isClassicSwitchLabel() {
-    return "isClassicSwitchLabel";
-  }
 }

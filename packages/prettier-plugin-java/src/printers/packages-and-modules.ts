@@ -256,8 +256,4 @@ export class PackagesAndModulesPrettierVisitor extends BaseCstPrettierPrinter {
   requiresModifier(ctx: RequiresModifierCtx) {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
-
-  isModuleCompilationUnit() {
-    return "isModuleCompilationUnit";
-  }
 }
