@@ -1,4 +1,4 @@
-import { Parser, isRecognitionException } from "chevrotain";
+import { CstParser, isRecognitionException } from "chevrotain";
 import { allTokens, tokens as t } from "./tokens.js";
 import * as lexicalStructure from "./productions/lexical-structure.js";
 import * as typesValuesVariables from "./productions/types-values-and-variables.js";
@@ -35,7 +35,7 @@ import { shouldNotFormat } from "./comments.js";
  * TODO: document guide lines for using back tracking
  *
  */
-export default class JavaParser extends Parser {
+export default class JavaParser extends CstParser {
   constructor() {
     super(allTokens, {
       maxLookahead: 1,
@@ -76,16 +76,16 @@ export default class JavaParser extends Parser {
   }
 
   cstPostNonTerminal(ruleCstResult, ruleName) {
-    super.cstPostNonTerminal(ruleCstResult, ruleName);
-    if (this.isBackTracking() === false) {
-      this.mostEnclosiveCstNodeByStartOffset[
-        ruleCstResult.location.startOffset
-      ] = ruleCstResult;
-      this.mostEnclosiveCstNodeByEndOffset[ruleCstResult.location.endOffset] =
-        ruleCstResult;
-
-      shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
+    if (this.isBackTracking()) {
+      return;
     }
+    super.cstPostNonTerminal(ruleCstResult, ruleName);
+    this.mostEnclosiveCstNodeByStartOffset[ruleCstResult.location.startOffset] =
+      ruleCstResult;
+    this.mostEnclosiveCstNodeByEndOffset[ruleCstResult.location.endOffset] =
+      ruleCstResult;
+
+    shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
   }
 
   BACKTRACK_LOOKAHEAD(production, errValue = false) {
@@ -94,16 +94,26 @@ export default class JavaParser extends Parser {
       // TODO: "saveRecogState" does not handle the occurrence stack
       const orgState = this.saveRecogState();
       try {
-        // hack to enable outputting none CST values from grammar rules.
-        this.outputCst = false;
-        return production.call(this);
+        // hack to enable outputting non-CST values from grammar rules.
+        const { ruleName, originalGrammarAction } = production;
+        try {
+          this.ruleInvocationStateUpdate(
+            this.fullRuleNameToShort[ruleName],
+            ruleName,
+            this.subruleIdx
+          );
+          return originalGrammarAction.call(this);
+        } catch (e) {
+          return this.invokeRuleCatch(e, true, () => undefined);
+        } finally {
+          this.ruleFinallyStateUpdate();
+        }
       } catch (e) {
         if (isRecognitionException(e)) {
           return errValue;
         }
         throw e;
       } finally {
-        this.outputCst = true;
         this.reloadRecogState(orgState);
         this.isBackTrackingStack.pop();
       }
