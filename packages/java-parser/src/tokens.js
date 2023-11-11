@@ -229,12 +229,42 @@ createToken({
 
 createToken({
   name: "TextBlock",
-  pattern: /"""\s*\n(\\"|\s|.)*?"""/
+  pattern: MAKE_PATTERN('"""\\s*\\n(?:[^\\\\]|{{StringCharacter}})*"""')
+});
+
+createToken({
+  name: "TextBlockTemplateBegin",
+  pattern: MAKE_PATTERN('"""\\s*\\n(?:[^\\\\]|{{StringCharacter}})*\\\\\\{')
+});
+
+createToken({
+  name: "TextBlockTemplateEnd",
+  pattern: MAKE_PATTERN('\\}(?:[^\\\\]|{{StringCharacter}})*"""')
 });
 
 createToken({
   name: "StringLiteral",
   pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
+});
+
+createToken({
+  name: "StringTemplateBegin",
+  pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*\\\\\\{')
+});
+
+createToken({
+  name: "StringTemplateMid",
+  pattern: MAKE_PATTERN('\\}(?:[^\\\\"]|{{StringCharacter}})*\\\\\\{')
+});
+
+createToken({
+  name: "TextBlockTemplateMid",
+  pattern: MAKE_PATTERN('\\}(?:[^\\\\]|{{StringCharacter}})*\\\\\\{')
+});
+
+createToken({
+  name: "StringTemplateEnd",
+  pattern: MAKE_PATTERN('\\}(?:[^\\\\"]|{{StringCharacter}})*"')
 });
 
 // https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html#jls-3.9

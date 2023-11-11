@@ -224,6 +224,9 @@ function defineRules($, t) {
       { ALT: () => $.CONSUME(t.This) },
       { ALT: () => $.CONSUME(t.Void) },
       { ALT: () => $.SUBRULE($.unannPrimitiveTypeWithOptionalDimsSuffix) },
+      {
+        GATE: () => this.BACKTRACK_LOOKAHEAD($.isTemplateExpression),
+        ALT: () => $.SUBRULE($.templateExpression) },
       { ALT: () => $.SUBRULE($.fqnOrRefType) },
       {
         GATE: () => isCastExpression,
@@ -231,7 +234,7 @@ function defineRules($, t) {
       },
       { ALT: () => $.SUBRULE($.parenthesisExpression) },
       { ALT: () => $.SUBRULE($.newExpression) },
-      { ALT: () => $.SUBRULE($.switchStatement) }
+      { ALT: () => $.SUBRULE($.switchStatement) },
     ]);
   });
 
@@ -278,7 +281,11 @@ function defineRules($, t) {
         // avoids ambiguity with ".this" and ".new" which are parsed as a primary suffix.
         tokenMatcher(this.LA(2).tokenType, t.Class) === false &&
         tokenMatcher(this.LA(2).tokenType, t.This) === false &&
-        tokenMatcher(this.LA(2).tokenType, t.New) === false,
+        tokenMatcher(this.LA(2).tokenType, t.New) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.StringLiteral) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.TextBlock) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.StringTemplateBegin) === false &&
+        tokenMatcher(this.LA(2).tokenType, t.TextBlockTemplateBegin) === false,
       DEF: () => {
         $.CONSUME(t.Dot);
         $.SUBRULE2($.fqnOrRefTypePartRest);
@@ -604,6 +611,61 @@ function defineRules($, t) {
     $.SUBRULE($.expression);
   });
 
+  $.RULE("templateExpression", () => {
+    $.SUBRULE($.templateProcessor);
+    $.CONSUME(t.Dot);
+    $.SUBRULE($.templateArgument);
+  });
+
+  $.RULE("templateProcessor", () => {
+    $.SUBRULE($.fqnOrRefType);
+  });
+
+  $.RULE("templateArgument", () => {
+    $.OR([
+      { ALT: () => $.CONSUME(t.StringLiteral) },
+      { ALT: () => $.CONSUME(t.TextBlock) },
+      { ALT: () => $.SUBRULE($.template) },
+    ]);
+  });
+
+  $.RULE("template", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.stringTemplate) },
+      { ALT: () => $.SUBRULE($.textBlockTemplate) },
+    ]);
+  });
+
+  $.RULE("stringTemplate", () => {
+    $.CONSUME(t.StringTemplateBegin);
+    $.SUBRULE($.embeddedExpression);
+    $.MANY(() => {
+      $.CONSUME(t.StringTemplateMid);
+      $.SUBRULE1($.embeddedExpression);
+    });
+    $.CONSUME(t.StringTemplateEnd);
+  });
+
+  $.RULE("textBlockTemplate", () => {
+    $.CONSUME(t.TextBlockTemplateBegin);
+    $.SUBRULE($.embeddedExpression);
+    $.MANY(() => {
+      $.OR([
+        { ALT: () => $.CONSUME(t.TextBlockTemplateMid)},
+        { ALT: () => $.CONSUME(t.StringTemplateMid)},
+      ])
+
+      $.SUBRULE1($.embeddedExpression);
+    });
+    $.CONSUME(t.TextBlockTemplateEnd);
+  });
+
+  $.RULE("embeddedExpression", () => {
+    $.OPTION(() => {
+      $.SUBRULE($.expression);
+    });
+  });
+
   // backtracking lookahead logic
   $.RULE("identifyNewExpressionType", () => {
     $.CONSUME(t.New);
@@ -719,6 +781,19 @@ function defineRules($, t) {
 
     const firstTokTypeAfterRefType = this.LA(1).tokenType;
     return tokenMatcher(firstTokTypeAfterRefType, t.ColonColon);
+  });
+
+  $.RULE("isTemplateExpression", () => {
+    $.SUBRULE($.fqnOrRefType);
+    $.CONSUME(t.Dot);
+    $.OR([
+      { ALT: () => $.CONSUME(t.StringLiteral) },
+      { ALT: () => $.CONSUME(t.TextBlock) },
+      { ALT: () => $.CONSUME(t.TextBlockTemplateBegin) },
+      { ALT: () => $.CONSUME(t.StringTemplateBegin) },
+    ]);
+
+    return true;
   });
 }
 
