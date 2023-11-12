@@ -1,4 +1,10 @@
-# Latest v2.3.1
+# Latest v2.4.0
+
+## Enhancements
+- Supports Java 21 record pattern ([#611](https://github.com/jhipster/prettier-java/pull/611) by [@jtkiesel](https://github.com/jtkiesel))
+- Supports Java 21 preview feature: unnamed class compilation unit ([JEP 445](https://openjdk.org/jeps/445)) ([#615](https://github.com/jhipster/prettier-java/pull/615))
+
+# v2.3.1
 
 ## Fixes
 
