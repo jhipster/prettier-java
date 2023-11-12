@@ -1,8 +1,16 @@
 "use strict";
 const { isRecognitionException, tokenMatcher, EOF } = require("chevrotain");
+const { classBodyTypes } = require("./utils/class-body-types");
 
 function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#CompilationUnit
+  /**
+   * Spec Deviation: As OrdinaryCompilationUnit and UnnamedClassCompilationUnit
+   * both can have multiple class or interface declarations, both were combined
+   * in the ordinaryCompilationUnit rule
+   *
+   * https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.3
+   * https://docs.oracle.com/javase/specs/jls/se21/preview/specs/unnamed-classes-instance-main-methods-jls.html
+   */
   $.RULE("compilationUnit", () => {
     // custom optimized backtracking lookahead logic
     const isModule = $.BACKTRACK_LOOKAHEAD($.isModuleCompilationUnit);
@@ -95,18 +103,40 @@ function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-TypeDeclaration
+  /**
+   * Spec Deviation: As OrdinaryCompilationUnit and UnnamedClassCompilationUnit
+   * both can have multiple class or interface declarations, both were combined
+   * in the ordinaryCompilationUnit rule
+   *
+   * As a result, the typeDeclaration combine TopLevelClassOrInterfaceDeclaration and includes fields and method declarations as well
+   * to handle unnamed class compilation unit
+   *
+   * https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-TopLevelClassOrInterfaceDeclaration
+   * https://docs.oracle.com/javase/specs/jls/se21/preview/specs/unnamed-classes-instance-main-methods-jls.html
+   */
   $.RULE("typeDeclaration", () => {
     // TODO: consider extracting the prefix modifiers here to avoid backtracking
-    const isClassDeclaration = this.BACKTRACK_LOOKAHEAD($.isClassDeclaration);
+    const nextRuleType = $.BACKTRACK_LOOKAHEAD(
+      $.identifyClassBodyDeclarationType
+    );
 
     $.OR([
+      { ALT: () => $.CONSUME(t.Semicolon) },
       {
-        GATE: () => isClassDeclaration,
+        GATE: () => nextRuleType === classBodyTypes.classDeclaration,
         ALT: () => $.SUBRULE($.classDeclaration)
       },
-      { ALT: () => $.SUBRULE($.interfaceDeclaration) },
-      { ALT: () => $.CONSUME(t.Semicolon) }
+      {
+        GATE: () => nextRuleType === classBodyTypes.interfaceDeclaration,
+        ALT: () => $.SUBRULE($.interfaceDeclaration)
+      },
+      {
+        GATE: () => nextRuleType === classBodyTypes.fieldDeclaration,
+        ALT: () => $.SUBRULE($.fieldDeclaration)
+      },
+      {
+        ALT: () => $.SUBRULE($.methodDeclaration)
+      }
     ]);
   });
 
