@@ -7,3 +7,5 @@ coverage
 .nyc_output
 *.log
 src
+dist/test
+*-spec.js
