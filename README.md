@@ -1,7 +1,4 @@
-[![Github Actions Build Status][github-actions-image]][gitub-actions-main]
-
-[github-actions-image]: https://github.com/jhipster/prettier-java/workflows/prettier-java/badge.svg
-[gitub-actions-main]: https://github.com/jhipster/prettier-java/actions
+![Github Actions Build Status](https://github.com/jhipster/prettier-java/actions/workflows/github-ci.yml/badge.svg?branch=main)
 
 # Prettier Java
 
