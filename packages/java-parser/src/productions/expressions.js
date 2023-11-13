@@ -21,7 +21,8 @@ function defineRules($, t) {
   $.RULE("lambdaParameters", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.lambdaParametersWithBraces) },
-      { ALT: () => $.CONSUME(t.Identifier) }
+      { ALT: () => $.CONSUME(t.Identifier) },
+      { ALT: () => $.CONSUME(t.Underscore) }
     ]);
   });
 
@@ -584,18 +585,29 @@ function defineRules($, t) {
     $.SUBRULE($.referenceType);
     $.CONSUME(t.LBrace);
     $.OPTION(() => {
-      $.SUBRULE($.patternList);
+      $.SUBRULE($.componentPatternList);
     });
     $.CONSUME(t.RBrace);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-PatternList
-  $.RULE("patternList", () => {
-    $.SUBRULE($.pattern);
+  $.RULE("componentPatternList", () => {
+    $.SUBRULE($.componentPattern);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE2($.pattern);
+      $.SUBRULE2($.componentPattern);
     });
+  });
+
+  $.RULE("componentPattern", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.pattern) },
+      { ALT: () => $.SUBRULE($.unnamedPattern) }
+    ]);
+  });
+
+  $.RULE("unnamedPattern", () => {
+    $.CONSUME(t.Underscore);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Guard
@@ -643,7 +655,8 @@ function defineRules($, t) {
     const secondTokenType = this.LA(2).tokenType;
     // no parent lambda "x -> x * 2"
     if (
-      tokenMatcher(firstTokenType, t.Identifier) &&
+      (tokenMatcher(firstTokenType, t.Identifier) ||
+        tokenMatcher(firstTokenType, t.Underscore)) &&
       tokenMatcher(secondTokenType, t.Arrow)
     ) {
       return true;

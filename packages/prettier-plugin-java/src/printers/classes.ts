@@ -422,7 +422,10 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   variableDeclaratorId(ctx: VariableDeclaratorIdCtx) {
-    const identifier = ctx.Identifier[0];
+    if (ctx.Underscore) {
+      return printTokenWithComments(ctx.Underscore[0]);
+    }
+    const identifier = ctx.Identifier![0];
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([identifier, dims]);
