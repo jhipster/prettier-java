@@ -52,6 +52,8 @@ describe("Pattern matching", () => {
 
   it("should parse pattern list", () => {
     const input = `A a, B b`;
-    expect(() => javaParser.parse(input, "patternList")).to.not.throw();
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
   });
 });

@@ -48,7 +48,7 @@ describe("Switch cases", () => {
       case String s -> String.format("String %s", s);
       case TOTO -> String.format("TOTO %s", o);
       case null -> String.format("Null !");
-      case default -> String.format("Default !");
+      case null, default -> String.format("Default !");
       default -> o.toString();
     }`;
     expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();

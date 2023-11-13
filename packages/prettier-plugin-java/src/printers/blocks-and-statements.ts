@@ -27,8 +27,6 @@ import {
   BlockStatementsCtx,
   BreakStatementCtx,
   CaseConstantCtx,
-  CaseLabelElementCtx,
-  CaseOrDefaultLabelCtx,
   CatchClauseCtx,
   CatchesCtx,
   CatchFormalParameterCtx,
@@ -49,7 +47,6 @@ import {
   LocalVariableDeclarationStatementCtx,
   LocalVariableTypeCtx,
   ResourceCtx,
-  ResourceInitCtx,
   ResourceListCtx,
   ResourceSpecificationCtx,
   ReturnStatementCtx,
@@ -279,49 +276,32 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   switchLabel(ctx: SwitchLabelCtx) {
-    const caseOrDefaultLabels = this.mapVisit(ctx.caseOrDefaultLabel);
-
-    const colons = ctx.Colon
-      ? ctx.Colon.map(elt => {
-          return concat([elt, hardline]);
-        })
-      : [];
-
-    return group(rejectAndJoinSeps(colons, caseOrDefaultLabels));
-  }
-
-  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx) {
-    if (ctx.Case) {
-      const caseLabelElements = this.mapVisit(ctx.caseLabelElement);
-
-      const commas = ctx.Comma
-        ? ctx.Comma.map(elt => {
-            return concat([elt, line]);
-          })
-        : [];
-
+    const Case = ctx.Case?.[0];
+    const commas = ctx.Comma?.map(elt => concat([elt, line]));
+    if (ctx.caseConstant || ctx.Null) {
+      const caseConstants = ctx.Null
+        ? [ctx.Null[0], ctx.Default?.[0]]
+        : this.mapVisit(ctx.caseConstant);
       return group(
-        indent(
-          rejectAndConcat([
-            concat([ctx.Case[0], " "]),
-            rejectAndJoinSeps(commas, caseLabelElements)
-          ])
-        )
+        indent(join(" ", [Case!, rejectAndJoinSeps(commas, caseConstants)]))
+      );
+    } else if (ctx.pattern) {
+      const patterns = this.mapVisit(ctx.pattern);
+      const guard = this.visit(ctx.guard);
+      const multiplePatterns = ctx.pattern.length > 1;
+      const separator = multiplePatterns ? line : " ";
+      const contents = join(separator, [
+        Case!,
+        rejectAndJoinSeps(commas, patterns)
+      ]);
+      return group(
+        rejectAndJoin(separator, [
+          multiplePatterns ? indent(contents) : contents,
+          guard
+        ])
       );
     }
-
-    return concat([ctx.Default![0]]);
-  }
-
-  caseLabelElement(ctx: CaseLabelElementCtx) {
-    if (ctx.Default || ctx.Null) {
-      return this.getSingle(ctx);
-    } else if (ctx.pattern) {
-      const pattern = this.visit(ctx.pattern);
-      const guard = this.visit(ctx.guard);
-      return rejectAndJoin(" ", [dedent(pattern), guard]);
-    }
-    return this.visit(ctx.caseConstant);
+    return printTokenWithComments(ctx.Default![0]);
   }
 
   switchRule(ctx: SwitchRuleCtx) {
@@ -619,21 +599,6 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
 
   resource(ctx: ResourceCtx) {
     return this.visitSingle(ctx);
-  }
-
-  resourceInit(ctx: ResourceInitCtx) {
-    const variableModifiers = this.mapVisit(ctx.variableModifier);
-    const localVariableType = this.visit(ctx.localVariableType);
-    const identifier = ctx.Identifier[0];
-    const expression = this.visit(ctx.expression);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifiers),
-      localVariableType,
-      identifier,
-      ctx.Equals[0],
-      expression
-    ]);
   }
 
   yieldStatement(ctx: YieldStatementCtx) {

@@ -278,8 +278,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
-  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
-  caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -305,7 +303,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   resourceSpecification(ctx: ResourceSpecificationCtx, param?: IN): OUT;
   resourceList(ctx: ResourceListCtx, param?: IN): OUT;
   resource(ctx: ResourceCtx, param?: IN): OUT;
-  resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
   yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
@@ -385,7 +382,9 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   pattern(ctx: PatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
-  patternList(ctx: PatternListCtx, param?: IN): OUT;
+  componentPatternList(ctx: ComponentPatternListCtx, param?: IN): OUT;
+  componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
+  unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
@@ -636,8 +635,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchBlock(ctx: SwitchBlockCtx, param?: IN): OUT;
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx, param?: IN): OUT;
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
-  caseOrDefaultLabel(ctx: CaseOrDefaultLabelCtx, param?: IN): OUT;
-  caseLabelElement(ctx: CaseLabelElementCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
@@ -663,7 +660,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   resourceSpecification(ctx: ResourceSpecificationCtx, param?: IN): OUT;
   resourceList(ctx: ResourceListCtx, param?: IN): OUT;
   resource(ctx: ResourceCtx, param?: IN): OUT;
-  resourceInit(ctx: ResourceInitCtx, param?: IN): OUT;
   yieldStatement(ctx: YieldStatementCtx, param?: IN): OUT;
   variableAccess(ctx: VariableAccessCtx, param?: IN): OUT;
   isBasicForStatement(ctx: IsBasicForStatementCtx, param?: IN): OUT;
@@ -743,7 +739,9 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   pattern(ctx: PatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
-  patternList(ctx: PatternListCtx, param?: IN): OUT;
+  componentPatternList(ctx: ComponentPatternListCtx, param?: IN): OUT;
+  componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
+  unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
   identifyNewExpressionType(ctx: IdentifyNewExpressionTypeCtx, param?: IN): OUT;
   isLambdaExpression(ctx: IsLambdaExpressionCtx, param?: IN): OUT;
@@ -1283,8 +1281,9 @@ export interface VariableDeclaratorIdCstNode extends CstNode {
 }
 
 export type VariableDeclaratorIdCtx = {
-  Identifier: IToken[];
+  Identifier?: IToken[];
   dims?: DimsCstNode[];
+  Underscore?: IToken[];
 };
 
 export interface VariableInitializerCstNode extends CstNode {
@@ -2652,28 +2651,8 @@ export interface SwitchLabelCstNode extends CstNode {
 }
 
 export type SwitchLabelCtx = {
-  caseOrDefaultLabel: CaseOrDefaultLabelCstNode[];
-  Colon?: IToken[];
-};
-
-export interface CaseOrDefaultLabelCstNode extends CstNode {
-  name: "caseOrDefaultLabel";
-  children: CaseOrDefaultLabelCtx;
-}
-
-export type CaseOrDefaultLabelCtx = {
   Case?: IToken[];
-  caseLabelElement?: CaseLabelElementCstNode[];
   Comma?: IToken[];
-  Default?: IToken[];
-};
-
-export interface CaseLabelElementCstNode extends CstNode {
-  name: "caseLabelElement";
-  children: CaseLabelElementCtx;
-}
-
-export type CaseLabelElementCtx = {
   Null?: IToken[];
   Default?: IToken[];
   pattern?: PatternCstNode[];
@@ -2969,21 +2948,8 @@ export interface ResourceCstNode extends CstNode {
 }
 
 export type ResourceCtx = {
-  resourceInit?: ResourceInitCstNode[];
+  localVariableDeclaration?: LocalVariableDeclarationCstNode[];
   variableAccess?: VariableAccessCstNode[];
-};
-
-export interface ResourceInitCstNode extends CstNode {
-  name: "resourceInit";
-  children: ResourceInitCtx;
-}
-
-export type ResourceInitCtx = {
-  variableModifier?: VariableModifierCstNode[];
-  localVariableType: LocalVariableTypeCstNode[];
-  Identifier: IToken[];
-  Equals: IToken[];
-  expression: ExpressionCstNode[];
 };
 
 export interface YieldStatementCstNode extends CstNode {
@@ -3068,6 +3034,7 @@ export interface LambdaParametersCstNode extends CstNode {
 export type LambdaParametersCtx = {
   lambdaParametersWithBraces?: LambdaParametersWithBracesCstNode[];
   Identifier?: IToken[];
+  Underscore?: IToken[];
 };
 
 export interface LambdaParametersWithBracesCstNode extends CstNode {
@@ -3533,18 +3500,37 @@ export interface RecordPatternCstNode extends CstNode {
 export type RecordPatternCtx = {
   referenceType: ReferenceTypeCstNode[];
   LBrace: IToken[];
-  patternList?: PatternListCstNode[];
+  componentPatternList?: ComponentPatternListCstNode[];
   RBrace: IToken[];
 };
 
-export interface PatternListCstNode extends CstNode {
-  name: "patternList";
-  children: PatternListCtx;
+export interface ComponentPatternListCstNode extends CstNode {
+  name: "componentPatternList";
+  children: ComponentPatternListCtx;
 }
 
-export type PatternListCtx = {
-  pattern: PatternCstNode[];
+export type ComponentPatternListCtx = {
+  componentPattern: ComponentPatternCstNode[];
   Comma?: IToken[];
+};
+
+export interface ComponentPatternCstNode extends CstNode {
+  name: "componentPattern";
+  children: ComponentPatternCtx;
+}
+
+export type ComponentPatternCtx = {
+  pattern?: PatternCstNode[];
+  unnamedPattern?: UnnamedPatternCstNode[];
+};
+
+export interface UnnamedPatternCstNode extends CstNode {
+  name: "unnamedPattern";
+  children: UnnamedPatternCtx;
+}
+
+export type UnnamedPatternCtx = {
+  Underscore: IToken[];
 };
 
 export interface GuardCstNode extends CstNode {

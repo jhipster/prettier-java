@@ -207,56 +207,49 @@ function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-SwitchLabel
   $.RULE("switchLabel", () => {
-    $.SUBRULE($.caseOrDefaultLabel);
-    $.MANY({
-      GATE: () =>
-        tokenMatcher($.LA(1).tokenType, t.Colon) &&
-        (tokenMatcher($.LA(2).tokenType, t.Case) ||
-          tokenMatcher($.LA(2).tokenType, t.Default)),
-      DEF: () => {
-        $.CONSUME(t.Colon);
-        $.SUBRULE2($.caseOrDefaultLabel);
-      }
-    });
-  });
-
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-SwitchLabel
-  $.RULE("caseOrDefaultLabel", () => {
     $.OR([
       {
         ALT: () => {
           $.CONSUME(t.Case);
-          $.SUBRULE($.caseLabelElement);
-          $.MANY(() => {
-            $.CONSUME(t.Comma);
-            $.SUBRULE2($.caseLabelElement);
-          });
+          $.OR2([
+            {
+              ALT: () => {
+                $.CONSUME(t.Null);
+                $.OPTION2(() => {
+                  $.CONSUME3(t.Comma);
+                  $.CONSUME(t.Default);
+                });
+              }
+            },
+            {
+              GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
+              ALT: () => {
+                $.SUBRULE($.pattern);
+                $.MANY(() => {
+                  $.CONSUME(t.Comma);
+                  $.SUBRULE2($.pattern);
+                });
+                $.OPTION(() => {
+                  $.SUBRULE($.guard);
+                });
+              }
+            },
+            {
+              GATE: () => !tokenMatcher($.LA(1).tokenType, t.Null),
+              ALT: () => {
+                $.SUBRULE($.caseConstant);
+                $.MANY2(() => {
+                  $.CONSUME2(t.Comma);
+                  $.SUBRULE2($.caseConstant);
+                });
+              }
+            }
+          ]);
         }
       },
-      {
-        ALT: () => $.CONSUME(t.Default)
-      }
-    ]);
-  });
-
-  $.RULE("caseLabelElement", () => {
-    $.OR([
-      { ALT: () => $.CONSUME(t.Null) },
-      { ALT: () => $.CONSUME(t.Default) },
-      {
-        GATE: () => this.BACKTRACK_LOOKAHEAD($.pattern),
-        ALT: () => {
-          $.SUBRULE($.pattern);
-          $.OPTION(() => {
-            $.SUBRULE($.guard);
-          });
-        }
-      },
-      {
-        GATE: () => tokenMatcher($.LA(1).tokenType, t.Null) === false,
-        ALT: () => $.SUBRULE($.caseConstant)
-      }
+      { ALT: () => $.CONSUME2(t.Default) }
     ]);
   });
 
@@ -516,28 +509,15 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-Resource
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Resource
   $.RULE("resource", () => {
     $.OR([
       {
-        GATE: $.BACKTRACK($.resourceInit),
-        // Spec Deviation: extracted this alternative to "resourceInit"
-        //                 to enable backtracking.
-        ALT: () => $.SUBRULE($.resourceInit)
+        GATE: () => $.BACKTRACK_LOOKAHEAD($.isLocalVariableDeclaration),
+        ALT: () => $.SUBRULE($.localVariableDeclaration)
       },
       { ALT: () => $.SUBRULE($.variableAccess) }
     ]);
-  });
-
-  // Spec Deviation: extracted from "resource"
-  $.RULE("resourceInit", () => {
-    $.MANY(() => {
-      $.SUBRULE($.variableModifier);
-    });
-    $.SUBRULE($.localVariableType);
-    $.CONSUME(t.Identifier);
-    $.CONSUME(t.Equals);
-    $.SUBRULE($.expression);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-YieldStatement

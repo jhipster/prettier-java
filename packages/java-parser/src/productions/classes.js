@@ -210,12 +210,19 @@ function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-VariableDeclaratorId
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-VariableDeclaratorId
   $.RULE("variableDeclaratorId", () => {
-    $.CONSUME(t.Identifier);
-    $.OPTION(() => {
-      $.SUBRULE($.dims);
-    });
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(t.Identifier);
+          $.OPTION(() => {
+            $.SUBRULE($.dims);
+          });
+        }
+      },
+      { ALT: () => $.CONSUME(t.Underscore) }
+    ]);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-VariableInitializer
