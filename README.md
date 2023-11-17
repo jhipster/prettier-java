@@ -70,7 +70,14 @@ Note: If you want to install the prettier-plugin-java globally, you should also 
 
 ## Usage
 
-To reformat all your Java files, run:
+To reformat all your Java files, you first need to create `.prettierrc.yaml` with following content:
+
+```yaml
+plugins:
+  - prettier-plugin-java
+```
+
+Then run:
 
 ```bash
 # If you have installed the package locally
