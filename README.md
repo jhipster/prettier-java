@@ -131,6 +131,24 @@ You can directly import the config into IntelliJ Idea for instance:
 
 ![Import Checkstyle configuration](./docs/checkstyle/import-checkstyle-configuration.gif)
 
+## Indent configuration
+
+In `.prettierrc.yaml`, you can configure the indent:
+
+For using four spaces:
+
+```yaml
+tabWidth: 4
+```
+
+For using tabs:
+
+```yaml
+useTabs: true
+```
+
+For more details see <https://prettier.io/docs/en/configuration.html>.
+
 ## Contributing
 
 Contributions are very welcome.
