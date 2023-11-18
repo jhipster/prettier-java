@@ -141,13 +141,7 @@ For using four spaces:
 tabWidth: 4
 ```
 
-For using tabs:
-
-```yaml
-useTabs: true
-```
-
-For more details see <https://prettier.io/docs/en/configuration.html>.
+For more configuration options such as using tabs, maximum line length, and more see <https://prettier.io/docs/en/configuration.html>.
 
 ## Contributing
 
