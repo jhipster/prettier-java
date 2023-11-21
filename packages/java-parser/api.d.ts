@@ -30,6 +30,14 @@ export declare type CstChildrenDictionary = {
   [identifier: string]: CstElement[];
 };
 
+export function lexAndParse(
+  text: string,
+  startProduction?: string
+): {
+  tokens: IToken[];
+  cst: CstNode;
+};
+
 export function parse(text: string, startProduction?: string): CstNode;
 
 export const BaseJavaCstVisitor: JavaCstVisitorConstructor<any, any>;
