@@ -9,7 +9,7 @@ const BaseJavaCstVisitor = parser.getBaseCstVisitorConstructor();
 const BaseJavaCstVisitorWithDefaults =
   parser.getBaseCstVisitorConstructorWithDefaults();
 
-function parse(inputText, entryPoint = "compilationUnit") {
+function lexAndParse(inputText, entryPoint = "compilationUnit") {
   // Lex
   const lexResult = JavaLexer.tokenize(inputText);
 
@@ -25,7 +25,8 @@ function parse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  parser.input = lexResult.tokens;
+  const tokens = lexResult.tokens;
+  parser.input = tokens;
   parser.mostEnclosiveCstNodeByStartOffset = {};
   parser.mostEnclosiveCstNodeByEndOffset = {};
 
@@ -51,16 +52,21 @@ function parse(inputText, entryPoint = "compilationUnit") {
   }
 
   attachComments(
-    lexResult.tokens,
+    tokens,
     lexResult.groups.comments,
     parser.mostEnclosiveCstNodeByStartOffset,
     parser.mostEnclosiveCstNodeByEndOffset
   );
 
-  return cst;
+  return { cst, tokens };
+}
+
+function parse(inputText, entryPoint = "compilationUnit") {
+  return lexAndParse(inputText, entryPoint).cst;
 }
 
 module.exports = {
+  lexAndParse,
   parse,
   BaseJavaCstVisitor,
   BaseJavaCstVisitorWithDefaults
