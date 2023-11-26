@@ -1,4 +1,18 @@
-# Latest v2.4.0
+# Latest v2.5.0
+
+## Enhancements
+- Supports Java 21 preview feature: unnamed patterns and variables ([JEP 443](https://openjdk.org/jeps/443)) ([#620](https://github.com/jhipster/prettier-java/pull/620) by [@jtkiesel](https://github.com/jtkiesel))
+- New entrypoint lexAndParse to return both tokens and CST ([#625](https://github.com/jhipster/prettier-java/pull/625) by [@max-schaefer](https://github.com/max-schaefer))
+
+## Fixes
+
+- No longer ignore whole block when prettier-ignore at start ([#603](https://github.com/jhipster/prettier-java/pull/603) by [@jtkiesel](https://github.com/jtkiesel))
+
+## Miscellaneous
+
+- Improve Readme documentation ([#621](https://github.com/jhipster/prettier-java/pull/621), [#622](https://github.com/jhipster/prettier-java/pull/622) and [#623](https://github.com/jhipster/prettier-java/pull/623) by [@koppor](https://github.com/koppor))
+
+# v2.4.0
 
 ## Enhancements
 - Supports Java 21 record pattern ([#611](https://github.com/jhipster/prettier-java/pull/611) by [@jtkiesel](https://github.com/jtkiesel))
@@ -733,7 +747,7 @@ public sealed class Rectangle implements Shape permits Square {
 
 ```
 
-## Miscallenous
+## Miscellaneous
 
 - Add [copy/pastable Checkstyle configuration](./docs/checkstyle/checkstyle.xml) compatible with Prettier ([#477](https://github.com/jhipster/prettier-java/pull/477))
 
@@ -745,7 +759,7 @@ public sealed class Rectangle implements Shape permits Square {
   and records with simplified constructors
   ([#470](https://github.com/jhipster/prettier-java/pull/470))
 
-## Miscallenous
+## Miscellaneous
 
 - Update links to Chevrotain library (From @Austin-Scott: [#472](https://github.com/jhipster/prettier-java/pull/472))
 
