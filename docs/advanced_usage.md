@@ -87,7 +87,3 @@ Open your Preferences. Then, go to the `Tools/File Watchers` section and create 
 - Trigger the watcher on external changes: `checked`
 
 Please refer to the [Prettier "Using File Watchers" documentation](https://prettier.io/docs/en/webstorm.html#running-prettier-on-save-using-file-watcher) for more information.
-
-## Nuxt Project
-
-If you would like to import prettier-java into a Nuxt Project, you might encounter an [issue](https://github.com/jhipster/prettier-java/issues/462) with Chevrotain

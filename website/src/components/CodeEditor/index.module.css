@@ -1,0 +1,17 @@
+.editor {
+  width: calc(50vw - 100px);
+  height: calc(100vh - 60px);
+  border-left: 1px solid #ddd;
+}
+
+@media (max-width: 996px) {
+  .editor {
+    width: calc(100vw - 200px);
+    height: calc(50vh - 30px);
+    border-bottom: 1px solid #ddd;
+  }
+
+  .editor ~ .editor {
+    border-bottom: none;
+  }
+}

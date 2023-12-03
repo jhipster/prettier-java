@@ -239,5 +239,12 @@ export default {
     ],
     description:
       "Prettify from the entrypoint, allowing to use prettier on snippet."
+  },
+  trailingComma: {
+    type: "choice",
+    category: "Java",
+    default: "all",
+    choices: ["all", "none"],
+    description: "Print trailing commas wherever possible when multi-line."
   }
 };
