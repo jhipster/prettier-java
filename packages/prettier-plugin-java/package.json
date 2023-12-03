@@ -7,6 +7,7 @@
   "files": [
     "dist"
   ],
+  "homepage": "https://jhipster.github.io/prettier-java/",
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {

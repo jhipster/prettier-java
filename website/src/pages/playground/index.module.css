@@ -1,0 +1,36 @@
+.playground {
+  display: flex;
+}
+
+.options {
+  min-width: 200px;
+}
+
+.editors {
+  display: flex;
+}
+
+@media (max-width: 996px) {
+  .editors {
+    flex-direction: column;
+  }
+}
+
+details {
+  padding: 15px 10px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+label {
+  display: block;
+  margin: 10px 0;
+  font:
+    12px Consolas,
+    Courier New,
+    Courier,
+    monospace;
+}
+
+input[type="number"] {
+  max-width: 48px;
+}

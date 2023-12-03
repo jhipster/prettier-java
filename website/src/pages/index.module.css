@@ -1,0 +1,24 @@
+.heroBanner {
+  margin: 30px 10px;
+  text-align: center;
+}
+
+.logoWide {
+  margin-bottom: 30px;
+  max-width: 685px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sectionRow {
+  justify-content: space-evenly;
+}
+
+.sectionCol {
+  width: fit-content;
+  flex: initial;
+}
