@@ -46,11 +46,12 @@ public sealed interface Shape permits Circle, Rectangle, Triangle, Unicorn {
   }
 
   default String areaMessage() {
-    if (this instanceof Circle) return "Circle: " + area(); else if (
-      this instanceof Rectangle
-    ) return "Rectangle: " + area(); else if (
-      this instanceof RightTriangle
-    ) return "Triangle: " + area();
+    if (this instanceof Circle)
+      return "Circle: " + area();
+    else if (this instanceof Rectangle)
+      return "Rectangle: " + area();
+    else if (this instanceof RightTriangle)
+      return "Triangle: " + area();
     // :(
     throw new IllegalArgumentException();
   }

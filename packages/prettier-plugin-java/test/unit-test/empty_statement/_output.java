@@ -11,33 +11,38 @@ public class EmptyStament {
   public void simpleForWithEmptyStatement() {
     for (;;);
 
-    for (;;) /*test*/;
+    /*test*/
+    for (;;);
 
     for (;;);/*test*/
 
-    for (;;) /*test*/;/*test*/
+    /*test*/
+    for (;;);/*test*/
   }
 
   public void simpleForWithEmptyStatement() {
     for (;;);
 
-    for (;;) /*test*/;
+    /*test*/
+    for (;;);
 
     for (;;);/*test*/
 
-    for (;;) /*test*/;/*test*/
+    /*test*/
+    for (;;);/*test*/
   }
 
   public void forEachWithEmptyStatement(List<String> list) {
     for (String str : list);
 
-    for (String str : list) /*test*/;
+    for (String str : list/*test*/);
 
     for (String str : list);/*test*/
   }
 
   public void ifElseWithEmptyStatements() {
-    if (test); else {
+    if (test);
+    else {
       System.out.println("one");
     }
 
@@ -45,15 +50,18 @@ public class EmptyStament {
       System.out.println("two");
     } else;
 
-    if (test); else;
+    if (test);
+    else;
   }
 
   public void ifElseWithEmptyStatementsWithComments() {
-    if (test) /*test*/; else {
+    if (test/*test*/);
+    else {
       System.out.println("one");
     }
 
-    if (test); /*test*/else {
+    if (test);
+    /*test*/else {
       System.out.println("one");
     }
 
@@ -65,15 +73,17 @@ public class EmptyStament {
       System.out.println("two");
     } else;/*test*/
 
-    if (test); /*test*/else;/*test*/
+    if (test);
+    /*test*/else;/*test*/
 
-    if (test) /*test*/; else /*test*/;
+    if (test/*test*/);
+    else /*test*/;
   }
 
   public void simpleWhileWithEmptyStatement(boolean one) {
     while (one);
 
-    while (one) /*test*/;
+    while (one/*test*/);
 
     while (one);/*test*/
   }

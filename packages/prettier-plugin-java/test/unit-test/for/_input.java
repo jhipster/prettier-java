@@ -36,4 +36,78 @@ public class For {
     }
   }
 
+  void basicLineComments() {
+
+    for (int i = 0; i < 1; i++) // comment
+      System.out.println("Oops");
+
+    for (int i = 0; i < 1; i++) {
+      // comment
+    }
+
+    for (int i = 0;;) //comment
+    ;
+
+    for (int i = 0; i < 1;) // comment
+    {}
+
+    for (;;) // comment
+    {}
+
+    for (; i < 1;) // comment
+    {}
+
+    for (;; i++) // comment
+    {}
+
+    for (
+      int i = 0;
+      i < 1;
+      i++ // hi
+    ) // comment
+    {
+      System.out.println("Oops");
+    }
+
+    for (int i = 0; i < 1; i++) // comment
+    {
+      if (true) {}
+    }
+  }
+
+  void basicBlockComments() {
+    for (;;)/*comment*/;
+
+    for (int i = 0; i < 1; i++) /*comment*/;
+  }
+
+  void eachLineComments() {
+    for (String s : strings) // comment
+      System.out.println("Oops");
+
+    for (String s : strings) {
+      // comment
+    }
+
+    for (String s : strings) // comment
+    {}
+
+    for (
+      String s : strings // comment
+    ) {}
+
+    for (String s : strings) // comment
+    {
+      System.out.println("Oops");
+    }
+
+    for (String s : strings) // comment
+    {
+      if (true) {}
+    }
+  }
+
+  void eachBlockComments() {
+    for (String s : strings)/*comment*/;
+  }
 }

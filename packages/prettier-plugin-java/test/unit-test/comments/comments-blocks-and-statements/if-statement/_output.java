@@ -14,6 +14,32 @@ class IfStatements {
     if ( // test
       t
     ) {}
+
+    if (true)
+      // comment
+      System.out.println("Oops");
+
+    if (true) {
+      // comment
+    }
+
+    if (true) {
+      // comment
+    }
+
+    if (true) {
+      // comment
+      System.out.println("Oops");
+    }
+
+    if (true) {
+      // comment
+      if (true) {}
+    }
+
+    if (
+      true // comment
+    );
   }
 
   void commentsIfBlockComment() {
@@ -24,6 +50,8 @@ class IfStatements {
     if (t) /* test */{}
 
     if /* test */(t) {}
+
+    if (true/*comment*/);
   }
 
   void commentsElseLineComment() {
