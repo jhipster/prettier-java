@@ -194,21 +194,49 @@ public class Expressions {
   }
 
   public void longFullyQualifiedName() {
-    com.me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName
-      .builder()
+    com.me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName.builder()
       .build();
 
     com.FullyQualifiedName.builder();
   }
 
   public void unannTypePrimitiveWithMethodReferenceSuffix(String[] args) {
-    List
-      .of(
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-        new double[][] { 1, 2, 3, 4.1, 5.6846465 }
+    List.of(
+      new double[][] { 1, 2, 3, 4.1, 5.6846465 },
+      new double[][] { 1, 2, 3, 4.1, 5.6846465 },
+      new double[][] { 1, 2, 3, 4.1, 5.6846465 }
+    ).toArray(double[][]::new);
+  }
+
+  public void staticMethodInvocationWithSingleChainedMethodInvocation() {
+    List.of(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ).chained(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    );
+  }
+
+  public void staticMethodInvocationWithMultipleChainedMethodInvocation() {
+    List.of(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    )
+      .chained(
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       )
-      .toArray(double[][]::new);
+      .another();
+  }
+
+  public void nonStaticMultipleChainedMethodInvocations() {
+    something
+      .of(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+      .chained(
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      );
   }
 
   public void typeExpressionsInFqnParts() {

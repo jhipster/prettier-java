@@ -186,6 +186,24 @@ public class Expressions {
     List.of(new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}, new double[][] { 1,2,3,4.1,5.6846465}).toArray(double[][]::new);
   }
 
+  public void staticMethodInvocationWithSingleChainedMethodInvocation() {
+    List.of(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).chained(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa);
+  }
+
+  public void staticMethodInvocationWithMultipleChainedMethodInvocation() {
+    List.of(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).chained(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).another();
+  }
+
+  public void nonStaticMultipleChainedMethodInvocations() {
+    something.of(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ).chained(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    );
+  }
+
   public void typeExpressionsInFqnParts() {
     var myVariable = ImmutableMap.<R, V>of<T>::a();
   }

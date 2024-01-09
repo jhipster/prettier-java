@@ -77,10 +77,12 @@ public class BinaryOperations {
   }
 
   public void method() {
-    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more")
-      .bar(10);
-    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more")
-      .bar(10);
+    new Foo(stuff, thing, "auaaaaaaaaa some very long stuff", "some more").bar(
+      10
+    );
+    foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(
+      10
+    );
   }
 
   public void binaryExpressionWithCast() {
