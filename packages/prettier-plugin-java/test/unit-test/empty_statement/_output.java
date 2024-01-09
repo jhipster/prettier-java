@@ -37,7 +37,8 @@ public class EmptyStament {
   }
 
   public void ifElseWithEmptyStatements() {
-    if (test); else {
+    if (test);
+    else {
       System.out.println("one");
     }
 
@@ -45,15 +46,18 @@ public class EmptyStament {
       System.out.println("two");
     } else;
 
-    if (test); else;
+    if (test);
+    else;
   }
 
   public void ifElseWithEmptyStatementsWithComments() {
-    if (test) /*test*/; else {
+    if (test) /*test*/;
+    else {
       System.out.println("one");
     }
 
-    if (test); /*test*/else {
+    if (test);
+    /*test*/else {
       System.out.println("one");
     }
 
@@ -65,9 +69,11 @@ public class EmptyStament {
       System.out.println("two");
     } else;/*test*/
 
-    if (test); /*test*/else;/*test*/
+    if (test);
+    /*test*/else;/*test*/
 
-    if (test) /*test*/; else /*test*/;
+    if (test) /*test*/;
+    else /*test*/;
   }
 
   public void simpleWhileWithEmptyStatement(boolean one) {

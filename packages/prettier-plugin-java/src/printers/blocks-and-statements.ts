@@ -205,7 +205,9 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
 
       const elseOnSameLine =
         hasTrailingLineComments(ctx.statement[0]) ||
-        hasLeadingLineComments(ctx.Else[0])
+        hasLeadingLineComments(ctx.Else[0]) ||
+        !ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
+          .children.block
           ? hardline
           : " ";
 
