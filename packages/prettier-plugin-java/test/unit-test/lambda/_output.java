@@ -46,15 +46,15 @@ public class Lambda {
   }
 
   public void lambdaWithoutBracesWhichBreak() {
-    call(x ->
-      foo.isVeryVeryVeryLongConditionTrue() &&
-      foo.isAnotherVeryVeryLongConditionTrue()
+    call(
+      x ->
+        foo.isVeryVeryVeryLongConditionTrue() &&
+        foo.isAnotherVeryVeryLongConditionTrue()
     );
   }
 
   public void chainCallWithLambda() {
-    Stream
-      .of(1, 2)
+    Stream.of(1, 2)
       .map(n -> {
         // testing method
         return n * 2;
@@ -63,8 +63,7 @@ public class Lambda {
   }
 
   public void lambdaWithLongListOfParameters() {
-    final List<Integer> values = Stream
-      .of(1, 2)
+    final List<Integer> values = Stream.of(1, 2)
       .map(
         (
           aVeryLongListOfParameter,
@@ -80,8 +79,7 @@ public class Lambda {
       )
       .collect(Collectors.toList());
 
-    final List<Integer> values = Stream
-      .of(1, 2)
+    final List<Integer> values = Stream.of(1, 2)
       .map(
         (aVeryLongListOfParameter, aVeryLongListOfParameter, aParameterTha) -> {
           // testing method
@@ -143,6 +141,85 @@ public class Lambda {
       }
     );
   }
+
+  private static <T extends Group> Function<Constructor<?>, T> createInstance(
+    Group entity
+  ) {
+    return ctor ->
+      Try.of(a, () -> {
+        @SuppressWarnings("unchecked")
+        var ng = (T) ctor.newInstance(
+          entity.getId(),
+          entity.getSystemGenerated(),
+          entity.getVersionKey()
+        );
+        return ng;
+      }).getOrElseThrow(ex -> new RuntimeException(ex));
+  }
+
+  void singleLambdaWithBlockLastArgument() {
+    a.of(b, c, d, e -> {
+      return f;
+    });
+  }
+
+  void singleLambdaWithBlockLastArgumentAndLongArguments() {
+    a.of(
+      aaaaaaaaaaaaaaaaaaaaaaaaaa,
+      bbbbbbbbbbbbbbbbbbbbbbbbbb,
+      cccccccccccccccccccccccccc,
+      dddddddddddddddddddddddddd,
+      e -> {
+        return f;
+      }
+    );
+  }
+
+  void singleLambdaWithBlockLastArgumentAndLongLambdaArgument() {
+    a.of(
+      b,
+      c,
+      d,
+      eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee -> {
+        return f;
+      }
+    );
+  }
+
+  void singleLambdaWithBlockLastArgumentAndLongLambdaArguments() {
+    a.of(
+      b,
+      (
+        cccccccccccccccccccccccccc,
+        dddddddddddddddddddddddddd,
+        eeeeeeeeeeeeeeeeeeeeeeeeee
+      ) -> {
+        return f;
+      }
+    );
+  }
+
+  void multipleLambdaArguments() {
+    a.of(
+      b,
+      c -> d,
+      e -> {
+        return f;
+      }
+    );
+  }
+
+  void argumentAfterLambdaWithBlock() {
+    a.of(
+      b,
+      c,
+      d,
+      e -> {
+        return f;
+      },
+      g
+    );
+  }
 }
 
 class T {
@@ -184,6 +261,12 @@ class T {
         return n * 2;
       }
     );
+  }
+
+  T() {
+    super(a, () -> {
+      return b;
+    });
   }
 }
 

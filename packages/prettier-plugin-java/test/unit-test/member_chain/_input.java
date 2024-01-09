@@ -20,4 +20,12 @@ public class BreakLongFunctionCall {
 		return Object.something().more().and().that().as().well().but().not().something();
   }
 
+  public void singleInvocationOnNewExpression() {
+    new Instance(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).invocation(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa);
+  }
+
+  public void multipleInvocationsOnNewExpression() {
+    new Instance(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).invocation(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).andAnother();
+  }
+
 }

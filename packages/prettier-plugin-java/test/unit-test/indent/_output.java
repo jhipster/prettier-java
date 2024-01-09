@@ -11,8 +11,7 @@ class Indent {
       useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
       useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,
       useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa
-    )
-      .isEqualTo();
+    ).isEqualTo();
 
     assertThat(
       useraaaaaaaaaaojzapjzpozjapjzpoajzpozaaaaaaaaaaaMapperlaaaaaaaaaaaaaaaaaaaaaaaa,

@@ -1,28 +1,28 @@
 import { ArgumentListCstNode, IToken } from "java-parser";
-import { builders } from "prettier/doc";
-import { isArgumentListSingleLambda } from "./expressions-utils.js";
+import { builders, utils } from "prettier/doc";
+import { isArgumentListHuggable } from "./expressions-utils.js";
 import { putIntoBraces } from "../printers/printer-utils.js";
-import printSingleLambdaInvocation from "./printSingleLambdaInvocation.js";
 
-const { softline } = builders;
+const { breakParent, conditionalGroup, softline } = builders;
+const { willBreak } = utils;
 
 export default function printArgumentListWithBraces(
-  argumentListCtx: ArgumentListCstNode[] | undefined,
+  argumentListNodes: ArgumentListCstNode[] | undefined,
   rBrace: IToken,
   lBrace: IToken
 ) {
-  const isSingleLambda = isArgumentListSingleLambda(argumentListCtx);
-  if (isSingleLambda) {
-    return printSingleLambdaInvocation.call(
-      this,
-      argumentListCtx,
-      rBrace,
-      lBrace
-    );
+  const argumentListCtx = argumentListNodes?.[0].children;
+  if (argumentListCtx && isArgumentListHuggable(argumentListCtx)) {
+    const [flat, expanded] = [false, true].map(shouldBreak => {
+      const argumentList = this.visit(argumentListNodes, { shouldBreak });
+      return putIntoBraces(argumentList, "", lBrace, rBrace);
+    });
+    return [
+      willBreak(flat) ? breakParent : "",
+      conditionalGroup([flat, expanded])
+    ];
   }
 
-  const argumentList = this.visit(argumentListCtx, {
-    isInsideMethodInvocationSuffix: true
-  });
+  const argumentList = this.visit(argumentListNodes);
   return putIntoBraces(argumentList, softline, lBrace, rBrace);
 }

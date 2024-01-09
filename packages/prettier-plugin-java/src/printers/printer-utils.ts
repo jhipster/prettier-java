@@ -31,10 +31,7 @@ import {
   getTokenLeadingComments,
   printTokenWithComments
 } from "./comments/format-comments.js";
-
 import { concat, group, ifBreak, join } from "./prettier-builder.js";
-import Indent = builders.Indent;
-import IfBreak = builders.IfBreak;
 
 const { indent, hardline, line } = builders;
 
@@ -549,9 +546,7 @@ export function getInterfaceBodyDeclarationsSeparator(
   );
 }
 
-function getAndRemoveLeadingComment(
-  doc: IToken | builders.Indent | builders.IfBreak | string
-) {
+function getAndRemoveLeadingComment(doc: IToken | Doc) {
   const isTokenWithLeadingComment =
     typeof doc !== "string" && "leadingComments" in doc;
   if (!isTokenWithLeadingComment) {
@@ -568,7 +563,7 @@ export function putIntoBraces(
   argument: Doc,
   separator: Doc,
   LBrace: IToken,
-  RBrace: IToken | Indent | IfBreak | string
+  RBrace: IToken | Doc
 ) {
   const rightBraceLeadingComments = getAndRemoveLeadingComment(RBrace);
   const lastBreakLine =

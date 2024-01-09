@@ -313,8 +313,7 @@ public class Variables {
         ExtremelyLongAndObnoxiousClassName
       >,
       ExtremelyLongAndObnoxiousClassName
-    >()
-      .method();
+    >().method();
   }
 
   public methodWithVariableInitializationWithComments() {
@@ -328,8 +327,7 @@ public class Variables {
 
   void assignment() {
     fileSystemDetails =
-      FileHandlerDetails
-        .builder()
+      FileHandlerDetails.builder()
         .fileSystemType(
           EntityUtils.update(
             entity.getFileSystemDetails().getFileSystemType(),

@@ -151,6 +151,63 @@ public class Lambda {
           }
       );
     }
+
+    private static <T extends Group> Function<Constructor<?>, T> createInstance(
+        Group entity
+    ) {
+        return ctor ->
+            Try.of(a, () -> {
+                @SuppressWarnings("unchecked")
+                var ng = (T) ctor.newInstance(
+                    entity.getId(),
+                    entity.getSystemGenerated(),
+                    entity.getVersionKey()
+                );
+                return ng;
+            }).getOrElseThrow(ex -> new RuntimeException(ex));
+    }
+
+    void singleLambdaWithBlockLastArgument() {
+        a.of(b, c, d, e -> {
+            return f;
+        });
+    }
+
+    void singleLambdaWithBlockLastArgumentAndLongArguments() {
+        a.of(
+            aaaaaaaaaaaaaaaaaaaaaaaaaa,
+            bbbbbbbbbbbbbbbbbbbbbbbbbb,
+            cccccccccccccccccccccccccc,
+            dddddddddddddddddddddddddd,
+            e -> {
+                return f;
+            }
+        );
+    }
+
+    void singleLambdaWithBlockLastArgumentAndLongLambdaArgument() {
+        a.of(b, c, d, eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee -> {
+            return f;
+        });
+    }
+
+    void singleLambdaWithBlockLastArgumentAndLongLambdaArguments() {
+        a.of(b, (cccccccccccccccccccccccccc, dddddddddddddddddddddddddd, eeeeeeeeeeeeeeeeeeeeeeeeee) -> {
+            return f;
+        });
+    }
+
+    void multipleLambdaArguments() {
+        a.of(b, c -> d, e -> {
+            return f;
+        });
+    }
+
+    void argumentAfterLambdaWithBlock() {
+        a.of(b, c, d, e -> {
+            return f;
+        }, g);
+    }
 }
 
 class T {
@@ -188,6 +245,12 @@ class T {
               ) -> {
             // testing method
             return n * 2;
+        });
+    }
+
+    T() {
+        super(a, () -> {
+            return b;
         });
     }
 }

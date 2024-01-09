@@ -866,8 +866,9 @@ public final class ArrayTable<R, C, V>
         jsonPath("$.[*].display").value(hasItem(DEFAULT_DISPLAY.booleanValue()))
       )
       .andExpect(
-        jsonPath("$.[*].internationalDialingCode")
-          .value(hasItem(DEFAULT_INTERNATIONAL_DIALING_CODE.toString()))
+        jsonPath("$.[*].internationalDialingCode").value(
+          hasItem(DEFAULT_INTERNATIONAL_DIALING_CODE.toString())
+        )
       );
   }
 }

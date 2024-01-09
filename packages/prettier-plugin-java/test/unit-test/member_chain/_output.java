@@ -43,8 +43,7 @@ public class BreakLongFunctionCall {
   }
 
   public void doSomethingLongStatic() {
-    return Object
-      .something()
+    return Object.something()
       .more()
       .and()
       .that()
@@ -53,5 +52,27 @@ public class BreakLongFunctionCall {
       .but()
       .not()
       .something();
+  }
+
+  public void singleInvocationOnNewExpression() {
+    new Instance(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ).invocation(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    );
+  }
+
+  public void multipleInvocationsOnNewExpression() {
+    new Instance(
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    )
+      .invocation(
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      )
+      .andAnother();
   }
 }
