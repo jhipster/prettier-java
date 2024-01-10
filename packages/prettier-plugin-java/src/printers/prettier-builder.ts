@@ -53,11 +53,13 @@ export function dedent(doc: Doc | IToken) {
 
 export function ifBreak(
   breakContents: Doc | IToken,
-  flatContents: Doc | IToken
+  flatContents: Doc | IToken,
+  options?: { groupId?: symbol | undefined }
 ) {
   return builders.ifBreak(
     processComments(breakContents),
-    processComments(flatContents)
+    processComments(flatContents),
+    options
   );
 }
 

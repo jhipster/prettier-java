@@ -1,4 +1,4 @@
-import { concat, group, indent } from "./prettier-builder.js";
+import { concat, group, ifBreak, indent } from "./prettier-builder.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   displaySemicolon,
@@ -175,12 +175,17 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
 
   interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationCtx) {
     const modifiers = sortModifiers(ctx.interfaceMethodModifier);
+    const throwsGroupId = Symbol("throws");
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
 
-    const methodHeader = this.visit(ctx.methodHeader);
+    const methodHeader = this.visit(ctx.methodHeader, { throwsGroupId });
     const methodBody = this.visit(ctx.methodBody);
-    const separator = isStatementEmptyStatement(methodBody) ? "" : " ";
+    const separator = isStatementEmptyStatement(methodBody)
+      ? ""
+      : ctx.methodHeader[0].children.throws
+        ? ifBreak(hardline, " ", { groupId: throwsGroupId })
+        : " ";
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, firstAnnotations),
