@@ -265,13 +265,20 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
 
   switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx) {
     const switchLabel = this.visit(ctx.switchLabel);
-
     const blockStatements = this.visit(ctx.blockStatements);
+
+    const statements = ctx.blockStatements?.[0].children.blockStatement;
+    const hasSingleStatementBlock =
+      statements?.length === 1 &&
+      statements[0].children.statement?.[0].children
+        .statementWithoutTrailingSubstatement?.[0].children.block !== undefined;
 
     return concat([
       switchLabel,
       ctx.Colon[0],
-      blockStatements && indent([hardline, blockStatements])
+      hasSingleStatementBlock
+        ? concat([" ", blockStatements])
+        : blockStatements && indent([hardline, blockStatements])
     ]);
   }
 
