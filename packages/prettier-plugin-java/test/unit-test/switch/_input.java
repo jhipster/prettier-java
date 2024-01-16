@@ -48,6 +48,41 @@ class Switch {
     switch (answer) { case "YES": return "YES"; default: return "NO"; }
   }
 
+  void switchCaseWithBlock1() {
+    switch (a) {
+      case 0: {}
+      default: {}
+    }
+  }
+
+  void switchCaseWithBlock2() {
+    switch (a) {
+      case 0: { b(); }
+      default: { c(); }
+    }
+  }
+
+  void switchCaseWithBlock3() {
+    switch (a) {
+      case 0: { b(); } { c(); }
+      default: { d(); } { e(); }
+    }
+  }
+
+  void switchCaseWithBlock4() {
+    switch (a) {
+      case 0: b(); { c(); }
+      default: d(); { e(); }
+    }
+  }
+
+  void switchCaseWithBlock5() {
+    switch (a) {
+      case 0: { b(); } c();
+      default: { d(); } e();
+    }
+  }
+
   // Switch rules
   static void howManyAgain(int k) {
         switch (k) {
