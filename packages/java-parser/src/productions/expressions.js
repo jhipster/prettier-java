@@ -231,7 +231,8 @@ export function defineRules($, t) {
                 });
                 $.CONSUME(t.Identifier);
               }
-            }
+            },
+            { ALT: () => $.SUBRULE($.templateArgument) }
           ]);
         }
       },
@@ -247,13 +248,20 @@ export function defineRules($, t) {
   $.RULE("fqnOrRefType", () => {
     $.SUBRULE($.fqnOrRefTypePartFirst);
 
-    $.MANY2({
-      // ".class" is a classLiteralSuffix
-      GATE: () =>
-        // avoids ambiguity with ".this" and ".new" which are parsed as a primary suffix.
-        tokenMatcher(this.LA(2).tokenType, t.Class) === false &&
-        tokenMatcher(this.LA(2).tokenType, t.This) === false &&
-        tokenMatcher(this.LA(2).tokenType, t.New) === false,
+    $.MANY({
+      // avoids ambiguity with primary suffixes
+      GATE: () => {
+        const nextNextToken = $.LA(2);
+        return !(
+          tokenMatcher(nextNextToken, t.Class) ||
+          tokenMatcher(nextNextToken, t.This) ||
+          tokenMatcher(nextNextToken, t.New) ||
+          tokenMatcher(nextNextToken, t.StringLiteral) ||
+          tokenMatcher(nextNextToken, t.TextBlock) ||
+          tokenMatcher(nextNextToken, t.StringTemplateBegin) ||
+          tokenMatcher(nextNextToken, t.TextBlockTemplateBegin)
+        );
+      },
       DEF: () => {
         $.CONSUME(t.Dot);
         $.SUBRULE2($.fqnOrRefTypePartRest);
@@ -503,6 +511,47 @@ export function defineRules($, t) {
       //   for a semantic analysis phase
       { ALT: () => $.CONSUME(t.New) }
     ]);
+  });
+
+  $.RULE("templateArgument", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.template) },
+      { ALT: () => $.CONSUME(t.StringLiteral) },
+      { ALT: () => $.CONSUME(t.TextBlock) }
+    ]);
+  });
+
+  $.RULE("template", () => {
+    $.OR([
+      { ALT: () => $.SUBRULE($.stringTemplate) },
+      { ALT: () => $.SUBRULE($.textBlockTemplate) }
+    ]);
+  });
+
+  $.RULE("stringTemplate", () => {
+    $.CONSUME(t.StringTemplateBegin);
+    $.SUBRULE($.embeddedExpression);
+    $.MANY(() => {
+      $.CONSUME(t.StringTemplateMid);
+      $.SUBRULE1($.embeddedExpression);
+    });
+    $.CONSUME(t.StringTemplateEnd);
+  });
+
+  $.RULE("textBlockTemplate", () => {
+    $.CONSUME(t.TextBlockTemplateBegin);
+    $.SUBRULE($.embeddedExpression);
+    $.MANY(() => {
+      $.CONSUME(t.TextBlockTemplateMid);
+      $.SUBRULE1($.embeddedExpression);
+    });
+    $.CONSUME(t.TextBlockTemplateEnd);
+  });
+
+  $.RULE("embeddedExpression", () => {
+    $.OPTION(() => {
+      $.SUBRULE($.expression);
+    });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Pattern

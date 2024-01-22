@@ -2,7 +2,7 @@ import { builders } from "prettier/doc";
 import { CstElement, CstNode, IToken } from "java-parser";
 import { CstNodeLocation } from "@chevrotain/types";
 import { isCstElementOrUndefinedIToken } from "../../types/utils.js";
-import { Doc } from "prettier";
+import { Doc, doc } from "prettier";
 import isEmptyDoc from "../../utils/isEmptyDoc.js";
 
 const { hardline, lineSuffix, breakParent, literalline } = builders;
@@ -19,7 +19,9 @@ const { hardline, lineSuffix, breakParent, literalline } = builders;
 export function printTokenWithComments(token: IToken) {
   return printWithComments(
     token,
-    token.image,
+    token.image.includes("\n")
+      ? doc.utils.replaceEndOfLine(token.image)
+      : token.image,
     getTokenLeadingComments,
     getTokenTrailingComments
   );
