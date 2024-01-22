@@ -45,7 +45,11 @@ FRAGMENT("EscapeSequence", "\\\\[bstnfr\"'\\\\]|{{OctalEscape}}");
 // Not using InputCharacter terminology there because CR and LF are already captured in EscapeSequence
 FRAGMENT(
   "StringCharacter",
-  "(?:(?:{{EscapeSequence}})|{{UnicodeInputCharacter}})"
+  '(?:(?:{{EscapeSequence}})|{{UnicodeEscape}}|(?!["\\\\]).)'
+);
+FRAGMENT(
+  "TextBlockCharacter",
+  "(?:(?:{{EscapeSequence}})|{{UnicodeEscape}}|(?!\\\\).|\\\\?{{LineTerminator}})"
 );
 
 function matchJavaIdentifier(text, startOffset) {
@@ -93,10 +97,18 @@ const Identifier = createTokenOrg({
   )
 });
 
-const allTokens = [];
+const allTokens = {
+  modes: {
+    global: [],
+    stringTemplate: [],
+    textBlockTemplate: []
+  },
+  defaultMode: "global"
+};
+const allModes = Object.keys(allTokens.modes);
 const tokenDictionary = {};
 
-function createToken(options) {
+function createToken(options, modes = allModes) {
   // TODO create a test to check all the tokenbs have a label defined
   if (!options.label) {
     // simple token (e.g operator)
@@ -110,7 +122,7 @@ function createToken(options) {
   }
 
   const newTokenType = createTokenOrg(options);
-  allTokens.push(newTokenType);
+  modes.forEach(mode => allTokens.modes[mode].push(newTokenType));
   tokenDictionary[options.name] = newTokenType;
   return newTokenType;
 }
@@ -221,13 +233,61 @@ createToken({
 
 createToken({
   name: "TextBlock",
-  pattern: /"""\s*\n(\\"|\s|.)*?"""/
+  pattern: MAKE_PATTERN(
+    '"""[\\x09\\x20\\x0C]*{{LineTerminator}}{{TextBlockCharacter}}*?"""'
+  )
 });
 
 createToken({
-  name: "StringLiteral",
-  pattern: MAKE_PATTERN('"(?:[^\\\\"]|{{StringCharacter}})*"')
+  name: "TextBlockTemplateBegin",
+  pattern: MAKE_PATTERN('"""{{LineTerminator}}{{TextBlockCharacter}}*?\\\\\\{'),
+  push_mode: "textBlockTemplate"
 });
+
+createToken(
+  {
+    name: "TextBlockTemplateEnd",
+    pattern: MAKE_PATTERN('\\}{{TextBlockCharacter}}*?"""'),
+    pop_mode: true
+  },
+  ["textBlockTemplate"]
+);
+
+createToken({
+  name: "StringLiteral",
+  pattern: MAKE_PATTERN('"{{StringCharacter}}*?"')
+});
+
+createToken({
+  name: "StringTemplateBegin",
+  pattern: MAKE_PATTERN('"{{StringCharacter}}*?\\\\\\{'),
+  push_mode: "stringTemplate"
+});
+
+createToken(
+  {
+    name: "StringTemplateEnd",
+    pattern: MAKE_PATTERN('\\}{{StringCharacter}}*?"'),
+    pop_mode: true
+  },
+  ["stringTemplate"]
+);
+
+createToken(
+  {
+    name: "StringTemplateMid",
+    pattern: MAKE_PATTERN("\\}{{StringCharacter}}*?\\\\\\{")
+  },
+  ["stringTemplate"]
+);
+
+createToken(
+  {
+    name: "TextBlockTemplateMid",
+    pattern: MAKE_PATTERN("\\}{{TextBlockCharacter}}*?\\\\\\{")
+  },
+  ["textBlockTemplate"]
+);
 
 // https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html#jls-3.9
 // TODO: how to handle the special rule (see spec above) for "requires" and "transitive"
@@ -376,8 +436,16 @@ createToken({ name: "Colon", pattern: ":" });
 createToken({ name: "QuestionMark", pattern: "?" });
 createToken({ name: "LBrace", pattern: "(", categories: [Separators] });
 createToken({ name: "RBrace", pattern: ")", categories: [Separators] });
-createToken({ name: "LCurly", pattern: "{", categories: [Separators] });
-createToken({ name: "RCurly", pattern: "}", categories: [Separators] });
+createToken({
+  name: "LCurly",
+  pattern: "{",
+  categories: [Separators],
+  push_mode: allTokens.defaultMode
+});
+createToken(
+  { name: "RCurly", pattern: "}", categories: [Separators], pop_mode: true },
+  [allTokens.defaultMode]
+);
 createToken({ name: "LSquare", pattern: "[", categories: [Separators] });
 createToken({ name: "RSquare", pattern: "]", categories: [Separators] });
 
@@ -514,7 +582,7 @@ createToken({
 
 // Identifier must appear AFTER all the keywords to avoid ambiguities.
 // See: https://github.com/SAP/chevrotain/blob/master/examples/lexer/keywords_vs_identifiers/keywords_vs_identifiers.js
-allTokens.push(Identifier);
+allModes.forEach(mode => allTokens.modes[mode].push(Identifier));
 tokenDictionary["Identifier"] = Identifier;
 
 function sortDescLength(arr) {

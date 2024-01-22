@@ -13,6 +13,7 @@ import {
   DiamondCtx,
   DimExprCtx,
   DimExprsCtx,
+  EmbeddedExpressionCtx,
   ExplicitLambdaParameterListCtx,
   ExpressionCtx,
   FqnOrRefTypeCtx,
@@ -41,7 +42,11 @@ import {
   RecordPatternCtx,
   ReferenceTypeCastExpressionCtx,
   RegularLambdaParameterCtx,
+  StringTemplateCtx,
+  TemplateArgumentCtx,
+  TemplateCtx,
   TernaryExpressionCtx,
+  TextBlockTemplateCtx,
   TypeArgumentsOrDiamondCtx,
   TypePatternCtx,
   UnaryExpressionCtx,
@@ -58,7 +63,7 @@ import { isArgumentListHuggable } from "../utils/expressions-utils.js";
 import { printArgumentListWithBraces } from "../utils/index.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
 import { handleCommentsBinaryExpression } from "./comments/handle-comments.js";
-import { concat, dedent, group, indent } from "./prettier-builder.js";
+import { concat, dedent, fill, group, indent } from "./prettier-builder.js";
 import {
   binary,
   findDeepElementInPartsArray,
@@ -73,7 +78,7 @@ import {
   sortTokens
 } from "./printer-utils.js";
 
-const { hardline, ifBreak, line, softline } = builders;
+const { hardline, ifBreak, line, lineSuffixBoundary, softline } = builders;
 
 export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
   expression(ctx: ExpressionCtx, params: any) {
@@ -414,13 +419,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
         return rejectAndConcat([ctx.Dot[0], typeArguments, ctx.Identifier[0]]);
       }
 
-      const unqualifiedClassInstanceCreationExpression = this.visit(
-        ctx.unqualifiedClassInstanceCreationExpression
+      const suffix = this.visit(
+        ctx.unqualifiedClassInstanceCreationExpression ?? ctx.templateArgument
       );
-      return rejectAndConcat([
-        ctx.Dot[0],
-        unqualifiedClassInstanceCreationExpression
-      ]);
+      return rejectAndConcat([ctx.Dot[0], suffix]);
     }
     return this.visitSingle(ctx, params);
   }
@@ -707,6 +709,44 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const typeArguments = this.visit(ctx.typeArguments);
     const identifierOrNew = ctx.New ? ctx.New[0] : ctx.Identifier![0];
     return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
+  }
+
+  templateArgument(ctx: TemplateArgumentCtx) {
+    return ctx.template
+      ? this.visit(ctx.template)
+      : printTokenWithComments((ctx.StringLiteral ?? ctx.TextBlock)![0]);
+  }
+
+  template(ctx: TemplateCtx) {
+    return this.visitSingle(ctx);
+  }
+
+  stringTemplate(ctx: StringTemplateCtx) {
+    const embeddedExpressions = this.mapVisit(ctx.embeddedExpression).flatMap(
+      expression =>
+        group([softline, expression, lineSuffixBoundary, dedent(softline)])
+    );
+    return concat([
+      ctx.StringTemplateBegin[0],
+      rejectAndJoinSeps(ctx.StringTemplateMid, embeddedExpressions),
+      ctx.StringTemplateEnd[0]
+    ]);
+  }
+
+  textBlockTemplate(ctx: TextBlockTemplateCtx) {
+    const embeddedExpressions = this.mapVisit(ctx.embeddedExpression).flatMap(
+      expression =>
+        group([softline, expression, lineSuffixBoundary, dedent(softline)])
+    );
+    return concat([
+      ctx.TextBlockTemplateBegin[0],
+      rejectAndJoinSeps(ctx.TextBlockTemplateMid, embeddedExpressions),
+      ctx.TextBlockTemplateEnd[0]
+    ]);
+  }
+
+  embeddedExpression(ctx: EmbeddedExpressionCtx) {
+    return this.visit(ctx.expression);
   }
 
   pattern(ctx: PatternCtx) {

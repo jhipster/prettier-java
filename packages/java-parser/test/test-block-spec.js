@@ -64,7 +64,7 @@ describe("The Java Parser should parse TextBlocks", () => {
     expect(() => javaParser.parse(input, "literal")).to.throw();
   });
 
-  it("should parse a multiline 'TextBlock' with ", () => {
+  it("should parse a multiline 'TextBlock' with \"", () => {
     const input = `"""
     one word
 
@@ -86,18 +86,29 @@ describe("The Java Parser should parse TextBlocks", () => {
     expect(() => javaParser.parse(input, "literal")).to.throw();
   });
 
-  it("should not parse a 'TextBlock' ending with 4x\"", () => {
+  it("should not parse a 'TextBlock' ending with 2x\"", () => {
     const input = `"""
     one word
 
-    "sentence"""
+    "sentence"
 
     ""`;
 
     expect(() => javaParser.parse(input, "literal")).to.throw();
   });
 
-  it("should not parse a 'TextBlock' ending with 4x\"", () => {
+  it("should not parse a 'TextBlock' with 3x\"", () => {
+    const input = `"""
+    one word
+
+    "sentence"""
+
+    """`;
+
+    expect(() => javaParser.parse(input, "literal")).to.throw();
+  });
+
+  it("should parse a 'TextBlock' with 3x\" if first is escaped", () => {
     const input = `"""
     my text
 

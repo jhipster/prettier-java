@@ -351,6 +351,11 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
+  templateArgument(ctx: TemplateArgumentCtx, param?: IN): OUT;
+  template(ctx: TemplateCtx, param?: IN): OUT;
+  stringTemplate(ctx: StringTemplateCtx, param?: IN): OUT;
+  textBlockTemplate(ctx: TextBlockTemplateCtx, param?: IN): OUT;
+  embeddedExpression(ctx: EmbeddedExpressionCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
@@ -672,6 +677,11 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   classLiteralSuffix(ctx: ClassLiteralSuffixCtx, param?: IN): OUT;
   arrayAccessSuffix(ctx: ArrayAccessSuffixCtx, param?: IN): OUT;
   methodReferenceSuffix(ctx: MethodReferenceSuffixCtx, param?: IN): OUT;
+  templateArgument(ctx: TemplateArgumentCtx, param?: IN): OUT;
+  template(ctx: TemplateCtx, param?: IN): OUT;
+  stringTemplate(ctx: StringTemplateCtx, param?: IN): OUT;
+  textBlockTemplate(ctx: TextBlockTemplateCtx, param?: IN): OUT;
+  embeddedExpression(ctx: EmbeddedExpressionCtx, param?: IN): OUT;
   pattern(ctx: PatternCtx, param?: IN): OUT;
   typePattern(ctx: TypePatternCtx, param?: IN): OUT;
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
@@ -2999,6 +3009,7 @@ export type PrimarySuffixCtx = {
   unqualifiedClassInstanceCreationExpression?: UnqualifiedClassInstanceCreationExpressionCstNode[];
   typeArguments?: TypeArgumentsCstNode[];
   Identifier?: IToken[];
+  templateArgument?: TemplateArgumentCstNode[];
   methodInvocationSuffix?: MethodInvocationSuffixCstNode[];
   classLiteralSuffix?: ClassLiteralSuffixCstNode[];
   arrayAccessSuffix?: ArrayAccessSuffixCstNode[];
@@ -3262,6 +3273,60 @@ export type MethodReferenceSuffixCtx = {
   typeArguments?: TypeArgumentsCstNode[];
   Identifier?: IToken[];
   New?: IToken[];
+};
+
+export interface TemplateArgumentCstNode extends CstNode {
+  name: "templateArgument";
+  children: TemplateArgumentCtx;
+}
+
+export type TemplateArgumentCtx = {
+  template?: TemplateCstNode[];
+  StringLiteral?: IToken[];
+  TextBlock?: IToken[];
+};
+
+export interface TemplateCstNode extends CstNode {
+  name: "template";
+  children: TemplateCtx;
+}
+
+export type TemplateCtx = {
+  stringTemplate?: StringTemplateCstNode[];
+  textBlockTemplate?: TextBlockTemplateCstNode[];
+};
+
+export interface StringTemplateCstNode extends CstNode {
+  name: "stringTemplate";
+  children: StringTemplateCtx;
+}
+
+export type StringTemplateCtx = {
+  StringTemplateBegin: IToken[];
+  embeddedExpression: EmbeddedExpressionCstNode[];
+  StringTemplateMid?: IToken[];
+  StringTemplateEnd: IToken[];
+};
+
+export interface TextBlockTemplateCstNode extends CstNode {
+  name: "textBlockTemplate";
+  children: TextBlockTemplateCtx;
+}
+
+export type TextBlockTemplateCtx = {
+  TextBlockTemplateBegin: IToken[];
+  embeddedExpression: EmbeddedExpressionCstNode[];
+  TextBlockTemplateMid?: IToken[];
+  TextBlockTemplateEnd: IToken[];
+};
+
+export interface EmbeddedExpressionCstNode extends CstNode {
+  name: "embeddedExpression";
+  children: EmbeddedExpressionCtx;
+}
+
+export type EmbeddedExpressionCtx = {
+  expression?: ExpressionCstNode[];
 };
 
 export interface PatternCstNode extends CstNode {
