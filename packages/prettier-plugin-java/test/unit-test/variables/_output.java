@@ -326,21 +326,39 @@ public class Variables {
   }
 
   void assignment() {
-    fileSystemDetails =
-      FileHandlerDetails.builder()
-        .fileSystemType(
-          EntityUtils.update(
-            entity.getFileSystemDetails().getFileSystemType(),
-            update.getFileSystemDetails().getFileSystemType()
-          )
-        );
+    fileSystemDetails = FileHandlerDetails.builder()
+      .fileSystemType(
+        EntityUtils.update(
+          entity.getFileSystemDetails().getFileSystemType(),
+          update.getFileSystemDetails().getFileSystemType()
+        )
+      );
 
-    aaaaaaaaaaaaaaaaa =
-      bbbbbbbbbbbbbbbbb ? ccccccccccccccccc : ddddddddddddddddd;
+    aaaaaaaaaaaaaaaaa = bbbbbbbbbbbbbbbbb
+      ? ccccccccccccccccc
+      : ddddddddddddddddd;
 
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
       bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb =
         ccccccccccccccccccccccccccccccccccccccc +
         ddddddddddddddddddddddddddddddddd;
+
+    foo = new Foo(
+      "aaaaaaaaaaaaaaaaaaaa",
+      "bbbbbbbbbbbbbbbbbbbb",
+      "cccccccccccccccccccc",
+      "dddddddddddddddddddd",
+      "eeeeeeeeeeeeeeeeeeee",
+      "ffffffffffffffffffff"
+    );
+
+    final Foo bar = new Foo(
+      "aaaaaaaaaaaaaaaaaaaa",
+      "bbbbbbbbbbbbbbbbbbbb",
+      "cccccccccccccccccccc",
+      "dddddddddddddddddddd",
+      "eeeeeeeeeeeeeeeeeeee",
+      "ffffffffffffffffffff"
+    );
   }
 }
