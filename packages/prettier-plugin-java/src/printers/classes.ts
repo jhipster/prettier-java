@@ -570,13 +570,17 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
 
   methodDeclarator(ctx: MethodDeclaratorCtx) {
     const identifier = printTokenWithComments(ctx.Identifier[0]);
+    const receiverParameter = this.visit(ctx.receiverParameter);
     const formalParameterList = this.visit(ctx.formalParameterList);
     const dims = this.visit(ctx.dims);
 
     return rejectAndConcat([
       identifier,
       putIntoBraces(
-        formalParameterList,
+        rejectAndJoin(line, [
+          rejectAndConcat([receiverParameter, ctx.Comma?.[0]]),
+          formalParameterList
+        ]),
         softline,
         ctx.LBrace[0],
         ctx.RBrace[0]
@@ -588,15 +592,11 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   receiverParameter(ctx: ReceiverParameterCtx) {
     const annotations = this.mapVisit(ctx.annotation);
     const unannType = this.visit(ctx.unannType);
-    const identifier = ctx.Identifier
-      ? concat([ctx.Identifier[0], ctx.Dot![0]])
-      : "";
 
-    return rejectAndJoin("", [
-      rejectAndJoin(" ", annotations),
+    return rejectAndJoin(" ", [
+      ...annotations,
       unannType,
-      identifier,
-      ctx.This[0]
+      rejectAndConcat([ctx.Identifier?.[0], ctx.Dot?.[0], ctx.This[0]])
     ]);
   }
 
@@ -723,14 +723,16 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     const simpleTypeName = this.visit(ctx.simpleTypeName);
     const receiverParameter = this.visit(ctx.receiverParameter);
     const formalParameterList = this.visit(ctx.formalParameterList);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
 
     return rejectAndJoin(" ", [
       typeParameters,
       concat([
         simpleTypeName,
         putIntoBraces(
-          rejectAndJoinSeps(commas, [receiverParameter, formalParameterList]),
+          rejectAndJoin(line, [
+            rejectAndConcat([receiverParameter, ctx.Comma?.[0]]),
+            formalParameterList
+          ]),
           softline,
           ctx.LBrace[0],
           ctx.RBrace[0]

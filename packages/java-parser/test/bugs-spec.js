@@ -97,4 +97,19 @@ describe("The Java Parser fixed bugs", () => {
       expect(() => javaParser.parse(input, "statement")).to.not.throw();
     });
   });
+
+  it("issue #607 - should parse receiver parameter", () => {
+    [
+      "class Currency { Currency(Currency this) {} }",
+      "class Currency { Currency(Currency this, Currency other) {} }",
+      "class Currency { Currency(@AnnotatedUsage Currency this, Currency other) {} }",
+      "class Currency { String getCode(Currency this) {} }",
+      "class Currency { int compareTo(Currency this, Currency other) {} }",
+      "class Currency { int compareTo(@AnnotatedUsage Currency this, Currency other) {} }",
+      "class Currency { class Inner { Inner(Currency Currency.this) {} } }",
+      "class Currency { class Inner { String getCode(Currency Currency.this) {} } }"
+    ].forEach(input => {
+      expect(() => javaParser.parse(input, "classDeclaration")).to.not.throw();
+    });
+  });
 });
