@@ -31,7 +31,13 @@ import {
   getTokenLeadingComments,
   printTokenWithComments
 } from "./comments/format-comments.js";
-import { concat, group, ifBreak, join } from "./prettier-builder.js";
+import {
+  concat,
+  group,
+  ifBreak,
+  indentIfBreak,
+  join
+} from "./prettier-builder.js";
 
 const { indent, hardline, line } = builders;
 
@@ -654,8 +660,16 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
     }
   }
   level.push(nodes.shift()!);
-  const content = group(join(line, level));
-  return levelOperator === "=" ? indent(content) : content;
+  const lineGroupId = Symbol("line");
+  return group(
+    levelOperator === "="
+      ? [
+          level[0],
+          indent(group(line, { id: lineGroupId })),
+          indentIfBreak(level[1], { groupId: lineGroupId })
+        ]
+      : join(line, level)
+  );
 }
 
 function getOperator(tokens: IToken[]) {

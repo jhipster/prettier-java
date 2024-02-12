@@ -201,5 +201,9 @@ public class Variables {
       bbbbbbbbbbbbbbbbb ? ccccccccccccccccc : ddddddddddddddddd;
 
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb = ccccccccccccccccccccccccccccccccccccccc + ddddddddddddddddddddddddddddddddd;
+
+    foo = new Foo("aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb", "cccccccccccccccccccc", "dddddddddddddddddddd", "eeeeeeeeeeeeeeeeeeee", "ffffffffffffffffffff");
+
+    final Foo bar = new Foo("aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb", "cccccccccccccccccccc", "dddddddddddddddddddd", "eeeeeeeeeeeeeeeeeeee", "ffffffffffffffffffff");
   }
 }
