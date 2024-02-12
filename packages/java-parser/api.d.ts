@@ -1364,6 +1364,8 @@ export interface MethodDeclaratorCstNode extends CstNode {
 export type MethodDeclaratorCtx = {
   Identifier: IToken[];
   LBrace: IToken[];
+  receiverParameter?: ReceiverParameterCstNode[];
+  Comma?: IToken[];
   formalParameterList?: FormalParameterListCstNode[];
   RBrace: IToken[];
   dims?: DimsCstNode[];

@@ -320,13 +320,22 @@ export function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-MethodDeclarator
+  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-MethodDeclarator
   $.RULE("methodDeclarator", () => {
     $.CONSUME(t.Identifier);
     $.CONSUME(t.LBrace);
-    $.OPTION(() => {
-      $.SUBRULE($.formalParameterList);
-    });
+    $.OR([
+      {
+        ALT: () => {
+          $.SUBRULE($.receiverParameter);
+          $.OPTION(() => {
+            $.CONSUME(t.Comma);
+            $.SUBRULE($.formalParameterList);
+          });
+        }
+      },
+      { ALT: () => $.OPTION1(() => $.SUBRULE1($.formalParameterList)) }
+    ]);
     $.CONSUME(t.RBrace);
     $.OPTION2(() => {
       $.SUBRULE($.dims);
@@ -464,13 +473,18 @@ export function defineRules($, t) {
     });
     $.SUBRULE($.simpleTypeName);
     $.CONSUME(t.LBrace);
-    $.OPTION2(() => {
-      $.SUBRULE($.receiverParameter);
-      $.CONSUME(t.Comma);
-    });
-    $.OPTION3(() => {
-      $.SUBRULE($.formalParameterList);
-    });
+    $.OR([
+      {
+        ALT: () => {
+          $.SUBRULE($.receiverParameter);
+          $.OPTION1(() => {
+            $.CONSUME(t.Comma);
+            $.SUBRULE($.formalParameterList);
+          });
+        }
+      },
+      { ALT: () => $.OPTION2(() => $.SUBRULE1($.formalParameterList)) }
+    ]);
     $.CONSUME(t.RBrace);
   });
 
