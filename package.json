@@ -41,7 +41,7 @@
     "lint-staged": "13.0.4",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
-    "prettier": "3.0.3",
+    "prettier": "3.2.5",
     "sinon": "^17.0.1"
   },
   "dependencies": {}
