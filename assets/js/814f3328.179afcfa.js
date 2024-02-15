@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Prettier Java 2.5: Java 21 unnamed patterns and variables preview feature!","permalink":"/prettier-java/blog/2023/11/26/2.5.0","unlisted":false}]}')}}]);
