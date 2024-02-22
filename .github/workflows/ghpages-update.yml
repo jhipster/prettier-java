@@ -1,0 +1,40 @@
+#on:
+#  release:
+#    types: [created]
+on: [pull_request]
+name: Update playground on website
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build prettier plugin java
+        run: yarn build
+
+      - name: Install docusaurus dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: website
+      - name: Build docusaurus site
+        run: yarn build
+        working-directory: website
+
+      # Popular action to deploy to GitHub Pages:
+      # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
