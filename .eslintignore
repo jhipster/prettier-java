@@ -4,3 +4,4 @@ packages/prettier-plugin-java/test-samples
 node_modules
 packages/prettier-plugin-java/dist
 babel.config.js
+packages/java-parser/api.d.ts
