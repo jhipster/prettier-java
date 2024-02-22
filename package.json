@@ -34,7 +34,7 @@
     "chai": "^4.3.7",
     "eslint": "8.28.0",
     "eslint-config-google": "0.14.0",
-    "eslint-config-prettier": "8.5.0",
+    "eslint-config-prettier": "9.1.0",
     "fs-extra": "^10.1.0",
     "husky": "8.0.2",
     "klaw-sync": "^6.0.0",
