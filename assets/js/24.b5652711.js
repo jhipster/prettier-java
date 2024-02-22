@@ -1,9 +1,9 @@
 "use strict";
-exports.id = 374;
-exports.ids = [374];
+exports.id = 24;
+exports.ids = [24];
 exports.modules = {
 
-/***/ 15374:
+/***/ 24:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
