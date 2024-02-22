@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "homepage": "https://www.jhipster.tech/prettier-java/",
   "workspaces": [
     "packages/*",
     "benchmark/*"
