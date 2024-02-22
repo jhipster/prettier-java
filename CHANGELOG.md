@@ -1,4 +1,23 @@
-# Latest v2.5.0
+# Latest v2.6.0
+
+## Enhancements
+
+- Support Java 21 preview feature: string templates ([JEP 430](https://openjdk.org/jeps/430)) ([#640](https://github.com/jhipster/prettier-java/pull/640) by [@jtkiesel](https://github.com/jtkiesel))
+- Avoid breaking on certain method chains and arguments (Issue [#626](https://github.com/jhipster/prettier-java/issues/626) closed by [#632](https://github.com/jhipster/prettier-java/pull/632) by [@jtkiesel](https://github.com/jtkiesel))
+
+## Fixes
+
+- Consistent break after equals (Issue [#638](https://github.com/jhipster/prettier-java/issues/638) fixed by [#641](https://github.com/jhipster/prettier-java/pull/641) by [@jtkiesel](https://github.com/jtkiesel))
+- Properly break and indent lambda with comments (Issue [#581](https://github.com/jhipster/prettier-java/issues/581) fixed by [#604](https://github.com/jhipster/prettier-java/pull/604) by [@jtkiesel](https://github.com/jtkiesel))
+- Do not fail on constructor and method receiver parameter (Issue [#607](https://github.com/jhipster/prettier-java/issues/607) fixed by [#642](https://github.com/jhipster/prettier-java/pull/642) by [@jtkiesel](https://github.com/jtkiesel))
+- No break in single-block switch case (Issue [#635](https://github.com/jhipster/prettier-java/issues/635) fixed by [#636](https://github.com/jhipster/prettier-java/pull/636) by [@jtkiesel](https://github.com/jtkiesel))
+- Non-block if/else statements are now kept on their own lines (Issue [#631](https://github.com/jhipster/prettier-java/issues/631) fixed by [#633](https://github.com/jhipster/prettier-java/pull/633) by [@jtkiesel](https://github.com/jtkiesel))
+
+## Misc
+
+- Create documentation website ([#628](https://github.com/jhipster/prettier-java/pull/628) by [@jtkiesel](https://github.com/jtkiesel)) available at https://www.jhipster.tech/prettier-java
+
+# v2.5.0
 
 ## Enhancements
 - Supports Java 21 preview feature: unnamed patterns and variables ([JEP 443](https://openjdk.org/jeps/443)) ([#620](https://github.com/jhipster/prettier-java/pull/620) by [@jtkiesel](https://github.com/jtkiesel))
