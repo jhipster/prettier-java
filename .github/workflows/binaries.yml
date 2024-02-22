@@ -6,7 +6,7 @@ jobs:
   generate:
     env:
       # The version needs to match with the one used in the printer
-      PRETTIER_CORE_LIB_VERSION: 2.0.0
+      PRETTIER_CORE_LIB_VERSION: 3.2.5
     name: Create release artifacts
     runs-on: ubuntu-latest
     steps:
@@ -49,7 +49,7 @@ jobs:
           cd $GITHUB_WORKSPACE/prettier
           pkg package.json -o $GITHUB_WORKSPACE/prettier-java-${GITHUB_REF##*/} --targets node10-linux-x64,node10-macos-x64,node10-win-x64
       - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@main
+        uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
