@@ -209,6 +209,95 @@ public class Lambda {
         }, g);
     }
 
+    void huggableArguments() {
+        aaaaaaaaaaaaaaaaaaaaaaaa((bbbbbbbbbbbbbbbbbbbbbbbb, cccccccccccccccccccccccc, dddddddddddddddddddddddd) -> eeeeeeeeeeeeeeeeeeeeeeee.ffffffffffffffffffffffff());
+
+        a.b(c -> d -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c -> d && eeeeeeeeee.ffffffffff() ? g && hhhhhhhhhh.iiiiiiiiii() : j && kkkkkkkkkk.llllllllll());
+
+        a.b(c -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c, (c0, c1) -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c, (c0, c1) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c, (c0, c1) -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c -> {
+            eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk);
+        });
+
+        a.b((c0, c1) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c, (c0, c1) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a( // comment
+        (b, c, d) -> e.f());
+
+        a(( // comment
+        b, c, d) -> e.f());
+
+        a((b, // comment
+        c, d) -> e.f());
+
+        a((b, c, d // comment
+        ) -> e.f());
+
+        a((b, c, d
+        // comment
+        ) -> e.f());
+
+        a( /* comment */ (b, c, d) -> e.f());
+
+        a(( /* comment */
+        b, c, d) -> e.f());
+
+        a((b, /* comment */ c, d) -> e.f());
+
+        a((b, c, d /* comment */
+        ) -> e.f());
+
+        a((b, c, d
+        /* comment */
+        ) -> e.f());
+
+        aaaaaaaaaaaaaaaaaaaaaaaa((bbbbbbbbbbbbbbbbbbbbbbbb, cccccccccccccccccccccccc, dddddddddddddddddddddddd
+        // comment
+        ) -> eeeeeeeeeeeeeeeeeeeeeeee.ffffffffffffffffffffffff());
+
+        aaaaaaaaaaaaaaaaaaaaaaaa( /* comment */
+        (bbbbbbbbbbbbbbbbbbbbbbbb, cccccccccccccccccccccccc, dddddddddddddddddddddddd) -> eeeeeeeeeeeeeeeeeeeeeeee.ffffffffffffffffffffffff());
+
+        aaaaaaaaaaaaaaaaaaaaaaaa( /* comment */ (bbbbbbbbbbbbbbbbbbbbbbbb, cccccccccccccccccccccccc, dddddddddddddddddddddddd) -> eeeeeeeeeeeeeeeeeeeeeeee.ffffffffffffffffffffffff());
+
+        a.b(c, (c0, c1
+        // comment
+        ) -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c, (c0, c1
+        // comment
+        ) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk) > 0);
+
+        a.b(c, (c0, c1
+        // comment
+        ) -> d && eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b((c0, c1
+        // comment
+        ) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+
+        a.b(c, (c0, c1
+        // comment
+        ) -> eeeeeeeeee.ffffffffff(gggggggggg, hhhhhhhhhh, iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkk));
+    }
+
     void lambdaWithLeadingComments() {
         System.out.println(
             List.of(1, 2, 3).stream().map(

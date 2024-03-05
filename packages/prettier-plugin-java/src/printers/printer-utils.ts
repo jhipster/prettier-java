@@ -39,7 +39,7 @@ import {
   join
 } from "./prettier-builder.js";
 
-const { indent, hardline, line } = builders;
+const { indent, hardline, line, lineSuffixBoundary, softline } = builders;
 
 const orderedModifiers = [
   "Public",
@@ -583,7 +583,11 @@ export function putIntoBraces(
 
   if (isEmptyDoc(argument)) {
     if (rightBraceLeadingComments.length === 0) {
-      return concat([LBrace, RBrace]);
+      return group([
+        indent(printTokenWithComments(LBrace)),
+        ...(LBrace.trailingComments ? [softline, lineSuffixBoundary] : []),
+        RBrace
+      ]);
     }
     contentInsideBraces = [separator, ...rightBraceLeadingComments];
   } else if (rightBraceLeadingComments.length !== 0) {
@@ -650,11 +654,11 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
         return group(join(line, level));
       }
     } else {
-      const content = indent(binary(nodes, tokens));
+      const content = binary(nodes, tokens);
       nodes.unshift(
         levelOperator !== undefined &&
           needsParentheses(nextOperator, levelOperator)
-          ? concat(["(", content, ")"])
+          ? concat(["(", indent(content), ")"])
           : content
       );
     }

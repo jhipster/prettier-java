@@ -24,6 +24,7 @@ import {
   hasLeadingComments,
   hasLeadingLineComments
 } from "./comments/comments-utils.js";
+import { handleCommentsParameters } from "./comments/handle-comments.js";
 import { builders } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
@@ -569,6 +570,11 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   methodDeclarator(ctx: MethodDeclaratorCtx) {
+    const parameters = [
+      ...(ctx.receiverParameter ?? []),
+      ...(ctx.formalParameterList?.[0].children.formalParameter ?? [])
+    ];
+    handleCommentsParameters(ctx.LBrace[0], parameters, ctx.RBrace[0]);
     const identifier = printTokenWithComments(ctx.Identifier[0]);
     const receiverParameter = this.visit(ctx.receiverParameter);
     const formalParameterList = this.visit(ctx.formalParameterList);
@@ -719,6 +725,11 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   constructorDeclarator(ctx: ConstructorDeclaratorCtx) {
+    const parameters =
+      ctx.receiverParameter ??
+      ctx.formalParameterList?.[0].children.formalParameter ??
+      [];
+    handleCommentsParameters(ctx.LBrace[0], parameters, ctx.RBrace[0]);
     const typeParameters = this.visit(ctx.typeParameters);
     const simpleTypeName = this.visit(ctx.simpleTypeName);
     const receiverParameter = this.visit(ctx.receiverParameter);
@@ -948,6 +959,9 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     ]);
   }
   recordHeader(ctx: RecordHeaderCtx) {
+    const recordComponents =
+      ctx.recordComponentList?.[0].children.recordComponent ?? [];
+    handleCommentsParameters(ctx.LBrace[0], recordComponents, ctx.RBrace[0]);
     const recordComponentList = this.visit(ctx.recordComponentList);
     return putIntoBraces(
       recordComponentList,

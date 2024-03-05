@@ -15,7 +15,8 @@ class D {
   /* gamma */
 }
 
-class E {} // alpha
+class E { // alpha
+}
 
 class F {
   /* alpha */
@@ -59,9 +60,11 @@ class J {
     /* gamma */
   ) {}
 
-  void five() {} // alpha
+  void five( // alpha
+  ) {}
 
-  void fiveBis() { // alpha
+  void fiveBis( // alpha
+  ) {
     int i;
   }
 

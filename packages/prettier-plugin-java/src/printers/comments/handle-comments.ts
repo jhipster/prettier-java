@@ -1,6 +1,7 @@
 import { hasLeadingComments, hasTrailingComments } from "./comments-utils.js";
 import {
   BinaryExpressionCtx,
+  CstNode,
   IToken,
   UnaryExpressionCstNode
 } from "java-parser";
@@ -8,6 +9,38 @@ import {
 export function handleCommentsBinaryExpression(ctx: BinaryExpressionCtx) {
   moveOperatorLeadingCommentsToNextExpression(ctx);
   moveExpressionTrailingCommentsToNextOperator(ctx);
+}
+
+export function handleCommentsParameters(
+  lBrace: IToken,
+  parameters: CstNode[] | IToken[],
+  rBrace: IToken
+) {
+  const lBraceTrailingComments = lBrace.trailingComments;
+  const firstParameter = parameters.at(0);
+  if (lBraceTrailingComments && firstParameter) {
+    delete lBrace.trailingComments;
+    firstParameter.leadingComments = [
+      ...lBraceTrailingComments,
+      ...(firstParameter.leadingComments ?? [])
+    ];
+  }
+  const lastParameter = parameters.at(-1);
+  const rBraceLeadingComments = rBrace.leadingComments;
+  if (rBraceLeadingComments) {
+    delete rBrace.leadingComments;
+    if (lastParameter) {
+      lastParameter.trailingComments = [
+        ...(lastParameter.trailingComments ?? []),
+        ...rBraceLeadingComments
+      ];
+    } else {
+      lBrace.trailingComments = [
+        ...(lBrace.trailingComments ?? []),
+        ...rBraceLeadingComments
+      ];
+    }
+  }
 }
 
 function moveOperatorLeadingCommentsToNextExpression(ctx: BinaryExpressionCtx) {
