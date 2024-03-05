@@ -650,11 +650,11 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
         return group(join(line, level));
       }
     } else {
-      const content = indent(binary(nodes, tokens));
+      const content = binary(nodes, tokens);
       nodes.unshift(
         levelOperator !== undefined &&
           needsParentheses(nextOperator, levelOperator)
-          ? concat(["(", content, ")"])
+          ? concat(["(", indent(content), ")"])
           : content
       );
     }
