@@ -1,5 +1,6 @@
 import { concat, group, indent } from "./prettier-builder.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
+import { handleCommentsParameters } from "./comments/handle-comments.js";
 import {
   displaySemicolon,
   getInterfaceBodyDeclarationsSeparator,
@@ -278,6 +279,11 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
 
     let annoArgs: Doc = "";
     if (ctx.LBrace) {
+      const elementValues =
+        ctx.elementValuePairList?.[0].children.elementValuePair ??
+        ctx.elementValue ??
+        [];
+      handleCommentsParameters(ctx.LBrace[0], elementValues, ctx.RBrace![0]);
       if (ctx.elementValuePairList) {
         annoArgs = putIntoBraces(
           this.visit(ctx.elementValuePairList),

@@ -1,44 +1,44 @@
 import type { ArgumentListCstNode, ArgumentListCtx, IToken } from "java-parser";
-import { builders, utils } from "prettier/doc";
-import { putIntoBraces } from "../printers/printer-utils.js";
+import { builders } from "prettier/doc";
+import { handleCommentsParameters } from "../printers/comments/handle-comments.js";
+import { indent } from "../printers/prettier-builder.js";
+import { rejectAndConcat } from "../printers/printer-utils.js";
 
-const { breakParent, conditionalGroup, softline } = builders;
-const { willBreak } = utils;
+const { lineSuffixBoundary, softline } = builders;
 
 export default function printArgumentListWithBraces(
   argumentListNodes: ArgumentListCstNode[] | undefined,
   rBrace: IToken,
   lBrace: IToken
 ) {
-  if (
-    argumentListNodes &&
-    !argumentListNodes[0].leadingComments &&
-    !rBrace.leadingComments &&
-    isArgumentListHuggable(argumentListNodes[0].children)
-  ) {
-    const [flat, expanded] = [false, true].map(shouldBreak => {
-      const argumentList = this.visit(argumentListNodes, {
-        isHuggable: true,
-        shouldBreak
-      });
-      return putIntoBraces(argumentList, "", lBrace, rBrace);
-    });
-    return [
-      willBreak(flat) ? breakParent : "",
-      conditionalGroup([flat, expanded])
-    ];
+  const argumentListNode = argumentListNodes?.[0];
+  const expressions = argumentListNode?.children.expression ?? [];
+  if (argumentListNode) {
+    const { leadingComments, trailingComments } = argumentListNode;
+    delete argumentListNode.leadingComments;
+    delete argumentListNode.trailingComments;
+    if (leadingComments) {
+      const firstExpression = expressions[0];
+      firstExpression.leadingComments = [
+        ...leadingComments,
+        ...(firstExpression.leadingComments ?? [])
+      ];
+    }
+    if (trailingComments) {
+      const lastExpression = expressions.at(-1)!;
+      lastExpression.trailingComments = [
+        ...(lastExpression.trailingComments ?? []),
+        ...trailingComments
+      ];
+    }
   }
+  handleCommentsParameters(lBrace, expressions, rBrace);
 
   const argumentList = this.visit(argumentListNodes);
-  return putIntoBraces(argumentList, softline, lBrace, rBrace);
-}
-
-function isArgumentListHuggable(argumentList: ArgumentListCtx) {
-  const expressions = argumentList.expression;
-  return (
-    (expressions.length === 1 ||
-      expressions[expressions.length - 1].children.lambdaExpression?.[0]
-        .children.lambdaBody[0].children.block !== undefined) &&
-    expressions.filter(({ children }) => children.lambdaExpression).length === 1
-  );
+  const contents = argumentList
+    ? [argumentList]
+    : lBrace.trailingComments
+      ? [softline, lineSuffixBoundary]
+      : [];
+  return rejectAndConcat([indent(lBrace), ...contents, rBrace]);
 }

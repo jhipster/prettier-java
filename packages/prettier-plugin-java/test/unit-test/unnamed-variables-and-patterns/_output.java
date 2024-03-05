@@ -39,7 +39,8 @@ class T {
   }
 
   void tryWithResources() {
-    try (var _ = ScopedContext.acquire()) {} // Unnamed variable
+    try (var _ = ScopedContext.acquire()) { // Unnamed variable
+    }
   }
 
   void lambda() {
