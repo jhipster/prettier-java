@@ -249,7 +249,7 @@ export default {
     type: "choice",
     category: "Java",
     default: "all",
-    choices: ["all", "none"],
+    choices: ["all", "es5", "none"],
     description: "Print trailing commas wherever possible when multi-line."
   }
 };
