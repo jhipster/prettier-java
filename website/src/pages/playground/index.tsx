@@ -17,8 +17,9 @@ interface State {
 }
 
 enum TrailingComma {
-  None = "none",
-  All = "all"
+  All = "all",
+  Es5 = "es5",
+  None = "none"
 }
 
 const codeSample = `public interface MyInterface {
@@ -144,8 +145,9 @@ function Inner() {
                 setTrailingComma(event.target.value as TrailingComma)
               }
             >
-              <option>all</option>
-              <option>none</option>
+              {Object.values(TrailingComma).map(option => (
+                <option>{option}</option>
+              ))}
             </select>
           </label>
         </details>
