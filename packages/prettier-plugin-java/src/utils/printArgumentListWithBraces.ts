@@ -1,5 +1,6 @@
 import type { ArgumentListCstNode, ArgumentListCtx, IToken } from "java-parser";
 import { builders, utils } from "prettier/doc";
+import { dedent } from "../printers/prettier-builder.js";
 import { putIntoBraces } from "../printers/printer-utils.js";
 
 const { breakParent, conditionalGroup, softline } = builders;
@@ -16,17 +17,21 @@ export default function printArgumentListWithBraces(
     !rBrace.leadingComments &&
     isArgumentListHuggable(argumentListNodes[0].children)
   ) {
-    const [flat, expanded] = [false, true].map(shouldBreak => {
-      const argumentList = this.visit(argumentListNodes, {
-        isHuggable: true,
-        shouldBreak
-      });
-      return putIntoBraces(argumentList, "", lBrace, rBrace);
-    });
-    return [
-      willBreak(flat) ? breakParent : "",
-      conditionalGroup([flat, expanded])
-    ];
+    const [flat, hugged, expanded] = [{ flat: true }, { hugged: true }, {}].map(
+      params => {
+        const argumentList = this.visit(argumentListNodes, params);
+        const flat = params.flat || params.hugged;
+        const separator = flat ? "" : softline;
+        return putIntoBraces(
+          flat ? dedent(argumentList) : argumentList,
+          separator,
+          lBrace,
+          rBrace
+        );
+      }
+    );
+    const alternatives = conditionalGroup([flat, hugged, expanded]);
+    return willBreak(flat) ? [breakParent, alternatives] : alternatives;
   }
 
   const argumentList = this.visit(argumentListNodes);
@@ -35,10 +40,17 @@ export default function printArgumentListWithBraces(
 
 function isArgumentListHuggable(argumentList: ArgumentListCtx) {
   const expressions = argumentList.expression;
+  const lastArgumentLambdaBodyExpression =
+    expressions.at(-1)?.children.lambdaExpression?.[0].children.lambdaBody[0]
+      .children.expression?.[0].children;
+  const lastArgumentLambdaBodyTernaryExpression =
+    lastArgumentLambdaBodyExpression?.ternaryExpression?.[0].children;
   return (
-    (expressions.length === 1 ||
-      expressions[expressions.length - 1].children.lambdaExpression?.[0]
-        .children.lambdaBody[0].children.block !== undefined) &&
-    expressions.filter(({ children }) => children.lambdaExpression).length === 1
+    (!lastArgumentLambdaBodyExpression ||
+      lastArgumentLambdaBodyTernaryExpression?.QuestionMark !== undefined ||
+      lastArgumentLambdaBodyTernaryExpression?.binaryExpression[0].children
+        .unaryExpression.length === 1) &&
+    expressions.findIndex(({ children }) => children.lambdaExpression) ===
+      expressions.length - 1
   );
 }
