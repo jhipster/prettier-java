@@ -82,7 +82,7 @@ Open your Preferences. Then, go to the `Tools/File Watchers` section and create 
 - Name: `Prettier Java`
 - File Type: `Java`
 - Program: `npx prettier` if you have installed the prettier and prettier-plugin-java packages locally. Replace by `prettier` otherwise.
-- Arguments: `--write $FilePathRelativeToProjectRoot$`
+- Arguments: `--write $FilePath$`
 - Output path to refresh: `$FilePathRelativeToProjectRoot$`
 - Trigger the watcher on external changes: `checked`
 
