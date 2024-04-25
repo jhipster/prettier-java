@@ -3,7 +3,12 @@
   "version": "2.6.0",
   "description": "Prettier Java Plugin",
   "type": "module",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
