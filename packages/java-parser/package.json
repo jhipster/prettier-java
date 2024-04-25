@@ -7,6 +7,12 @@
   "repository": "https://github.com/jhipster/prettier-java/tree/main/packages/java-parser",
   "license": "Apache-2.0",
   "types": "./api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./api.d.ts",
+      "default": "./src/index.js"
+    }
+  },
   "dependencies": {
     "chevrotain": "11.0.3",
     "chevrotain-allstar": "0.3.1",
