@@ -1,4 +1,4 @@
-public @interface AnnotationTypeDeclaration {
+public @interface AnnotationInterfaceDeclaration {
   public String value() default "";
 
   @RandomAnnotation

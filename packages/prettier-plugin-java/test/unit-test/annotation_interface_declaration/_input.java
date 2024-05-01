@@ -1,4 +1,4 @@
-public @interface AnnotationTypeDeclaration {
+public @interface AnnotationInterfaceDeclaration {
     public String value() default "";
     @RandomAnnotation Integer[][] annotatedArray = (Integer[][]) new Object[4][2];
     @RandomBreakingAnnotation(one = "One", two = "Two", three = "Three", four = "Four", five = "Five")

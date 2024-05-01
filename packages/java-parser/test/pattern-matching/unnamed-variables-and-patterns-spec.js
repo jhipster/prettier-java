@@ -134,4 +134,20 @@ describe("Unnamed Variables & Patterns", () => {
     `;
     expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
   });
+
+  it("should parse switch label with multiple unnamed patterns", () => {
+    const input = `
+      switch (this) {
+        case A _, B _, C _ -> "A lot";
+      }
+    `;
+    expect(() => javaParser.parse(input, "switchStatement")).to.not.throw();
+  });
+
+  it("should parse lambda expression with multiple unnamed parameters", () => {
+    const input = `
+      (_, _) -> {}
+    `;
+    expect(() => javaParser.parse(input, "lambdaExpression")).to.not.throw();
+  });
 });

@@ -1,7 +1,7 @@
 import { tokenMatcher } from "chevrotain";
 
 export function defineRules($, t) {
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-10.html#jls-ArrayInitializer
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-10.html#jls-ArrayInitializer
   $.RULE("arrayInitializer", () => {
     $.CONSUME(t.LCurly);
     $.OPTION(() => {
@@ -13,7 +13,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-10.html#jls-VariableInitializerList
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-10.html#jls-VariableInitializerList
   $.RULE("variableInitializerList", () => {
     $.SUBRULE($.variableInitializer);
     $.MANY({
