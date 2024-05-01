@@ -6,8 +6,8 @@ export function defineRules($, t) {
    * both can have multiple class or interface declarations, both were combined
    * in the ordinaryCompilationUnit rule
    *
-   * https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.3
-   * https://docs.oracle.com/javase/specs/jls/se21/preview/specs/unnamed-classes-instance-main-methods-jls.html
+   * https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-CompilationUnit
+   * https://docs.oracle.com/javase/specs/jls/se22/preview/specs/implicitly-declared-classes-instance-main-methods-jls.html
    */
   $.RULE("compilationUnit", () => {
     $.OR([
@@ -18,7 +18,7 @@ export function defineRules($, t) {
     $.CONSUME(EOF);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-OrdinaryCompilationUnit
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-OrdinaryCompilationUnit
   $.RULE("ordinaryCompilationUnit", () => {
     $.OPTION(() => $.SUBRULE($.packageDeclaration));
     $.MANY(() => {
@@ -29,7 +29,7 @@ export function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModularCompilationUnit
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-ModularCompilationUnit
   $.RULE("modularCompilationUnit", () => {
     $.MANY(() => {
       $.SUBRULE($.importDeclaration);
@@ -37,7 +37,7 @@ export function defineRules($, t) {
     $.SUBRULE($.moduleDeclaration);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-PackageDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-PackageDeclaration
   $.RULE("packageDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.packageModifier);
@@ -51,12 +51,12 @@ export function defineRules($, t) {
     $.CONSUME2(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-PackageModifier
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-PackageModifier
   $.RULE("packageModifier", () => {
     $.SUBRULE($.annotation);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ImportDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-ImportDeclaration
   $.RULE("importDeclaration", () => {
     // Spec Deviation: The spec defines four different kinds of import declarations.
     //                 Our grammar however combines those into a single rule due to difficulties
@@ -96,8 +96,8 @@ export function defineRules($, t) {
    * As a result, the typeDeclaration combine TopLevelClassOrInterfaceDeclaration and includes fields and method declarations as well
    * to handle unnamed class compilation unit
    *
-   * https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-TopLevelClassOrInterfaceDeclaration
-   * https://docs.oracle.com/javase/specs/jls/se21/preview/specs/unnamed-classes-instance-main-methods-jls.html
+   * https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-TopLevelClassOrInterfaceDeclaration
+   * https://docs.oracle.com/javase/specs/jls/se22/preview/specs/implicitly-declared-classes-instance-main-methods-jls.html
    */
   $.RULE("typeDeclaration", () => {
     $.OR([
@@ -109,7 +109,7 @@ export function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModuleDeclaration
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-ModuleDeclaration
   $.RULE("moduleDeclaration", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
@@ -130,7 +130,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RCurly);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-ModuleDirective
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-ModuleDirective
   $.RULE("moduleDirective", () => {
     // Spec Deviation: Each of the alternatives of "moduleDirective" was extracted
     //                 to its own nonTerminal, to reduce verbosity.
@@ -149,7 +149,7 @@ export function defineRules($, t) {
     $.MANY({
       GATE: () => {
         /**
-         * https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.9 -
+         * https://docs.oracle.com/javase/specs/jls/se22/html/jls-3.html#jls-3.9 -
          *   There is one exception: immediately to the right of the character sequence `requires` in the ModuleDirective production,
          *   the character sequence `transitive` is tokenized as a keyword unless it is followed by a separator,
          *   in which case it is tokenized as an identifier.
@@ -217,7 +217,7 @@ export function defineRules($, t) {
     $.CONSUME(t.Semicolon);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-7.html#jls-RequiresModifier
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-RequiresModifier
   $.RULE("requiresModifier", () => {
     $.OR([
       { ALT: () => $.CONSUME(t.Transitive) },

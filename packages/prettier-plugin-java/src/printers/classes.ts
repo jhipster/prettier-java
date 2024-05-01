@@ -31,6 +31,8 @@ import {
   ClassBodyCtx,
   ClassBodyDeclarationCtx,
   ClassDeclarationCtx,
+  ClassExtendsCtx,
+  ClassImplementsCtx,
   ClassMemberDeclarationCtx,
   ClassModifierCtx,
   ClassPermitsCtx,
@@ -73,8 +75,6 @@ import {
   ResultCtx,
   SimpleTypeNameCtx,
   StaticInitializerCtx,
-  SuperclassCtx,
-  SuperinterfacesCtx,
   ThrowsCtx,
   TypeParameterListCtx,
   TypeParametersCtx,
@@ -128,20 +128,20 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   normalClassDeclaration(ctx: NormalClassDeclarationCtx) {
     const name = this.visit(ctx.typeIdentifier);
     const optionalTypeParams = this.visit(ctx.typeParameters);
-    const optionalSuperClasses = this.visit(ctx.superclass);
-    const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
+    const optionalClassExtends = this.visit(ctx.classExtends);
+    const optionalClassImplements = this.visit(ctx.classImplements);
     const optionalClassPermits = this.visit(ctx.classPermits);
     const body = this.visit(ctx.classBody, { isNormalClassDeclaration: true });
 
     let superClassesPart: Doc = "";
-    if (optionalSuperClasses) {
-      superClassesPart = indent(rejectAndConcat([line, optionalSuperClasses]));
+    if (optionalClassExtends) {
+      superClassesPart = indent(rejectAndConcat([line, optionalClassExtends]));
     }
 
     let superInterfacesPart: Doc = "";
-    if (optionalSuperInterfaces) {
+    if (optionalClassImplements) {
       superInterfacesPart = indent(
-        rejectAndConcat([line, optionalSuperInterfaces])
+        rejectAndConcat([line, optionalClassImplements])
       );
     }
 
@@ -190,11 +190,11 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     return group(rejectAndJoinSeps(commas, typeParameter));
   }
 
-  superclass(ctx: SuperclassCtx) {
+  classExtends(ctx: ClassExtendsCtx) {
     return join(" ", [ctx.Extends[0], this.visit(ctx.classType)]);
   }
 
-  superinterfaces(ctx: SuperinterfacesCtx) {
+  classImplements(ctx: ClassImplementsCtx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
     return group(
@@ -333,9 +333,9 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
           .lambdaExpression !== undefined ||
         // Ternary Expression
         (ctx.variableInitializer![0].children.expression![0].children
-          .ternaryExpression !== undefined &&
+          .conditionalExpression !== undefined &&
           ctx.variableInitializer![0].children.expression![0].children
-            .ternaryExpression[0].children.QuestionMark !== undefined)
+            .conditionalExpression[0].children.QuestionMark !== undefined)
       ) {
         const groupId = Symbol("assignment");
         return group([
@@ -350,11 +350,11 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
 
       if (
         ctx.variableInitializer![0].children.expression![0].children
-          .ternaryExpression !== undefined
+          .conditionalExpression !== undefined
       ) {
         const unaryExpressions =
           ctx.variableInitializer![0].children.expression![0].children
-            .ternaryExpression[0].children.binaryExpression[0].children
+            .conditionalExpression[0].children.binaryExpression[0].children
             .unaryExpression;
         const firstPrimary = unaryExpressions[0].children.primary[0];
 
@@ -398,7 +398,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
             .methodInvocationSuffix !== undefined;
         const isUniqueUnaryExpression =
           ctx.variableInitializer![0].children.expression![0].children
-            .ternaryExpression[0].children.binaryExpression[0].children
+            .conditionalExpression[0].children.binaryExpression[0].children
             .unaryExpression.length === 1;
 
         const isUniqueMethodInvocation =
@@ -753,7 +753,7 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   simpleTypeName(ctx: SimpleTypeNameCtx) {
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
+    return this.visitSingle(ctx);
   }
 
   constructorBody(ctx: ConstructorBodyCtx) {
@@ -817,14 +817,14 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   enumDeclaration(ctx: EnumDeclarationCtx) {
     const classModifier = this.mapVisit(ctx.classModifier);
     const typeIdentifier = this.visit(ctx.typeIdentifier);
-    const superinterfaces = this.visit(ctx.superinterfaces);
+    const classImplements = this.visit(ctx.classImplements);
     const enumBody = this.visit(ctx.enumBody);
 
     return rejectAndJoin(" ", [
       join(" ", classModifier),
       ctx.Enum[0],
       typeIdentifier,
-      superinterfaces,
+      classImplements,
       enumBody
     ]);
   }
@@ -937,10 +937,10 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     const recordHeader = this.visit(ctx.recordHeader);
 
     let superInterfacesPart: Doc = "";
-    const optionalSuperInterfaces = this.visit(ctx.superinterfaces);
-    if (optionalSuperInterfaces) {
+    const optionalClassImplements = this.visit(ctx.classImplements);
+    if (optionalClassImplements) {
       superInterfacesPart = indent(
-        rejectAndConcat([line, optionalSuperInterfaces])
+        rejectAndConcat([line, optionalClassImplements])
       );
     }
 

@@ -1,19 +1,21 @@
 import { tokenMatcher } from "chevrotain";
 export function defineRules($, t) {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-Expression
   $.RULE("expression", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.lambdaExpression) },
-      { ALT: () => $.SUBRULE($.ternaryExpression) }
+      { ALT: () => $.SUBRULE($.conditionalExpression) }
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-LambdaExpression
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-LambdaExpression
   $.RULE("lambdaExpression", () => {
     $.SUBRULE($.lambdaParameters);
     $.CONSUME(t.Arrow);
     $.SUBRULE($.lambdaBody);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-LambdaParameters
   $.RULE("lambdaParameters", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.lambdaParametersWithBraces) },
@@ -30,6 +32,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-LambdaParameterList
   $.RULE("lambdaParameterList", () => {
     $.OR([
       {
@@ -37,34 +40,36 @@ export function defineRules($, t) {
           const nextTokType = this.LA(1).tokenType;
           const nextNextTokType = this.LA(2).tokenType;
           return (
-            tokenMatcher(nextTokType, t.Identifier) &&
+            (tokenMatcher(nextTokType, t.Identifier) ||
+              tokenMatcher(nextTokType, t.Underscore)) &&
             (tokenMatcher(nextNextTokType, t.RBrace) ||
               tokenMatcher(nextNextTokType, t.Comma))
           );
         },
-        ALT: () => $.SUBRULE($.inferredLambdaParameterList)
+        ALT: () => $.SUBRULE($.conciseLambdaParameterList)
       },
-      { ALT: () => $.SUBRULE($.explicitLambdaParameterList) }
+      { ALT: () => $.SUBRULE($.normalLambdaParameterList) }
     ]);
   });
 
-  $.RULE("inferredLambdaParameterList", () => {
-    $.CONSUME(t.Identifier);
+  $.RULE("conciseLambdaParameterList", () => {
+    $.SUBRULE($.conciseLambdaParameter);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.CONSUME2(t.Identifier);
+      $.SUBRULE2($.conciseLambdaParameter);
     });
   });
 
-  $.RULE("explicitLambdaParameterList", () => {
-    $.SUBRULE($.lambdaParameter);
+  $.RULE("normalLambdaParameterList", () => {
+    $.SUBRULE($.normalLambdaParameter);
     $.MANY(() => {
       $.CONSUME(t.Comma);
-      $.SUBRULE2($.lambdaParameter);
+      $.SUBRULE2($.normalLambdaParameter);
     });
   });
 
-  $.RULE("lambdaParameter", () => {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-NormalLambdaParameter
+  $.RULE("normalLambdaParameter", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.regularLambdaParameter) },
       { ALT: () => $.SUBRULE($.variableArityParameter) }
@@ -79,6 +84,7 @@ export function defineRules($, t) {
     $.SUBRULE($.variableDeclaratorId);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-LambdaParameterType
   $.RULE("lambdaParameterType", () => {
     $.OR({
       DEF: [
@@ -89,6 +95,15 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ConciseLambdaParameter
+  $.RULE("conciseLambdaParameter", () => {
+    $.OR([
+      { ALT: () => $.CONSUME(t.Identifier) },
+      { ALT: () => $.CONSUME(t.Underscore) }
+    ]);
+  });
+
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-LambdaBody
   $.RULE("lambdaBody", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.expression) },
@@ -96,7 +111,8 @@ export function defineRules($, t) {
     ]);
   });
 
-  $.RULE("ternaryExpression", () => {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ConditionalExpression
+  $.RULE("conditionalExpression", () => {
     $.SUBRULE($.binaryExpression);
     $.OPTION(() => {
       $.CONSUME(t.QuestionMark);
@@ -173,6 +189,7 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-UnaryExpression
   $.RULE("unaryExpression", () => {
     $.MANY(() => {
       $.CONSUME(t.UnaryPrefixOperator);
@@ -183,6 +200,7 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-UnaryExpressionNotPlusMinus
   $.RULE("unaryExpressionNotPlusMinus", () => {
     $.MANY(() => {
       $.CONSUME(t.UnaryPrefixOperatorNotPlusMinus);
@@ -193,6 +211,7 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-Primary
   $.RULE("primary", () => {
     $.SUBRULE($.primaryPrefix);
     $.MANY(() => {
@@ -338,6 +357,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-CastExpression
   $.RULE("castExpression", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.primitiveCastExpression) },
@@ -372,7 +392,7 @@ export function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-UnqualifiedClassInstanceCreationExpression
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-UnqualifiedClassInstanceCreationExpression
   $.RULE("unqualifiedClassInstanceCreationExpression", () => {
     $.CONSUME(t.New);
     $.OPTION(() => {
@@ -389,6 +409,7 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ClassOrInterfaceTypeToInstantiate
   $.RULE("classOrInterfaceTypeToInstantiate", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
@@ -406,6 +427,7 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-TypeArgumentsOrDiamond
   $.RULE("typeArgumentsOrDiamond", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.diamond) },
@@ -418,6 +440,7 @@ export function defineRules($, t) {
     $.CONSUME(t.Greater);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-MethodInvocation
   $.RULE("methodInvocationSuffix", () => {
     $.CONSUME(t.LBrace);
     $.OPTION2(() => {
@@ -426,6 +449,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ArgumentList
   $.RULE("argumentList", () => {
     $.SUBRULE($.expression);
     $.MANY(() => {
@@ -434,7 +458,7 @@ export function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-15.10.1
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ArrayCreationExpression
   $.RULE("arrayCreationExpression", () => {
     $.CONSUME(t.New);
     $.OR([
@@ -443,24 +467,28 @@ export function defineRules($, t) {
     ]);
 
     $.OR2([
-      { ALT: () => $.SUBRULE($.arrayCreationDefaultInitSuffix) },
-      { ALT: () => $.SUBRULE($.arrayCreationExplicitInitSuffix) }
+      {
+        ALT: () => $.SUBRULE($.arrayCreationExpressionWithoutInitializerSuffix)
+      },
+      { ALT: () => $.SUBRULE($.arrayCreationWithInitializerSuffix) }
     ]);
   });
 
-  $.RULE("arrayCreationDefaultInitSuffix", () => {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ArrayCreationExpressionWithoutInitializer
+  $.RULE("arrayCreationExpressionWithoutInitializerSuffix", () => {
     $.SUBRULE($.dimExprs);
     $.OPTION(() => {
       $.SUBRULE($.dims);
     });
   });
 
-  $.RULE("arrayCreationExplicitInitSuffix", () => {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ArrayCreationExpressionWithInitializer
+  $.RULE("arrayCreationWithInitializerSuffix", () => {
     $.SUBRULE($.dims);
     $.SUBRULE($.arrayInitializer);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-DimExprs
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-DimExprs
   $.RULE("dimExprs", () => {
     $.SUBRULE($.dimExpr);
     $.MANY({
@@ -473,7 +501,7 @@ export function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-DimExpr
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-DimExpr
   $.RULE("dimExpr", () => {
     $.MANY(() => {
       $.SUBRULE($.annotation);
@@ -483,6 +511,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RSquare);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ClassLiteral
   $.RULE("classLiteralSuffix", () => {
     $.MANY(() => {
       $.CONSUME(t.LSquare);
@@ -492,12 +521,14 @@ export function defineRules($, t) {
     $.CONSUME(t.Class);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-ArrayAccess
   $.RULE("arrayAccessSuffix", () => {
     $.CONSUME(t.LSquare);
     $.SUBRULE($.expression);
     $.CONSUME(t.RSquare);
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-15.html#jls-MethodReference
   $.RULE("methodReferenceSuffix", () => {
     $.CONSUME(t.ColonColon);
     $.OPTION(() => {
@@ -554,7 +585,7 @@ export function defineRules($, t) {
     });
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Pattern
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-Pattern
   $.RULE("pattern", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.typePattern) },
@@ -562,12 +593,12 @@ export function defineRules($, t) {
     ]);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-TypePattern
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-TypePattern
   $.RULE("typePattern", () => {
     $.SUBRULE($.localVariableDeclaration);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-RecordPattern
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-RecordPattern
   $.RULE("recordPattern", () => {
     $.SUBRULE($.referenceType);
     $.CONSUME(t.LBrace);
@@ -577,7 +608,7 @@ export function defineRules($, t) {
     $.CONSUME(t.RBrace);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-PatternList
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-ComponentPatternList
   $.RULE("componentPatternList", () => {
     $.SUBRULE($.componentPattern);
     $.MANY(() => {
@@ -586,18 +617,20 @@ export function defineRules($, t) {
     });
   });
 
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-ComponentPattern
   $.RULE("componentPattern", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.pattern) },
-      { ALT: () => $.SUBRULE($.unnamedPattern) }
+      { ALT: () => $.SUBRULE($.matchAllPattern) }
     ]);
   });
 
-  $.RULE("unnamedPattern", () => {
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-MatchAllPattern
+  $.RULE("matchAllPattern", () => {
     $.CONSUME(t.Underscore);
   });
 
-  // https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-Guard
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-Guard
   $.RULE("guard", () => {
     $.CONSUME(t.When);
     $.SUBRULE($.expression);

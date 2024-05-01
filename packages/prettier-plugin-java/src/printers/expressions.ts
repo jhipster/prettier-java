@@ -1,27 +1,28 @@
 import {
   ArgumentListCtx,
   ArrayAccessSuffixCtx,
-  ArrayCreationDefaultInitSuffixCtx,
-  ArrayCreationExplicitInitSuffixCtx,
   ArrayCreationExpressionCtx,
+  ArrayCreationWithInitializerSuffixCtx,
+  ArrayCreationExpressionWithoutInitializerSuffixCtx,
   BinaryExpressionCtx,
   CastExpressionCtx,
   ClassLiteralSuffixCtx,
   ClassOrInterfaceTypeToInstantiateCtx,
   ComponentPatternListCtx,
   ComponentPatternCtx,
+  ConciseLambdaParameterCtx,
+  ConciseLambdaParameterListCtx,
+  ConditionalExpressionCtx,
   DiamondCtx,
   DimExprCtx,
   DimExprsCtx,
   EmbeddedExpressionCtx,
-  ExplicitLambdaParameterListCtx,
   ExpressionCtx,
   FqnOrRefTypeCtx,
   FqnOrRefTypePartCommonCtx,
   FqnOrRefTypePartFirstCtx,
   FqnOrRefTypePartRestCtx,
   GuardCtx,
-  InferredLambdaParameterListCtx,
   IToken,
   LambdaBodyCtx,
   LambdaExpressionCtx,
@@ -30,9 +31,11 @@ import {
   LambdaParametersCtx,
   LambdaParametersWithBracesCtx,
   LambdaParameterTypeCtx,
+  MatchAllPatternCtx,
   MethodInvocationSuffixCtx,
   MethodReferenceSuffixCtx,
   NewExpressionCtx,
+  NormalLambdaParameterListCtx,
   ParenthesisExpressionCtx,
   PatternCtx,
   PrimaryCtx,
@@ -45,13 +48,11 @@ import {
   StringTemplateCtx,
   TemplateArgumentCtx,
   TemplateCtx,
-  TernaryExpressionCtx,
   TextBlockTemplateCtx,
   TypeArgumentsOrDiamondCtx,
   TypePatternCtx,
   UnaryExpressionCtx,
   UnaryExpressionNotPlusMinusCtx,
-  UnnamedPatternCtx,
   UnqualifiedClassInstanceCreationExpressionCtx
 } from "java-parser/api";
 
@@ -65,7 +66,7 @@ import {
   handleCommentsBinaryExpression,
   handleCommentsParameters
 } from "./comments/handle-comments.js";
-import { concat, dedent, group, indent, join } from "./prettier-builder.js";
+import { concat, dedent, group, indent } from "./prettier-builder.js";
 import {
   binary,
   findDeepElementInPartsArray,
@@ -129,10 +130,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
 
   lambdaParametersWithBraces(ctx: LambdaParametersWithBracesCtx) {
     const lambdaParameters =
-      ctx.lambdaParameterList?.[0].children.explicitLambdaParameterList?.[0]
-        .children.lambdaParameter ??
-      ctx.lambdaParameterList?.[0].children.inferredLambdaParameterList?.[0]
-        .children.Identifier ??
+      ctx.lambdaParameterList?.[0].children.normalLambdaParameterList?.[0]
+        .children.normalLambdaParameter ??
+      ctx.lambdaParameterList?.[0].children.conciseLambdaParameterList?.[0]
+        .children.conciseLambdaParameter ??
       [];
     handleCommentsParameters(ctx.LBrace[0], lambdaParameters, ctx.RBrace[0]);
     const lambdaParameterList = this.visit(ctx.lambdaParameterList);
@@ -170,18 +171,19 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return this.visitSingle(ctx);
   }
 
-  inferredLambdaParameterList(ctx: InferredLambdaParameterListCtx) {
+  conciseLambdaParameterList(ctx: ConciseLambdaParameterListCtx) {
+    const conciseLambdaParameters = this.mapVisit(ctx.conciseLambdaParameter);
     const commas = ctx.Comma?.map(comma => concat([comma, line]));
-    return rejectAndJoinSeps(commas, ctx.Identifier);
+    return rejectAndJoinSeps(commas, conciseLambdaParameters);
   }
 
-  explicitLambdaParameterList(ctx: ExplicitLambdaParameterListCtx) {
-    const lambdaParameter = this.mapVisit(ctx.lambdaParameter);
+  normalLambdaParameterList(ctx: NormalLambdaParameterListCtx) {
+    const normalLambdaParameter = this.mapVisit(ctx.normalLambdaParameter);
     const commas = ctx.Comma?.map(comma => concat([comma, line]));
-    return rejectAndJoinSeps(commas, lambdaParameter);
+    return rejectAndJoinSeps(commas, normalLambdaParameter);
   }
 
-  lambdaParameter(ctx: LambdaParameterCtx) {
+  normalLambdaParameter(ctx: LambdaParameterCtx) {
     return this.visitSingle(ctx);
   }
 
@@ -204,11 +206,15 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
+  conciseLambdaParameter(ctx: ConciseLambdaParameterCtx) {
+    return printTokenWithComments(this.getSingle(ctx) as IToken);
+  }
+
   lambdaBody(ctx: LambdaBodyCtx) {
     return this.visitSingle(ctx);
   }
 
-  ternaryExpression(ctx: TernaryExpressionCtx, params: any) {
+  conditionalExpression(ctx: ConditionalExpressionCtx, params: any) {
     const binaryExpression = this.visit(ctx.binaryExpression, params);
     if (ctx.QuestionMark) {
       const expression1 = this.visit(ctx.expression![0]);
@@ -671,20 +677,24 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const type = ctx.primitiveType
       ? this.visit(ctx.primitiveType)
       : this.visit(ctx.classOrInterfaceType);
-    const suffix = ctx.arrayCreationDefaultInitSuffix
-      ? this.visit(ctx.arrayCreationDefaultInitSuffix)
-      : this.visit(ctx.arrayCreationExplicitInitSuffix);
+    const suffix = ctx.arrayCreationExpressionWithoutInitializerSuffix
+      ? this.visit(ctx.arrayCreationExpressionWithoutInitializerSuffix)
+      : this.visit(ctx.arrayCreationWithInitializerSuffix);
 
     return rejectAndConcat([concat([ctx.New[0], " "]), type, suffix]);
   }
 
-  arrayCreationDefaultInitSuffix(ctx: ArrayCreationDefaultInitSuffixCtx) {
+  arrayCreationExpressionWithoutInitializerSuffix(
+    ctx: ArrayCreationExpressionWithoutInitializerSuffixCtx
+  ) {
     const dimExprs = this.visit(ctx.dimExprs);
     const dims = this.visit(ctx.dims);
     return rejectAndConcat([dimExprs, dims]);
   }
 
-  arrayCreationExplicitInitSuffix(ctx: ArrayCreationExplicitInitSuffixCtx) {
+  arrayCreationWithInitializerSuffix(
+    ctx: ArrayCreationWithInitializerSuffixCtx
+  ) {
     const dims = this.visit(ctx.dims);
     const arrayInitializer = this.visit(ctx.arrayInitializer);
 
@@ -800,7 +810,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return this.visitSingle(ctx);
   }
 
-  unnamedPattern(ctx: UnnamedPatternCtx) {
+  matchAllPattern(ctx: MatchAllPatternCtx) {
     return printTokenWithComments(ctx.Underscore[0]);
   }
 
@@ -823,7 +833,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       lastArgument?.children.lambdaExpression?.[0].children.lambdaBody[0]
         .children.expression?.[0].children;
     const lastArgumentLambdaBodyTernaryExpression =
-      lastArgumentLambdaBodyExpression?.ternaryExpression?.[0].children;
+      lastArgumentLambdaBodyExpression?.conditionalExpression?.[0].children;
     return (
       !lastArgument?.leadingComments &&
       !lastArgument?.trailingComments &&
@@ -844,7 +854,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     return [
       arrayCreationExpression?.classOrInterfaceType?.[0].children.classType[0]
         .children.typeArguments,
-      arrayCreationExpression?.arrayCreationExplicitInitSuffix?.[0].children
+      arrayCreationExpression?.arrayCreationWithInitializerSuffix?.[0].children
         .arrayInitializer[0].children.variableInitializerList,
       classInstanceCreationExpression?.classOrInterfaceTypeToInstantiate[0]
         .children.typeArgumentsOrDiamond?.[0].children.typeArguments,

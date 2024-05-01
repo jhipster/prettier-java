@@ -86,7 +86,7 @@ class T {
     if (r instanceof ColoredPoint(Point(int x, _), _)) {}
   }
 
-  void switchLabelWithUnnamedPattern() {
+  void switchLabelWithMatchAllPattern() {
     switch (box) {
       case Box(RedBall _), Box(BlueBall _) -> processBox(box);
       case Box(GreenBall _)                -> stopProcessing();

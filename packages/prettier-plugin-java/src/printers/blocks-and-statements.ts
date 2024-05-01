@@ -25,6 +25,7 @@ import {
   BlockStatementsCtx,
   BreakStatementCtx,
   CaseConstantCtx,
+  CasePatternCtx,
   CatchClauseCtx,
   CatchesCtx,
   CatchFormalParameterCtx,
@@ -292,14 +293,14 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
       return group(
         indent(join(" ", [Case!, rejectAndJoinSeps(commas, caseConstants)]))
       );
-    } else if (ctx.pattern) {
-      const patterns = this.mapVisit(ctx.pattern);
+    } else if (ctx.casePattern) {
+      const casePatterns = this.mapVisit(ctx.casePattern);
       const guard = this.visit(ctx.guard);
-      const multiplePatterns = ctx.pattern.length > 1;
+      const multiplePatterns = ctx.casePattern.length > 1;
       const separator = multiplePatterns ? line : " ";
       const contents = join(separator, [
         Case!,
-        rejectAndJoinSeps(commas, patterns)
+        rejectAndJoinSeps(commas, casePatterns)
       ]);
       return group(
         rejectAndJoin(separator, [
@@ -327,6 +328,10 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   caseConstant(ctx: CaseConstantCtx) {
+    return this.visitSingle(ctx);
+  }
+
+  casePattern(ctx: CasePatternCtx) {
     return this.visitSingle(ctx);
   }
 
@@ -415,9 +420,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   enhancedForStatement(ctx: EnhancedForStatementCtx) {
-    const variableModifiers = this.mapVisit(ctx.variableModifier);
-    const localVariableType = this.visit(ctx.localVariableType);
-    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
+    const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
     const expression = this.visit(ctx.expression);
     const statement = this.visit(ctx.statement[0], {
       allowEmptyStatement: true
@@ -426,11 +429,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
 
     return rejectAndConcat([
       rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", variableModifiers),
-        localVariableType,
-        variableDeclaratorId
-      ]),
+      localVariableDeclaration,
       concat([" ", ctx.Colon[0], " "]),
       expression,
       concat([ctx.RBrace[0], statementSeparator]),

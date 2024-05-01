@@ -17,11 +17,11 @@ import { builders } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
   AnnotationCtx,
-  AnnotationTypeBodyCtx,
-  AnnotationTypeDeclarationCtx,
-  AnnotationTypeElementDeclarationCtx,
-  AnnotationTypeElementModifierCtx,
-  AnnotationTypeMemberDeclarationCtx,
+  AnnotationInterfaceBodyCtx,
+  AnnotationInterfaceDeclarationCtx,
+  AnnotationInterfaceElementDeclarationCtx,
+  AnnotationInterfaceElementModifierCtx,
+  AnnotationInterfaceMemberDeclarationCtx,
   ConstantDeclarationCtx,
   ConstantModifierCtx,
   DefaultValueCtx,
@@ -30,9 +30,9 @@ import {
   ElementValueListCtx,
   ElementValuePairCtx,
   ElementValuePairListCtx,
-  ExtendsInterfacesCtx,
   InterfaceBodyCtx,
   InterfaceDeclarationCtx,
+  InterfaceExtendsCtx,
   InterfaceMemberDeclarationCtx,
   InterfaceMethodDeclarationCtx,
   InterfaceMethodModifierCtx,
@@ -53,7 +53,7 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
 
     const declaration = ctx.normalInterfaceDeclaration
       ? this.visit(ctx.normalInterfaceDeclaration)
-      : this.visit(ctx.annotationTypeDeclaration);
+      : this.visit(ctx.annotationInterfaceDeclaration);
 
     return rejectAndJoin(hardline, [
       rejectAndJoin(hardline, firstAnnotations),
@@ -64,14 +64,14 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
   normalInterfaceDeclaration(ctx: NormalInterfaceDeclarationCtx) {
     const typeIdentifier = this.visit(ctx.typeIdentifier);
     const typeParameters = this.visit(ctx.typeParameters);
-    const extendsInterfaces = this.visit(ctx.extendsInterfaces);
+    const interfaceExtends = this.visit(ctx.interfaceExtends);
     const optionalInterfacePermits = this.visit(ctx.interfacePermits);
     const interfaceBody = this.visit(ctx.interfaceBody);
 
-    let extendsInterfacesPart: Doc = "";
-    if (extendsInterfaces) {
-      extendsInterfacesPart = indent(
-        rejectAndConcat([softline, extendsInterfaces])
+    let interfaceExtendsPart: Doc = "";
+    if (interfaceExtends) {
+      interfaceExtendsPart = indent(
+        rejectAndConcat([softline, interfaceExtends])
       );
     }
 
@@ -87,7 +87,7 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
         rejectAndJoin(" ", [
           ctx.Interface[0],
           concat([typeIdentifier, typeParameters]),
-          extendsInterfacesPart,
+          interfaceExtendsPart,
           interfacePermits
         ])
       ),
@@ -102,7 +102,7 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  extendsInterfaces(ctx: ExtendsInterfacesCtx) {
+  interfaceExtends(ctx: InterfaceExtendsCtx) {
     const interfaceTypeList = this.visit(ctx.interfaceTypeList);
 
     return group(
@@ -199,42 +199,49 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  annotationTypeDeclaration(ctx: AnnotationTypeDeclarationCtx) {
+  annotationInterfaceDeclaration(ctx: AnnotationInterfaceDeclarationCtx) {
     const typeIdentifier = this.visit(ctx.typeIdentifier);
-    const annotationTypeBody = this.visit(ctx.annotationTypeBody);
+    const annotationInterfaceBody = this.visit(ctx.annotationInterfaceBody);
 
     return rejectAndJoin(" ", [
       concat([ctx.At[0], ctx.Interface[0]]),
       typeIdentifier,
-      annotationTypeBody
+      annotationInterfaceBody
     ]);
   }
 
-  annotationTypeBody(ctx: AnnotationTypeBodyCtx) {
-    const annotationTypeMemberDeclaration = this.mapVisit(
-      ctx.annotationTypeMemberDeclaration
+  annotationInterfaceBody(ctx: AnnotationInterfaceBodyCtx) {
+    const annotationInterfaceMemberDeclaration = this.mapVisit(
+      ctx.annotationInterfaceMemberDeclaration
     );
 
     return rejectAndJoin(line, [
       indent(
         rejectAndJoin(line, [
           ctx.LCurly[0],
-          rejectAndJoin(concat([line, line]), annotationTypeMemberDeclaration)
+          rejectAndJoin(
+            concat([line, line]),
+            annotationInterfaceMemberDeclaration
+          )
         ])
       ),
       ctx.RCurly[0]
     ]);
   }
 
-  annotationTypeMemberDeclaration(ctx: AnnotationTypeMemberDeclarationCtx) {
+  annotationInterfaceMemberDeclaration(
+    ctx: AnnotationInterfaceMemberDeclarationCtx
+  ) {
     if (ctx.Semicolon) {
       return printTokenWithComments(this.getSingle(ctx) as IToken);
     }
     return this.visitSingle(ctx);
   }
 
-  annotationTypeElementDeclaration(ctx: AnnotationTypeElementDeclarationCtx) {
-    const modifiers = sortModifiers(ctx.annotationTypeElementModifier);
+  annotationInterfaceElementDeclaration(
+    ctx: AnnotationInterfaceElementDeclarationCtx
+  ) {
+    const modifiers = sortModifiers(ctx.annotationInterfaceElementModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
 
@@ -261,7 +268,9 @@ export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
     ]);
   }
 
-  annotationTypeElementModifier(ctx: AnnotationTypeElementModifierCtx) {
+  annotationInterfaceElementModifier(
+    ctx: AnnotationInterfaceElementModifierCtx
+  ) {
     if (ctx.annotation) {
       return this.visitSingle(ctx);
     }

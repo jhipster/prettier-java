@@ -1,8 +1,8 @@
 import {
   CstNode as ChevrotainCstNode,
+  IToken as ChevrotainIToken,
   CstNodeLocation,
-  ICstVisitor,
-  IToken as ChevrotainIToken
+  ICstVisitor
 } from "chevrotain";
 
 export interface CstNode extends ChevrotainCstNode {
@@ -88,8 +88,8 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   classModifier(ctx: ClassModifierCtx, param?: IN): OUT;
   typeParameters(ctx: TypeParametersCtx, param?: IN): OUT;
   typeParameterList(ctx: TypeParameterListCtx, param?: IN): OUT;
-  superclass(ctx: SuperclassCtx, param?: IN): OUT;
-  superinterfaces(ctx: SuperinterfacesCtx, param?: IN): OUT;
+  classExtends(ctx: ClassExtendsCtx, param?: IN): OUT;
+  classImplements(ctx: ClassImplementsCtx, param?: IN): OUT;
   interfaceTypeList(ctx: InterfaceTypeListCtx, param?: IN): OUT;
   classPermits(ctx: ClassPermitsCtx, param?: IN): OUT;
   classBody(ctx: ClassBodyCtx, param?: IN): OUT;
@@ -192,7 +192,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
-  extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
+  interfaceExtends(ctx: InterfaceExtendsCtx, param?: IN): OUT;
   interfacePermits(ctx: InterfacePermitsCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
   interfaceMemberDeclaration(
@@ -206,18 +206,21 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   interfaceMethodModifier(ctx: InterfaceMethodModifierCtx, param?: IN): OUT;
-  annotationTypeDeclaration(ctx: AnnotationTypeDeclarationCtx, param?: IN): OUT;
-  annotationTypeBody(ctx: AnnotationTypeBodyCtx, param?: IN): OUT;
-  annotationTypeMemberDeclaration(
-    ctx: AnnotationTypeMemberDeclarationCtx,
+  annotationInterfaceDeclaration(
+    ctx: AnnotationInterfaceDeclarationCtx,
     param?: IN
   ): OUT;
-  annotationTypeElementDeclaration(
-    ctx: AnnotationTypeElementDeclarationCtx,
+  annotationInterfaceBody(ctx: AnnotationInterfaceBodyCtx, param?: IN): OUT;
+  annotationInterfaceMemberDeclaration(
+    ctx: AnnotationInterfaceMemberDeclarationCtx,
     param?: IN
   ): OUT;
-  annotationTypeElementModifier(
-    ctx: AnnotationTypeElementModifierCtx,
+  annotationInterfaceElementDeclaration(
+    ctx: AnnotationInterfaceElementDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationInterfaceElementModifier(
+    ctx: AnnotationInterfaceElementModifierCtx,
     param?: IN
   ): OUT;
   defaultValue(ctx: DefaultValueCtx, param?: IN): OUT;
@@ -258,6 +261,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
+  casePattern(ctx: CasePatternCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
   forStatement(ctx: ForStatementCtx, param?: IN): OUT;
@@ -291,19 +295,17 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   lambdaParameterList(ctx: LambdaParameterListCtx, param?: IN): OUT;
-  inferredLambdaParameterList(
-    ctx: InferredLambdaParameterListCtx,
+  conciseLambdaParameterList(
+    ctx: ConciseLambdaParameterListCtx,
     param?: IN
   ): OUT;
-  explicitLambdaParameterList(
-    ctx: ExplicitLambdaParameterListCtx,
-    param?: IN
-  ): OUT;
-  lambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
+  normalLambdaParameterList(ctx: NormalLambdaParameterListCtx, param?: IN): OUT;
+  normalLambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
+  conciseLambdaParameter(ctx: ConciseLambdaParameterCtx, param?: IN): OUT;
   lambdaBody(ctx: LambdaBodyCtx, param?: IN): OUT;
-  ternaryExpression(ctx: TernaryExpressionCtx, param?: IN): OUT;
+  conditionalExpression(ctx: ConditionalExpressionCtx, param?: IN): OUT;
   binaryExpression(ctx: BinaryExpressionCtx, param?: IN): OUT;
   unaryExpression(ctx: UnaryExpressionCtx, param?: IN): OUT;
   unaryExpressionNotPlusMinus(
@@ -338,12 +340,12 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   methodInvocationSuffix(ctx: MethodInvocationSuffixCtx, param?: IN): OUT;
   argumentList(ctx: ArgumentListCtx, param?: IN): OUT;
   arrayCreationExpression(ctx: ArrayCreationExpressionCtx, param?: IN): OUT;
-  arrayCreationDefaultInitSuffix(
-    ctx: ArrayCreationDefaultInitSuffixCtx,
+  arrayCreationExpressionWithoutInitializerSuffix(
+    ctx: ArrayCreationExpressionWithoutInitializerSuffixCtx,
     param?: IN
   ): OUT;
-  arrayCreationExplicitInitSuffix(
-    ctx: ArrayCreationExplicitInitSuffixCtx,
+  arrayCreationWithInitializerSuffix(
+    ctx: ArrayCreationWithInitializerSuffixCtx,
     param?: IN
   ): OUT;
   dimExprs(ctx: DimExprsCtx, param?: IN): OUT;
@@ -361,7 +363,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
   componentPatternList(ctx: ComponentPatternListCtx, param?: IN): OUT;
   componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
-  unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
+  matchAllPattern(ctx: MatchAllPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
@@ -414,8 +416,8 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   classModifier(ctx: ClassModifierCtx, param?: IN): OUT;
   typeParameters(ctx: TypeParametersCtx, param?: IN): OUT;
   typeParameterList(ctx: TypeParameterListCtx, param?: IN): OUT;
-  superclass(ctx: SuperclassCtx, param?: IN): OUT;
-  superinterfaces(ctx: SuperinterfacesCtx, param?: IN): OUT;
+  classExtends(ctx: ClassExtendsCtx, param?: IN): OUT;
+  classImplements(ctx: ClassImplementsCtx, param?: IN): OUT;
   interfaceTypeList(ctx: InterfaceTypeListCtx, param?: IN): OUT;
   classPermits(ctx: ClassPermitsCtx, param?: IN): OUT;
   classBody(ctx: ClassBodyCtx, param?: IN): OUT;
@@ -518,7 +520,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   interfaceModifier(ctx: InterfaceModifierCtx, param?: IN): OUT;
-  extendsInterfaces(ctx: ExtendsInterfacesCtx, param?: IN): OUT;
+  interfaceExtends(ctx: InterfaceExtendsCtx, param?: IN): OUT;
   interfacePermits(ctx: InterfacePermitsCtx, param?: IN): OUT;
   interfaceBody(ctx: InterfaceBodyCtx, param?: IN): OUT;
   interfaceMemberDeclaration(
@@ -532,18 +534,21 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   interfaceMethodModifier(ctx: InterfaceMethodModifierCtx, param?: IN): OUT;
-  annotationTypeDeclaration(ctx: AnnotationTypeDeclarationCtx, param?: IN): OUT;
-  annotationTypeBody(ctx: AnnotationTypeBodyCtx, param?: IN): OUT;
-  annotationTypeMemberDeclaration(
-    ctx: AnnotationTypeMemberDeclarationCtx,
+  annotationInterfaceDeclaration(
+    ctx: AnnotationInterfaceDeclarationCtx,
     param?: IN
   ): OUT;
-  annotationTypeElementDeclaration(
-    ctx: AnnotationTypeElementDeclarationCtx,
+  annotationInterfaceBody(ctx: AnnotationInterfaceBodyCtx, param?: IN): OUT;
+  annotationInterfaceMemberDeclaration(
+    ctx: AnnotationInterfaceMemberDeclarationCtx,
     param?: IN
   ): OUT;
-  annotationTypeElementModifier(
-    ctx: AnnotationTypeElementModifierCtx,
+  annotationInterfaceElementDeclaration(
+    ctx: AnnotationInterfaceElementDeclarationCtx,
+    param?: IN
+  ): OUT;
+  annotationInterfaceElementModifier(
+    ctx: AnnotationInterfaceElementModifierCtx,
     param?: IN
   ): OUT;
   defaultValue(ctx: DefaultValueCtx, param?: IN): OUT;
@@ -584,6 +589,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   switchLabel(ctx: SwitchLabelCtx, param?: IN): OUT;
   switchRule(ctx: SwitchRuleCtx, param?: IN): OUT;
   caseConstant(ctx: CaseConstantCtx, param?: IN): OUT;
+  casePattern(ctx: CasePatternCtx, param?: IN): OUT;
   whileStatement(ctx: WhileStatementCtx, param?: IN): OUT;
   doStatement(ctx: DoStatementCtx, param?: IN): OUT;
   forStatement(ctx: ForStatementCtx, param?: IN): OUT;
@@ -617,19 +623,17 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   lambdaParameterList(ctx: LambdaParameterListCtx, param?: IN): OUT;
-  inferredLambdaParameterList(
-    ctx: InferredLambdaParameterListCtx,
+  conciseLambdaParameterList(
+    ctx: ConciseLambdaParameterListCtx,
     param?: IN
   ): OUT;
-  explicitLambdaParameterList(
-    ctx: ExplicitLambdaParameterListCtx,
-    param?: IN
-  ): OUT;
-  lambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
+  normalLambdaParameterList(ctx: NormalLambdaParameterListCtx, param?: IN): OUT;
+  normalLambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
+  conciseLambdaParameter(ctx: ConciseLambdaParameterCtx, param?: IN): OUT;
   lambdaBody(ctx: LambdaBodyCtx, param?: IN): OUT;
-  ternaryExpression(ctx: TernaryExpressionCtx, param?: IN): OUT;
+  conditionalExpression(ctx: ConditionalExpressionCtx, param?: IN): OUT;
   binaryExpression(ctx: BinaryExpressionCtx, param?: IN): OUT;
   unaryExpression(ctx: UnaryExpressionCtx, param?: IN): OUT;
   unaryExpressionNotPlusMinus(
@@ -664,12 +668,12 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   methodInvocationSuffix(ctx: MethodInvocationSuffixCtx, param?: IN): OUT;
   argumentList(ctx: ArgumentListCtx, param?: IN): OUT;
   arrayCreationExpression(ctx: ArrayCreationExpressionCtx, param?: IN): OUT;
-  arrayCreationDefaultInitSuffix(
-    ctx: ArrayCreationDefaultInitSuffixCtx,
+  arrayCreationExpressionWithoutInitializerSuffix(
+    ctx: ArrayCreationExpressionWithoutInitializerSuffixCtx,
     param?: IN
   ): OUT;
-  arrayCreationExplicitInitSuffix(
-    ctx: ArrayCreationExplicitInitSuffixCtx,
+  arrayCreationWithInitializerSuffix(
+    ctx: ArrayCreationWithInitializerSuffixCtx,
     param?: IN
   ): OUT;
   dimExprs(ctx: DimExprsCtx, param?: IN): OUT;
@@ -687,7 +691,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   recordPattern(ctx: RecordPatternCtx, param?: IN): OUT;
   componentPatternList(ctx: ComponentPatternListCtx, param?: IN): OUT;
   componentPattern(ctx: ComponentPatternCtx, param?: IN): OUT;
-  unnamedPattern(ctx: UnnamedPatternCtx, param?: IN): OUT;
+  matchAllPattern(ctx: MatchAllPatternCtx, param?: IN): OUT;
   guard(ctx: GuardCtx, param?: IN): OUT;
   isRefTypeInMethodRef(ctx: IsRefTypeInMethodRefCtx, param?: IN): OUT;
 }
@@ -1042,8 +1046,8 @@ export type NormalClassDeclarationCtx = {
   Class: IToken[];
   typeIdentifier: TypeIdentifierCstNode[];
   typeParameters?: TypeParametersCstNode[];
-  superclass?: SuperclassCstNode[];
-  superinterfaces?: SuperinterfacesCstNode[];
+  classExtends?: ClassExtendsCstNode[];
+  classImplements?: ClassImplementsCstNode[];
   classPermits?: ClassPermitsCstNode[];
   classBody: ClassBodyCstNode[];
 };
@@ -1087,22 +1091,22 @@ export type TypeParameterListCtx = {
   Comma?: IToken[];
 };
 
-export interface SuperclassCstNode extends CstNode {
-  name: "superclass";
-  children: SuperclassCtx;
+export interface ClassExtendsCstNode extends CstNode {
+  name: "classExtends";
+  children: ClassExtendsCtx;
 }
 
-export type SuperclassCtx = {
+export type ClassExtendsCtx = {
   Extends: IToken[];
   classType: ClassTypeCstNode[];
 };
 
-export interface SuperinterfacesCstNode extends CstNode {
-  name: "superinterfaces";
-  children: SuperinterfacesCtx;
+export interface ClassImplementsCstNode extends CstNode {
+  name: "classImplements";
+  children: ClassImplementsCtx;
 }
 
-export type SuperinterfacesCtx = {
+export type ClassImplementsCtx = {
   Implements: IToken[];
   interfaceTypeList: InterfaceTypeListCstNode[];
 };
@@ -1551,7 +1555,7 @@ export interface SimpleTypeNameCstNode extends CstNode {
 }
 
 export type SimpleTypeNameCtx = {
-  Identifier: IToken[];
+  TypeIdentifier: TypeIdentifierCstNode[];
 };
 
 export interface ConstructorBodyCstNode extends CstNode {
@@ -1617,7 +1621,7 @@ export type EnumDeclarationCtx = {
   classModifier?: ClassModifierCstNode[];
   Enum: IToken[];
   typeIdentifier: TypeIdentifierCstNode[];
-  superinterfaces?: SuperinterfacesCstNode[];
+  classImplements?: ClassImplementsCstNode[];
   enumBody: EnumBodyCstNode[];
 };
 
@@ -1687,7 +1691,7 @@ export type RecordDeclarationCtx = {
   typeIdentifier: TypeIdentifierCstNode[];
   typeParameters?: TypeParametersCstNode[];
   recordHeader: RecordHeaderCstNode[];
-  superinterfaces?: SuperinterfacesCstNode[];
+  classImplements?: ClassImplementsCstNode[];
   recordBody: RecordBodyCstNode[];
 };
 
@@ -1991,7 +1995,7 @@ export interface InterfaceDeclarationCstNode extends CstNode {
 export type InterfaceDeclarationCtx = {
   interfaceModifier?: InterfaceModifierCstNode[];
   normalInterfaceDeclaration?: NormalInterfaceDeclarationCstNode[];
-  annotationTypeDeclaration?: AnnotationTypeDeclarationCstNode[];
+  annotationInterfaceDeclaration?: AnnotationInterfaceDeclarationCstNode[];
 };
 
 export interface NormalInterfaceDeclarationCstNode extends CstNode {
@@ -2003,7 +2007,7 @@ export type NormalInterfaceDeclarationCtx = {
   Interface: IToken[];
   typeIdentifier: TypeIdentifierCstNode[];
   typeParameters?: TypeParametersCstNode[];
-  extendsInterfaces?: ExtendsInterfacesCstNode[];
+  interfaceExtends?: InterfaceExtendsCstNode[];
   interfacePermits?: InterfacePermitsCstNode[];
   interfaceBody: InterfaceBodyCstNode[];
 };
@@ -2025,12 +2029,12 @@ export type InterfaceModifierCtx = {
   Strictfp?: IToken[];
 };
 
-export interface ExtendsInterfacesCstNode extends CstNode {
-  name: "extendsInterfaces";
-  children: ExtendsInterfacesCtx;
+export interface InterfaceExtendsCstNode extends CstNode {
+  name: "interfaceExtends";
+  children: InterfaceExtendsCtx;
 }
 
-export type ExtendsInterfacesCtx = {
+export type InterfaceExtendsCtx = {
   Extends: IToken[];
   interfaceTypeList: InterfaceTypeListCstNode[];
 };
@@ -2120,49 +2124,49 @@ export type InterfaceMethodModifierCtx = {
   Strictfp?: IToken[];
 };
 
-export interface AnnotationTypeDeclarationCstNode extends CstNode {
-  name: "annotationTypeDeclaration";
-  children: AnnotationTypeDeclarationCtx;
+export interface AnnotationInterfaceDeclarationCstNode extends CstNode {
+  name: "annotationInterfaceDeclaration";
+  children: AnnotationInterfaceDeclarationCtx;
 }
 
-export type AnnotationTypeDeclarationCtx = {
+export type AnnotationInterfaceDeclarationCtx = {
   At: IToken[];
   Interface: IToken[];
   typeIdentifier: TypeIdentifierCstNode[];
-  annotationTypeBody: AnnotationTypeBodyCstNode[];
+  annotationInterfaceBody: AnnotationInterfaceBodyCstNode[];
 };
 
-export interface AnnotationTypeBodyCstNode extends CstNode {
-  name: "annotationTypeBody";
-  children: AnnotationTypeBodyCtx;
+export interface AnnotationInterfaceBodyCstNode extends CstNode {
+  name: "annotationInterfaceBody";
+  children: AnnotationInterfaceBodyCtx;
 }
 
-export type AnnotationTypeBodyCtx = {
+export type AnnotationInterfaceBodyCtx = {
   LCurly: IToken[];
-  annotationTypeMemberDeclaration?: AnnotationTypeMemberDeclarationCstNode[];
+  annotationInterfaceMemberDeclaration?: AnnotationInterfaceMemberDeclarationCstNode[];
   RCurly: IToken[];
 };
 
-export interface AnnotationTypeMemberDeclarationCstNode extends CstNode {
-  name: "annotationTypeMemberDeclaration";
-  children: AnnotationTypeMemberDeclarationCtx;
+export interface AnnotationInterfaceMemberDeclarationCstNode extends CstNode {
+  name: "annotationInterfaceMemberDeclaration";
+  children: AnnotationInterfaceMemberDeclarationCtx;
 }
 
-export type AnnotationTypeMemberDeclarationCtx = {
-  annotationTypeElementDeclaration?: AnnotationTypeElementDeclarationCstNode[];
+export type AnnotationInterfaceMemberDeclarationCtx = {
+  annotationInterfaceElementDeclaration?: AnnotationInterfaceElementDeclarationCstNode[];
   constantDeclaration?: ConstantDeclarationCstNode[];
   classDeclaration?: ClassDeclarationCstNode[];
   interfaceDeclaration?: InterfaceDeclarationCstNode[];
   Semicolon?: IToken[];
 };
 
-export interface AnnotationTypeElementDeclarationCstNode extends CstNode {
-  name: "annotationTypeElementDeclaration";
-  children: AnnotationTypeElementDeclarationCtx;
+export interface AnnotationInterfaceElementDeclarationCstNode extends CstNode {
+  name: "annotationInterfaceElementDeclaration";
+  children: AnnotationInterfaceElementDeclarationCtx;
 }
 
-export type AnnotationTypeElementDeclarationCtx = {
-  annotationTypeElementModifier?: AnnotationTypeElementModifierCstNode[];
+export type AnnotationInterfaceElementDeclarationCtx = {
+  annotationInterfaceElementModifier?: AnnotationInterfaceElementModifierCstNode[];
   unannType: UnannTypeCstNode[];
   Identifier: IToken[];
   LBrace: IToken[];
@@ -2172,12 +2176,12 @@ export type AnnotationTypeElementDeclarationCtx = {
   Semicolon: IToken[];
 };
 
-export interface AnnotationTypeElementModifierCstNode extends CstNode {
-  name: "annotationTypeElementModifier";
-  children: AnnotationTypeElementModifierCtx;
+export interface AnnotationInterfaceElementModifierCstNode extends CstNode {
+  name: "annotationInterfaceElementModifier";
+  children: AnnotationInterfaceElementModifierCtx;
 }
 
-export type AnnotationTypeElementModifierCtx = {
+export type AnnotationInterfaceElementModifierCtx = {
   annotation?: AnnotationCstNode[];
   Public?: IToken[];
   Abstract?: IToken[];
@@ -2491,7 +2495,7 @@ export type SwitchLabelCtx = {
   Comma?: IToken[];
   Null?: IToken[];
   Default?: IToken[];
-  pattern?: PatternCstNode[];
+  casePattern?: CasePatternCstNode[];
   guard?: GuardCstNode[];
   caseConstant?: CaseConstantCstNode[];
 };
@@ -2516,7 +2520,16 @@ export interface CaseConstantCstNode extends CstNode {
 }
 
 export type CaseConstantCtx = {
-  ternaryExpression: TernaryExpressionCstNode[];
+  conditionalExpression: ConditionalExpressionCstNode[];
+};
+
+export interface CasePatternCstNode extends CstNode {
+  name: "casePattern";
+  children: CasePatternCtx;
+}
+
+export type CasePatternCtx = {
+  pattern: PatternCstNode[];
 };
 
 export interface WhileStatementCstNode extends CstNode {
@@ -2610,9 +2623,7 @@ export interface EnhancedForStatementCstNode extends CstNode {
 export type EnhancedForStatementCtx = {
   For: IToken[];
   LBrace: IToken[];
-  variableModifier?: VariableModifierCstNode[];
-  localVariableType: LocalVariableTypeCstNode[];
-  variableDeclaratorId: VariableDeclaratorIdCstNode[];
+  localVariableDeclaration: LocalVariableDeclarationCstNode[];
   Colon: IToken[];
   expression: ExpressionCstNode[];
   RBrace: IToken[];
@@ -2815,7 +2826,7 @@ export interface ExpressionCstNode extends CstNode {
 
 export type ExpressionCtx = {
   lambdaExpression?: LambdaExpressionCstNode[];
-  ternaryExpression?: TernaryExpressionCstNode[];
+  conditionalExpression?: ConditionalExpressionCstNode[];
 };
 
 export interface LambdaExpressionCstNode extends CstNode {
@@ -2857,32 +2868,32 @@ export interface LambdaParameterListCstNode extends CstNode {
 }
 
 export type LambdaParameterListCtx = {
-  inferredLambdaParameterList?: InferredLambdaParameterListCstNode[];
-  explicitLambdaParameterList?: ExplicitLambdaParameterListCstNode[];
+  conciseLambdaParameterList?: ConciseLambdaParameterListCstNode[];
+  normalLambdaParameterList?: NormalLambdaParameterListCstNode[];
 };
 
-export interface InferredLambdaParameterListCstNode extends CstNode {
-  name: "inferredLambdaParameterList";
-  children: InferredLambdaParameterListCtx;
+export interface ConciseLambdaParameterListCstNode extends CstNode {
+  name: "conciseLambdaParameterList";
+  children: ConciseLambdaParameterListCtx;
 }
 
-export type InferredLambdaParameterListCtx = {
-  Identifier: IToken[];
+export type ConciseLambdaParameterListCtx = {
+  conciseLambdaParameter: ConciseLambdaParameterCstNode[];
   Comma?: IToken[];
 };
 
-export interface ExplicitLambdaParameterListCstNode extends CstNode {
-  name: "explicitLambdaParameterList";
-  children: ExplicitLambdaParameterListCtx;
+export interface NormalLambdaParameterListCstNode extends CstNode {
+  name: "normalLambdaParameterList";
+  children: NormalLambdaParameterListCtx;
 }
 
-export type ExplicitLambdaParameterListCtx = {
-  lambdaParameter: LambdaParameterCstNode[];
+export type NormalLambdaParameterListCtx = {
+  normalLambdaParameter: LambdaParameterCstNode[];
   Comma?: IToken[];
 };
 
 export interface LambdaParameterCstNode extends CstNode {
-  name: "lambdaParameter";
+  name: "normalLambdaParameter";
   children: LambdaParameterCtx;
 }
 
@@ -2912,6 +2923,16 @@ export type LambdaParameterTypeCtx = {
   Var?: IToken[];
 };
 
+export interface ConciseLambdaParameterCstNode extends CstNode {
+  name: "conciseLambdaParameter";
+  children: ConciseLambdaParameterCtx;
+}
+
+export type ConciseLambdaParameterCtx = {
+  Identifier?: IToken[];
+  Underscore?: IToken[];
+};
+
 export interface LambdaBodyCstNode extends CstNode {
   name: "lambdaBody";
   children: LambdaBodyCtx;
@@ -2922,12 +2943,12 @@ export type LambdaBodyCtx = {
   block?: BlockCstNode[];
 };
 
-export interface TernaryExpressionCstNode extends CstNode {
-  name: "ternaryExpression";
-  children: TernaryExpressionCtx;
+export interface ConditionalExpressionCstNode extends CstNode {
+  name: "conditionalExpression";
+  children: ConditionalExpressionCtx;
 }
 
-export type TernaryExpressionCtx = {
+export type ConditionalExpressionCtx = {
   binaryExpression: BinaryExpressionCstNode[];
   QuestionMark?: IToken[];
   expression?: ExpressionCstNode[];
@@ -3197,26 +3218,27 @@ export type ArrayCreationExpressionCtx = {
   New: IToken[];
   primitiveType?: PrimitiveTypeCstNode[];
   classOrInterfaceType?: ClassOrInterfaceTypeCstNode[];
-  arrayCreationDefaultInitSuffix?: ArrayCreationDefaultInitSuffixCstNode[];
-  arrayCreationExplicitInitSuffix?: ArrayCreationExplicitInitSuffixCstNode[];
+  arrayCreationExpressionWithoutInitializerSuffix?: ArrayCreationExpressionWithoutInitializerSuffixCstNode[];
+  arrayCreationWithInitializerSuffix?: ArrayCreationWithInitializerSuffixCstNode[];
 };
 
-export interface ArrayCreationDefaultInitSuffixCstNode extends CstNode {
-  name: "arrayCreationDefaultInitSuffix";
-  children: ArrayCreationDefaultInitSuffixCtx;
+export interface ArrayCreationExpressionWithoutInitializerSuffixCstNode
+  extends CstNode {
+  name: "arrayCreationExpressionWithoutInitializerSuffix";
+  children: ArrayCreationExpressionWithoutInitializerSuffixCtx;
 }
 
-export type ArrayCreationDefaultInitSuffixCtx = {
+export type ArrayCreationExpressionWithoutInitializerSuffixCtx = {
   dimExprs: DimExprsCstNode[];
   dims?: DimsCstNode[];
 };
 
-export interface ArrayCreationExplicitInitSuffixCstNode extends CstNode {
-  name: "arrayCreationExplicitInitSuffix";
-  children: ArrayCreationExplicitInitSuffixCtx;
+export interface ArrayCreationWithInitializerSuffixCstNode extends CstNode {
+  name: "arrayCreationWithInitializerSuffix";
+  children: ArrayCreationWithInitializerSuffixCtx;
 }
 
-export type ArrayCreationExplicitInitSuffixCtx = {
+export type ArrayCreationWithInitializerSuffixCtx = {
   dims: DimsCstNode[];
   arrayInitializer: ArrayInitializerCstNode[];
 };
@@ -3379,15 +3401,15 @@ export interface ComponentPatternCstNode extends CstNode {
 
 export type ComponentPatternCtx = {
   pattern?: PatternCstNode[];
-  unnamedPattern?: UnnamedPatternCstNode[];
+  matchAllPattern?: MatchAllPatternCstNode[];
 };
 
-export interface UnnamedPatternCstNode extends CstNode {
-  name: "unnamedPattern";
-  children: UnnamedPatternCtx;
+export interface MatchAllPatternCstNode extends CstNode {
+  name: "matchAllPattern";
+  children: MatchAllPatternCtx;
 }
 
-export type UnnamedPatternCtx = {
+export type MatchAllPatternCtx = {
   Underscore: IToken[];
 };
 

@@ -312,7 +312,7 @@ export function isExplicitLambdaParameter(ctx: LambdaParametersWithBracesCtx) {
     ctx.lambdaParameterList &&
     ctx.lambdaParameterList[0] &&
     ctx.lambdaParameterList[0].children &&
-    ctx.lambdaParameterList[0].children.explicitLambdaParameterList
+    ctx.lambdaParameterList[0].children.normalLambdaParameterList
   );
 }
 
