@@ -87,7 +87,7 @@ npx prettier --write "**/*.java"
 prettier --write "**/*.java"
 ```
 
-To see an advanced usage: please go to the [Advanced Usage](./docs/advanced_usage.md) section
+To see **IDE configuration** or other advanced usage: please go to the [Advanced Usage](./docs/advanced_usage.md) section
 
 ## Maven plugin
 
