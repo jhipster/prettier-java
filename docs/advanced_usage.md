@@ -2,10 +2,12 @@
 
 ## Configuration
 
-You can customize some options to meet your needs. To do so, create a `.prettierrc.yml` file at the root of your project with:
+You can customize some options to meet your needs. To do so, add overrides to the `.prettierrc.yml` file that you created at the root of your project:
 
 ```yaml
 # Prettier configuration
+plugins:
+  - prettier-plugin-java
 overrides:
   - files:
       - "*.java"
@@ -79,11 +81,7 @@ If you have installed the `prettier` and `prettier-plugin-java` packages globall
 
 #### IntelliJ based IDEs:
 
-Add the following to your `.prettierrc.yaml`: 
-```yaml
-plugins:
-  - prettier-plugin-java
-```
+Install the _Prettier_, _Prettier-Java_, and your `.prettierrc.yaml` file as previously described.
 
 Open your Preferences. Then, go to the `Tools/File Watchers` section and create a Watcher. To configure it, fill the form with these values:
 
