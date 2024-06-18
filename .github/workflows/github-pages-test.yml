@@ -1,0 +1,35 @@
+name: GitHub Pages Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: ./website
+
+jobs:
+  build:
+    name: Build Docusaurus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install prettier-plugin-java dependencies
+        working-directory: ./packages/prettier-plugin-java
+        run: yarn install --frozen-lockfile
+      - name: Build prettier-plugin-java
+        working-directory: ./packages/prettier-plugin-java
+        run: yarn build
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Test build website
+        run: yarn build
