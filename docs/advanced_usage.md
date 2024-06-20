@@ -2,10 +2,12 @@
 
 ## Configuration
 
-You can customize some options to meet your needs. To do so, create a `.prettierrc.yml` file at the root of your project with:
+You can customize some options to meet your needs. To do so, add overrides to the `.prettierrc.yml` file that you created at the root of your project:
 
 ```yaml
 # Prettier configuration
+plugins:
+  - prettier-plugin-java
 overrides:
   - files:
       - "*.java"
@@ -26,7 +28,7 @@ To share your Git Hooks, we would suggest to follow this procedure:
    ```bash
    echo "{}" > package.json
    ```
-2. Install Husky, Lint-staged, Prettier, the Prettier Java plugin locally `npm install --save-dev husky lint-staged prettier prettier-plugin-java`
+2. Install _Husky_, _Lint-staged_, _Prettier_, the _Prettier-Java_ plugin locally `npm install --save-dev husky lint-staged prettier prettier-plugin-java`
 3. Add the following to your `package.json`:
    ```json
    "husky": {
@@ -46,21 +48,23 @@ Please refer to the [Prettier Pre-commit Hook documentation](https://prettier.io
 
 ## IDE Integrations
 
-There are no IDE extensions to use directly Prettier Java for the moment. There are however some alternatives in VSCode or Intellij.
+There are currently no IDE extensions that directly invoke _Prettier-Java_. However, for _VSCode_ and _IntelliJ_, this can be configured manually.
 
 ### Prettier plugin
 
-The easiest way to use Prettier-Java in you IDE is to install it locally (`npm install prettier prettier-plugin-java --save-dev`) and install the Prettier extension related to your IDE.
+The easiest way to use _Prettier-Java_ in your IDE is to install it locally in your project (`npm install --save-dev --save-exact prettier prettier-plugin-java`) and install the _Prettier_ extension related to your IDE.
+
+**_NOTE:_** it is not possible to invoke _Prettier-Java_ in your IDE without creating a `package.json` file unless you use an alternative to `npx` like [prettier-pnp](https://github.com/auvred/prettier-pnp) due to the way plugins are loaded. Further, _Prettier_ [recommends that the exact version of prettier be set and locked](https://prettier.io/docs/en/install) on a per-project basis, as formatting preferences change from version to version.
 
 Please refer to the [Prettier Editor integration documentation](https://prettier.io/docs/en/editors.html) for more information.
 
 ### FileWatcher plugin
 
-You can also use File Watcher to reformat your code on save. We will describe the procedure to to this in the VSCode and IntelliJ based IDEs.
+You can also use _File Watcher_ to reformat your code on save. We will describe the procedure to to this in the VSCode and IntelliJ based IDEs.
 
 #### VSCode
 
-In VSCode, install the File Watcher extension, and add to your settings, if you have installed the prettier and prettier-plugin-java packages locally:
+In VSCode, install the _File Watcher_ extension, and add to your settings, if you have installed the `prettier` and `prettier-plugin-java` packages locally:
 
 ```json
 "filewatcher.commands": [
@@ -73,17 +77,21 @@ In VSCode, install the File Watcher extension, and add to your settings, if you 
 ]
 ```
 
-If you have installed the prettier and prettier-plugin-java packages globally, replace `npx prettier --write ${file}` command by `prettier --write ${file}`.
+If you have installed the `prettier` and `prettier-plugin-java` packages globally, replace `npx prettier --write ${file}` command by `prettier --write ${file}`.
 
 #### IntelliJ based IDEs:
 
+Install the _Prettier_, _Prettier-Java_, and your `.prettierrc.yaml` file as previously described.
+
 Open your Preferences. Then, go to the `Tools/File Watchers` section and create a Watcher. To configure it, fill the form with these values:
 
-- Name: `Prettier Java`
-- File Type: `Java`
-- Program: `npx prettier` if you have installed the prettier and prettier-plugin-java packages locally. Replace by `prettier` otherwise.
-- Arguments: `--write $FilePathRelativeToProjectRoot$`
-- Output path to refresh: `$FilePathRelativeToProjectRoot$`
-- Trigger the watcher on external changes: `checked`
+- **Name**: `Prettier Java`
+- **File Type**: `Java`
+- **Scope**: Project Files
+- **Program**: `npx`
+- **Arguments**: `prettier --write $FilePath$`
+- **Output path to refresh**: `$FilePath$`
+- **Auto-save edited files to trigger the watcher**: `unchecked`
+- **Trigger the watcher on external changes**: `checked`
 
 Please refer to the [Prettier "Using File Watchers" documentation](https://prettier.io/docs/en/webstorm.html#running-prettier-on-save-using-file-watcher) for more information.
