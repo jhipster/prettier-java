@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "lerna:version": "lerna version --exact --git-remote upstream",
+    "lerna:version": "lerna version --exact --no-private",
     "lerna:publish": "lerna publish from-git --yes",
     "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
     "ci:all": "yarn run ci && yarn run test:prettier-plugin-java test:e2e-jhipster1 && yarn run test:prettier-plugin-java test:e2e-jhipster2",
