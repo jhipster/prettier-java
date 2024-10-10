@@ -7,6 +7,7 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 describe("prettier-java", () => {
   testSample(path.resolve(__dirname, "./class"));
   testSample(path.resolve(__dirname, "./edge"));
+  testSample(path.resolve(__dirname, "./expression"));
   testSample(path.resolve(__dirname, "./interface"));
   testSample(path.resolve(__dirname, "./package"));
   testSample(
