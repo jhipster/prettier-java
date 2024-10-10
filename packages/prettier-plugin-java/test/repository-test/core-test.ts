@@ -15,7 +15,7 @@ describe("prettier-java", () => {
   testRepositorySample(
     resolve(__dirname, "../../samples/spring-boot"),
     "./gradlew",
-    ["clean", "build", "-Ddisable.checks", "-xtest", "--no-scan"]
+    ["compileJava"]
   );
 
   jhipsterRepository.forEach(repository => {

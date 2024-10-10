@@ -88,12 +88,12 @@ function moveExpressionTrailingCommentsToNextOperator(
   ctx: BinaryExpressionCtx
 ) {
   const binaryOperators = ctx.BinaryOperator;
-  let binaryOperatorIndex = 1;
+  let binaryOperatorIndex = 0;
   if (binaryOperators?.length) {
     ctx.unaryExpression.forEach(unaryExpression => {
       if (hasTrailingComments(unaryExpression)) {
         while (
-          binaryOperatorIndex < binaryOperators.length &&
+          binaryOperatorIndex < binaryOperators.length - 1 &&
           unaryExpression.location.endOffset &&
           binaryOperators[binaryOperatorIndex].startOffset <
             unaryExpression.location.endOffset
