@@ -140,5 +140,10 @@ class LabeledStatements {
     for (int num : arr) {
     }
   }
-}
 
+  void labeledBlockStatement() {
+    label:{
+      example();
+    }
+  }
+}

@@ -43,7 +43,7 @@ public class PrettierTest {
 
       // Label statement
       //foreach
-      loop:for (int num /* num is every number in arr*/: arr) {
+      loop: for (int num /* num is every number in arr*/: arr) {
         /*switch*/switch (num) { //switch
           case 1:
             System.out.println("One ");
