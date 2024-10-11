@@ -175,7 +175,7 @@ export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
     const identifier = ctx.Identifier[0];
     const statement = this.visit(ctx.statement);
 
-    return rejectAndJoin(ctx.Colon[0], [identifier, statement]);
+    return concat([identifier, ctx.Colon[0], " ", statement]);
   }
 
   expressionStatement(ctx: ExpressionStatementCtx) {
