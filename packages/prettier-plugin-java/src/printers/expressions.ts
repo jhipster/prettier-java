@@ -17,6 +17,7 @@ import {
   DimExprCtx,
   DimExprsCtx,
   EmbeddedExpressionCtx,
+  ExpressionCstNode,
   ExpressionCtx,
   FqnOrRefTypeCtx,
   FqnOrRefTypePartCommonCtx,
@@ -57,6 +58,7 @@ import {
 } from "java-parser/api";
 
 import forEach from "lodash/forEach.js";
+import type { Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import { isAnnotationCstNode } from "../types/utils.js";
@@ -66,10 +68,17 @@ import {
   handleCommentsBinaryExpression,
   handleCommentsParameters
 } from "./comments/handle-comments.js";
-import { concat, dedent, group, indent } from "./prettier-builder.js";
+import {
+  concat,
+  dedent,
+  group,
+  indent,
+  indentIfBreak
+} from "./prettier-builder.js";
 import {
   binary,
   findDeepElementInPartsArray,
+  getOperators,
   isExplicitLambdaParameter,
   isUniqueMethodInvocation,
   putIntoBraces,
@@ -247,19 +256,49 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       ctx.expression,
       ctx.unaryExpression
     ]);
-
-    const nodes = this.mapVisit(
-      sortedNodes,
-      sortedNodes.length === 1 ? params : undefined
-    );
-    const tokens = sortTokens([
-      ctx.Instanceof,
-      ctx.AssignmentOperator,
-      ctx.Less,
-      ctx.Greater,
-      ctx.BinaryOperator
-    ]);
+    const tokens = sortTokens(getOperators(ctx));
     const hasTokens = tokens.length > 0;
+
+    const nodeParams = sortedNodes.length === 1 ? params : undefined;
+    const nodes: Doc[] = [];
+    for (let i = 0; i < sortedNodes.length; i++) {
+      const node = this.visit(sortedNodes[i], nodeParams);
+      const isAssignment =
+        tokens[i]?.tokenType.CATEGORIES?.find(
+          ({ name }) => name === "AssignmentOperator"
+        ) !== undefined;
+      if (!isAssignment) {
+        nodes.push(node);
+        continue;
+      }
+      const [equals] = tokens.splice(i, 1);
+      const expression = sortedNodes[++i] as ExpressionCstNode;
+      const nextNode = this.visit(expression);
+      const conditionalExpression =
+        expression.children.conditionalExpression?.[0].children;
+      const binaryExpression =
+        conditionalExpression?.binaryExpression?.[0].children;
+      const breakAfterOperator =
+        conditionalExpression?.QuestionMark === undefined &&
+        binaryExpression !== undefined &&
+        getOperators(binaryExpression).length > 0;
+      if (breakAfterOperator) {
+        nodes.push(
+          concat([node, " ", equals, group(indent([line, nextNode]))])
+        );
+        continue;
+      }
+      const groupId = Symbol("assignment");
+      nodes.push(
+        concat([
+          node,
+          " ",
+          equals,
+          indent(group(line, { id: groupId })),
+          indentIfBreak(nextNode, { groupId })
+        ])
+      );
+    }
 
     const content = binary(nodes, tokens, true);
 

@@ -60,7 +60,30 @@ public class BinaryOperations {
     }
 
   public void binaryExpressionWithCast() {
-    double availability = (double) successfulCount / (successfulCount + failureCount);
+    double availability12 = (double) successfulCount / (successfulCount + failureCount);
+    availability12 = (double) successfulCount / (successfulCount + failureCount);
+  }
+
+  void declarationVsAssignment() {
+    var lineLengthInAssignmentMoreThanPrintWidth = "1234567890" + "1234567890" + "1234567890" + "1234567890" + "1234567890" + "1234567890";
+    lineLengthInAssignmentMoreThanPrintWidth = "1234567890" + "1234567890" + "1234567890" + "1234567890" + "1234567890" + "1234567890";
+
+    aaaaaaaaaa += bbbbbbbbbbb + ccccccccccc + ddddddddddd + eeeeeeeeee + ffffffffff + gggggggggg;
+    aaaaaaaaaa %= bbbbbbbbbbb + ccccccccccc + ddddddddddd + eeeeeeeeee + ffffffffff + gggggggggg;
+    aaaaaaaaaa <<= bbbbbbbbbbb + ccccccccccc + ddddddddddd + eeeeeeeeee + ffffffffff + gggggggggg;
+    aaaaaaaaaa &= bbbbbbbbbbb + ccccccccccc + ddddddddddd + eeeeeeeeee + ffffffffff + gggggggggg;
+
+    var aaaaaaaaaa = bbbbbbbbbb || cccccccccc ? dddddddddd + eeeeeeeeee : ffffffffff + gggggggggg;
+    aaaaaaaaaa = bbbbbbbbbb || cccccccccc ? dddddddddd + eeeeeeeeee : ffffffffff + gggggggggg;
+
+    var something = MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd);
+    something = MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd);
+
+    var something = MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd) + 0;
+    something = MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd) + 0;
+
+    var something12 = new MyClass(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd);
+    something12 = new MyClass(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd);
   }
 
   void parentheses() {
