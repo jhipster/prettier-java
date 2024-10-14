@@ -1,5 +1,6 @@
 import {
   AnnotationCstNode,
+  BinaryExpressionCtx,
   ClassBodyDeclarationCstNode,
   ConstantModifierCstNode,
   CstElement,
@@ -31,13 +32,7 @@ import {
   getTokenLeadingComments,
   printTokenWithComments
 } from "./comments/format-comments.js";
-import {
-  concat,
-  group,
-  ifBreak,
-  indentIfBreak,
-  join
-} from "./prettier-builder.js";
+import { concat, group, ifBreak, join } from "./prettier-builder.js";
 
 const { indent, hardline, line, lineSuffixBoundary, softline } = builders;
 
@@ -664,16 +659,17 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
     }
   }
   level.push(nodes.shift()!);
-  const lineGroupId = Symbol("line");
-  return group(
-    levelOperator === "="
-      ? [
-          level[0],
-          indent(group(line, { id: lineGroupId })),
-          indentIfBreak(level[1], { groupId: lineGroupId })
-        ]
-      : join(line, level)
-  );
+  return group(join(line, level));
+}
+
+export function getOperators(ctx: BinaryExpressionCtx) {
+  return [
+    ctx.AssignmentOperator,
+    ctx.BinaryOperator,
+    ctx.Greater,
+    ctx.Instanceof,
+    ctx.Less
+  ].filter(token => token !== undefined);
 }
 
 function getOperator(tokens: IToken[]) {
