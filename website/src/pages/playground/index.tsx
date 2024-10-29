@@ -146,7 +146,7 @@ function Inner() {
               }
             >
               {Object.values(TrailingComma).map(option => (
-                <option>{option}</option>
+                <option key={option}>{option}</option>
               ))}
             </select>
           </label>
@@ -164,8 +164,10 @@ function Inner() {
         </details>
       </div>
       <div className={styles.editors}>
-        <CodeEditor defaultValue={code} onChange={setCode} />
-        <CodeEditor readOnly value={formattedCode} />
+        <CodeEditor value={code} onChange={setCode} />
+        {isFirstRun.current ? null : (
+          <CodeEditor readOnly value={formattedCode} />
+        )}
       </div>
     </div>
   );
