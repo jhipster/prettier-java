@@ -6,7 +6,6 @@ export default function CodeEditor(
   props: Readonly<{
     readOnly?: boolean;
     value?: string;
-    defaultValue?: string;
     onChange?: (value: string | undefined) => void;
   }>
 ) {
@@ -15,7 +14,6 @@ export default function CodeEditor(
   return (
     <div className={styles.editor}>
       <Editor
-        defaultValue={props.defaultValue}
         language="java"
         options={{ readOnly: props.readOnly }}
         theme={colorMode === "dark" ? "vs-dark" : "light"}
