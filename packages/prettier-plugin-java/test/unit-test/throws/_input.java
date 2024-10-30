@@ -87,3 +87,55 @@ public abstract class Throws {
     System.out.println("Constructor with throws that should wrap");
   }
 }
+
+interface Example {
+  void example1(String arg1, String arg2)
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException;
+
+  void example2(
+    String arg1,
+    String arg2,
+    String arg3,
+    String arg4,
+    String arg5,
+    String arg6
+  ) throws RuntimeException, RuntimeException, RuntimeException;
+
+  void example3(
+    String arg1,
+    String arg2,
+    String arg3,
+    String arg4,
+    String arg5,
+    String arg6
+  )
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException;
+
+  default void example1(String arg1, String arg2)
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+    throw new RuntimeException();
+  }
+
+  default void example2(
+    String arg1,
+    String arg2,
+    String arg3,
+    String arg4,
+    String arg5,
+    String arg6
+  ) throws RuntimeException, RuntimeException, RuntimeException {
+    throw new RuntimeException();
+  }
+
+  default void example3(
+    String arg1,
+    String arg2,
+    String arg3,
+    String arg4,
+    String arg5,
+    String arg6
+  )
+    throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+    throw new RuntimeException();
+  }
+}
