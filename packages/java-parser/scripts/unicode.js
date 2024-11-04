@@ -90,7 +90,7 @@ function readUnicodeData() {
   let lines;
   try {
     lines = fs.readFileSync(args, "utf-8").split("\n");
-  } catch (err) {
+  } catch {
     throw Error("Please specify the path of the UnicodeData.txt file");
   }
   let oldValue; // Algorithm purpose
