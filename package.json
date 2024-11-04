@@ -7,7 +7,7 @@
     "benchmark/*"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "lerna:version": "lerna version --exact --no-private",
     "lerna:publish": "lerna publish from-git --yes",
     "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
@@ -31,19 +31,17 @@
     ]
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "eslint": "8.28.0",
+    "chai": "5.1.2",
+    "eslint": "9.14.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "9.1.0",
-    "fs-extra": "^10.1.0",
-    "husky": "8.0.2",
-    "klaw-sync": "^6.0.0",
-    "lerna": "8.1.2",
-    "lint-staged": "13.0.4",
-    "mocha": "^10.1.0",
-    "nyc": "^15.1.0",
-    "prettier": "3.2.5",
-    "sinon": "^17.0.1"
-  },
-  "dependencies": {}
+    "fs-extra": "11.2.0",
+    "husky": "9.1.6",
+    "klaw-sync": "6.0.0",
+    "lerna": "8.1.9",
+    "lint-staged": "15.2.10",
+    "mocha": "10.8.2",
+    "prettier": "3.3.3",
+    "sinon": "19.0.2"
+  }
 }

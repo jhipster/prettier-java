@@ -2,5 +2,4 @@ node_modules
 *.log
 /.vscode
 .DS_Store
-coverage
 .idea
