@@ -54,4 +54,11 @@ describe("Pattern matching", () => {
       javaParser.parse(input, "componentPatternList")
     ).to.not.throw();
   });
+
+  it("should parse pattern list with dims", () => {
+    const input = `A a, B[] b`;
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
+  });
 });

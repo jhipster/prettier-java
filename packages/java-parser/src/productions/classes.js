@@ -158,9 +158,8 @@ export function defineRules($, t) {
     $.SUBRULE($.variableDeclarator);
     $.MANY({
       // required to distinguish from patternList
-      GATE: () =>
-        !tokenMatcher(this.LA(3), t.Identifier) &&
-        !tokenMatcher(this.LA(3), t.Underscore),
+      // TODO: complexify lookahed logic to see if we can avoid backtracking
+      GATE: () => this.BACKTRACK_LOOKAHEAD($.isFollowingVariableDeclarator),
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.variableDeclarator);
@@ -731,5 +730,10 @@ export function defineRules($, t) {
       tokenMatcher(this.LA(1).tokenType, t.LSquare) &&
       tokenMatcher(this.LA(2).tokenType, t.RSquare)
     );
+  });
+
+  $.RULE("isFollowingVariableDeclarator", () => {
+    $.CONSUME(t.Comma);
+    $.SUBRULE2($.variableDeclarator);
   });
 }

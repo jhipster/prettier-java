@@ -56,6 +56,7 @@ import {
   FormalParameterListCtx,
   InstanceInitializerCtx,
   InterfaceTypeListCtx,
+  IsFollowingVariableDeclaratorCtx,
   IToken,
   MethodBodyCtx,
   MethodDeclarationCtx,
@@ -1070,5 +1071,9 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
 
   isDims() {
     return "isDims";
+  }
+
+  isFollowingVariableDeclarator() {
+    return "isFollowingVariableDeclarator";
   }
 }
