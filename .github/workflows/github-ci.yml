@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         node_version:
-          - 18.x
           - 20.x
+          - 22.x
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -33,7 +33,7 @@ jobs:
         test_repository:
           - e2e-jhipster1
           - e2e-jhipster2
-        node_version: [18.x]
+        node_version: [22.x]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -41,7 +41,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - uses: actions/setup-java@v3
         with:
-          java-version: 17.x
+          java-version: 21.x
           distribution: zulu
       - name: Install dependencies
         run: yarn

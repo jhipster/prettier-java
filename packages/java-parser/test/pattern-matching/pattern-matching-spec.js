@@ -54,4 +54,34 @@ describe("Pattern matching", () => {
       javaParser.parse(input, "componentPatternList")
     ).to.not.throw();
   });
+
+  it("should parse pattern list with dims", () => {
+    const input = `A a, B[] b`;
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
+  });
+
+  it("should parse pattern list with nested records", () => {
+    const input =
+      "int a, Location (String name, GPSPoint(int latitude, int longitude))";
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
+  });
+
+  it("should parse pattern list with var", () => {
+    const input =
+      "int a, Location (var name, GPSPoint(var latitude, var longitude))";
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
+  });
+
+  it("should parse pattern list with nested records and annotation", () => {
+    const input = "int a, @not Location (String name)";
+    expect(() =>
+      javaParser.parse(input, "componentPatternList")
+    ).to.not.throw();
+  });
 });

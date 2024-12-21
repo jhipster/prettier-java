@@ -171,6 +171,10 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
+  isFollowingVariableDeclarator(
+    ctx: IsFollowingVariableDeclaratorCtx,
+    param?: IN
+  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -499,6 +503,10 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
+  isFollowingVariableDeclarator(
+    ctx: IsFollowingVariableDeclaratorCtx,
+    param?: IN
+  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -1555,7 +1563,7 @@ export interface SimpleTypeNameCstNode extends CstNode {
 }
 
 export type SimpleTypeNameCtx = {
-  TypeIdentifier: TypeIdentifierCstNode[];
+  typeIdentifier: TypeIdentifierCstNode[];
 };
 
 export interface ConstructorBodyCstNode extends CstNode {
@@ -1792,6 +1800,16 @@ export type IsDimsCtx = {
   elementValuePairList?: ElementValuePairListCstNode[];
   elementValue?: ElementValueCstNode[];
   RBrace?: IToken[];
+};
+
+export interface IsFollowingVariableDeclaratorCstNode extends CstNode {
+  name: "isFollowingVariableDeclarator";
+  children: IsFollowingVariableDeclaratorCtx;
+}
+
+export type IsFollowingVariableDeclaratorCtx = {
+  Comma: IToken[];
+  variableDeclarator: VariableDeclaratorCstNode[];
 };
 
 export interface CompilationUnitCstNode extends CstNode {
@@ -2238,7 +2256,7 @@ export interface ElementValueCstNode extends CstNode {
 }
 
 export type ElementValueCtx = {
-  expression?: ExpressionCstNode[];
+  conditionalExpression?: ConditionalExpressionCstNode[];
   elementValueArrayInitializer?: ElementValueArrayInitializerCstNode[];
   annotation?: AnnotationCstNode[];
 };
@@ -2469,8 +2487,8 @@ export interface SwitchBlockCstNode extends CstNode {
 
 export type SwitchBlockCtx = {
   LCurly: IToken[];
-  switchBlockStatementGroup?: SwitchBlockStatementGroupCstNode[];
   switchRule?: SwitchRuleCstNode[];
+  switchBlockStatementGroup?: SwitchBlockStatementGroupCstNode[];
   RCurly: IToken[];
 };
 
@@ -2492,8 +2510,8 @@ export interface SwitchLabelCstNode extends CstNode {
 
 export type SwitchLabelCtx = {
   Case?: IToken[];
-  Comma?: IToken[];
   Null?: IToken[];
+  Comma?: IToken[];
   Default?: IToken[];
   casePattern?: CasePatternCstNode[];
   guard?: GuardCstNode[];
@@ -2888,11 +2906,11 @@ export interface NormalLambdaParameterListCstNode extends CstNode {
 }
 
 export type NormalLambdaParameterListCtx = {
-  normalLambdaParameter: LambdaParameterCstNode[];
+  normalLambdaParameter: NormalLambdaParameterCstNode[];
   Comma?: IToken[];
 };
 
-export interface LambdaParameterCstNode extends CstNode {
+export interface NormalLambdaParameterCstNode extends CstNode {
   name: "normalLambdaParameter";
   children: LambdaParameterCtx;
 }
