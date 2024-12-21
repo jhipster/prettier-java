@@ -158,9 +158,7 @@ export function defineRules($, t) {
     $.SUBRULE($.variableDeclarator);
     $.MANY({
       // required to distinguish from patternList
-      GATE: () =>
-        !tokenMatcher(this.LA(3), t.Identifier) &&
-        !tokenMatcher(this.LA(3), t.Underscore),
+      GATE: () => this.BACKTRACK_LOOKAHEAD($.isFollowingVariableDeclarator),
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.variableDeclarator);
@@ -728,8 +726,26 @@ export function defineRules($, t) {
   $.RULE("isDims", () => {
     $.MANY($.annotation);
     return (
-      tokenMatcher(this.LA(1).tokenType, t.LSquare) &&
-      tokenMatcher(this.LA(2).tokenType, t.RSquare)
+      tokenMatcher(this.LA(1), t.LSquare) && tokenMatcher(this.LA(2), t.RSquare)
     );
+  });
+
+  /*
+   * The following sequence can either be a variable declarator or a component pattern if next token is a comma
+   * This check if the following sequence is **not** a component pattern sequence
+   */
+  $.RULE("isFollowingVariableDeclarator", () => {
+    const hasDims =
+      tokenMatcher(this.LA(3), t.LSquare) &&
+      tokenMatcher(this.LA(4), t.RSquare);
+    const offset = hasDims ? 2 : 0;
+    if (
+      tokenMatcher(this.LA(offset + 3), t.Identifier) ||
+      tokenMatcher(this.LA(offset + 3), t.Underscore)
+    ) {
+      return false;
+    }
+
+    return !tokenMatcher(this.LA(3), t.LBrace);
   });
 }

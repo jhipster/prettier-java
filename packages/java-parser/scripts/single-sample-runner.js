@@ -1,10 +1,14 @@
 /**
  * This Script is used to debug the parsing of **small** code snippets.
  */
-import javaParserChev from "../src/index";
+import javaParserChev from "../src/index.js";
 
 const input = `
-@Anno byte @Nullable ... test
+public class VariableTypeInference {
+
+ int foo = 0, bar = 1;
+}
+
 `;
 
-javaParserChev.parse(input, "variableArityParameter");
+javaParserChev.parse(input, "compilationUnit");
