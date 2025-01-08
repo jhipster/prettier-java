@@ -117,6 +117,10 @@ export function testRepositorySample(
         maxBuffer: Infinity
       });
       if (code.status !== 0) {
+        console.log("error", code.error);
+        console.log("stderr", code.stderr);
+        (code.output ?? []).forEach(out => console.log("output", out));
+
         expect.fail(
           `Cannot build ${testFolder}, please check the output below:\n${code.error ?? code.stderr}`
         );
