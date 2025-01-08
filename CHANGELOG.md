@@ -1,4 +1,14 @@
-# Latest v2.6.0
+# Latest v2.6.1
+
+## Enhancements
+
+- Add typescript support to prettier-plugin-java ([#692](https://github.com/jhipster/prettier-java/pull/692) by [@ntnyq ](https://github.com/ntnyq))
+
+## Fixes
+
+- Support dims in record patterns (Issue [#707](https://github.com/jhipster/prettier-java/issues/707) closed by [#708](https://github.com/jhipster/prettier-java/pull/708) by [@clementdessoude](https://github.com/clementdessoude))
+
+# v2.6.0
 
 ## Enhancements
 
