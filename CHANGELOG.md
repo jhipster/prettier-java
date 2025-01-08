@@ -1,4 +1,4 @@
-# Latest v2.6.1
+# Latest v2.6.6
 
 ## Enhancements
 
