@@ -63,6 +63,7 @@ import { builders, utils } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import { isAnnotationCstNode } from "../types/utils.js";
 import { printArgumentListWithBraces } from "../utils/index.js";
+import { hasLeadingComments } from "./comments/comments-utils.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   handleCommentsBinaryExpression,
@@ -366,11 +367,18 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       .find(methodInvocationSuffix => methodInvocationSuffix);
 
     const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
-    const isCapitalizedIdentifier = !!this.isCapitalizedIdentifier(fqnOrRefType);
+    const lastFqnRefPartDot = this.lastDot(fqnOrRefType);
+    const isCapitalizedIdentifier =
+      !!this.isCapitalizedIdentifier(fqnOrRefType);
+    const isCapitalizedIdentifierWithoutTrailingComment =
+      isCapitalizedIdentifier &&
+      (lastFqnRefPartDot === undefined ||
+        !hasLeadingComments(lastFqnRefPartDot));
+
     const shouldBreakBeforeFirstMethodInvocation =
       countMethodInvocation > 1 &&
       hasFqnRefPart &&
-      !isCapitalizedIdentifier &&
+      !isCapitalizedIdentifierWithoutTrailingComment &&
       firstMethodInvocation !== undefined;
 
     const shouldBreakBeforeMethodInvocations =
@@ -917,5 +925,14 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       nextToLastIdentifier &&
       /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier)
     );
+  }
+
+  private lastDot(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
+    if (fqnOrRefType === undefined || fqnOrRefType.Dot === undefined) {
+      return undefined;
+    }
+
+    const lastDot = fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
+    return lastDot;
   }
 }
