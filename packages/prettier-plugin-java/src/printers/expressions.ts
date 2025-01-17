@@ -364,11 +364,15 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const firstMethodInvocation = ctx.primarySuffix
       ?.map(suffix => suffix.children.methodInvocationSuffix?.[0].children)
       .find(methodInvocationSuffix => methodInvocationSuffix);
-    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
+
+    const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
+    const isCapitalizedIdentifier = !!this.isCapitalizedIdentifier(fqnOrRefType);
     const shouldBreakBeforeFirstMethodInvocation =
       countMethodInvocation > 1 &&
-      !(isCapitalizedIdentifier ?? true) &&
+      hasFqnRefPart &&
+      !isCapitalizedIdentifier &&
       firstMethodInvocation !== undefined;
+
     const shouldBreakBeforeMethodInvocations =
       shouldBreakBeforeFirstMethodInvocation ||
       countMethodInvocation > 2 ||
