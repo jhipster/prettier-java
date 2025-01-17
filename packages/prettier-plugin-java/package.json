@@ -4,10 +4,8 @@
   "description": "Prettier Java Plugin",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./dist/index.js"
-    }
+    "types": "./index.d.ts",
+    "default": "./dist/index.js"
   },
   "files": [
     "dist",
