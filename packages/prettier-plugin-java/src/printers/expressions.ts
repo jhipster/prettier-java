@@ -380,7 +380,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const shouldBreakBeforeMethodInvocations =
       shouldBreakBeforeFirstMethodInvocation ||
       countMethodInvocation > 2 ||
-      (countMethodInvocation > 1 && newExpression) ||
+      (countMethodInvocation > 1 && !!newExpression) ||
       !firstMethodInvocation?.argumentList;
 
     const primaryPrefix = this.visit(ctx.primaryPrefix, {
