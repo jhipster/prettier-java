@@ -360,12 +360,12 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const isBreakableNewExpression =
       countMethodInvocation <= 1 &&
       this.isBreakableNewExpression(newExpression);
-    const fqnOrRefType =
-      ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
     const firstMethodInvocation = ctx.primarySuffix
       ?.map(suffix => suffix.children.methodInvocationSuffix?.[0].children)
       .find(methodInvocationSuffix => methodInvocationSuffix);
 
+    const fqnOrRefType =
+      ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
     const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
     const lastFqnRefPartDot = this.lastDot(fqnOrRefType);
     const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
@@ -377,8 +377,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const shouldBreakBeforeFirstMethodInvocation =
       countMethodInvocation > 1 &&
       hasFqnRefPart &&
-      !isCapitalizedIdentifierWithoutTrailingComment &&
-      firstMethodInvocation !== undefined;
+      !isCapitalizedIdentifierWithoutTrailingComment;
 
     const shouldBreakBeforeMethodInvocations =
       shouldBreakBeforeFirstMethodInvocation ||
