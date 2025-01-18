@@ -367,12 +367,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const fqnOrRefType =
       ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
     const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
-    const lastFqnRefPartDot = this.lastDot(fqnOrRefType);
-    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
-    const isCapitalizedIdentifierWithoutTrailingComment =
-      isCapitalizedIdentifier &&
-      (lastFqnRefPartDot === undefined ||
-        !hasLeadingComments(lastFqnRefPartDot));
+    const {
+      isCapitalizedIdentifier,
+      isCapitalizedIdentifierWithoutTrailingComment
+    } = this.handleStaticInvocations(fqnOrRefType);
 
     const shouldBreakBeforeFirstMethodInvocation =
       countMethodInvocation > 1 &&
@@ -425,6 +423,20 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
           : concat(suffixes)
       ])
     );
+  }
+
+  private handleStaticInvocations(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
+    const lastFqnRefPartDot = this.lastFqnOrRefDot(fqnOrRefType);
+    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
+    const isCapitalizedIdentifierWithoutTrailingComment =
+      isCapitalizedIdentifier &&
+      (lastFqnRefPartDot === undefined ||
+        !hasLeadingComments(lastFqnRefPartDot));
+
+    return {
+      isCapitalizedIdentifier,
+      isCapitalizedIdentifierWithoutTrailingComment
+    };
   }
 
   primaryPrefix(ctx: PrimaryPrefixCtx, params: any) {
@@ -895,13 +907,12 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     );
   }
 
-  private lastDot(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
+  private lastFqnOrRefDot(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
     if (fqnOrRefType === undefined || fqnOrRefType.Dot === undefined) {
       return undefined;
     }
 
-    const lastDot = fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
-    return lastDot;
+    return fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
   }
 
   private getPrimarySuffixes(
