@@ -83,6 +83,10 @@ public class BinaryOperations {
     foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(
       10
     );
+
+    // Issue 381
+    new MethodWrappingFollowingContstructor()
+      .aLongEnoughMethodNameToForceThingsToWrap();
   }
 
   public void binaryExpressionWithCast() {

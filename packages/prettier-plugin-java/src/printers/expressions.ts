@@ -2,14 +2,14 @@ import {
   ArgumentListCtx,
   ArrayAccessSuffixCtx,
   ArrayCreationExpressionCtx,
-  ArrayCreationWithInitializerSuffixCtx,
   ArrayCreationExpressionWithoutInitializerSuffixCtx,
+  ArrayCreationWithInitializerSuffixCtx,
   BinaryExpressionCtx,
   CastExpressionCtx,
   ClassLiteralSuffixCtx,
   ClassOrInterfaceTypeToInstantiateCtx,
-  ComponentPatternListCtx,
   ComponentPatternCtx,
+  ComponentPatternListCtx,
   ConciseLambdaParameterCtx,
   ConciseLambdaParameterListCtx,
   ConditionalExpressionCtx,
@@ -395,19 +395,6 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const suffixes = [];
 
     if (ctx.primarySuffix !== undefined) {
-      // edge case: https://github.com/jhipster/prettier-java/issues/381
-      let hasFirstInvocationArg = true;
-
-      if (
-        ctx.primarySuffix.length > 1 &&
-        ctx.primarySuffix[1].children.methodInvocationSuffix &&
-        Object.keys(
-          ctx.primarySuffix[1].children.methodInvocationSuffix[0].children
-        ).length === 2
-      ) {
-        hasFirstInvocationArg = false;
-      }
-
       if (
         newExpression &&
         !isBreakableNewExpression &&
@@ -432,7 +419,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
         return group(
           rejectAndConcat([
             primaryPrefix,
-            hasFirstInvocationArg ? suffixes[0] : indent(suffixes[0]),
+            suffixes[0],
             indent(rejectAndConcat(suffixes.slice(1)))
           ])
         );
