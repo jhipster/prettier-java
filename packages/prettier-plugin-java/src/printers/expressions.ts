@@ -368,8 +368,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
 
     const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
     const lastFqnRefPartDot = this.lastDot(fqnOrRefType);
-    const isCapitalizedIdentifier =
-      !!this.isCapitalizedIdentifier(fqnOrRefType);
+    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
     const isCapitalizedIdentifierWithoutTrailingComment =
       isCapitalizedIdentifier &&
       (lastFqnRefPartDot === undefined ||
@@ -894,7 +893,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       fqnOrRefTypeParts[fqnOrRefTypeParts.length - 2]?.children
         .fqnOrRefTypePartCommon[0].children.Identifier?.[0].image;
     return (
-      nextToLastIdentifier &&
+      !!nextToLastIdentifier &&
       /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier)
     );
   }
