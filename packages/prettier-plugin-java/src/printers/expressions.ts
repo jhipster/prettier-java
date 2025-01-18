@@ -397,16 +397,14 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       shouldBreakBeforeMethodInvocations
     );
 
-    if (ctx.primarySuffix !== undefined) {
-      if (!newExpression && countMethodInvocation === 1) {
-        return group(
-          rejectAndConcat([
-            primaryPrefix,
-            suffixes[0],
-            indent(rejectAndConcat(suffixes.slice(1)))
-          ])
-        );
-      }
+    if (!newExpression && countMethodInvocation === 1) {
+      return group(
+        rejectAndConcat([
+          primaryPrefix,
+          suffixes[0],
+          indent(rejectAndConcat(suffixes.slice(1)))
+        ])
+      );
     }
 
     const methodInvocation =
