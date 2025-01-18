@@ -392,29 +392,14 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       shouldBreakBeforeFirstMethodInvocation
     });
 
-    const suffixes = [];
+    const suffixes = this.getPrimarySuffixes(
+      ctx,
+      newExpression,
+      isBreakableNewExpression,
+      shouldBreakBeforeMethodInvocations
+    );
 
     if (ctx.primarySuffix !== undefined) {
-      if (
-        newExpression &&
-        !isBreakableNewExpression &&
-        ctx.primarySuffix[0].children.Dot !== undefined
-      ) {
-        suffixes.push(softline);
-      }
-      suffixes.push(this.visit(ctx.primarySuffix[0]));
-
-      for (let i = 1; i < ctx.primarySuffix.length; i++) {
-        if (
-          shouldBreakBeforeMethodInvocations &&
-          ctx.primarySuffix[i].children.Dot !== undefined &&
-          ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
-        ) {
-          suffixes.push(softline);
-        }
-        suffixes.push(this.visit(ctx.primarySuffix[i]));
-      }
-
       if (!newExpression && countMethodInvocation === 1) {
         return group(
           rejectAndConcat([
@@ -921,5 +906,39 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
 
     const lastDot = fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
     return lastDot;
+  }
+
+  private getPrimarySuffixes(
+    ctx: PrimaryCtx,
+    newExpression: NewExpressionCtx | undefined,
+    isBreakableNewExpression: boolean,
+    shouldBreakBeforeMethodInvocations: NewExpressionCtx | boolean
+  ) {
+    if (ctx.primarySuffix === undefined) {
+      return [];
+    }
+
+    const suffixes = [];
+
+    if (
+      newExpression &&
+      !isBreakableNewExpression &&
+      ctx.primarySuffix[0].children.Dot !== undefined
+    ) {
+      suffixes.push(softline);
+    }
+    suffixes.push(this.visit(ctx.primarySuffix[0]));
+
+    for (let i = 1; i < ctx.primarySuffix.length; i++) {
+      if (
+        shouldBreakBeforeMethodInvocations &&
+        ctx.primarySuffix[i].children.Dot !== undefined &&
+        ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
+      ) {
+        suffixes.push(softline);
+      }
+      suffixes.push(this.visit(ctx.primarySuffix[i]));
+    }
+    return suffixes;
   }
 }
