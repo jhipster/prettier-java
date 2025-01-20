@@ -2,14 +2,14 @@ import {
   ArgumentListCtx,
   ArrayAccessSuffixCtx,
   ArrayCreationExpressionCtx,
-  ArrayCreationWithInitializerSuffixCtx,
   ArrayCreationExpressionWithoutInitializerSuffixCtx,
+  ArrayCreationWithInitializerSuffixCtx,
   BinaryExpressionCtx,
   CastExpressionCtx,
   ClassLiteralSuffixCtx,
   ClassOrInterfaceTypeToInstantiateCtx,
-  ComponentPatternListCtx,
   ComponentPatternCtx,
+  ComponentPatternListCtx,
   ConciseLambdaParameterCtx,
   ConciseLambdaParameterListCtx,
   ConditionalExpressionCtx,
@@ -63,6 +63,7 @@ import { builders, utils } from "prettier/doc";
 import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import { isAnnotationCstNode } from "../types/utils.js";
 import { printArgumentListWithBraces } from "../utils/index.js";
+import { hasLeadingComments } from "./comments/comments-utils.js";
 import { printTokenWithComments } from "./comments/format-comments.js";
 import {
   handleCommentsBinaryExpression,
@@ -359,20 +360,27 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const isBreakableNewExpression =
       countMethodInvocation <= 1 &&
       this.isBreakableNewExpression(newExpression);
-    const fqnOrRefType =
-      ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
     const firstMethodInvocation = ctx.primarySuffix
       ?.map(suffix => suffix.children.methodInvocationSuffix?.[0].children)
       .find(methodInvocationSuffix => methodInvocationSuffix);
-    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
+
+    const fqnOrRefType =
+      ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
+    const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
+    const {
+      isCapitalizedIdentifier,
+      isCapitalizedIdentifierWithoutTrailingComment
+    } = this.handleStaticInvocations(fqnOrRefType);
+
     const shouldBreakBeforeFirstMethodInvocation =
       countMethodInvocation > 1 &&
-      !(isCapitalizedIdentifier ?? true) &&
-      firstMethodInvocation !== undefined;
+      hasFqnRefPart &&
+      !isCapitalizedIdentifierWithoutTrailingComment;
+
     const shouldBreakBeforeMethodInvocations =
       shouldBreakBeforeFirstMethodInvocation ||
       countMethodInvocation > 2 ||
-      (countMethodInvocation > 1 && newExpression) ||
+      (countMethodInvocation > 1 && !!newExpression) ||
       !firstMethodInvocation?.argumentList;
 
     const primaryPrefix = this.visit(ctx.primaryPrefix, {
@@ -380,51 +388,21 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       shouldBreakBeforeFirstMethodInvocation
     });
 
-    const suffixes = [];
+    const suffixes = this.getPrimarySuffixes(
+      ctx,
+      newExpression,
+      isBreakableNewExpression,
+      shouldBreakBeforeMethodInvocations
+    );
 
-    if (ctx.primarySuffix !== undefined) {
-      // edge case: https://github.com/jhipster/prettier-java/issues/381
-      let hasFirstInvocationArg = true;
-
-      if (
-        ctx.primarySuffix.length > 1 &&
-        ctx.primarySuffix[1].children.methodInvocationSuffix &&
-        Object.keys(
-          ctx.primarySuffix[1].children.methodInvocationSuffix[0].children
-        ).length === 2
-      ) {
-        hasFirstInvocationArg = false;
-      }
-
-      if (
-        newExpression &&
-        !isBreakableNewExpression &&
-        ctx.primarySuffix[0].children.Dot !== undefined
-      ) {
-        suffixes.push(softline);
-      }
-      suffixes.push(this.visit(ctx.primarySuffix[0]));
-
-      for (let i = 1; i < ctx.primarySuffix.length; i++) {
-        if (
-          shouldBreakBeforeMethodInvocations &&
-          ctx.primarySuffix[i].children.Dot !== undefined &&
-          ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
-        ) {
-          suffixes.push(softline);
-        }
-        suffixes.push(this.visit(ctx.primarySuffix[i]));
-      }
-
-      if (!newExpression && countMethodInvocation === 1) {
-        return group(
-          rejectAndConcat([
-            primaryPrefix,
-            hasFirstInvocationArg ? suffixes[0] : indent(suffixes[0]),
-            indent(rejectAndConcat(suffixes.slice(1)))
-          ])
-        );
-      }
+    if (!newExpression && countMethodInvocation === 1) {
+      return group(
+        rejectAndConcat([
+          primaryPrefix,
+          suffixes[0],
+          indent(rejectAndConcat(suffixes.slice(1)))
+        ])
+      );
     }
 
     const methodInvocation =
@@ -445,6 +423,20 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
           : concat(suffixes)
       ])
     );
+  }
+
+  private handleStaticInvocations(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
+    const lastFqnRefPartDot = this.lastFqnOrRefDot(fqnOrRefType);
+    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
+    const isCapitalizedIdentifierWithoutTrailingComment =
+      isCapitalizedIdentifier &&
+      (lastFqnRefPartDot === undefined ||
+        !hasLeadingComments(lastFqnRefPartDot));
+
+    return {
+      isCapitalizedIdentifier,
+      isCapitalizedIdentifierWithoutTrailingComment
+    };
   }
 
   primaryPrefix(ctx: PrimaryPrefixCtx, params: any) {
@@ -910,8 +902,50 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       fqnOrRefTypeParts[fqnOrRefTypeParts.length - 2]?.children
         .fqnOrRefTypePartCommon[0].children.Identifier?.[0].image;
     return (
-      nextToLastIdentifier &&
+      !!nextToLastIdentifier &&
       /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier)
     );
+  }
+
+  private lastFqnOrRefDot(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
+    if (fqnOrRefType === undefined || fqnOrRefType.Dot === undefined) {
+      return undefined;
+    }
+
+    return fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
+  }
+
+  private getPrimarySuffixes(
+    ctx: PrimaryCtx,
+    newExpression: NewExpressionCtx | undefined,
+    isBreakableNewExpression: boolean,
+    shouldBreakBeforeMethodInvocations: NewExpressionCtx | boolean
+  ) {
+    if (ctx.primarySuffix === undefined) {
+      return [];
+    }
+
+    const suffixes = [];
+
+    if (
+      newExpression &&
+      !isBreakableNewExpression &&
+      ctx.primarySuffix[0].children.Dot !== undefined
+    ) {
+      suffixes.push(softline);
+    }
+    suffixes.push(this.visit(ctx.primarySuffix[0]));
+
+    for (let i = 1; i < ctx.primarySuffix.length; i++) {
+      if (
+        shouldBreakBeforeMethodInvocations &&
+        ctx.primarySuffix[i].children.Dot !== undefined &&
+        ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
+      ) {
+        suffixes.push(softline);
+      }
+      suffixes.push(this.visit(ctx.primarySuffix[i]));
+    }
+    return suffixes;
   }
 }

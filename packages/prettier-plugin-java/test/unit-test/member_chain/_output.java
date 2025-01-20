@@ -4,6 +4,48 @@ public class BreakLongFunctionCall {
     return new Object().something().more();
   }
 
+  public void doSomethingNewWithComment() {
+    return new Object()
+      // comment
+      .something()
+      .more();
+  }
+
+  public void doSomethingWithComment() {
+    return Object
+      // comment
+      .something()
+      .more();
+  }
+
+  public void doSomethingWithComment() {
+    return object
+      // comment
+      .something()
+      .more();
+  }
+
+  public void doSomethingNewWithComment() {
+    return new Object()
+      /* comment */
+      .something()
+      .more();
+  }
+
+  public void doSomethingWithComment() {
+    return Object
+      /* comment */
+      .something()
+      .more();
+  }
+
+  public void doSomethingWithComment() {
+    return object
+      /* comment */
+      .something()
+      .more();
+  }
+
   public void doSomethingLongNew() {
     return something()
       .more()
