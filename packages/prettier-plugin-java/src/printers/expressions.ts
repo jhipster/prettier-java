@@ -457,43 +457,12 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
           return dot;
         })
       : [];
-    const isMethodInvocation = ctx.Dot && ctx.Dot.length === 1;
 
-    if (params?.shouldBreakBeforeFirstMethodInvocation === true) {
-      // when fqnOrRefType is a method call from an object
-      if (isMethodInvocation) {
-        const separator = hasLeadingComments(ctx.Dot![0])
-          ? dots[0]
-          : concat([softline, dots[0]]);
-        return rejectAndConcat([
-          indent(
-            rejectAndConcat([
-              fqnOrRefTypePartFirst,
-              separator,
-              rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
-              dims
-            ])
-          )
-        ]);
-        // otherwise it is a fully qualified name but we need to exclude when it is just a method call
-      } else if (ctx.Dot) {
-        const lastDot = ctx.Dot[ctx.Dot.length - 1];
-        const separator = hasLeadingComments(lastDot)
-          ? dots[dots.length - 1]
-          : concat([softline, lastDot]);
-
-        return indent(
-          rejectAndConcat([
-            rejectAndJoinSeps(dots.slice(0, dots.length - 1), [
-              fqnOrRefTypePartFirst,
-              ...fqnOrRefTypePartRest.slice(0, fqnOrRefTypePartRest.length - 1)
-            ]),
-            separator,
-            fqnOrRefTypePartRest[fqnOrRefTypePartRest.length - 1],
-            dims
-          ])
-        );
-      }
+    if (
+      params?.shouldBreakBeforeFirstMethodInvocation === true &&
+      ctx.Dot !== undefined
+    ) {
+      dots[dots.length - 1] = concat([softline, ctx.Dot[ctx.Dot.length - 1]]);
     }
 
     return indent(
