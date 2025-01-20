@@ -467,8 +467,9 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
           : concat([softline, dots[0]]);
         return rejectAndConcat([
           indent(
-            rejectAndJoin(separator, [
+            rejectAndConcat([
               fqnOrRefTypePartFirst,
+              separator,
               rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
               dims
             ])
