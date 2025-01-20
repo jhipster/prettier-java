@@ -5,23 +5,84 @@ public class BreakLongFunctionCall {
   }
 
   public void doSomethingNewWithComment() {
-    return new Object()
+    new Object()
       // comment
       .something()
+      .more();
+
+    new Object()
+      .something()
+      // comment
       .more();
   }
 
   public void doSomethingWithComment() {
-    return Object
+    Object
       // comment
       .something()
       .more();
+
+    java.Object
+      // comment
+      .something()
+      .more();
+
+    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object
+      // comment
+      .something()
+      .more();
+
+    java
+      // comment
+      .averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something()
+      .more();
+
+    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong
+      // comment
+      .Object.something()
+      .more();
+
+    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something()
+      .more();
+
+    Object.something()
+      // comment
+      .more();
+
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java
+      // comment
+      .util()
+      .java.java();
+
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong
+      // comment
+      .java
+      .util()
+      .java.java();
+
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java
+      /* comment */
+      .util()
+      .java.java();
+
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java/* comment */
+      .util()
+      .java.java();
+
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java
+      /* comment */.util()
+      .java.java();
   }
 
   public void doSomethingWithComment() {
-    return object
+    object
       // comment
       .something()
+      .more();
+
+    object
+      .something()
+      // comment
       .more();
   }
 
