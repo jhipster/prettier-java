@@ -367,15 +367,10 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const fqnOrRefType =
       ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
     const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
-    const {
-      isCapitalizedIdentifier,
-      isCapitalizedIdentifierWithoutTrailingComment
-    } = this.handleStaticInvocations(fqnOrRefType);
+    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
 
     const shouldBreakBeforeFirstMethodInvocation =
-      countMethodInvocation > 1 &&
-      hasFqnRefPart &&
-      !isCapitalizedIdentifierWithoutTrailingComment;
+      countMethodInvocation > 1 && hasFqnRefPart && !isCapitalizedIdentifier;
 
     const shouldBreakBeforeMethodInvocations =
       shouldBreakBeforeFirstMethodInvocation ||
@@ -425,20 +420,6 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     );
   }
 
-  private handleStaticInvocations(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
-    const lastFqnRefPartDot = this.lastFqnOrRefDot(fqnOrRefType);
-    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
-    const isCapitalizedIdentifierWithoutTrailingComment =
-      isCapitalizedIdentifier &&
-      (lastFqnRefPartDot === undefined ||
-        !hasLeadingComments(lastFqnRefPartDot));
-
-    return {
-      isCapitalizedIdentifier,
-      isCapitalizedIdentifierWithoutTrailingComment
-    };
-  }
-
   primaryPrefix(ctx: PrimaryPrefixCtx, params: any) {
     if (ctx.This || ctx.Void) {
       return printTokenWithComments(this.getSingle(ctx) as IToken);
@@ -468,47 +449,31 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
     const fqnOrRefTypePartFirst = this.visit(ctx.fqnOrRefTypePartFirst);
     const fqnOrRefTypePartRest = this.mapVisit(ctx.fqnOrRefTypePartRest);
     const dims = this.visit(ctx.dims);
-    const dots = ctx.Dot ? ctx.Dot : [];
-    const isMethodInvocation = ctx.Dot && ctx.Dot.length === 1;
+    const dots = ctx.Dot
+      ? ctx.Dot.map(dot => {
+          if (hasLeadingComments(dot)) {
+            return concat([softline, dot]);
+          }
+          return dot;
+        })
+      : [];
 
     if (
-      params !== undefined &&
-      params.shouldBreakBeforeFirstMethodInvocation === true
+      params?.shouldBreakBeforeFirstMethodInvocation === true &&
+      ctx.Dot !== undefined
     ) {
-      // when fqnOrRefType is a method call from an object
-      if (isMethodInvocation) {
-        return rejectAndConcat([
-          indent(
-            rejectAndJoin(concat([softline, dots[0]]), [
-              fqnOrRefTypePartFirst,
-              rejectAndJoinSeps(dots.slice(1), fqnOrRefTypePartRest),
-              dims
-            ])
-          )
-        ]);
-        // otherwise it is a fully qualified name but we need to exclude when it is just a method call
-      } else if (ctx.Dot) {
-        return indent(
-          rejectAndConcat([
-            rejectAndJoinSeps(dots.slice(0, dots.length - 1), [
-              fqnOrRefTypePartFirst,
-              ...fqnOrRefTypePartRest.slice(0, fqnOrRefTypePartRest.length - 1)
-            ]),
-            softline,
-            rejectAndConcat([
-              dots[dots.length - 1],
-              fqnOrRefTypePartRest[fqnOrRefTypePartRest.length - 1]
-            ]),
-            dims
-          ])
-        );
-      }
+      dots[dots.length - 1] = concat([softline, ctx.Dot[ctx.Dot.length - 1]]);
     }
 
-    return rejectAndConcat([
-      rejectAndJoinSeps(dots, [fqnOrRefTypePartFirst, ...fqnOrRefTypePartRest]),
-      dims
-    ]);
+    return indent(
+      rejectAndConcat([
+        rejectAndJoinSeps(dots, [
+          fqnOrRefTypePartFirst,
+          ...fqnOrRefTypePartRest
+        ]),
+        dims
+      ])
+    );
   }
 
   fqnOrRefTypePartFirst(ctx: FqnOrRefTypePartFirstCtx) {
@@ -905,14 +870,6 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       !!nextToLastIdentifier &&
       /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier)
     );
-  }
-
-  private lastFqnOrRefDot(fqnOrRefType: FqnOrRefTypeCtx | undefined) {
-    if (fqnOrRefType === undefined || fqnOrRefType.Dot === undefined) {
-      return undefined;
-    }
-
-    return fqnOrRefType.Dot[fqnOrRefType.Dot.length - 1];
   }
 
   private getPrimarySuffixes(
