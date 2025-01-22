@@ -1,4 +1,11 @@
-# Latest v2.6.6
+# Latest v2.6.7
+
+## Fixes
+
+- Restore require support for VS Code compatibility (Issue [#711](https://github.com/jhipster/prettier-java/issues/711) closed by [#714](https://github.com/jhipster/prettier-java/pull/714) by [@jtkiesel](https://github.com/jtkiesel))
+- Fix unstable formatting with comment between class and static function call  (Issue [#712](https://github.com/jhipster/prettier-java/issues/712) closed by [#713](https://github.com/jhipster/prettier-java/pull/713) and [#715](https://github.com/jhipster/prettier-java/pull/715) by [@clementdessoude](https://github.com/clementdessoude))
+
+# v2.6.6
 
 ## Enhancements
 
