@@ -606,7 +606,12 @@ export function putIntoBraces(
   );
 }
 
-export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
+export function binary(
+  nodes: Doc[],
+  tokens: IToken[],
+  operatorPosition?: "start" | "end",
+  isRoot = false
+): Doc {
   let levelOperator: string | undefined;
   let levelPrecedence: number | undefined;
   let level: Doc[] = [];
@@ -619,23 +624,24 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
         ? nextOperator.length
         : 1;
       const operator = concat(tokens.splice(0, tokenLength));
+      level.push(nodes.shift()!);
       if (
         levelOperator !== undefined &&
         needsParentheses(levelOperator, nextOperator)
       ) {
-        level.push(nodes.shift()!);
-        level = [
-          concat(["(", group(indent(join(line, level))), ") ", operator])
-        ];
+        level = [concat(["(", group(indent(level)), ")"])];
+      }
+      if (operatorPosition === "start") {
+        level.push(line, operator, " ");
       } else {
-        level.push(join(" ", [nodes.shift()!, operator]));
+        level.push(" ", operator, line);
       }
       levelOperator = nextOperator;
       levelPrecedence = nextPrecedence;
     } else if (nextPrecedence < levelPrecedence) {
       level.push(nodes.shift()!);
       if (isRoot) {
-        const content = group(indent(join(line, level)));
+        const content = group(indent(level));
         nodes.unshift(
           levelOperator !== undefined &&
             needsParentheses(levelOperator, nextOperator)
@@ -646,10 +652,10 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
         levelOperator = undefined;
         levelPrecedence = undefined;
       } else {
-        return group(join(line, level));
+        return group(level);
       }
     } else {
-      const content = binary(nodes, tokens);
+      const content = binary(nodes, tokens, operatorPosition);
       nodes.unshift(
         levelOperator !== undefined &&
           needsParentheses(nextOperator, levelOperator)
@@ -659,7 +665,7 @@ export function binary(nodes: Doc[], tokens: IToken[], isRoot = false): Doc {
     }
   }
   level.push(nodes.shift()!);
-  return group(join(line, level));
+  return group(level);
 }
 
 export function getOperators(ctx: BinaryExpressionCtx) {
