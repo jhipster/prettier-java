@@ -301,7 +301,12 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       );
     }
 
-    const content = binary(nodes, tokens, true);
+    const content = binary(
+      nodes,
+      tokens,
+      this.prettierOptions.experimentalOperatorPosition,
+      true
+    );
 
     return hasTokens && params?.addParenthesisToWrapStatement
       ? group(
