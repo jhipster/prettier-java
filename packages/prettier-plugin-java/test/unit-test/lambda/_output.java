@@ -51,6 +51,12 @@ public class Lambda {
         foo.isVeryVeryVeryLongConditionTrue() &&
         foo.isAnotherVeryVeryLongConditionTrue()
     );
+    aaaaaaaaaa(bbbbbbbbbb ->
+      "123456789012345678901234567890123456789012345678"
+    );
+    aaaaaaaaaa(bbbbbbbbbb ->
+      cccccccccc("123456789012345678901234567890123456")
+    );
   }
 
   public void chainCallWithLambda() {
