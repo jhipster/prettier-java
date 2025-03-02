@@ -5,6 +5,7 @@ import styles from "./index.module.css";
 export default function CodeEditor(
   props: Readonly<{
     readOnly?: boolean;
+    rulers?: number[];
     value?: string;
     onChange?: (value: string | undefined) => void;
   }>
@@ -15,7 +16,7 @@ export default function CodeEditor(
     <div className={styles.editor}>
       <Editor
         language="java"
-        options={{ readOnly: props.readOnly }}
+        options={{ readOnly: props.readOnly, rulers: props.rulers }}
         theme={colorMode === "dark" ? "vs-dark" : "light"}
         value={props.value}
         onChange={props.onChange}
