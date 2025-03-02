@@ -122,7 +122,8 @@ public class Expressions {
   }
 
   public void printWhile() {
-    while /*infinite*/(true) /*stop the program*/throw new RuntimeException();
+    while /*infinite*/(true)
+      /*stop the program*/throw new RuntimeException();
 
     while (
       myValue == 42 ||

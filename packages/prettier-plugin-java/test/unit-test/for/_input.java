@@ -36,4 +36,8 @@ public class For {
     }
   }
 
+  void shouldBreakNested() {
+    for (int d = 0; d < e; d++) for (int c = 0; c < d; c++) for (int b = 0; b < c; b++) a();
+    for (D dddddddddd : eeeeeeeeee) for (C cccccccccc : dddddddddd) for (B bbbbbbbbbb : cccccccccc) aaaaaaaaaa();
+  }
 }

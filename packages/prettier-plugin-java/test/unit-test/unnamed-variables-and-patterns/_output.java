@@ -2,7 +2,8 @@ class T {
 
   static int count(Iterable<Order> orders) {
     int total = 0;
-    for (Order _ : orders) total++; // Unnamed variable
+    for (Order _ : orders) // Unnamed variable
+      total++;
     return total;
   }
 
