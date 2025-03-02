@@ -164,9 +164,9 @@ function Inner() {
         </details>
       </div>
       <div className={styles.editors}>
-        <CodeEditor value={code} onChange={setCode} />
+        <CodeEditor rulers={[printWidth]} value={code} onChange={setCode} />
         {isFirstRun.current ? null : (
-          <CodeEditor readOnly value={formattedCode} />
+          <CodeEditor readOnly rulers={[printWidth]} value={formattedCode} />
         )}
       </div>
     </div>
