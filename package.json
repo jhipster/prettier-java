@@ -41,7 +41,7 @@
     "lerna": "8.1.9",
     "lint-staged": "15.2.10",
     "mocha": "10.8.2",
-    "prettier": "3.4.2",
+    "prettier": "3.5.0",
     "sinon": "19.0.2"
   }
 }
