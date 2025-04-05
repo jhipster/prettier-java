@@ -120,7 +120,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
       ctx.Arrow[0],
       ...(isLambdaBodyABlock
         ? [" ", lambdaBody]
-        : [group(indent([line, lambdaBody]))])
+        : [group([indent([line, lambdaBody]), params?.hug ? softline : ""])])
     ];
     if (params?.hug) {
       return willBreak(lambdaParameters)
@@ -649,14 +649,7 @@ export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
           shouldBreak: true
         });
       }
-      const suffix = lastExpression?.children.lambdaExpression?.[0].children
-        .lambdaBody[0].children.block
-        ? ""
-        : line;
-      const hugged = [
-        ...headArgs,
-        group([huggedLastArg, suffix], { shouldBreak: true })
-      ];
+      const hugged = [...headArgs, group(huggedLastArg, { shouldBreak: true })];
       const expanded = group([indent([line, ...headArgs, lastArg]), line], {
         shouldBreak: true
       });
