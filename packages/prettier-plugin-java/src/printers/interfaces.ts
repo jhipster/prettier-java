@@ -1,352 +1,291 @@
-import { concat, group, indent } from "./prettier-builder.js";
-import { printTokenWithComments } from "./comments/format-comments.js";
-import { handleCommentsParameters } from "./comments/handle-comments.js";
-import {
-  displaySemicolon,
-  getInterfaceBodyDeclarationsSeparator,
-  isStatementEmptyStatement,
-  printArrayList,
-  putIntoBraces,
-  rejectAndConcat,
-  rejectAndJoin,
-  rejectAndJoinSeps,
-  sortModifiers
-} from "./printer-utils.js";
-
+import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
 import {
-  AnnotationCtx,
-  AnnotationInterfaceBodyCtx,
-  AnnotationInterfaceDeclarationCtx,
-  AnnotationInterfaceElementDeclarationCtx,
-  AnnotationInterfaceElementModifierCtx,
-  AnnotationInterfaceMemberDeclarationCtx,
-  ConstantDeclarationCtx,
-  ConstantModifierCtx,
-  DefaultValueCtx,
-  ElementValueArrayInitializerCtx,
-  ElementValueCtx,
-  ElementValueListCtx,
-  ElementValuePairCtx,
-  ElementValuePairListCtx,
-  InterfaceBodyCtx,
-  InterfaceDeclarationCtx,
-  InterfaceExtendsCtx,
-  InterfaceMemberDeclarationCtx,
-  InterfaceMethodDeclarationCtx,
-  InterfaceMethodModifierCtx,
-  InterfaceModifierCtx,
-  InterfacePermitsCtx,
-  IToken,
-  NormalInterfaceDeclarationCtx
-} from "java-parser";
-import Doc = builders.Doc;
+  call,
+  hasDeclarationAnnotations,
+  lineEndWithComments,
+  lineStartWithComments,
+  map,
+  onlyDefinedKey,
+  printBody,
+  printClassPermits,
+  printDanglingComments,
+  printList,
+  printSingle,
+  sortModifiers,
+  type JavaNodePrinters
+} from "./helpers.js";
 
-const { line, softline, hardline } = builders;
+const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 
-export class InterfacesPrettierVisitor extends BaseCstPrettierPrinter {
-  interfaceDeclaration(ctx: InterfaceDeclarationCtx) {
-    const modifiers = sortModifiers(ctx.interfaceModifier);
-    const firstAnnotations = this.mapVisit(modifiers[0]);
-    const otherModifiers = this.mapVisit(modifiers[1]);
+export default {
+  interfaceDeclaration(path, print) {
+    const { children } = path.node;
+    const annotationCount = sortModifiers(
+      children.interfaceModifier ?? [],
+      true
+    );
+    const modifiers = children.interfaceModifier
+      ? map(path, print, "interfaceModifier")
+      : [];
+    const annotations = modifiers.slice(0, annotationCount);
+    const otherModifiers = modifiers.slice(annotationCount);
 
-    const declaration = ctx.normalInterfaceDeclaration
-      ? this.visit(ctx.normalInterfaceDeclaration)
-      : this.visit(ctx.annotationInterfaceDeclaration);
-
-    return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
-      rejectAndJoin(" ", [rejectAndJoin(" ", otherModifiers), declaration])
+    const declarationKey = onlyDefinedKey(children, [
+      "annotationInterfaceDeclaration",
+      "normalInterfaceDeclaration"
     ]);
-  }
+    return join(hardline, [
+      ...annotations,
+      join(" ", [...otherModifiers, call(path, print, declarationKey)])
+    ]);
+  },
 
-  normalInterfaceDeclaration(ctx: NormalInterfaceDeclarationCtx) {
-    const typeIdentifier = this.visit(ctx.typeIdentifier);
-    const typeParameters = this.visit(ctx.typeParameters);
-    const interfaceExtends = this.visit(ctx.interfaceExtends);
-    const optionalInterfacePermits = this.visit(ctx.interfacePermits);
-    const interfaceBody = this.visit(ctx.interfaceBody);
-
-    let interfaceExtendsPart: Doc = "";
+  normalInterfaceDeclaration(path, print) {
+    const { interfaceExtends, interfacePermits, typeParameters } =
+      path.node.children;
+    const header = ["interface ", call(path, print, "typeIdentifier")];
+    if (typeParameters) {
+      header.push(call(path, print, "typeParameters"));
+    }
     if (interfaceExtends) {
-      interfaceExtendsPart = indent(
-        rejectAndConcat([softline, interfaceExtends])
-      );
+      header.push(indent([line, call(path, print, "interfaceExtends")]));
     }
-
-    let interfacePermits: Doc = "";
-    if (optionalInterfacePermits) {
-      interfacePermits = indent(
-        rejectAndConcat([softline, optionalInterfacePermits])
-      );
+    if (interfacePermits) {
+      header.push(indent([line, call(path, print, "interfacePermits")]));
     }
+    return [group(header), " ", call(path, print, "interfaceBody")];
+  },
 
-    return rejectAndJoin(" ", [
-      group(
-        rejectAndJoin(" ", [
-          ctx.Interface[0],
-          concat([typeIdentifier, typeParameters]),
-          interfaceExtendsPart,
-          interfacePermits
-        ])
-      ),
-      interfaceBody
+  interfaceModifier: printSingle,
+
+  interfaceExtends(path, print) {
+    return group([
+      "extends",
+      indent([line, call(path, print, "interfaceTypeList")])
     ]);
-  }
+  },
 
-  interfaceModifier(ctx: InterfaceModifierCtx) {
-    if (ctx.annotation) {
-      return this.visitSingle(ctx);
+  interfacePermits: printClassPermits,
+
+  interfaceBody(path, print) {
+    const declarations: Doc[] = [];
+    if (path.node.children.interfaceMemberDeclaration) {
+      let previousRequiresPadding = false;
+      path.each(
+        declarationPath => {
+          const declaration = print(declarationPath);
+          if (declaration === "") {
+            return;
+          }
+          const { node, previous } = declarationPath;
+          const constantDeclaration =
+            node.children.constantDeclaration?.[0].children;
+          const methodDeclaration =
+            node.children.interfaceMethodDeclaration?.[0].children;
+          const currentRequiresPadding =
+            (!constantDeclaration && !methodDeclaration) ||
+            methodDeclaration?.methodBody[0].children.block !== undefined ||
+            hasDeclarationAnnotations(
+              constantDeclaration?.constantModifier ??
+                methodDeclaration?.interfaceMethodModifier ??
+                []
+            );
+          const blankLine =
+            declarations.length > 0 &&
+            (previousRequiresPadding ||
+              currentRequiresPadding ||
+              lineStartWithComments(node) > lineEndWithComments(previous!) + 1);
+          declarations.push(blankLine ? [hardline, declaration] : declaration);
+          previousRequiresPadding = currentRequiresPadding;
+        },
+        "children",
+        "interfaceMemberDeclaration"
+      );
     }
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+    return printBody(path, declarations);
+  },
 
-  interfaceExtends(ctx: InterfaceExtendsCtx) {
-    const interfaceTypeList = this.visit(ctx.interfaceTypeList);
+  interfaceMemberDeclaration(path, print) {
+    const { children } = path.node;
+    return children.Semicolon
+      ? ""
+      : call(path, print, onlyDefinedKey(children));
+  },
 
-    return group(
-      rejectAndConcat([
-        ctx.Extends[0],
-        indent(rejectAndConcat([line, interfaceTypeList]))
-      ])
+  constantDeclaration(path, print) {
+    const { children } = path.node;
+    const declarationAnnotationCount = sortModifiers(
+      children.constantModifier ?? []
     );
-  }
-
-  interfacePermits(ctx: InterfacePermitsCtx) {
-    return this.classPermits(ctx);
-  }
-
-  interfaceBody(ctx: InterfaceBodyCtx) {
-    let joinedInterfaceMemberDeclaration: Doc = "";
-
-    if (ctx.interfaceMemberDeclaration !== undefined) {
-      const interfaceMemberDeclaration = this.mapVisit(
-        ctx.interfaceMemberDeclaration
-      );
-
-      const separators = getInterfaceBodyDeclarationsSeparator(
-        ctx.interfaceMemberDeclaration
-      );
-
-      joinedInterfaceMemberDeclaration = rejectAndJoinSeps(
-        separators,
-        interfaceMemberDeclaration
-      );
-    }
-    return putIntoBraces(
-      joinedInterfaceMemberDeclaration,
-      hardline,
-      ctx.LCurly[0],
-      ctx.RCurly[0]
+    const modifiers = children.constantModifier
+      ? map(path, print, "constantModifier")
+      : [];
+    const declarationAnnotations = modifiers.slice(
+      0,
+      declarationAnnotationCount
     );
-  }
+    const otherModifiers = modifiers.slice(declarationAnnotationCount);
 
-  interfaceMemberDeclaration(ctx: InterfaceMemberDeclarationCtx) {
-    if (ctx.Semicolon) {
-      return displaySemicolon(ctx.Semicolon[0]);
-    }
-    return this.visitSingle(ctx);
-  }
-
-  constantDeclaration(ctx: ConstantDeclarationCtx) {
-    const modifiers = sortModifiers(ctx.constantModifier);
-    const firstAnnotations = this.mapVisit(modifiers[0]);
-    const otherModifiers = this.mapVisit(modifiers[1]);
-
-    const unannType = this.visit(ctx.unannType);
-    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
-
-    return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", otherModifiers),
-        unannType,
-        rejectAndConcat([variableDeclaratorList, ctx.Semicolon[0]])
+    return join(hardline, [
+      ...declarationAnnotations,
+      join(" ", [
+        ...otherModifiers,
+        call(path, print, "unannType"),
+        [call(path, print, "variableDeclaratorList"), ";"]
       ])
     ]);
-  }
+  },
 
-  constantModifier(ctx: ConstantModifierCtx) {
-    if (ctx.annotation) {
-      return this.visitSingle(ctx);
-    }
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+  constantModifier: printSingle,
 
-  interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationCtx) {
-    const modifiers = sortModifiers(ctx.interfaceMethodModifier);
-    const firstAnnotations = this.mapVisit(modifiers[0]);
-    const otherModifiers = this.mapVisit(modifiers[1]);
-
-    const methodHeader = this.visit(ctx.methodHeader);
-    const methodBody = this.visit(ctx.methodBody);
-    const separator = isStatementEmptyStatement(methodBody) ? "" : " ";
-
-    return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", otherModifiers),
-        rejectAndJoin(separator, [methodHeader, methodBody])
-      ])
-    ]);
-  }
-
-  interfaceMethodModifier(ctx: InterfaceMethodModifierCtx) {
-    if (ctx.annotation) {
-      return this.visitSingle(ctx);
-    }
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
-
-  annotationInterfaceDeclaration(ctx: AnnotationInterfaceDeclarationCtx) {
-    const typeIdentifier = this.visit(ctx.typeIdentifier);
-    const annotationInterfaceBody = this.visit(ctx.annotationInterfaceBody);
-
-    return rejectAndJoin(" ", [
-      concat([ctx.At[0], ctx.Interface[0]]),
-      typeIdentifier,
-      annotationInterfaceBody
-    ]);
-  }
-
-  annotationInterfaceBody(ctx: AnnotationInterfaceBodyCtx) {
-    const annotationInterfaceMemberDeclaration = this.mapVisit(
-      ctx.annotationInterfaceMemberDeclaration
+  interfaceMethodDeclaration(path, print) {
+    const { children } = path.node;
+    const declarationAnnotationCount = sortModifiers(
+      children.interfaceMethodModifier ?? []
     );
+    const modifiers = children.interfaceMethodModifier
+      ? map(path, print, "interfaceMethodModifier")
+      : [];
+    const declarationAnnotations = modifiers.slice(
+      0,
+      declarationAnnotationCount
+    );
+    const otherModifiers = modifiers.slice(declarationAnnotationCount);
 
-    return rejectAndJoin(line, [
-      indent(
-        rejectAndJoin(line, [
-          ctx.LCurly[0],
-          rejectAndJoin(
-            concat([line, line]),
-            annotationInterfaceMemberDeclaration
+    const header = call(path, print, "methodHeader");
+    const body = call(path, print, "methodBody");
+
+    const bodySeparator = children.methodBody[0].children.Semicolon ? "" : " ";
+
+    return join(hardline, [
+      ...declarationAnnotations,
+      join(" ", [...otherModifiers, [header, bodySeparator, body]])
+    ]);
+  },
+
+  interfaceMethodModifier: printSingle,
+
+  annotationInterfaceDeclaration(path, print) {
+    return join(" ", [
+      "@interface",
+      call(path, print, "typeIdentifier"),
+      call(path, print, "annotationInterfaceBody")
+    ]);
+  },
+
+  annotationInterfaceBody(path, print) {
+    const declarations = (
+      path.node.children.annotationInterfaceMemberDeclaration
+        ? map(
+            path,
+            declarationPath => {
+              const declaration = print(declarationPath);
+              return declarationPath.isFirst
+                ? declaration
+                : [hardline, declaration];
+            },
+            "annotationInterfaceMemberDeclaration"
           )
-        ])
-      ),
-      ctx.RCurly[0]
-    ]);
-  }
+        : []
+    ).filter(declaration => declaration !== "");
+    return printBody(path, declarations);
+  },
 
-  annotationInterfaceMemberDeclaration(
-    ctx: AnnotationInterfaceMemberDeclarationCtx
-  ) {
-    if (ctx.Semicolon) {
-      return printTokenWithComments(this.getSingle(ctx) as IToken);
+  annotationInterfaceMemberDeclaration(path, print) {
+    const { children } = path.node;
+    return children.Semicolon
+      ? ""
+      : call(path, print, onlyDefinedKey(children));
+  },
+
+  annotationInterfaceElementDeclaration(path, print) {
+    const { children } = path.node;
+    const declarationAnnotationCount = sortModifiers(
+      children.annotationInterfaceElementModifier ?? []
+    );
+    const modifiers = children.annotationInterfaceElementModifier
+      ? map(path, print, "annotationInterfaceElementModifier")
+      : [];
+    const declarationAnnotations = modifiers.slice(
+      0,
+      declarationAnnotationCount
+    );
+    const otherModifiers = modifiers.slice(declarationAnnotationCount);
+
+    const declaration = [call(path, print, "Identifier"), "()"];
+    if (children.dims) {
+      declaration.push(call(path, print, "dims"));
     }
-    return this.visitSingle(ctx);
-  }
-
-  annotationInterfaceElementDeclaration(
-    ctx: AnnotationInterfaceElementDeclarationCtx
-  ) {
-    const modifiers = sortModifiers(ctx.annotationInterfaceElementModifier);
-    const firstAnnotations = this.mapVisit(modifiers[0]);
-    const otherModifiers = this.mapVisit(modifiers[1]);
-
-    const unannType = this.visit(ctx.unannType);
-    const identifier = ctx.Identifier[0];
-    const dims = this.visit(ctx.dims);
-    const defaultValue = ctx.defaultValue
-      ? concat([" ", this.visit(ctx.defaultValue)])
-      : "";
-
-    return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", otherModifiers),
-        unannType,
-        rejectAndConcat([
-          identifier,
-          concat([ctx.LBrace[0], ctx.RBrace[0]]),
-          dims,
-          defaultValue,
-          ctx.Semicolon[0]
-        ])
+    if (children.defaultValue) {
+      declaration.push(" ", call(path, print, "defaultValue"));
+    }
+    declaration.push(";");
+    return join(hardline, [
+      ...declarationAnnotations,
+      join(" ", [
+        ...otherModifiers,
+        call(path, print, "unannType"),
+        declaration
       ])
     ]);
-  }
+  },
 
-  annotationInterfaceElementModifier(
-    ctx: AnnotationInterfaceElementModifierCtx
-  ) {
-    if (ctx.annotation) {
-      return this.visitSingle(ctx);
+  annotationInterfaceElementModifier: printSingle,
+
+  defaultValue(path, print) {
+    return ["default ", call(path, print, "elementValue")];
+  },
+
+  annotation(path, print) {
+    const { children } = path.node;
+    const annotation = ["@", call(path, print, "typeName")];
+    if (children.elementValue || children.elementValuePairList) {
+      const valuesKey = onlyDefinedKey(children, [
+        "elementValue",
+        "elementValuePairList"
+      ]);
+      annotation.push(
+        group([
+          "(",
+          indent([softline, call(path, print, valuesKey)]),
+          softline,
+          ")"
+        ])
+      );
     }
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+    return annotation;
+  },
 
-  defaultValue(ctx: DefaultValueCtx) {
-    const elementValue = this.visit(ctx.elementValue);
+  elementValuePairList(path, print) {
+    return printList(path, print, "elementValuePair");
+  },
 
-    return rejectAndJoin(" ", [ctx.Default[0], elementValue]);
-  }
+  elementValuePair(path, print) {
+    return join(" ", [
+      call(path, print, "Identifier"),
+      call(path, print, "Equals"),
+      call(path, print, "elementValue")
+    ]);
+  },
 
-  annotation(ctx: AnnotationCtx) {
-    const fqn = this.visit(ctx.typeName);
+  elementValue: printSingle,
 
-    let annoArgs: Doc = "";
-    if (ctx.LBrace) {
-      const elementValues =
-        ctx.elementValuePairList?.[0].children.elementValuePair ??
-        ctx.elementValue ??
-        [];
-      handleCommentsParameters(ctx.LBrace[0], elementValues, ctx.RBrace![0]);
-      if (ctx.elementValuePairList) {
-        annoArgs = putIntoBraces(
-          this.visit(ctx.elementValuePairList),
-          softline,
-          ctx.LBrace[0],
-          ctx.RBrace![0]
-        );
-      } else if (ctx.elementValue) {
-        annoArgs = putIntoBraces(
-          this.visit(ctx.elementValue),
-          softline,
-          ctx.LBrace[0],
-          ctx.RBrace![0]
-        );
+  elementValueArrayInitializer(path, print, options) {
+    const list: Doc[] = [];
+    if (path.node.children.elementValueList) {
+      list.push(call(path, print, "elementValueList"));
+      if (options.trailingComma !== "none") {
+        list.push(ifBreak(","));
       }
     }
+    list.push(...printDanglingComments(path));
+    return list.length
+      ? group(["{", indent([line, ...list]), line, "}"])
+      : "{}";
+  },
 
-    return group(rejectAndConcat([ctx.At[0], fqn, annoArgs]));
+  elementValueList(path, print) {
+    return group(printList(path, print, "elementValue"));
   }
-
-  elementValuePairList(ctx: ElementValuePairListCtx) {
-    const elementValuePairs = this.mapVisit(ctx.elementValuePair);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-
-    return rejectAndJoinSeps(commas, elementValuePairs);
-  }
-
-  elementValuePair(ctx: ElementValuePairCtx) {
-    const identifier = ctx.Identifier[0];
-    const elementValue = this.visit(ctx.elementValue);
-
-    return rejectAndJoin(" ", [identifier, ctx.Equals[0], elementValue]);
-  }
-
-  elementValue(ctx: ElementValueCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  elementValueArrayInitializer(ctx: ElementValueArrayInitializerCtx) {
-    const elementValueList = this.visit(ctx.elementValueList);
-
-    return printArrayList({
-      list: elementValueList,
-      extraComma: ctx.Comma,
-      LCurly: ctx.LCurly[0],
-      RCurly: ctx.RCurly[0],
-      trailingComma: this.prettierOptions.trailingComma
-    });
-  }
-
-  elementValueList(ctx: ElementValueListCtx) {
-    const elementValues = this.mapVisit(ctx.elementValue);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, line])) : [];
-
-    return group(rejectAndConcat([rejectAndJoinSeps(commas, elementValues)]));
-  }
-}
+} satisfies Partial<JavaNodePrinters>;

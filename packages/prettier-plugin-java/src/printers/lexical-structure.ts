@@ -1,45 +1,31 @@
-import { printTokenWithComments } from "./comments/format-comments.js";
-import { join } from "./prettier-builder.js";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
-import {
-  BooleanLiteralCtx,
-  FloatingPointLiteralCtx,
-  IntegerLiteralCtx,
-  IToken,
-  LiteralCtx
-} from "java-parser";
 import { builders } from "prettier/doc";
+import {
+  findBaseIndent,
+  map,
+  onlyDefinedKey,
+  printSingle,
+  type JavaNodePrinters
+} from "./helpers.js";
 
-const { hardline } = builders;
+const { hardline, join } = builders;
 
-export class LexicalStructurePrettierVisitor extends BaseCstPrettierPrinter {
-  literal(ctx: LiteralCtx) {
-    if (ctx.TextBlock) {
-      const lines = ctx.TextBlock[0].image.split("\n");
-      const open = lines.shift()!;
-      const baseIndent = Math.min(
-        ...lines.map(line => line.search(/\S/)).filter(indent => indent >= 0)
-      );
-      return join(hardline, [
-        open,
-        ...lines.map(line => line.slice(baseIndent))
-      ]);
+export default {
+  literal(path, print) {
+    const { TextBlock } = path.node.children;
+    if (!TextBlock) {
+      return printSingle(path, print);
     }
-    if (ctx.CharLiteral || ctx.StringLiteral || ctx.Null) {
-      return printTokenWithComments(this.getSingle(ctx) as IToken);
-    }
-    return this.visitSingle(ctx);
-  }
+    const lines = TextBlock[0].image.split("\n");
+    const open = lines.shift()!;
+    const baseIndent = findBaseIndent(lines);
+    return join(hardline, [open, ...lines.map(line => line.slice(baseIndent))]);
+  },
 
-  integerLiteral(ctx: IntegerLiteralCtx) {
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+  integerLiteral: printSingle,
+  floatingPointLiteral: printSingle,
+  booleanLiteral: printSingle,
 
-  floatingPointLiteral(ctx: FloatingPointLiteralCtx) {
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
+  shiftOperator(path, print) {
+    return map(path, print, onlyDefinedKey(path.node.children));
   }
-
-  booleanLiteral(ctx: BooleanLiteralCtx) {
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
-}
+} satisfies Partial<JavaNodePrinters>;

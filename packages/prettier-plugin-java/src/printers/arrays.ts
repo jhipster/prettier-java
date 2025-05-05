@@ -1,41 +1,30 @@
-import {
-  ArrayInitializerCtx,
-  VariableInitializerListCtx
-} from "java-parser/api";
-import {
-  printArrayList,
-  rejectAndConcat,
-  rejectAndJoinSeps
-} from "./printer-utils.js";
+import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
+import {
+  call,
+  printDanglingComments,
+  printList,
+  type JavaNodePrinters
+} from "./helpers.js";
 
-const { line } = builders;
+const { group, ifBreak, indent, line } = builders;
 
-export class ArraysPrettierVisitor extends BaseCstPrettierPrinter {
-  prettierOptions: any;
-  arrayInitializer(ctx: ArrayInitializerCtx) {
-    const optionalVariableInitializerList = this.visit(
-      ctx.variableInitializerList
-    );
+export default {
+  arrayInitializer(path, print, options) {
+    const list: Doc[] = [];
+    if (path.node.children.variableInitializerList) {
+      list.push(call(path, print, "variableInitializerList"));
+      if (options.trailingComma !== "none") {
+        list.push(ifBreak(","));
+      }
+    }
+    list.push(...printDanglingComments(path));
+    return list.length
+      ? group(["{", indent([line, ...list]), line, "}"])
+      : "{}";
+  },
 
-    return printArrayList({
-      list: optionalVariableInitializerList,
-      extraComma: ctx.Comma,
-      LCurly: ctx.LCurly[0],
-      RCurly: ctx.RCurly[0],
-      trailingComma: this.prettierOptions.trailingComma
-    });
+  variableInitializerList(path, print) {
+    return printList(path, print, "variableInitializer");
   }
-
-  variableInitializerList(ctx: VariableInitializerListCtx) {
-    const variableInitializers = this.mapVisit(ctx.variableInitializer);
-    const commas = ctx.Comma
-      ? ctx.Comma.map(comma => {
-          return rejectAndConcat([comma, line]);
-        })
-      : [];
-
-    return rejectAndJoinSeps(commas, variableInitializers);
-  }
-}
+} satisfies Partial<JavaNodePrinters>;

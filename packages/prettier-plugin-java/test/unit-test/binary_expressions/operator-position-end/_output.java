@@ -53,9 +53,9 @@ public class BinaryOperations {
     boolean a =
       one ||
       two >> 1 || // one
-      // five
       // two
       // three
+      // five
       // four
       three;
 
@@ -85,8 +85,7 @@ public class BinaryOperations {
     );
 
     // Issue 381
-    new MethodWrappingFollowingContstructor()
-      .aLongEnoughMethodNameToForceThingsToWrap();
+    new MethodWrappingFollowingContstructor().aLongEnoughMethodNameToForceThingsToWrap();
   }
 
   public void binaryExpressionWithCast() {

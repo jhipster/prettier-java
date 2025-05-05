@@ -32,18 +32,15 @@ public class BreakLongFunctionCall {
       .something()
       .more();
 
-    java
-      // comment
-      .averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something()
+    java// comment
+    .averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something()
       .more();
 
-    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong
-      // comment
-      .Object.something()
+    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong// comment
+    .Object.something()
       .more();
 
-    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something()
-      .more();
+    java.averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.Object.something().more();
 
     Object.something()
       // comment
@@ -54,9 +51,8 @@ public class BreakLongFunctionCall {
       .util()
       .java.java();
 
-    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong
-      // comment
-      .java
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong// comment
+    .java
       .util()
       .java.java();
 
@@ -65,12 +61,13 @@ public class BreakLongFunctionCall {
       .util()
       .java.java();
 
-    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java/* comment */
+    averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java
+      /* comment */
       .util()
       .java.java();
 
     averyveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylong.java
-      /* comment */.util()
+      /* comment */ .util()
       .java.java();
   }
 

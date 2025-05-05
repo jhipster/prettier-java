@@ -12,10 +12,9 @@ export function defineRules($, t) {
   $.RULE("compilationUnit", () => {
     $.OR([
       { ALT: () => $.SUBRULE($.ordinaryCompilationUnit) },
-      { ALT: () => $.SUBRULE($.modularCompilationUnit) }
+      { ALT: () => $.SUBRULE($.modularCompilationUnit) },
+      { ALT: () => $.CONSUME(EOF) }
     ]);
-    // https://github.com/jhipster/prettier-java/pull/217
-    $.CONSUME(EOF);
   });
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-7.html#jls-OrdinaryCompilationUnit

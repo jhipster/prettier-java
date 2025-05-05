@@ -1,21 +1,17 @@
 /*eslint no-console: ["error", { allow: ["error"] }] */
 
 import { expect } from "chai";
-import fs from "fs-extra";
-import { resolve, relative, basename, dirname } from "path";
-import klawSync from "klaw-sync";
 import { spawnSync } from "child_process";
-
-import { createPrettierDoc } from "../src/cst-printer.js";
-import { parse } from "java-parser";
-import { format, doc } from "prettier";
+import fs from "fs-extra";
+import klawSync from "klaw-sync";
+import { basename, dirname, relative, resolve } from "path";
+import { format } from "prettier";
 import url from "url";
+import plugin from "../src/index.js";
 
-const { printDocToString } = doc.printer;
 const { readFileSync, existsSync, removeSync, copySync } = fs;
 
 const __dirname = dirname(url.fileURLToPath(import.meta.url));
-const pluginPath = resolve(__dirname, "../src/index.js");
 export function testSampleWithOptions({
   testFolder,
   exclusive,
@@ -40,26 +36,23 @@ export function testSampleWithOptions({
   });
 
   itOrItOnly(`can format <${relativeInputPath}>`, async () => {
-    const actual = await format(inputContents, {
-      parser: "java",
-      plugins: [pluginPath],
-      ...prettierOptions
+    const actual = await formatJavaSnippet({
+      snippet: inputContents,
+      prettierOptions
     });
 
     expect(actual).to.equal(expectedContents);
   });
 
   it(`Performs a stable formatting for <${relativeInputPath}>`, async () => {
-    const onePass = await format(inputContents, {
-      parser: "java",
-      plugins: [pluginPath],
-      ...prettierOptions
+    const onePass = await formatJavaSnippet({
+      snippet: inputContents,
+      prettierOptions
     });
 
-    const secondPass = await format(onePass, {
-      parser: "java",
-      plugins: [pluginPath],
-      ...prettierOptions
+    const secondPass = await formatJavaSnippet({
+      snippet: onePass,
+      prettierOptions
     });
     expect(onePass).to.equal(secondPass);
   });
@@ -99,14 +92,8 @@ export function testRepositorySample(
       )}>`, async () => {
         const javaFileText = readFileSync(fileDesc.path, "utf8");
 
-        const onePass = await format(javaFileText, {
-          parser: "java",
-          plugins: [pluginPath]
-        });
-        const secondPass = await format(onePass, {
-          parser: "java",
-          plugins: [pluginPath]
-        });
+        const onePass = await formatJavaSnippet({ snippet: javaFileText });
+        const secondPass = await formatJavaSnippet({ snippet: onePass });
         expect(onePass).to.equal(secondPass);
       });
     });
@@ -135,19 +122,15 @@ export async function formatJavaSnippet({
   prettierOptions = {}
 }: {
   snippet: string;
-  entryPoint: string;
+  entryPoint?: string;
   prettierOptions?: any;
 }) {
-  const node = parse(snippet, entryPoint);
-  const options = {
-    printWidth: 80,
-    tabWidth: 2,
-    trailingComma: "none",
-    useTabs: false,
+  return await format(snippet, {
+    parser: "java",
+    plugins: [plugin],
+    entrypoint: entryPoint,
     ...prettierOptions
-  };
-  const doc = await createPrettierDoc(node, options);
-  return await printDocToString(doc, options).formatted;
+  });
 }
 
 export async function expectSnippetToBeFormatted({
