@@ -171,10 +171,6 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
-  isFollowingVariableDeclarator(
-    ctx: IsFollowingVariableDeclaratorCtx,
-    param?: IN
-  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -503,10 +499,6 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   isDims(ctx: IsDimsCtx, param?: IN): OUT;
-  isFollowingVariableDeclarator(
-    ctx: IsFollowingVariableDeclaratorCtx,
-    param?: IN
-  ): OUT;
   compilationUnit(ctx: CompilationUnitCtx, param?: IN): OUT;
   ordinaryCompilationUnit(ctx: OrdinaryCompilationUnitCtx, param?: IN): OUT;
   modularCompilationUnit(ctx: ModularCompilationUnitCtx, param?: IN): OUT;
@@ -1800,16 +1792,6 @@ export type IsDimsCtx = {
   elementValuePairList?: ElementValuePairListCstNode[];
   elementValue?: ElementValueCstNode[];
   RBrace?: IToken[];
-};
-
-export interface IsFollowingVariableDeclaratorCstNode extends CstNode {
-  name: "isFollowingVariableDeclarator";
-  children: IsFollowingVariableDeclaratorCtx;
-}
-
-export type IsFollowingVariableDeclaratorCtx = {
-  Comma: IToken[];
-  variableDeclarator: VariableDeclaratorCstNode[];
 };
 
 export interface CompilationUnitCstNode extends CstNode {

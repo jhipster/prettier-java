@@ -154,11 +154,12 @@ export function defineRules($, t) {
   });
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-8.html#jls-VariableDeclaratorList
-  $.RULE("variableDeclaratorList", () => {
+  $.RULE("variableDeclaratorList", isSingleDeclarator => {
     $.SUBRULE($.variableDeclarator);
     $.MANY({
-      // required to distinguish from patternList
-      GATE: () => this.BACKTRACK_LOOKAHEAD($.isFollowingVariableDeclarator),
+      // TypePattern has a semantic requirement that its VariableDeclaratorList
+      // consists of a single VariableDeclarator
+      GATE: () => !isSingleDeclarator,
       DEF: () => {
         $.CONSUME(t.Comma);
         $.SUBRULE2($.variableDeclarator);
@@ -728,24 +729,5 @@ export function defineRules($, t) {
     return (
       tokenMatcher(this.LA(1), t.LSquare) && tokenMatcher(this.LA(2), t.RSquare)
     );
-  });
-
-  /*
-   * The following sequence can either be a variable declarator or a component pattern if next token is a comma
-   * This check if the following sequence is **not** a component pattern sequence
-   */
-  $.RULE("isFollowingVariableDeclarator", () => {
-    const hasDims =
-      tokenMatcher(this.LA(3), t.LSquare) &&
-      tokenMatcher(this.LA(4), t.RSquare);
-    const offset = hasDims ? 2 : 0;
-    if (
-      tokenMatcher(this.LA(offset + 3), t.Identifier) ||
-      tokenMatcher(this.LA(offset + 3), t.Underscore)
-    ) {
-      return false;
-    }
-
-    return !tokenMatcher(this.LA(3), t.LBrace);
   });
 }
