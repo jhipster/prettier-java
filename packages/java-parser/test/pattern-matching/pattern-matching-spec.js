@@ -84,4 +84,9 @@ describe("Pattern matching", () => {
       javaParser.parse(input, "componentPatternList")
     ).to.not.throw();
   });
+
+  it("should parse switch label with multiple qualified case patterns", () => {
+    const input = "case b.B _, c.C _";
+    expect(() => javaParser.parse(input, "switchLabel")).to.not.throw();
+  });
 });

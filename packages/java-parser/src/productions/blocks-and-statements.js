@@ -41,12 +41,12 @@ export function defineRules($, t) {
   });
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-LocalVariableDeclaration
-  $.RULE("localVariableDeclaration", () => {
+  $.RULE("localVariableDeclaration", isSingleDeclarator => {
     $.MANY(() => {
       $.SUBRULE($.variableModifier);
     });
     $.SUBRULE($.localVariableType);
-    $.SUBRULE($.variableDeclaratorList);
+    $.SUBRULE($.variableDeclaratorList, { ARGS: [isSingleDeclarator] });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-LocalVariableType

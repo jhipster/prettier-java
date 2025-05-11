@@ -595,7 +595,7 @@ export function defineRules($, t) {
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-TypePattern
   $.RULE("typePattern", () => {
-    $.SUBRULE($.localVariableDeclaration);
+    $.SUBRULE($.localVariableDeclaration, { ARGS: [true] });
   });
 
   // https://docs.oracle.com/javase/specs/jls/se22/html/jls-14.html#jls-RecordPattern
