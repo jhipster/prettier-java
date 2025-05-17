@@ -22,7 +22,6 @@ public class Instantiation {
       "wrap"
     );
 
-    new MethodWrappingFollowingContstructor()
-      .aLongEnoughMethodNameToForceThingsToWrap();
+    new MethodWrappingFollowingContstructor().aLongEnoughMethodNameToForceThingsToWrap();
   }
 }

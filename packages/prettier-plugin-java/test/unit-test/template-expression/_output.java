@@ -6,11 +6,11 @@ class TemplateExpression {
 
   String s = STR."You have a \{getOfferType()} waiting for you!";
 
-  String msg =
-    STR."The file \{filePath} \{file.exists() ? "does" : "does not"} exist";
+  String msg = STR."The file \{filePath} \{
+    file.exists() ? "does" : "does not"
+  } exist";
 
-  String time =
-    STR."The time is \{
+  String time = STR."The time is \{
       // The java.time.format package is very useful
       DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now())
     } right now";
@@ -19,8 +19,7 @@ class TemplateExpression {
 
   String s = STR."\{fruit[0]}, \{STR."\{fruit[1]}, \{fruit[2]}"}";
 
-  String html =
-    STR."""
+  String html = STR."""
     <html>
       <head>
         <title>\{title}</title>
@@ -31,8 +30,7 @@ class TemplateExpression {
     </html>
     """;
 
-  String table =
-    STR."""
+  String table = STR."""
     Description  Width  Height  Area
     \{zone[0].name}  \{zone[0].width}  \{zone[0].height}     \{zone[0].area()}
     \{zone[1].name}  \{zone[1].width}  \{zone[1].height}     \{zone[1].area()}
@@ -40,8 +38,7 @@ class TemplateExpression {
     Total \{zone[0].area() + zone[1].area() + zone[2].area()}
     """;
 
-  String table =
-    FMT."""
+  String table = FMT."""
     Description     Width    Height     Area
     %-12s\{zone[0].name}  %7.2f\{zone[0].width}  %7.2f\{
       zone[0].height
@@ -57,6 +54,7 @@ class TemplateExpression {
     }
     """;
 
-  PreparedStatement ps =
-    DB."SELECT * FROM Person p WHERE p.last_name = \{name}";
+  PreparedStatement ps = DB."SELECT * FROM Person p WHERE p.last_name = \{
+    name
+  }";
 }

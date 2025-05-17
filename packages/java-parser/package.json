@@ -14,7 +14,9 @@
   "types": "./api.d.ts",
   "dependencies": {
     "chevrotain": "11.0.3",
-    "chevrotain-allstar": "0.3.1",
+    "chevrotain-allstar": "0.3.1"
+  },
+  "devDependencies": {
     "lodash": "4.17.21"
   },
   "scripts": {

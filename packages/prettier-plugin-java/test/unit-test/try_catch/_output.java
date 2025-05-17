@@ -61,7 +61,7 @@ public class TryCatch {
   void multiResourceTry() {
     try (
       FirstResource firstResource = new FirstResource();
-      SecondResource secondResource = new SecondResource()
+      SecondResource secondResource = new SecondResource();
     ) {
       return br.readLine();
     } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {

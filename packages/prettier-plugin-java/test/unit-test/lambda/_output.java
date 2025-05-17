@@ -410,20 +410,13 @@ public class Lambda {
       ) -> e.f()
     );
 
-    a(/* comment */(b, c, d) -> e.f());
+    a(/* comment */ (b, c, d) -> e.f());
 
-    a(
-      (
-        /* comment */
-        b,
-        c,
-        d
-      ) -> e.f()
-    );
+    a((/* comment */ b, c, d) -> e.f());
 
-    a((b, /* comment */c, d) -> e.f());
+    a((b, /* comment */ c, d) -> e.f());
 
-    a((b, c, d/* comment */) -> e.f());
+    a((b, c, d /* comment */) -> e.f());
 
     a(
       (
@@ -453,7 +446,7 @@ public class Lambda {
     );
 
     aaaaaaaaaaaaaaaaaaaaaaaa(
-      /* comment */(
+      /* comment */ (
         bbbbbbbbbbbbbbbbbbbbbbbb,
         cccccccccccccccccccccccc,
         dddddddddddddddddddddddd

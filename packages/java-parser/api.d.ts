@@ -1,4 +1,4 @@
-import {
+import type {
   CstNode as ChevrotainCstNode,
   IToken as ChevrotainIToken,
   CstNodeLocation,
@@ -7,15 +7,10 @@ import {
 
 export interface CstNode extends ChevrotainCstNode {
   children: CstChildrenDictionary;
-  leadingComments?: IToken[];
-  trailingComments?: IToken[];
-  ignore?: boolean;
-  location: CstNodeLocation;
+  location: Required<CstNodeLocation>;
 }
 
 export interface IToken extends ChevrotainIToken {
-  leadingComments?: IToken[];
-  trailingComments?: IToken[];
   startOffset: number;
   startLine: number;
   startColumn: number;
@@ -24,7 +19,246 @@ export interface IToken extends ChevrotainIToken {
   endColumn: number;
 }
 
-export type CstElement = IToken | CstNode;
+export type CstElement =
+  | IToken
+  | AdditionalBoundCstNode
+  | AmbiguousNameCstNode
+  | AnnotationCstNode
+  | AnnotationInterfaceBodyCstNode
+  | AnnotationInterfaceDeclarationCstNode
+  | AnnotationInterfaceElementDeclarationCstNode
+  | AnnotationInterfaceElementModifierCstNode
+  | AnnotationInterfaceMemberDeclarationCstNode
+  | ArgumentListCstNode
+  | ArrayAccessSuffixCstNode
+  | ArrayCreationExpressionCstNode
+  | ArrayCreationExpressionWithoutInitializerSuffixCstNode
+  | ArrayCreationWithInitializerSuffixCstNode
+  | ArrayInitializerCstNode
+  | AssertStatementCstNode
+  | BasicForStatementCstNode
+  | BinaryExpressionCstNode
+  | BlockCstNode
+  | BlockStatementCstNode
+  | BlockStatementsCstNode
+  | BooleanLiteralCstNode
+  | BreakStatementCstNode
+  | CaseConstantCstNode
+  | CasePatternCstNode
+  | CastExpressionCstNode
+  | CatchClauseCstNode
+  | CatchesCstNode
+  | CatchFormalParameterCstNode
+  | CatchTypeCstNode
+  | ClassBodyCstNode
+  | ClassBodyDeclarationCstNode
+  | ClassDeclarationCstNode
+  | ClassExtendsCstNode
+  | ClassImplementsCstNode
+  | ClassLiteralSuffixCstNode
+  | ClassMemberDeclarationCstNode
+  | ClassModifierCstNode
+  | ClassOrInterfaceTypeCstNode
+  | ClassOrInterfaceTypeToInstantiateCstNode
+  | ClassPermitsCstNode
+  | ClassTypeCstNode
+  | CompactConstructorDeclarationCstNode
+  | CompilationUnitCstNode
+  | ComponentPatternCstNode
+  | ComponentPatternListCstNode
+  | ConciseLambdaParameterCstNode
+  | ConciseLambdaParameterListCstNode
+  | ConditionalExpressionCstNode
+  | ConstantDeclarationCstNode
+  | ConstantModifierCstNode
+  | ConstructorBodyCstNode
+  | ConstructorDeclarationCstNode
+  | ConstructorDeclaratorCstNode
+  | ConstructorModifierCstNode
+  | ContinueStatementCstNode
+  | DefaultValueCstNode
+  | DiamondCstNode
+  | DimExprCstNode
+  | DimExprsCstNode
+  | DimsCstNode
+  | DoStatementCstNode
+  | ElementValueArrayInitializerCstNode
+  | ElementValueCstNode
+  | ElementValueListCstNode
+  | ElementValuePairCstNode
+  | ElementValuePairListCstNode
+  | EmbeddedExpressionCstNode
+  | EmptyStatementCstNode
+  | EnhancedForStatementCstNode
+  | EnumBodyCstNode
+  | EnumBodyDeclarationsCstNode
+  | EnumConstantCstNode
+  | EnumConstantListCstNode
+  | EnumConstantModifierCstNode
+  | EnumDeclarationCstNode
+  | ExceptionTypeCstNode
+  | ExceptionTypeListCstNode
+  | ExplicitConstructorInvocationCstNode
+  | ExportsModuleDirectiveCstNode
+  | ExpressionCstNode
+  | ExpressionNameCstNode
+  | ExpressionStatementCstNode
+  | FieldDeclarationCstNode
+  | FieldModifierCstNode
+  | FinallyCstNode
+  | FloatingPointLiteralCstNode
+  | FloatingPointTypeCstNode
+  | ForInitCstNode
+  | FormalParameterCstNode
+  | FormalParameterListCstNode
+  | ForStatementCstNode
+  | ForUpdateCstNode
+  | FqnOrRefTypeCstNode
+  | FqnOrRefTypePartCommonCstNode
+  | FqnOrRefTypePartFirstCstNode
+  | FqnOrRefTypePartRestCstNode
+  | GuardCstNode
+  | IfStatementCstNode
+  | ImportDeclarationCstNode
+  | InstanceInitializerCstNode
+  | IntegerLiteralCstNode
+  | IntegralTypeCstNode
+  | InterfaceBodyCstNode
+  | InterfaceDeclarationCstNode
+  | InterfaceExtendsCstNode
+  | InterfaceMemberDeclarationCstNode
+  | InterfaceMethodDeclarationCstNode
+  | InterfaceMethodModifierCstNode
+  | InterfaceModifierCstNode
+  | InterfacePermitsCstNode
+  | InterfaceTypeCstNode
+  | InterfaceTypeListCstNode
+  | LabeledStatementCstNode
+  | LambdaBodyCstNode
+  | LambdaExpressionCstNode
+  | LambdaParameterListCstNode
+  | LambdaParametersCstNode
+  | LambdaParametersWithBracesCstNode
+  | LambdaParameterTypeCstNode
+  | LiteralCstNode
+  | LocalVariableDeclarationCstNode
+  | LocalVariableDeclarationStatementCstNode
+  | LocalVariableTypeCstNode
+  | MatchAllPatternCstNode
+  | MethodBodyCstNode
+  | MethodDeclarationCstNode
+  | MethodDeclaratorCstNode
+  | MethodHeaderCstNode
+  | MethodInvocationSuffixCstNode
+  | MethodModifierCstNode
+  | MethodNameCstNode
+  | MethodReferenceSuffixCstNode
+  | ModularCompilationUnitCstNode
+  | ModuleDeclarationCstNode
+  | ModuleDirectiveCstNode
+  | ModuleNameCstNode
+  | NewExpressionCstNode
+  | NormalClassDeclarationCstNode
+  | NormalInterfaceDeclarationCstNode
+  | NormalLambdaParameterCstNode
+  | NormalLambdaParameterListCstNode
+  | NumericTypeCstNode
+  | OpensModuleDirectiveCstNode
+  | OrdinaryCompilationUnitCstNode
+  | PackageDeclarationCstNode
+  | PackageModifierCstNode
+  | PackageNameCstNode
+  | PackageOrTypeNameCstNode
+  | ParenthesisExpressionCstNode
+  | PatternCstNode
+  | PrimaryCstNode
+  | PrimaryPrefixCstNode
+  | PrimarySuffixCstNode
+  | PrimitiveCastExpressionCstNode
+  | PrimitiveTypeCstNode
+  | ProvidesModuleDirectiveCstNode
+  | QualifiedExplicitConstructorInvocationCstNode
+  | ReceiverParameterCstNode
+  | RecordBodyCstNode
+  | RecordBodyDeclarationCstNode
+  | RecordComponentCstNode
+  | RecordComponentListCstNode
+  | RecordComponentModifierCstNode
+  | RecordDeclarationCstNode
+  | RecordHeaderCstNode
+  | RecordPatternCstNode
+  | ReferenceTypeCastExpressionCstNode
+  | ReferenceTypeCstNode
+  | RegularLambdaParameterCstNode
+  | RequiresModifierCstNode
+  | RequiresModuleDirectiveCstNode
+  | ResourceCstNode
+  | ResourceListCstNode
+  | ResourceSpecificationCstNode
+  | ResultCstNode
+  | ReturnStatementCstNode
+  | ShiftOperatorCstNode
+  | SimpleTypeNameCstNode
+  | StatementCstNode
+  | StatementExpressionCstNode
+  | StatementExpressionListCstNode
+  | StatementWithoutTrailingSubstatementCstNode
+  | StaticInitializerCstNode
+  | StringTemplateCstNode
+  | SwitchBlockCstNode
+  | SwitchBlockStatementGroupCstNode
+  | SwitchLabelCstNode
+  | SwitchRuleCstNode
+  | SwitchStatementCstNode
+  | SynchronizedStatementCstNode
+  | TemplateArgumentCstNode
+  | TemplateCstNode
+  | TextBlockTemplateCstNode
+  | ThrowsCstNode
+  | ThrowStatementCstNode
+  | TryStatementCstNode
+  | TryWithResourcesStatementCstNode
+  | TypeArgumentCstNode
+  | TypeArgumentListCstNode
+  | TypeArgumentsCstNode
+  | TypeArgumentsOrDiamondCstNode
+  | TypeBoundCstNode
+  | TypeDeclarationCstNode
+  | TypeIdentifierCstNode
+  | TypeNameCstNode
+  | TypeParameterCstNode
+  | TypeParameterListCstNode
+  | TypeParameterModifierCstNode
+  | TypeParametersCstNode
+  | TypePatternCstNode
+  | TypeVariableCstNode
+  | UnannClassOrInterfaceTypeCstNode
+  | UnannClassTypeCstNode
+  | UnannInterfaceTypeCstNode
+  | UnannPrimitiveTypeCstNode
+  | UnannPrimitiveTypeWithOptionalDimsSuffixCstNode
+  | UnannReferenceTypeCstNode
+  | UnannTypeCstNode
+  | UnannTypeVariableCstNode
+  | UnaryExpressionCstNode
+  | UnaryExpressionNotPlusMinusCstNode
+  | UnqualifiedClassInstanceCreationExpressionCstNode
+  | UnqualifiedExplicitConstructorInvocationCstNode
+  | UsesModuleDirectiveCstNode
+  | VariableAccessCstNode
+  | VariableArityParameterCstNode
+  | VariableArityRecordComponentCstNode
+  | VariableDeclaratorCstNode
+  | VariableDeclaratorIdCstNode
+  | VariableDeclaratorListCstNode
+  | VariableInitializerCstNode
+  | VariableInitializerListCstNode
+  | VariableModifierCstNode
+  | VariableParaRegularParameterCstNode
+  | WhileStatementCstNode
+  | WildcardBoundsCstNode
+  | WildcardCstNode
+  | YieldStatementCstNode;
 
 export declare type CstChildrenDictionary = {
   [identifier: string]: CstElement[];
@@ -38,7 +272,10 @@ export function lexAndParse(
   cst: CstNode;
 };
 
-export function parse(text: string, startProduction?: string): CstNode;
+export function parse(
+  text: string,
+  startProduction?: string
+): CstNode & { comments?: IToken[] };
 
 export const BaseJavaCstVisitor: JavaCstVisitorConstructor<any, any>;
 export const BaseJavaCstVisitorWithDefaults: JavaCstVisitorWithDefaultsConstructor<
@@ -57,6 +294,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
   integerLiteral(ctx: IntegerLiteralCtx, param?: IN): OUT;
   floatingPointLiteral(ctx: FloatingPointLiteralCtx, param?: IN): OUT;
   booleanLiteral(ctx: BooleanLiteralCtx, param?: IN): OUT;
+  shiftOperator(cts: ShiftOperatorCtx, param?: IN): OUT;
   primitiveType(ctx: PrimitiveTypeCtx, param?: IN): OUT;
   numericType(ctx: NumericTypeCtx, param?: IN): OUT;
   integralType(ctx: IntegralTypeCtx, param?: IN): OUT;
@@ -300,7 +538,7 @@ export abstract class JavaCstVisitor<IN, OUT> implements ICstVisitor<IN, OUT> {
     param?: IN
   ): OUT;
   normalLambdaParameterList(ctx: NormalLambdaParameterListCtx, param?: IN): OUT;
-  normalLambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
+  normalLambdaParameter(ctx: NormalLambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
   conciseLambdaParameter(ctx: ConciseLambdaParameterCtx, param?: IN): OUT;
@@ -385,6 +623,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
   integerLiteral(ctx: IntegerLiteralCtx, param?: IN): OUT;
   floatingPointLiteral(ctx: FloatingPointLiteralCtx, param?: IN): OUT;
   booleanLiteral(ctx: BooleanLiteralCtx, param?: IN): OUT;
+  shiftOperator(cts: ShiftOperatorCtx, param?: IN): OUT;
   primitiveType(ctx: PrimitiveTypeCtx, param?: IN): OUT;
   numericType(ctx: NumericTypeCtx, param?: IN): OUT;
   integralType(ctx: IntegralTypeCtx, param?: IN): OUT;
@@ -628,7 +867,7 @@ export abstract class JavaCstVisitorWithDefaults<IN, OUT>
     param?: IN
   ): OUT;
   normalLambdaParameterList(ctx: NormalLambdaParameterListCtx, param?: IN): OUT;
-  normalLambdaParameter(ctx: LambdaParameterCtx, param?: IN): OUT;
+  normalLambdaParameter(ctx: NormalLambdaParameterCtx, param?: IN): OUT;
   regularLambdaParameter(ctx: RegularLambdaParameterCtx, param?: IN): OUT;
   lambdaParameterType(ctx: LambdaParameterTypeCtx, param?: IN): OUT;
   conciseLambdaParameter(ctx: ConciseLambdaParameterCtx, param?: IN): OUT;
@@ -753,6 +992,16 @@ export interface BooleanLiteralCstNode extends CstNode {
 export type BooleanLiteralCtx = {
   True?: IToken[];
   False?: IToken[];
+};
+
+export interface ShiftOperatorCstNode extends CstNode {
+  name: "shiftOperator";
+  children: ShiftOperatorCtx;
+}
+
+export type ShiftOperatorCtx = {
+  Less?: IToken[];
+  Greater?: IToken[];
 };
 
 export interface PrimitiveTypeCstNode extends CstNode {
@@ -1801,17 +2050,16 @@ export interface CompilationUnitCstNode extends CstNode {
 
 export type AbstractOrdinaryCompilationUnitCtx = {
   ordinaryCompilationUnit: OrdinaryCompilationUnitCstNode[];
-  EOF: IToken[];
 };
 
 export type AbstractModularCompilationUnitCtx = {
   modularCompilationUnit: OrdinaryCompilationUnitCstNode[];
-  EOF: IToken[];
 };
 
 export type CompilationUnitCtx =
   | AbstractOrdinaryCompilationUnitCtx
-  | AbstractModularCompilationUnitCtx;
+  | AbstractModularCompilationUnitCtx
+  | { EOF: IToken[] };
 
 export interface OrdinaryCompilationUnitCstNode extends CstNode {
   name: "ordinaryCompilationUnit";
@@ -2894,10 +3142,10 @@ export type NormalLambdaParameterListCtx = {
 
 export interface NormalLambdaParameterCstNode extends CstNode {
   name: "normalLambdaParameter";
-  children: LambdaParameterCtx;
+  children: NormalLambdaParameterCtx;
 }
 
-export type LambdaParameterCtx = {
+export type NormalLambdaParameterCtx = {
   regularLambdaParameter?: RegularLambdaParameterCstNode[];
   variableArityParameter?: VariableArityParameterCstNode[];
 };
@@ -2967,8 +3215,7 @@ export type BinaryExpressionCtx = {
   referenceType?: ReferenceTypeCstNode[];
   AssignmentOperator?: IToken[];
   expression?: ExpressionCstNode[];
-  Less?: IToken[];
-  Greater?: IToken[];
+  shiftOperator?: ShiftOperatorCstNode[];
   BinaryOperator?: IToken[];
 };
 

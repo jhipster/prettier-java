@@ -34,4 +34,28 @@ export function defineRules($, t) {
   $.RULE("booleanLiteral", () => {
     $.OR([{ ALT: () => $.CONSUME(t.True) }, { ALT: () => $.CONSUME(t.False) }]);
   });
+
+  // https://docs.oracle.com/javase/specs/jls/se22/html/jls-3.html#jls-3.12
+  $.RULE("shiftOperator", () => {
+    $.OR([
+      {
+        GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+        ALT: () => {
+          $.CONSUME(t.Less);
+          $.CONSUME2(t.Less);
+        }
+      },
+      {
+        GATE: () => $.LA(1).startOffset + 1 === $.LA(2).startOffset,
+        ALT: () => {
+          $.CONSUME(t.Greater);
+          $.CONSUME2(t.Greater);
+          $.OPTION({
+            GATE: () => $.LA(0).startOffset + 1 === $.LA(1).startOffset,
+            DEF: () => $.CONSUME3(t.Greater)
+          });
+        }
+      }
+    ]);
+  });
 }
