@@ -153,7 +153,8 @@ class Switch {
     switch (testEnum) {
       case FOO -> System.out.println("Foo!");
       case BAR, BAZ -> System.out.println("Not Foo!");
-      case BAR,
+      case
+        BAR,
         BAZ,
         BAZ,
         BAZ,
@@ -178,9 +179,9 @@ class Switch {
 
   public void caseConstantsWithComments(TestEnum testEnum) {
     switch (testEnum) {
-      case BAR/* foo */, BAZ -> System.out.println("Not Foo!");
-      case BAR/* foo */, /* bar */BAZ -> System.out.println("Not Foo!");
-      case BAR, /* bar */BAZ -> System.out.println("Not Foo!");
+      case BAR /* foo */, BAZ -> System.out.println("Not Foo!");
+      case BAR /* foo */, /* bar */ BAZ -> System.out.println("Not Foo!");
+      case BAR, /* bar */ BAZ -> System.out.println("Not Foo!");
     }
   }
 

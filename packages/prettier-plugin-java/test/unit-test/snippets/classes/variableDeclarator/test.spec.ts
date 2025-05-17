@@ -27,7 +27,7 @@ describe("VariableDeclarator", () => {
 
     const formattedText = await formatJavaSnippet({ snippet, entryPoint });
     const expectedContents =
-      "i = {\n  alpha,\n  beta,\n  gamma,\n  delta,\n  epsilon,\n  zeta,\n  eta,\n  theta,\n  iota,\n  kappa,\n  lambda,\n  mu,\n  nu,\n  xi\n}";
+      "i = {\n  alpha,\n  beta,\n  gamma,\n  delta,\n  epsilon,\n  zeta,\n  eta,\n  theta,\n  iota,\n  kappa,\n  lambda,\n  mu,\n  nu,\n  xi,\n}";
     expect(formattedText).to.equal(expectedContents);
   });
 
