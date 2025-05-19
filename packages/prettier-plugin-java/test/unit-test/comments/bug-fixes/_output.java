@@ -35,7 +35,8 @@ class T {
 
   public static final List<Object> XXXXXXXXXXXXXXXXXX =
     Collections.unmodifiableList(
-      Arrays.asList( // a
+      Arrays.asList(
+        // a
         // b
         // c
         // d
@@ -44,7 +45,8 @@ class T {
 
   public static final List<Object> XXXXXXXXXXXXXXXXXX =
     Collections.unmodifiableList(
-      Arrays.asList( // a
+      Arrays.asList(
+        // a
         // b
         // c
         // d

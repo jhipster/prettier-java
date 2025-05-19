@@ -25,6 +25,14 @@ public class TextBlock {
               </html>\r
               """;
 
+    html = """
+        <html>\r
+            <body>\r
+                <p>Hello, world</p>\r
+            </body>\r
+        </html>\r
+        """;
+
     System.out.println(
       // leading comment
         """

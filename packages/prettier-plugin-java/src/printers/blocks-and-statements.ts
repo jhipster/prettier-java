@@ -1,618 +1,416 @@
+import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { concat, dedent, group, indent, join } from "./prettier-builder.js";
-import { printTokenWithComments } from "./comments/format-comments.js";
 import {
-  hasLeadingLineComments,
-  hasTrailingLineComments
-} from "./comments/comments-utils.js";
-import {
-  displaySemicolon,
-  getBlankLinesSeparator,
-  isStatementEmptyStatement,
-  putIntoBraces,
-  rejectAndConcat,
-  rejectAndJoin,
-  rejectAndJoinSeps,
-  rejectSeparators,
-  sortModifiers
-} from "./printer-utils.js";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
-import {
-  AssertStatementCtx,
-  BasicForStatementCtx,
-  BlockCtx,
-  BlockStatementCtx,
-  BlockStatementsCtx,
-  BreakStatementCtx,
-  CaseConstantCtx,
-  CasePatternCtx,
-  CatchClauseCtx,
-  CatchesCtx,
-  CatchFormalParameterCtx,
-  CatchTypeCtx,
-  ContinueStatementCtx,
-  DoStatementCtx,
-  EmptyStatementCtx,
-  EnhancedForStatementCtx,
-  ExpressionStatementCtx,
-  FinallyCtx,
-  ForInitCtx,
-  ForStatementCtx,
-  ForUpdateCtx,
-  IfStatementCtx,
-  IToken,
-  LabeledStatementCtx,
-  LocalVariableDeclarationCtx,
-  LocalVariableDeclarationStatementCtx,
-  LocalVariableTypeCtx,
-  ResourceCtx,
-  ResourceListCtx,
-  ResourceSpecificationCtx,
-  ReturnStatementCtx,
-  StatementCtx,
-  StatementExpressionCtx,
-  StatementExpressionListCtx,
-  StatementWithoutTrailingSubstatementCtx,
-  SwitchBlockCtx,
-  SwitchBlockStatementGroupCtx,
-  SwitchLabelCtx,
-  SwitchRuleCtx,
-  SwitchStatementCtx,
-  SynchronizedStatementCtx,
-  ThrowStatementCtx,
-  TryStatementCtx,
-  TryWithResourcesStatementCtx,
-  VariableAccessCtx,
-  WhileStatementCtx,
-  YieldStatementCtx
-} from "java-parser";
-import { Doc } from "prettier";
+  call,
+  definedKeys,
+  indentInParentheses,
+  isBinaryExpression,
+  isEmptyStatement,
+  lineEndWithComments,
+  lineStartWithComments,
+  map,
+  onlyDefinedKey,
+  printBlock,
+  printDanglingComments,
+  printSingle,
+  printWithModifiers,
+  type JavaNodePrinters
+} from "./helpers.js";
 
-const { line, softline, hardline } = builders;
+const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 
-export class BlocksAndStatementPrettierVisitor extends BaseCstPrettierPrinter {
-  block(ctx: BlockCtx) {
-    const blockStatements = this.visit(ctx.blockStatements);
+export default {
+  block(path, print) {
+    const statements = path.node.children.blockStatements
+      ? (call(path, print, "blockStatements") as Doc[])
+      : [];
+    return printBlock(path, statements.length ? [statements] : []);
+  },
 
-    return putIntoBraces(
-      blockStatements,
+  blockStatements(path, print) {
+    return join(
       hardline,
-      ctx.LCurly[0],
-      ctx.RCurly[0]
+      map(
+        path,
+        statementPath => {
+          const { node, previous } = statementPath;
+          const statement = print(statementPath);
+          return previous &&
+            lineStartWithComments(node) > lineEndWithComments(previous) + 1
+            ? [hardline, statement]
+            : statement;
+        },
+        "blockStatement"
+      ).filter(doc => doc !== "")
     );
-  }
+  },
 
-  blockStatements(ctx: BlockStatementsCtx) {
-    const blockStatement = this.mapVisit(ctx.blockStatement);
+  blockStatement: printSingle,
 
-    const separators = rejectSeparators(
-      getBlankLinesSeparator(ctx.blockStatement),
-      blockStatement
-    );
+  localVariableDeclarationStatement(path, print) {
+    return [call(path, print, "localVariableDeclaration"), ";"];
+  },
 
-    return rejectAndJoinSeps(separators, blockStatement);
-  }
-
-  blockStatement(ctx: BlockStatementCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  localVariableDeclarationStatement(ctx: LocalVariableDeclarationStatementCtx) {
-    const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
-    return rejectAndConcat([localVariableDeclaration, ctx.Semicolon[0]]);
-  }
-
-  localVariableDeclaration(ctx: LocalVariableDeclarationCtx) {
-    const modifiers = sortModifiers(ctx.variableModifier);
-    const firstAnnotations = this.mapVisit(modifiers[0]);
-    const finalModifiers = this.mapVisit(modifiers[1]);
-
-    const localVariableType = this.visit(ctx.localVariableType);
-    const variableDeclaratorList = this.visit(ctx.variableDeclaratorList);
-    return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
-      rejectAndJoin(" ", [
-        rejectAndJoin(" ", finalModifiers),
-        localVariableType,
-        variableDeclaratorList
-      ])
+  localVariableDeclaration(path, print) {
+    const declaration = join(" ", [
+      call(path, print, "localVariableType"),
+      call(path, print, "variableDeclaratorList")
     ]);
-  }
+    return printWithModifiers(path, print, "variableModifier", declaration);
+  },
 
-  localVariableType(ctx: LocalVariableTypeCtx) {
-    if (ctx.unannType) {
-      return this.visitSingle(ctx);
-    }
+  localVariableType: printSingle,
+  statement: printSingle,
+  statementWithoutTrailingSubstatement: printSingle,
 
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+  emptyStatement() {
+    return "";
+  },
 
-  statement(ctx: StatementCtx, params: any) {
-    // handling Labeled statements comments
-    if (ctx.labeledStatement !== undefined) {
-      const newLabelStatement = { ...ctx.labeledStatement[0] };
-      const newColon = { ...ctx.labeledStatement[0].children.Colon[0] };
-      const newStatement = {
-        ...ctx.labeledStatement[0].children.statement[0]
-      };
+  labeledStatement(path, print) {
+    return [
+      call(path, print, "Identifier"),
+      ": ",
+      call(path, print, "statement")
+    ];
+  },
 
-      const labeledStatementLeadingComments = [];
+  expressionStatement(path, print) {
+    return [call(path, print, "statementExpression"), ";"];
+  },
 
-      if (newColon.trailingComments !== undefined) {
-        labeledStatementLeadingComments.push(...newColon.trailingComments);
-        delete newColon.trailingComments;
+  statementExpression: printSingle,
+
+  ifStatement(path, print) {
+    const { children } = path.node;
+    const hasEmptyStatement = isEmptyStatement(children.statement[0]);
+    const statement: Doc[] = [
+      "if ",
+      indentInParentheses(call(path, print, "expression")),
+      hasEmptyStatement ? ";" : [" ", call(path, print, "statement", 0)]
+    ];
+    if (children.Else) {
+      const danglingComments = printDanglingComments(path);
+      if (danglingComments.length) {
+        statement.push(hardline, ...danglingComments, hardline);
+      } else {
+        const elseHasBlock =
+          children.statement[0].children
+            .statementWithoutTrailingSubstatement?.[0].children.block !==
+          undefined;
+        statement.push(elseHasBlock ? " " : hardline);
       }
-
-      if (newStatement.leadingComments !== undefined) {
-        labeledStatementLeadingComments.push(...newStatement.leadingComments);
-        delete newStatement.leadingComments;
-      }
-
-      if (labeledStatementLeadingComments.length !== 0) {
-        newLabelStatement.leadingComments = labeledStatementLeadingComments;
-      }
-      newLabelStatement.children.Colon[0] = newColon;
-      newLabelStatement.children.statement[0] = newStatement;
-
-      return this.visit([newLabelStatement]);
+      const elseHasEmptyStatement = isEmptyStatement(children.statement[1]);
+      statement.push(
+        "else",
+        elseHasEmptyStatement ? ";" : [" ", call(path, print, "statement", 1)]
+      );
     }
+    return statement;
+  },
 
-    return this.visitSingle(ctx, params);
-  }
+  assertStatement(path, print) {
+    return ["assert ", ...join([" : "], map(path, print, "expression")), ";"];
+  },
 
-  statementWithoutTrailingSubstatement(
-    ctx: StatementWithoutTrailingSubstatementCtx,
-    params: any
-  ) {
-    return this.visitSingle(ctx, params);
-  }
+  switchStatement(path, print) {
+    return join(" ", [
+      "switch",
+      indentInParentheses(call(path, print, "expression")),
+      call(path, print, "switchBlock")
+    ]);
+  },
 
-  emptyStatement(ctx: EmptyStatementCtx, params: any) {
-    return displaySemicolon(ctx.Semicolon[0], params);
-  }
+  switchBlock(path, print) {
+    const { children } = path.node;
+    const caseKeys = definedKeys(children, [
+      "switchBlockStatementGroup",
+      "switchRule"
+    ]);
+    const cases = caseKeys.length === 1 ? map(path, print, caseKeys[0]) : [];
+    return printBlock(path, cases);
+  },
 
-  labeledStatement(ctx: LabeledStatementCtx) {
-    const identifier = ctx.Identifier[0];
-    const statement = this.visit(ctx.statement);
-
-    return concat([identifier, ctx.Colon[0], " ", statement]);
-  }
-
-  expressionStatement(ctx: ExpressionStatementCtx) {
-    const statementExpression = this.visit(ctx.statementExpression);
-    return rejectAndConcat([statementExpression, ctx.Semicolon[0]]);
-  }
-
-  statementExpression(ctx: StatementExpressionCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  ifStatement(ctx: IfStatementCtx) {
-    const expression = this.visit(ctx.expression);
-
-    const ifStatement = this.visit(ctx.statement[0], {
-      allowEmptyStatement: true
-    });
-    const ifSeparator = isStatementEmptyStatement(ifStatement) ? "" : " ";
-
-    let elsePart: Doc = "";
-    if (ctx.Else !== undefined) {
-      const elseStatement = this.visit(ctx.statement[1], {
-        allowEmptyStatement: true
-      });
-      const elseSeparator = isStatementEmptyStatement(elseStatement) ? "" : " ";
-
-      const elseOnSameLine =
-        hasTrailingLineComments(ctx.statement[0]) ||
-        hasLeadingLineComments(ctx.Else[0]) ||
-        !ctx.statement[0].children.statementWithoutTrailingSubstatement?.[0]
-          .children.block
-          ? hardline
-          : " ";
-
-      elsePart = rejectAndJoin(elseSeparator, [
-        concat([elseOnSameLine, ctx.Else[0]]),
-        elseStatement
-      ]);
+  switchBlockStatementGroup(path, print) {
+    const { children } = path.node;
+    const switchLabel = call(path, print, "switchLabel");
+    if (!children.blockStatements) {
+      return [switchLabel, ":"];
     }
-
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        ctx.If[0],
-        concat([
-          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-          ifSeparator
-        ])
-      ]),
-      ifStatement,
-      elsePart
-    ]);
-  }
-
-  assertStatement(ctx: AssertStatementCtx) {
-    const expressions = this.mapVisit(ctx.expression);
-    const colon = ctx.Colon ? ctx.Colon[0] : ":";
-    return rejectAndConcat([
-      concat([ctx.Assert[0], " "]),
-      rejectAndJoin(concat([" ", colon, " "]), expressions),
-      ctx.Semicolon[0]
-    ]);
-  }
-
-  switchStatement(ctx: SwitchStatementCtx) {
-    const expression = this.visit(ctx.expression);
-    const switchBlock = this.visit(ctx.switchBlock);
-
-    return rejectAndJoin(" ", [
-      ctx.Switch[0],
-      putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-      switchBlock
-    ]);
-  }
-
-  switchBlock(ctx: SwitchBlockCtx) {
-    const switchCases =
-      ctx.switchBlockStatementGroup !== undefined
-        ? this.mapVisit(ctx.switchBlockStatementGroup)
-        : this.mapVisit(ctx.switchRule);
-
-    return putIntoBraces(
-      rejectAndJoin(hardline, switchCases),
-      hardline,
-      ctx.LCurly[0],
-      ctx.RCurly[0]
-    );
-  }
-
-  switchBlockStatementGroup(ctx: SwitchBlockStatementGroupCtx) {
-    const switchLabel = this.visit(ctx.switchLabel);
-    const blockStatements = this.visit(ctx.blockStatements);
-
-    const statements = ctx.blockStatements?.[0].children.blockStatement;
-    const hasSingleStatementBlock =
-      statements?.length === 1 &&
+    const blockStatements = call(path, print, "blockStatements");
+    const statements = children.blockStatements[0].children.blockStatement;
+    const onlyStatementIsBlock =
+      statements.length === 1 &&
       statements[0].children.statement?.[0].children
         .statementWithoutTrailingSubstatement?.[0].children.block !== undefined;
-
-    return concat([
+    return [
       switchLabel,
-      ctx.Colon[0],
-      hasSingleStatementBlock
-        ? concat([" ", blockStatements])
-        : blockStatements && indent([hardline, blockStatements])
-    ]);
-  }
+      ":",
+      onlyStatementIsBlock
+        ? [" ", blockStatements]
+        : indent([hardline, blockStatements])
+    ];
+  },
 
-  switchLabel(ctx: SwitchLabelCtx) {
-    const Case = ctx.Case?.[0];
-    const commas = ctx.Comma?.map(elt => concat([elt, line]));
-    if (ctx.caseConstant || ctx.Null) {
-      const caseConstants = ctx.Null
-        ? [ctx.Null[0], ctx.Default?.[0]]
-        : this.mapVisit(ctx.caseConstant);
-      return group(
-        indent(join(" ", [Case!, rejectAndJoinSeps(commas, caseConstants)]))
-      );
-    } else if (ctx.casePattern) {
-      const casePatterns = this.mapVisit(ctx.casePattern);
-      const guard = this.visit(ctx.guard);
-      const multiplePatterns = ctx.casePattern.length > 1;
-      const separator = multiplePatterns ? line : " ";
-      const contents = join(separator, [
-        Case!,
-        rejectAndJoinSeps(commas, casePatterns)
-      ]);
-      return group(
-        rejectAndJoin(separator, [
-          multiplePatterns ? indent(contents) : contents,
-          guard
-        ])
-      );
+  switchLabel(path, print) {
+    const { children } = path.node;
+    if (!(children.caseConstant ?? children.casePattern ?? children.Null)) {
+      return "default";
     }
-    return printTokenWithComments(ctx.Default![0]);
-  }
-
-  switchRule(ctx: SwitchRuleCtx) {
-    const switchLabel = this.visit(ctx.switchLabel);
-
-    let caseInstruction;
-    if (ctx.throwStatement !== undefined) {
-      caseInstruction = this.visit(ctx.throwStatement);
-    } else if (ctx.block !== undefined) {
-      caseInstruction = this.visit(ctx.block);
+    const values: Doc[] = [];
+    if (children.Null) {
+      values.push("null");
+      if (children.Default) {
+        values.push("default");
+      }
     } else {
-      caseInstruction = concat([this.visit(ctx.expression), ctx.Semicolon![0]]);
-    }
-
-    return concat([switchLabel, " ", ctx.Arrow[0], " ", caseInstruction]);
-  }
-
-  caseConstant(ctx: CaseConstantCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  casePattern(ctx: CasePatternCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  whileStatement(ctx: WhileStatementCtx) {
-    const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement[0], {
-      allowEmptyStatement: true
-    });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
-
-    return rejectAndJoin(" ", [
-      ctx.While[0],
-      rejectAndJoin(statementSeparator, [
-        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-        statement
-      ])
-    ]);
-  }
-
-  doStatement(ctx: DoStatementCtx) {
-    const statement = this.visit(ctx.statement[0], {
-      allowEmptyStatement: true
-    });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
-
-    const expression = this.visit(ctx.expression);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(statementSeparator, [ctx.Do[0], statement]),
-      ctx.While[0],
-      rejectAndConcat([
-        putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-        ctx.Semicolon[0]
-      ])
-    ]);
-  }
-
-  forStatement(ctx: ForStatementCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  basicForStatement(ctx: BasicForStatementCtx) {
-    const forInit = this.visit(ctx.forInit);
-    const expression = this.visit(ctx.expression);
-    const forUpdate = this.visit(ctx.forUpdate);
-    const statement = this.visit(ctx.statement[0], {
-      allowEmptyStatement: true
-    });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
-
-    return rejectAndConcat([
-      rejectAndJoin(" ", [
-        ctx.For[0],
-        putIntoBraces(
-          rejectAndConcat([
-            forInit,
-            rejectAndJoin(line, [ctx.Semicolon[0], expression]),
-            rejectAndJoin(line, [ctx.Semicolon[1], forUpdate])
-          ]),
-          softline,
-          ctx.LBrace[0],
-          ctx.RBrace[0]
-        )
-      ]),
-      statementSeparator,
-      statement
-    ]);
-  }
-
-  forInit(ctx: ForInitCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  forUpdate(ctx: ForUpdateCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  statementExpressionList(ctx: StatementExpressionListCtx) {
-    const statementExpressions = this.mapVisit(ctx.statementExpression);
-    const commas = ctx.Comma
-      ? ctx.Comma.map(elt => {
-          return concat([printTokenWithComments(elt), " "]);
-        })
-      : [];
-    return rejectAndJoinSeps(commas, statementExpressions);
-  }
-
-  enhancedForStatement(ctx: EnhancedForStatementCtx) {
-    const localVariableDeclaration = this.visit(ctx.localVariableDeclaration);
-    const expression = this.visit(ctx.expression);
-    const statement = this.visit(ctx.statement[0], {
-      allowEmptyStatement: true
-    });
-    const statementSeparator = isStatementEmptyStatement(statement) ? "" : " ";
-
-    return rejectAndConcat([
-      rejectAndJoin(" ", [ctx.For[0], ctx.LBrace[0]]),
-      localVariableDeclaration,
-      concat([" ", ctx.Colon[0], " "]),
-      expression,
-      concat([ctx.RBrace[0], statementSeparator]),
-      statement
-    ]);
-  }
-
-  breakStatement(ctx: BreakStatementCtx) {
-    if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0];
-      return rejectAndConcat([
-        concat([ctx.Break[0], " "]),
-        identifier,
-        ctx.Semicolon[0]
+      const valuesKey = onlyDefinedKey(children, [
+        "caseConstant",
+        "casePattern"
       ]);
+      values.push(...map(path, print, valuesKey));
     }
+    const hasMultipleValues = values.length > 1;
+    const label = hasMultipleValues
+      ? ["case", indent([line, ...join([",", line], values)])]
+      : ["case ", values[0]];
+    return children.guard
+      ? [
+          group([...label, hasMultipleValues ? line : " "]),
+          call(path, print, "guard")
+        ]
+      : group(label);
+  },
 
-    return concat([ctx.Break[0], ctx.Semicolon[0]]);
-  }
-
-  continueStatement(ctx: ContinueStatementCtx) {
-    if (ctx.Identifier) {
-      const identifier = ctx.Identifier[0];
-
-      return rejectAndConcat([
-        concat([ctx.Continue[0], " "]),
-        identifier,
-        ctx.Semicolon[0]
-      ]);
+  switchRule(path, print) {
+    const { children } = path.node;
+    const bodyKey = onlyDefinedKey(children, [
+      "block",
+      "expression",
+      "throwStatement"
+    ]);
+    const parts = [
+      call(path, print, "switchLabel"),
+      " -> ",
+      call(path, print, bodyKey)
+    ];
+    if (children.Semicolon) {
+      parts.push(";");
     }
+    return parts;
+  },
 
-    return rejectAndConcat([ctx.Continue[0], ctx.Semicolon[0]]);
-  }
+  caseConstant: printSingle,
+  casePattern: printSingle,
 
-  returnStatement(ctx: ReturnStatementCtx) {
-    if (ctx.expression) {
-      const expression = this.visit(ctx.expression, {
-        addParenthesisToWrapStatement: true
-      });
+  whileStatement(path, print) {
+    const statement = call(path, print, "statement");
+    const hasEmptyStatement = isEmptyStatement(path.node.children.statement[0]);
+    return [
+      "while ",
+      indentInParentheses(call(path, print, "expression")),
+      ...[hasEmptyStatement ? ";" : " ", statement]
+    ];
+  },
 
-      return rejectAndConcat([
-        concat([ctx.Return[0], " "]),
-        expression,
-        ctx.Semicolon[0]
-      ]);
+  doStatement(path, print) {
+    const hasEmptyStatement = isEmptyStatement(path.node.children.statement[0]);
+    return [
+      "do",
+      hasEmptyStatement ? ";" : [" ", call(path, print, "statement")],
+      " while ",
+      indentInParentheses(call(path, print, "expression")),
+      ";"
+    ];
+  },
+
+  forStatement: printSingle,
+
+  basicForStatement(path, print) {
+    const { children } = path.node;
+    const danglingComments = printDanglingComments(path);
+    if (danglingComments.length) {
+      danglingComments.push(hardline);
     }
-
-    return rejectAndConcat([ctx.Return[0], ctx.Semicolon[0]]);
-  }
-
-  throwStatement(ctx: ThrowStatementCtx) {
-    const expression = this.visit(ctx.expression);
-
-    return rejectAndConcat([
-      concat([ctx.Throw[0], " "]),
-      expression,
-      ctx.Semicolon[0]
-    ]);
-  }
-
-  synchronizedStatement(ctx: SynchronizedStatementCtx) {
-    const expression = this.visit(ctx.expression);
-    const block = this.visit(ctx.block);
-
-    return rejectAndConcat([
-      join(" ", [
-        ctx.Synchronized[0],
-        concat([
-          putIntoBraces(expression, softline, ctx.LBrace[0], ctx.RBrace[0]),
-          " "
-        ])
-      ]),
-      block
-    ]);
-  }
-
-  tryStatement(ctx: TryStatementCtx) {
-    if (ctx.tryWithResourcesStatement) {
-      return this.visit(ctx.tryWithResourcesStatement);
-    }
-
-    const block = this.visit(ctx.block);
-    const catches = this.visit(ctx.catches);
-    const finallyBlock = this.visit(ctx.finally);
-
-    return rejectAndJoin(" ", [ctx.Try![0], block, catches, finallyBlock]);
-  }
-
-  catches(ctx: CatchesCtx) {
-    const catchClauses = this.mapVisit(ctx.catchClause);
-    return rejectAndJoin(" ", catchClauses);
-  }
-
-  catchClause(ctx: CatchClauseCtx) {
-    const catchFormalParameter = this.visit(ctx.catchFormalParameter);
-    const block = this.visit(ctx.block);
-
-    return rejectAndConcat([
-      group(
-        rejectAndConcat([
-          rejectAndJoin(" ", [ctx.Catch[0], ctx.LBrace[0]]),
-          indent(rejectAndConcat([softline, catchFormalParameter])),
-          softline,
-          concat([ctx.RBrace[0], " "])
-        ])
-      ),
-      block
-    ]);
-  }
-
-  catchFormalParameter(ctx: CatchFormalParameterCtx) {
-    const variableModifiers = this.mapVisit(ctx.variableModifier);
-    const catchType = this.visit(ctx.catchType);
-    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifiers),
-      catchType,
-      variableDeclaratorId
-    ]);
-  }
-
-  catchType(ctx: CatchTypeCtx) {
-    const unannClassType = this.visit(ctx.unannClassType);
-    const classTypes = this.mapVisit(ctx.classType);
-    const ors = ctx.Or ? ctx.Or.map(elt => concat([line, elt, " "])) : [];
-
-    return group(rejectAndJoinSeps(ors, [unannClassType, ...classTypes]));
-  }
-
-  finally(ctx: FinallyCtx) {
-    const block = this.visit(ctx.block);
-
-    return rejectAndJoin(" ", [ctx.Finally[0], block]);
-  }
-
-  tryWithResourcesStatement(ctx: TryWithResourcesStatementCtx) {
-    const resourceSpecification = this.visit(ctx.resourceSpecification);
-    const block = this.visit(ctx.block);
-    const catches = this.visit(ctx.catches);
-    const finallyBlock = this.visit(ctx.finally);
-
-    return rejectAndJoin(" ", [
-      ctx.Try[0],
-      resourceSpecification,
-      block,
-      catches,
-      finallyBlock
-    ]);
-  }
-
-  resourceSpecification(ctx: ResourceSpecificationCtx) {
-    const resourceList = this.visit(ctx.resourceList);
-    const optionalSemicolon = ctx.Semicolon ? ctx.Semicolon[0] : "";
-
-    return putIntoBraces(
-      rejectAndConcat([resourceList, optionalSemicolon]),
-      softline,
-      ctx.LBrace[0],
-      ctx.RBrace[0]
+    const expressions = (["forInit", "expression", "forUpdate"] as const).map(
+      expressionKey =>
+        expressionKey in children ? call(path, print, expressionKey) : ""
     );
-  }
+    const hasEmptyStatement = isEmptyStatement(children.statement[0]);
+    return [
+      ...danglingComments,
+      "for ",
+      expressions.some(expression => expression !== "")
+        ? indentInParentheses(join([";", line], expressions))
+        : "(;;)",
+      hasEmptyStatement ? ";" : [" ", call(path, print, "statement")]
+    ];
+  },
 
-  resourceList(ctx: ResourceListCtx) {
-    const resources = this.mapVisit(ctx.resource);
-    const semicolons = ctx.Semicolon
-      ? ctx.Semicolon.map(elt => {
-          return concat([elt, line]);
-        })
-      : [""];
-    return rejectAndJoinSeps(semicolons, resources);
-  }
+  forInit: printSingle,
+  forUpdate: printSingle,
 
-  resource(ctx: ResourceCtx) {
-    return this.visitSingle(ctx);
-  }
+  statementExpressionList(path, print) {
+    return group(
+      map(path, print, "statementExpression").map((expression, index) =>
+        index === 0 ? expression : [",", indent([line, expression])]
+      )
+    );
+  },
 
-  yieldStatement(ctx: YieldStatementCtx) {
-    const expression = this.visit(ctx.expression);
-    return join(" ", [ctx.Yield[0], concat([expression, ctx.Semicolon[0]])]);
-  }
+  enhancedForStatement(path, print) {
+    const statementNode = path.node.children.statement[0];
+    const forStatement = [
+      printDanglingComments(path),
+      "for ",
+      "(",
+      call(path, print, "localVariableDeclaration"),
+      " : ",
+      call(path, print, "expression"),
+      ")"
+    ];
+    if (isEmptyStatement(statementNode)) {
+      forStatement.push(";");
+    } else {
+      const hasStatementBlock =
+        statementNode.children.statementWithoutTrailingSubstatement?.[0]
+          .children.block !== undefined;
+      const statement = call(path, print, "statement");
+      forStatement.push(
+        hasStatementBlock ? [" ", statement] : indent([line, statement])
+      );
+    }
+    return group(forStatement);
+  },
 
-  variableAccess(ctx: VariableAccessCtx) {
-    return this.visitSingle(ctx);
-  }
-}
+  breakStatement(path, print) {
+    return path.node.children.Identifier
+      ? ["break ", call(path, print, "Identifier"), ";"]
+      : "break;";
+  },
+
+  continueStatement(path, print) {
+    return path.node.children.Identifier
+      ? ["continue ", call(path, print, "Identifier"), ";"]
+      : "continue;";
+  },
+
+  returnStatement(path, print) {
+    const { children } = path.node;
+    const statement: Doc[] = ["return"];
+    if (children.expression) {
+      statement.push(" ");
+      const expression = call(path, print, "expression");
+      if (isBinaryExpression(children.expression[0])) {
+        statement.push(
+          group([
+            ifBreak("("),
+            indent([softline, expression]),
+            softline,
+            ifBreak(")")
+          ])
+        );
+      } else {
+        statement.push(expression);
+      }
+    }
+    statement.push(";");
+    return statement;
+  },
+
+  throwStatement(path, print) {
+    return ["throw ", call(path, print, "expression"), ";"];
+  },
+
+  synchronizedStatement(path, print) {
+    return [
+      "synchronized ",
+      indentInParentheses(call(path, print, "expression")),
+      " ",
+      call(path, print, "block")
+    ];
+  },
+
+  tryStatement(path, print) {
+    const { children } = path.node;
+    if (children.tryWithResourcesStatement) {
+      return call(path, print, "tryWithResourcesStatement");
+    }
+    const blocks = ["try", call(path, print, "block")];
+    if (children.catches) {
+      blocks.push(call(path, print, "catches"));
+    }
+    if (children.finally) {
+      blocks.push(call(path, print, "finally"));
+    }
+    return join(" ", blocks);
+  },
+
+  catches(path, print) {
+    return join(" ", map(path, print, "catchClause"));
+  },
+
+  catchClause(path, print) {
+    return [
+      "catch ",
+      indentInParentheses(call(path, print, "catchFormalParameter")),
+      " ",
+      call(path, print, "block")
+    ];
+  },
+
+  catchFormalParameter(path, print) {
+    return join(" ", [
+      ...map(path, print, "variableModifier"),
+      call(path, print, "catchType"),
+      call(path, print, "variableDeclaratorId")
+    ]);
+  },
+
+  catchType(path, print) {
+    return join(
+      [line, "| "],
+      [call(path, print, "unannClassType"), ...map(path, print, "classType")]
+    );
+  },
+
+  finally(path, print) {
+    return ["finally ", call(path, print, "block")];
+  },
+
+  tryWithResourcesStatement(path, print) {
+    const { children } = path.node;
+    const blocks = [
+      "try",
+      call(path, print, "resourceSpecification"),
+      call(path, print, "block")
+    ];
+    if (children.catches) {
+      blocks.push(call(path, print, "catches"));
+    }
+    if (children.finally) {
+      blocks.push(call(path, print, "finally"));
+    }
+    return join(" ", blocks);
+  },
+
+  resourceSpecification(path, print, options) {
+    const resources = [call(path, print, "resourceList")];
+    if (options.trailingComma !== "none") {
+      resources.push(ifBreak(";"));
+    }
+    return indentInParentheses(resources);
+  },
+
+  resourceList(path, print) {
+    return join([";", line], map(path, print, "resource"));
+  },
+
+  resource: printSingle,
+
+  yieldStatement(path, print) {
+    return ["yield ", call(path, print, "expression"), ";"];
+  },
+
+  variableAccess: printSingle
+} satisfies Partial<JavaNodePrinters>;

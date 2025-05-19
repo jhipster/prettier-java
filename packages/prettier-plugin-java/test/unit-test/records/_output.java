@@ -122,8 +122,7 @@ public interface MyInterface {
     String param,
     String param,
     String param
-  )
-    implements MyInterface {}
+  ) implements MyInterface {}
 }
 
 public record Record(

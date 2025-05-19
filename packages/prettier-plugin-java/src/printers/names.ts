@@ -1,47 +1,12 @@
-import { buildFqn } from "./printer-utils.js";
-import { printTokenWithComments } from "./comments/format-comments.js";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
-import {
-  AmbiguousNameCtx,
-  ExpressionNameCtx,
-  MethodNameCtx,
-  ModuleNameCtx,
-  PackageNameCtx,
-  PackageOrTypeNameCtx,
-  TypeIdentifierCtx,
-  TypeNameCtx
-} from "java-parser";
+import { printName, printSingle, type JavaNodePrinters } from "./helpers.js";
 
-export class NamesPrettierVisitor extends BaseCstPrettierPrinter {
-  typeIdentifier(ctx: TypeIdentifierCtx) {
-    return printTokenWithComments(ctx.Identifier[0]);
-  }
-
-  moduleName(ctx: ModuleNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-
-  packageName(ctx: PackageNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-
-  typeName(ctx: TypeNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-
-  expressionName(ctx: ExpressionNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-
-  methodName(ctx: MethodNameCtx) {
-    return printTokenWithComments(ctx.Identifier[0]);
-  }
-
-  packageOrTypeName(ctx: PackageOrTypeNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-
-  ambiguousName(ctx: AmbiguousNameCtx) {
-    return buildFqn(ctx.Identifier, ctx.Dot);
-  }
-}
+export default {
+  typeIdentifier: printSingle,
+  moduleName: printName,
+  packageName: printName,
+  typeName: printName,
+  expressionName: printName,
+  methodName: printSingle,
+  packageOrTypeName: printName,
+  ambiguousName: printName
+} satisfies Partial<JavaNodePrinters>;

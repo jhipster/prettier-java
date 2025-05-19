@@ -18,6 +18,7 @@ class Test {
         yield len * len;
       }
     }
+
     return;
   }
 

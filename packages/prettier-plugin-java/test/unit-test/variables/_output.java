@@ -30,12 +30,12 @@ public class Variables {
     Integer
   >();
 
-  private Object variableWithComment1 /* comment */= new Object();
-  private Object variableWithComment2 = /* comment */new Object();
-  private Object variableWithComment3 /* very very very long comment */=
+  private Object variableWithComment1 /* comment */ = new Object();
+  private Object variableWithComment2 = /* comment */ new Object();
+  private Object variableWithComment3 /* very very very long comment */ =
     new Object();
   private Object variableWithComment4 =
-    /* very very very long comment */new Object();
+    /* very very very long comment */ new Object();
 
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];
@@ -52,8 +52,10 @@ public class Variables {
 
   private Range creator1 = this.dateRangeField.new Range(from, to);
   private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
-  private Range<Date> creator3 =
-    this.dateRangeField.new <Integer>Range<>(from, to);
+  private Range<Date> creator3 = this.dateRangeField.new <Integer>Range<>(
+    from,
+    to
+  );
   private Range<Date> creator3 = new <Integer>Range<>(from, to);
 
   private int hexLiteral = 0x0000;
@@ -326,13 +328,12 @@ public class Variables {
   }
 
   void assignment() {
-    fileSystemDetails = FileHandlerDetails.builder()
-      .fileSystemType(
-        EntityUtils.update(
-          entity.getFileSystemDetails().getFileSystemType(),
-          update.getFileSystemDetails().getFileSystemType()
-        )
-      );
+    fileSystemDetails = FileHandlerDetails.builder().fileSystemType(
+      EntityUtils.update(
+        entity.getFileSystemDetails().getFileSystemType(),
+        update.getFileSystemDetails().getFileSystemType()
+      )
+    );
 
     aaaaaaaaaaaaaaaaa = bbbbbbbbbbbbbbbbb
       ? ccccccccccccccccc
@@ -360,5 +361,9 @@ public class Variables {
       "eeeeeeeeeeeeeeeeeeee",
       "ffffffffffffffffffff"
     );
+
+    int a,
+      b,
+      c = 1;
   }
 }
