@@ -9,7 +9,7 @@ public class Instantiation {
       "should", "wrap"
     );
 
-    new MethodWrappingFollowingContstructor().aLongEnoughMethodNameToForceThingsToWrap();
+    new MethodFollowingConstructor().aLongEnoughMethodNameToExtendPastPrintWidth();
   }
 
 }
