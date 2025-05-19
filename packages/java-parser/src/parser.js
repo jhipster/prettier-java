@@ -11,7 +11,6 @@ import * as arrays from "./productions/arrays.js";
 import * as blocksStatements from "./productions/blocks-and-statements.js";
 import * as expressions from "./productions/expressions.js";
 import { getSkipValidations } from "./utils.js";
-import { shouldNotFormat } from "./comments.js";
 
 /**
  * This parser attempts to strongly align with the specs style at:
@@ -49,9 +48,6 @@ export default class JavaParser extends CstParser {
 
     const $ = this;
 
-    this.mostEnclosiveCstNodeByStartOffset = {};
-    this.mostEnclosiveCstNodeByEndOffset = {};
-
     // ---------------------
     // Productions from §3 (Lexical Structure)
     // ---------------------
@@ -83,12 +79,6 @@ export default class JavaParser extends CstParser {
       return;
     }
     super.cstPostNonTerminal(ruleCstResult, ruleName);
-    this.mostEnclosiveCstNodeByStartOffset[ruleCstResult.location.startOffset] =
-      ruleCstResult;
-    this.mostEnclosiveCstNodeByEndOffset[ruleCstResult.location.endOffset] =
-      ruleCstResult;
-
-    shouldNotFormat(ruleCstResult, this.onOffCommentPairs);
   }
 
   BACKTRACK_LOOKAHEAD(production, errValue = false) {
@@ -121,9 +111,5 @@ export default class JavaParser extends CstParser {
         this.isBackTrackingStack.pop();
       }
     });
-  }
-
-  setOnOffCommentPairs(onOffCommentPairs) {
-    this.onOffCommentPairs = onOffCommentPairs;
   }
 }

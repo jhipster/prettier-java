@@ -1,8 +1,7 @@
 public class TextBlock {
 
   void method() {
-    String myTextBlock =
-      """
+    String myTextBlock = """
            my text
 
 
@@ -10,15 +9,21 @@ public class TextBlock {
 
       """;
 
-    String source =
-      """
+    String source = """
       public void print(%s object) {
           System.out.println(Objects.toString(object));
       }
       """.formatted(type);
 
-    String html =
-      """
+    String html = """
+      <html>\r
+          <body>\r
+              <p>Hello, world</p>\r
+          </body>\r
+      </html>\r
+      """;
+
+    html = """
       <html>\r
           <body>\r
               <p>Hello, world</p>\r

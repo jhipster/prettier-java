@@ -1,6 +1,5 @@
 import JavaLexer from "./lexer.js";
 import JavaParser from "./parser.js";
-import { attachComments, matchFormatterOffOnPairs } from "./comments.js";
 
 const parser = new JavaParser();
 
@@ -26,12 +25,6 @@ export function lexAndParse(inputText, entryPoint = "compilationUnit") {
 
   const tokens = lexResult.tokens;
   parser.input = tokens;
-  parser.mostEnclosiveCstNodeByStartOffset = {};
-  parser.mostEnclosiveCstNodeByEndOffset = {};
-
-  parser.setOnOffCommentPairs(
-    matchFormatterOffOnPairs(lexResult.groups.comments)
-  );
 
   // Automatic CST created when parsing
   const cst = parser[entryPoint]();
@@ -50,12 +43,7 @@ export function lexAndParse(inputText, entryPoint = "compilationUnit") {
     );
   }
 
-  attachComments(
-    tokens,
-    lexResult.groups.comments,
-    parser.mostEnclosiveCstNodeByStartOffset,
-    parser.mostEnclosiveCstNodeByEndOffset
-  );
+  cst.comments = lexResult.groups.comments;
 
   return { cst, tokens };
 }

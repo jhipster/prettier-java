@@ -122,7 +122,7 @@ public class Expressions {
   }
 
   public void printWhile() {
-    while /*infinite*/(true) /*stop the program*/throw new RuntimeException();
+    while (/*infinite*/ true) /*stop the program*/ throw new RuntimeException();
 
     while (
       myValue == 42 ||
@@ -194,8 +194,7 @@ public class Expressions {
   }
 
   public void longFullyQualifiedName() {
-    com.me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName.builder()
-      .build();
+    com.me.very.very.very.very.very.very.very.very.very.very.very.very.very.longg.fully.qualified.name.FullyQualifiedName.builder().build();
 
     com.FullyQualifiedName.builder();
   }

@@ -2,7 +2,8 @@ class T {
 
   static int count(Iterable<Order> orders) {
     int total = 0;
-    for (Order _ : orders) total++; // Unnamed variable
+    for (Order _ : orders) // Unnamed variable
+      total++;
     return total;
   }
 
@@ -29,7 +30,8 @@ class T {
   void catchClause() {
     try {
       int i = Integer.parseInt(s);
-    } catch (NumberFormatException _) { // Unnamed variable
+    } catch (NumberFormatException _) {
+      // Unnamed variable
       System.out.println("Bad number: " + s);
     }
   }
@@ -39,7 +41,8 @@ class T {
   }
 
   void tryWithResources() {
-    try (var _ = ScopedContext.acquire()) { // Unnamed variable
+    try (var _ = ScopedContext.acquire()) {
+      // Unnamed variable
     }
   }
 

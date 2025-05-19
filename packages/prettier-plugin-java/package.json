@@ -4,19 +4,17 @@
   "description": "Prettier Java Plugin",
   "type": "module",
   "exports": {
-    "types": "./index.d.ts",
+    "types": "./dist/index.d.ts",
     "default": "./dist/index.js"
   },
   "files": [
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
   "homepage": "https://jhipster.github.io/prettier-java/",
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
-    "java-parser": "2.3.4",
-    "lodash": "4.17.21"
+    "java-parser": "2.3.4"
   },
   "scripts": {
     "test": "yarn run test:unit && yarn run test:e2e-core",
@@ -35,7 +33,6 @@
     "@types/fs-extra": "11.0.4",
     "@types/jest": "29.5.14",
     "@types/klaw-sync": "6.0.5",
-    "@types/lodash": "4.17.13",
     "@types/node": "18.19.64",
     "@types/sinon": "17.0.3",
     "ts-node": "10.9.2",

@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "baseUrl": "src",
     "outDir": "dist",
     "strict": true,
-    "allowJs": true,
+    "declaration": true,
     "esModuleInterop": true,
     "noImplicitThis": false,
     "module": "ESNext",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "paths": {
+      "java-parser": ["../java-parser"]
+    }
   },
   "include": ["src"]
 }
