@@ -1,3 +1,4 @@
+dist/
 test-samples/**/*
 scripts/single-printer-run
 samples/**/*

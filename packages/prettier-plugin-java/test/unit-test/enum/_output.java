@@ -25,13 +25,13 @@ public enum EnumWithExtraCommaAndExtraSemicolon {
 public enum EnumWithExtraCommaAndComment {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM/* comment */,
+  LAST_ENUM /* comment */,
 }
 
 public enum EnumWithExtraSemicolonAndComment {
   SOME_ENUM,
   ANOTHER_ENUM,
-  LAST_ENUM,/* comment */
+  LAST_ENUM /* comment */,
 }
 
 public enum EnumWithManyValues {
@@ -139,13 +139,12 @@ public enum EmptyEnumWithComment {
 }
 
 enum PrettierErrors {
-  WE_LOVE_PRETTIER
+  WE_LOVE_PRETTIER;
+
   // And I can't believe
   // it is free
   // why are people
   // so damn generous
-  ;
-
   void printTest() {
     System.out.println("Hey there");
   }

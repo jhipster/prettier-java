@@ -1,41 +1,20 @@
 import {
-  ArrayInitializerCtx,
-  VariableInitializerListCtx
-} from "java-parser/api";
-import {
-  printArrayList,
-  rejectAndConcat,
-  rejectAndJoinSeps
-} from "./printer-utils.js";
-import { builders } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
+  printArrayInitializer,
+  printList,
+  type JavaNodePrinters
+} from "./helpers.js";
 
-const { line } = builders;
-
-export class ArraysPrettierVisitor extends BaseCstPrettierPrinter {
-  prettierOptions: any;
-  arrayInitializer(ctx: ArrayInitializerCtx) {
-    const optionalVariableInitializerList = this.visit(
-      ctx.variableInitializerList
+export default {
+  arrayInitializer(path, print, options) {
+    return printArrayInitializer(
+      path,
+      print,
+      options,
+      "variableInitializerList"
     );
+  },
 
-    return printArrayList({
-      list: optionalVariableInitializerList,
-      extraComma: ctx.Comma,
-      LCurly: ctx.LCurly[0],
-      RCurly: ctx.RCurly[0],
-      trailingComma: this.prettierOptions.trailingComma
-    });
+  variableInitializerList(path, print) {
+    return printList(path, print, "variableInitializer");
   }
-
-  variableInitializerList(ctx: VariableInitializerListCtx) {
-    const variableInitializers = this.mapVisit(ctx.variableInitializer);
-    const commas = ctx.Comma
-      ? ctx.Comma.map(comma => {
-          return rejectAndConcat([comma, line]);
-        })
-      : [];
-
-    return rejectAndJoinSeps(commas, variableInitializers);
-  }
-}
+} satisfies Partial<JavaNodePrinters>;

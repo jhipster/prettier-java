@@ -35,4 +35,10 @@ public class For {
       System.out.println(i);
     }
   }
+
+  void nested() {
+    for (SomeClass<?> elem : elements)
+      for (SomeClass<?> elem : elements)
+        for (SomeClass<?> elem : elements) doSomeThing();
+  }
 }

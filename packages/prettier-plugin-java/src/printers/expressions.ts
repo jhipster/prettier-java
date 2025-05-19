@@ -1,901 +1,784 @@
-import {
-  ArgumentListCtx,
-  ArrayAccessSuffixCtx,
-  ArrayCreationExpressionCtx,
-  ArrayCreationExpressionWithoutInitializerSuffixCtx,
-  ArrayCreationWithInitializerSuffixCtx,
-  BinaryExpressionCtx,
-  CastExpressionCtx,
-  ClassLiteralSuffixCtx,
-  ClassOrInterfaceTypeToInstantiateCtx,
-  ComponentPatternCtx,
-  ComponentPatternListCtx,
-  ConciseLambdaParameterCtx,
-  ConciseLambdaParameterListCtx,
-  ConditionalExpressionCtx,
-  DiamondCtx,
-  DimExprCtx,
-  DimExprsCtx,
-  EmbeddedExpressionCtx,
-  ExpressionCstNode,
-  ExpressionCtx,
+import type {
   FqnOrRefTypeCtx,
-  FqnOrRefTypePartCommonCtx,
-  FqnOrRefTypePartFirstCtx,
-  FqnOrRefTypePartRestCtx,
-  GuardCtx,
-  IToken,
-  LambdaBodyCtx,
-  LambdaExpressionCtx,
-  LambdaParameterCtx,
-  LambdaParameterListCtx,
-  LambdaParametersCtx,
-  LambdaParametersWithBracesCtx,
-  LambdaParameterTypeCtx,
-  MatchAllPatternCtx,
-  MethodInvocationSuffixCtx,
-  MethodReferenceSuffixCtx,
-  NewExpressionCtx,
-  NormalLambdaParameterListCtx,
-  ParenthesisExpressionCtx,
-  PatternCtx,
-  PrimaryCtx,
-  PrimaryPrefixCtx,
-  PrimarySuffixCtx,
-  PrimitiveCastExpressionCtx,
-  RecordPatternCtx,
-  ReferenceTypeCastExpressionCtx,
-  RegularLambdaParameterCtx,
-  StringTemplateCtx,
-  TemplateArgumentCtx,
-  TemplateCtx,
-  TextBlockTemplateCtx,
-  TypeArgumentsOrDiamondCtx,
-  TypePatternCtx,
-  UnaryExpressionCtx,
-  UnaryExpressionNotPlusMinusCtx,
-  UnqualifiedClassInstanceCreationExpressionCtx
-} from "java-parser/api";
-
-import forEach from "lodash/forEach.js";
-import type { Doc } from "prettier";
+  StringTemplateCstNode,
+  TextBlockTemplateCstNode
+} from "java-parser";
+import type { AstPath, Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { BaseCstPrettierPrinter } from "../base-cst-printer.js";
-import { isAnnotationCstNode } from "../types/utils.js";
-import { printArgumentListWithBraces } from "../utils/index.js";
-import { hasLeadingComments } from "./comments/comments-utils.js";
-import { printTokenWithComments } from "./comments/format-comments.js";
+import type { JavaComment } from "../comments.js";
 import {
-  handleCommentsBinaryExpression,
-  handleCommentsParameters
-} from "./comments/handle-comments.js";
-import {
-  concat,
-  dedent,
-  group,
-  indent,
-  indentIfBreak
-} from "./prettier-builder.js";
-import {
-  binary,
-  findDeepElementInPartsArray,
-  getOperators,
-  isExplicitLambdaParameter,
-  isUniqueMethodInvocation,
-  putIntoBraces,
-  rejectAndConcat,
-  rejectAndJoin,
-  rejectAndJoinSeps,
-  sortAnnotationIdentifier,
-  sortNodes,
-  sortTokens
-} from "./printer-utils.js";
+  call,
+  definedKeys,
+  each,
+  findBaseIndent,
+  flatMap,
+  indentInParentheses,
+  isBinaryExpression,
+  isNonTerminal,
+  isTerminal,
+  map,
+  onlyDefinedKey,
+  printDanglingComments,
+  printList,
+  printName,
+  printSingle,
+  type IterProperties,
+  type JavaNodePrinters,
+  type JavaNonTerminal,
+  type JavaPrintFn
+} from "./helpers.js";
 
 const {
   breakParent,
   conditionalGroup,
+  group,
+  hardline,
   ifBreak,
-  label,
+  indent,
+  indentIfBreak,
+  join,
   line,
   lineSuffixBoundary,
   softline
 } = builders;
 const { removeLines, willBreak } = utils;
 
-export class ExpressionsPrettierVisitor extends BaseCstPrettierPrinter {
-  expression(ctx: ExpressionCtx, params: any) {
-    const expression = this.visitSingle(ctx, params);
-    return params?.hug && expression.label !== undefined
-      ? label(expression.label, expression)
-      : expression;
-  }
+export default {
+  expression: printSingle,
 
-  lambdaExpression(ctx: LambdaExpressionCtx, params?: { hug?: boolean }) {
-    const lambdaParameters = group(this.visit(ctx.lambdaParameters));
-    const lambdaBody = this.visit(ctx.lambdaBody);
-
-    const isLambdaBodyABlock = ctx.lambdaBody[0].children.block !== undefined;
-    const suffix = [
-      " ",
-      ctx.Arrow[0],
-      ...(isLambdaBodyABlock
-        ? [" ", lambdaBody]
-        : [group([indent([line, lambdaBody]), params?.hug ? softline : ""])])
-    ];
-    if (params?.hug) {
-      return willBreak(lambdaParameters)
-        ? label({ huggable: false }, concat([lambdaParameters, ...suffix]))
-        : concat([removeLines(lambdaParameters), ...suffix]);
+  lambdaExpression(path, print, _, args = {}) {
+    const hug = (args as { hug?: boolean }).hug ?? false;
+    const parameters = call(path, print, "lambdaParameters");
+    const expression = [hug ? removeLines(parameters) : parameters, " ->"];
+    const lambdaExpression =
+      path.node.children.lambdaBody[0].children.expression;
+    const body = call(path, print, "lambdaBody");
+    if (lambdaExpression) {
+      const suffix = indent([line, body]);
+      expression.push(group(hug ? [suffix, softline] : suffix));
+    } else {
+      expression.push(" ", body);
     }
-    return concat([lambdaParameters, ...suffix]);
-  }
+    return expression;
+  },
 
-  lambdaParameters(ctx: LambdaParametersCtx) {
-    if (ctx.lambdaParametersWithBraces) {
-      return this.visitSingle(ctx);
+  lambdaParameters(path, print, options) {
+    const parameters = printSingle(path, print);
+    return !path.node.children.lambdaParametersWithBraces &&
+      options.arrowParens === "always"
+      ? ["(", parameters, ")"]
+      : parameters;
+  },
+
+  lambdaParametersWithBraces(path, print, options) {
+    const { lambdaParameterList } = path.node.children;
+    if (!lambdaParameterList) {
+      return "()";
     }
-
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
-
-  lambdaParametersWithBraces(ctx: LambdaParametersWithBracesCtx) {
-    const lambdaParameters =
-      ctx.lambdaParameterList?.[0].children.normalLambdaParameterList?.[0]
-        .children.normalLambdaParameter ??
-      ctx.lambdaParameterList?.[0].children.conciseLambdaParameterList?.[0]
-        .children.conciseLambdaParameter ??
-      [];
-    handleCommentsParameters(ctx.LBrace[0], lambdaParameters, ctx.RBrace[0]);
-    const lambdaParameterList = this.visit(ctx.lambdaParameterList);
-
-    if (findDeepElementInPartsArray(lambdaParameterList, ",")) {
-      return concat([
-        ctx.LBrace[0],
-        indent([softline, lambdaParameterList]),
-        softline,
-        ctx.RBrace[0]
-      ]);
+    const { conciseLambdaParameterList, normalLambdaParameterList } =
+      lambdaParameterList[0].children;
+    const parameterCount = (conciseLambdaParameterList?.[0].children
+      .conciseLambdaParameter ??
+      normalLambdaParameterList?.[0].children.normalLambdaParameter)!.length;
+    const parameters = call(path, print, "lambdaParameterList");
+    if (parameterCount > 1) {
+      return indentInParentheses(parameters);
     }
+    return conciseLambdaParameterList && options.arrowParens === "avoid"
+      ? parameters
+      : ["(", parameters, ")"];
+  },
 
-    // removing braces when only no comments attached
-    if (
-      (ctx.LBrace &&
-        ctx.RBrace &&
-        (!lambdaParameterList || isExplicitLambdaParameter(ctx))) ||
-      ctx.LBrace[0].leadingComments ||
-      ctx.LBrace[0].trailingComments ||
-      ctx.RBrace[0].leadingComments ||
-      ctx.RBrace[0].trailingComments
-    ) {
-      return rejectAndConcat([
-        ctx.LBrace[0],
-        lambdaParameterList,
-        ctx.RBrace[0]
-      ]);
-    }
+  lambdaParameterList: printSingle,
 
-    return lambdaParameterList;
-  }
+  conciseLambdaParameterList(path, print) {
+    return printList(path, print, "conciseLambdaParameter");
+  },
 
-  lambdaParameterList(ctx: LambdaParameterListCtx) {
-    return this.visitSingle(ctx);
-  }
+  normalLambdaParameterList(path, print) {
+    return printList(path, print, "normalLambdaParameter");
+  },
 
-  conciseLambdaParameterList(ctx: ConciseLambdaParameterListCtx) {
-    const conciseLambdaParameters = this.mapVisit(ctx.conciseLambdaParameter);
-    const commas = ctx.Comma?.map(comma => concat([comma, line]));
-    return rejectAndJoinSeps(commas, conciseLambdaParameters);
-  }
+  normalLambdaParameter: printSingle,
 
-  normalLambdaParameterList(ctx: NormalLambdaParameterListCtx) {
-    const normalLambdaParameter = this.mapVisit(ctx.normalLambdaParameter);
-    const commas = ctx.Comma?.map(comma => concat([comma, line]));
-    return rejectAndJoinSeps(commas, normalLambdaParameter);
-  }
-
-  normalLambdaParameter(ctx: LambdaParameterCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  regularLambdaParameter(ctx: RegularLambdaParameterCtx) {
-    const variableModifier = this.mapVisit(ctx.variableModifier);
-    const lambdaParameterType = this.visit(ctx.lambdaParameterType);
-    const variableDeclaratorId = this.visit(ctx.variableDeclaratorId);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", variableModifier),
-      lambdaParameterType,
-      variableDeclaratorId
+  regularLambdaParameter(path, print) {
+    return join(" ", [
+      ...map(path, print, "variableModifier"),
+      call(path, print, "lambdaParameterType"),
+      call(path, print, "variableDeclaratorId")
     ]);
-  }
+  },
 
-  lambdaParameterType(ctx: LambdaParameterTypeCtx) {
-    if (ctx.unannType) {
-      return this.visitSingle(ctx);
-    }
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
+  lambdaParameterType: printSingle,
+  conciseLambdaParameter: printSingle,
+  lambdaBody: printSingle,
 
-  conciseLambdaParameter(ctx: ConciseLambdaParameterCtx) {
-    return printTokenWithComments(this.getSingle(ctx) as IToken);
-  }
-
-  lambdaBody(ctx: LambdaBodyCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  conditionalExpression(ctx: ConditionalExpressionCtx, params: any) {
-    const binaryExpression = this.visit(ctx.binaryExpression, params);
-    if (ctx.QuestionMark) {
-      const expression1 = this.visit(ctx.expression![0]);
-      const expression2 = this.visit(ctx.expression![1]);
-
-      return indent(
-        group(
-          rejectAndConcat([
-            rejectAndJoin(line, [
-              binaryExpression,
-              rejectAndJoin(" ", [ctx.QuestionMark[0], expression1]),
-              rejectAndJoin(" ", [ctx.Colon![0], expression2])
-            ])
-          ])
-        )
-      );
-    }
-    return binaryExpression;
-  }
-
-  binaryExpression(
-    ctx: BinaryExpressionCtx,
-    params?: { addParenthesisToWrapStatement?: boolean }
-  ) {
-    handleCommentsBinaryExpression(ctx);
-
-    const sortedNodes = sortNodes([
-      ctx.pattern,
-      ctx.referenceType,
-      ctx.expression,
-      ctx.unaryExpression
-    ]);
-    const tokens = sortTokens(getOperators(ctx));
-    const hasTokens = tokens.length > 0;
-
-    const nodeParams = sortedNodes.length === 1 ? params : undefined;
-    const nodes: Doc[] = [];
-    for (let i = 0; i < sortedNodes.length; i++) {
-      const node = this.visit(sortedNodes[i], nodeParams);
-      const isAssignment =
-        tokens[i]?.tokenType.CATEGORIES?.find(
-          ({ name }) => name === "AssignmentOperator"
-        ) !== undefined;
-      if (!isAssignment) {
-        nodes.push(node);
-        continue;
-      }
-      const [equals] = tokens.splice(i, 1);
-      const expression = sortedNodes[++i] as ExpressionCstNode;
-      const nextNode = this.visit(expression);
-      const conditionalExpression =
-        expression.children.conditionalExpression?.[0].children;
-      const binaryExpression =
-        conditionalExpression?.binaryExpression?.[0].children;
-      const breakAfterOperator =
-        conditionalExpression?.QuestionMark === undefined &&
-        binaryExpression !== undefined &&
-        getOperators(binaryExpression).length > 0;
-      if (breakAfterOperator) {
-        nodes.push(
-          concat([node, " ", equals, group(indent([line, nextNode]))])
-        );
-        continue;
-      }
-      const groupId = Symbol("assignment");
-      nodes.push(
-        concat([
-          node,
-          " ",
-          equals,
-          indent(group(line, { id: groupId })),
-          indentIfBreak(nextNode, { groupId })
-        ])
-      );
-    }
-
-    const content = binary(nodes, tokens, true);
-
-    return hasTokens && params?.addParenthesisToWrapStatement
+  conditionalExpression(path, print) {
+    const binaryExpression = call(path, print, "binaryExpression");
+    return path.node.children.QuestionMark
       ? group(
-          concat([
+          indent(
+            join(line, [
+              binaryExpression,
+              ["? ", call(path, print, "expression", 0)],
+              [": ", call(path, print, "expression", 1)]
+            ])
+          )
+        )
+      : binaryExpression;
+  },
+
+  binaryExpression(path, print, options) {
+    const { children } = path.node;
+    const operands = flatMap(
+      path,
+      print,
+      definedKeys(children, [
+        "expression",
+        "pattern",
+        "referenceType",
+        "unaryExpression"
+      ])
+    );
+    const operators = flatMap(
+      path,
+      operatorPath => {
+        const { node } = operatorPath;
+        let image: string;
+        if (isTerminal(node)) {
+          image = node.image;
+        } else if (node.children.Less) {
+          image = "<<";
+        } else {
+          image = node.children.Greater!.length === 2 ? ">>" : ">>>";
+        }
+        return { image, doc: print(operatorPath) };
+      },
+      definedKeys(children, [
+        "AssignmentOperator",
+        "BinaryOperator",
+        "Instanceof",
+        "shiftOperator"
+      ])
+    );
+    const hasNonAssignmentOperators =
+      (operators.length > 0 && !children.AssignmentOperator) ||
+      (children.expression !== undefined &&
+        isBinaryExpression(children.expression[0]));
+    return binary(operands, operators, {
+      hasNonAssignmentOperators,
+      isRoot: true,
+      operatorPosition: options.experimentalOperatorPosition
+    });
+  },
+
+  unaryExpression(path, print) {
+    return [
+      ...map(path, print, "UnaryPrefixOperator"),
+      call(path, print, "primary"),
+      ...map(path, print, "UnarySuffixOperator")
+    ];
+  },
+
+  unaryExpressionNotPlusMinus(path, print) {
+    const { children } = path.node;
+    const expression: Doc[] = [];
+    if (children.UnaryPrefixOperatorNotPlusMinus) {
+      expression.push(...map(path, print, "UnaryPrefixOperatorNotPlusMinus"));
+    }
+    expression.push(call(path, print, "primary"));
+    if (children.UnarySuffixOperator) {
+      expression.push(...map(path, print, "UnarySuffixOperator"));
+    }
+    return join(" ", expression);
+  },
+
+  primary(path, print) {
+    const { children } = path.node;
+    if (!children.primarySuffix) {
+      return call(path, print, "primaryPrefix");
+    }
+    const methodInvocations = children.primarySuffix
+      .filter(({ children }) => children.methodInvocationSuffix)
+      .map(({ children }) => children.methodInvocationSuffix![0].children);
+    const hasLambdaMethodParameter = methodInvocations.some(
+      ({ argumentList }) =>
+        argumentList?.[0].children.expression.some(
+          ({ children }) => children.lambdaExpression
+        )
+    );
+    const prefixIsCallExpression =
+      children.primaryPrefix[0].children.newExpression;
+    const callExpressionCount =
+      methodInvocations.length +
+      (prefixIsCallExpression ? 1 : 0) +
+      children.primarySuffix.filter(
+        ({ children }) => children.unqualifiedClassInstanceCreationExpression
+      ).length;
+    const fqnOrRefType =
+      children.primaryPrefix[0].children.fqnOrRefType?.[0].children;
+    const prefixIsMethodInvocation =
+      fqnOrRefType?.fqnOrRefTypePartRest !== undefined &&
+      children.primarySuffix?.[0].children.methodInvocationSuffix !== undefined;
+    const prefixIsStaticMethodInvocation =
+      prefixIsMethodInvocation && isCapitalizedIdentifier(fqnOrRefType);
+    const prefixIsInstanceMethodInvocation =
+      prefixIsMethodInvocation && !prefixIsStaticMethodInvocation;
+    const mustBreakForCallExpressions =
+      methodInvocations.length > 2 && hasLambdaMethodParameter;
+    const separator = mustBreakForCallExpressions ? hardline : softline;
+    const prefix = [
+      call(
+        path,
+        prefixPath =>
+          print(prefixPath, {
+            lastSeparator:
+              prefixIsStaticMethodInvocation ||
+              (prefixIsInstanceMethodInvocation && callExpressionCount === 1)
+                ? ""
+                : separator
+          }),
+        "primaryPrefix"
+      )
+    ];
+    const canBreakForCallExpressions =
+      callExpressionCount > 2 ||
+      (callExpressionCount === 2 && prefixIsInstanceMethodInvocation) ||
+      willBreak(prefix);
+    const suffixes: Doc[] = [];
+    each(
+      path,
+      suffixPath => {
+        const { node, previous } = suffixPath;
+        const suffix = print(suffixPath);
+        if (node.children.Dot) {
+          if (
+            (canBreakForCallExpressions &&
+              ((!previous && prefixIsCallExpression) ||
+                previous?.children.methodInvocationSuffix ||
+                previous?.children
+                  .unqualifiedClassInstanceCreationExpression)) ||
+            (!node.children.templateArgument && willBreak(suffix))
+          ) {
+            suffixes.push(separator);
+          }
+          suffixes.push(suffix);
+        } else if (previous) {
+          suffixes.push(suffix);
+        } else {
+          prefix.push(
+            prefixIsInstanceMethodInvocation && callExpressionCount >= 2
+              ? indent(suffix)
+              : suffix
+          );
+        }
+      },
+      "primarySuffix"
+    );
+    return group(
+      canBreakForCallExpressions || willBreak(suffixes)
+        ? [prefix, indent(suffixes)]
+        : [prefix, ...suffixes]
+    );
+  },
+
+  primaryPrefix: printSingle,
+
+  primarySuffix(path, print) {
+    const { children } = path.node;
+    if (!children.Dot) {
+      return printSingle(path, print);
+    }
+    const suffix: Doc[] = ["."];
+    if (children.This) {
+      suffix.push("this");
+    } else if (children.Identifier) {
+      if (children.typeArguments) {
+        suffix.push(call(path, print, "typeArguments"));
+      }
+      suffix.push(call(path, print, "Identifier"));
+    } else {
+      const suffixKey = onlyDefinedKey(children, [
+        "templateArgument",
+        "unqualifiedClassInstanceCreationExpression"
+      ]);
+      suffix.push(call(path, print, suffixKey));
+    }
+    return suffix;
+  },
+
+  fqnOrRefType(path, print, _, args) {
+    const lastSeparator = (args as { lastSeparator?: Doc }).lastSeparator ?? "";
+    const fqnOrRefType = [
+      call(path, print, "fqnOrRefTypePartFirst"),
+      ...map(
+        path,
+        partPath => {
+          const part = print(partPath);
+          return partPath.isLast
+            ? [willBreak(part) ? hardline : lastSeparator, part]
+            : part;
+        },
+        "fqnOrRefTypePartRest"
+      )
+    ];
+    fqnOrRefType.push(indent(fqnOrRefType.pop()!));
+    return path.node.children.dims
+      ? [fqnOrRefType, call(path, print, "dims")]
+      : fqnOrRefType;
+  },
+
+  fqnOrRefTypePartFirst(path, print) {
+    return join(" ", [
+      ...map(path, print, "annotation"),
+      call(path, print, "fqnOrRefTypePartCommon")
+    ]);
+  },
+
+  fqnOrRefTypePartRest(path, print) {
+    const common = call(path, print, "fqnOrRefTypePartCommon");
+    const type = path.node.children.typeArguments
+      ? [call(path, print, "typeArguments"), common]
+      : common;
+    return [".", ...join(" ", [...map(path, print, "annotation"), type])];
+  },
+
+  fqnOrRefTypePartCommon(path, print) {
+    const { children } = path.node;
+    const keywordKey = onlyDefinedKey(children, ["Identifier", "Super"]);
+    const keyword = call(path, print, keywordKey);
+    return children.typeArguments
+      ? [keyword, call(path, print, "typeArguments")]
+      : keyword;
+  },
+
+  parenthesisExpression(path, print) {
+    const expression = call(path, print, "expression");
+    const ancestorName = (path.getNode(14) as JavaNonTerminal | null)?.name;
+    const binaryExpression = path.getNode(8) as JavaNonTerminal | null;
+    return ancestorName &&
+      ["guard", "returnStatement"].includes(ancestorName) &&
+      binaryExpression &&
+      binaryExpression.name === "binaryExpression" &&
+      Object.keys(binaryExpression.children).length === 1
+      ? indentInParentheses(expression)
+      : ["(", indent(expression), ")"];
+  },
+
+  castExpression: printSingle,
+
+  primitiveCastExpression(path, print) {
+    return [
+      "(",
+      call(path, print, "primitiveType"),
+      ") ",
+      call(path, print, "unaryExpression")
+    ];
+  },
+
+  referenceTypeCastExpression(path, print) {
+    const { children } = path.node;
+    const type = call(path, print, "referenceType");
+    const cast = children.additionalBound
+      ? indentInParentheses(
+          join(line, [type, ...map(path, print, "additionalBound")])
+        )
+      : ["(", type, ")"];
+    const expressionKey = onlyDefinedKey(children, [
+      "lambdaExpression",
+      "unaryExpressionNotPlusMinus"
+    ]);
+    return [cast, " ", call(path, print, expressionKey)];
+  },
+
+  newExpression: printSingle,
+
+  unqualifiedClassInstanceCreationExpression(path, print) {
+    const { children } = path.node;
+    const expression: Doc[] = ["new "];
+    if (children.typeArguments) {
+      expression.push(call(path, print, "typeArguments"));
+    }
+    expression.push(
+      call(path, print, "classOrInterfaceTypeToInstantiate"),
+      children.argumentList
+        ? group(["(", call(path, print, "argumentList"), ")"])
+        : "()"
+    );
+    if (children.classBody) {
+      expression.push(" ", call(path, print, "classBody"));
+    }
+    return expression;
+  },
+
+  classOrInterfaceTypeToInstantiate(path, print) {
+    const { children } = path.node;
+    const type = children.annotation
+      ? flatMap(
+          path,
+          childPath => [
+            print(childPath),
+            isNonTerminal(childPath.node) ? " " : "."
+          ],
+          ["annotation", "Identifier"]
+        )
+      : printName(path, print);
+    if (children.typeArgumentsOrDiamond) {
+      type.push(call(path, print, "typeArgumentsOrDiamond"));
+    }
+    return type;
+  },
+
+  typeArgumentsOrDiamond: printSingle,
+
+  diamond() {
+    return "<>";
+  },
+
+  methodInvocationSuffix(path, print) {
+    return path.node.children.argumentList
+      ? group(["(", call(path, print, "argumentList"), ")"])
+      : indentInParentheses(printDanglingComments(path), { shouldBreak: true });
+  },
+
+  argumentList(path, print) {
+    const expressions = path.node.children.expression;
+    const lastExpression = expressions.at(
+      -1
+    ) as (typeof expressions)[number] & { comments?: JavaComment[] };
+    const lastExpressionLambdaBodyExpression =
+      lastExpression.children.lambdaExpression?.[0].children.lambdaBody[0]
+        .children.expression?.[0].children;
+    const lastExpressionLambdaBodyTernaryExpression =
+      lastExpressionLambdaBodyExpression?.conditionalExpression?.[0].children;
+    const isHuggable =
+      !lastExpression.comments &&
+      (!lastExpressionLambdaBodyExpression ||
+        lastExpressionLambdaBodyTernaryExpression?.QuestionMark !== undefined ||
+        lastExpressionLambdaBodyTernaryExpression?.binaryExpression?.[0]
+          .children.unaryExpression.length === 1) &&
+      expressions.findIndex(({ children }) => children.lambdaExpression) ===
+        expressions.length - 1;
+    const args = map(path, print, "expression");
+    const allArgsExpandable = [
+      indent([softline, ...join([",", line], args)]),
+      softline
+    ];
+    if (!isHuggable || willBreak((args.at(-1) as Doc[])[0])) {
+      return allArgsExpandable;
+    }
+    const headArgs = args.slice(0, -1);
+    const huggedLastArg = call(
+      path,
+      argPath => print(argPath, { hug: true }),
+      "expression",
+      args.length - 1
+    );
+    const lastArgExpanded = join(", ", [
+      ...headArgs,
+      group(huggedLastArg, { shouldBreak: true })
+    ]);
+    if (willBreak(huggedLastArg)) {
+      return [
+        breakParent,
+        conditionalGroup([lastArgExpanded, allArgsExpandable])
+      ];
+    }
+    return conditionalGroup([
+      join(", ", [...headArgs, huggedLastArg]),
+      lastArgExpanded,
+      allArgsExpandable
+    ]);
+  },
+
+  arrayCreationExpression(path, print) {
+    const { children } = path.node;
+    const typeKey = onlyDefinedKey(children, [
+      "classOrInterfaceType",
+      "primitiveType"
+    ]);
+    const suffixKey = onlyDefinedKey(children, [
+      "arrayCreationExpressionWithoutInitializerSuffix",
+      "arrayCreationWithInitializerSuffix"
+    ]);
+    return ["new ", call(path, print, typeKey), call(path, print, suffixKey)];
+  },
+
+  arrayCreationExpressionWithoutInitializerSuffix(path, print) {
+    const expressions = call(path, print, "dimExprs");
+    return path.node.children.dims
+      ? [expressions, call(path, print, "dims")]
+      : expressions;
+  },
+
+  arrayCreationWithInitializerSuffix(path, print) {
+    return [
+      call(path, print, "dims"),
+      " ",
+      call(path, print, "arrayInitializer")
+    ];
+  },
+
+  dimExprs(path, print) {
+    return map(path, print, "dimExpr");
+  },
+
+  dimExpr(path, print) {
+    return join(" ", [
+      ...map(path, print, "annotation"),
+      ["[", call(path, print, "expression"), "]"]
+    ]);
+  },
+
+  classLiteralSuffix(path, print) {
+    const lSquares = map(path, print, "LSquare");
+    const rSquares = map(path, print, "RSquare");
+    return [
+      ...lSquares.flatMap((lSquare, index) => [lSquare, rSquares[index]]),
+      ".class"
+    ];
+  },
+
+  arrayAccessSuffix(path, print) {
+    return ["[", call(path, print, "expression"), "]"];
+  },
+
+  methodReferenceSuffix(path, print) {
+    const { children } = path.node;
+    const reference: Doc[] = ["::"];
+    if (children.typeArguments) {
+      reference.push(call(path, print, "typeArguments"));
+    }
+    reference.push(
+      call(path, print, onlyDefinedKey(children, ["Identifier", "New"]))
+    );
+    return reference;
+  },
+
+  templateArgument: printSingle,
+  template: printSingle,
+
+  stringTemplate(path, print) {
+    return printTemplate(
+      path,
+      print,
+      "StringTemplateBegin",
+      "StringTemplateMid",
+      "StringTemplateEnd"
+    );
+  },
+
+  textBlockTemplate(path, print) {
+    return printTemplate(
+      path,
+      print,
+      "TextBlockTemplateBegin",
+      "TextBlockTemplateMid",
+      "TextBlockTemplateEnd"
+    );
+  },
+
+  embeddedExpression: printSingle,
+  pattern: printSingle,
+  typePattern: printSingle,
+
+  recordPattern(path, print) {
+    const patterns = path.node.children.componentPatternList
+      ? indentInParentheses(call(path, print, "componentPatternList"))
+      : "()";
+    return [call(path, print, "referenceType"), patterns];
+  },
+
+  componentPatternList(path, print) {
+    return printList(path, print, "componentPattern");
+  },
+
+  componentPattern: printSingle,
+  matchAllPattern: printSingle,
+
+  guard(path, print) {
+    const expression = call(path, print, "expression");
+    const hasParentheses =
+      path.node.children.expression[0].children.conditionalExpression?.[0]
+        .children.binaryExpression[0].children.unaryExpression[0].children
+        .primary[0].children.primaryPrefix[0].children.parenthesisExpression !==
+      undefined;
+    return [
+      "when ",
+      hasParentheses
+        ? expression
+        : group([
             ifBreak("("),
-            indent(concat([softline, content])),
+            indent([softline, expression]),
             softline,
             ifBreak(")")
           ])
-        )
-      : content;
-  }
-
-  unaryExpression(
-    ctx: UnaryExpressionCtx,
-    params?: { addParenthesisToWrapStatement?: boolean }
-  ) {
-    const unaryPrefixOperator = ctx.UnaryPrefixOperator
-      ? ctx.UnaryPrefixOperator
-      : [];
-    const primary = this.visit(ctx.primary, params);
-    const unarySuffixOperator = ctx.UnarySuffixOperator
-      ? ctx.UnarySuffixOperator
-      : [];
-    return rejectAndConcat([
-      rejectAndConcat(unaryPrefixOperator),
-      primary,
-      rejectAndConcat(unarySuffixOperator)
-    ]);
-  }
-
-  unaryExpressionNotPlusMinus(ctx: UnaryExpressionNotPlusMinusCtx) {
-    const unaryPrefixOperatorNotPlusMinus = ctx.UnaryPrefixOperatorNotPlusMinus // changed when moved to TS
-      ? rejectAndJoin(" ", ctx.UnaryPrefixOperatorNotPlusMinus) // changed when moved to TS
-      : "";
-
-    const primary = this.visit(ctx.primary);
-    const unarySuffixOperator = ctx.UnarySuffixOperator // changed when moved to TS
-      ? rejectAndJoin(" ", ctx.UnarySuffixOperator) // changed when moved to TS
-      : "";
-
-    return rejectAndJoin(" ", [
-      unaryPrefixOperatorNotPlusMinus,
-      primary,
-      unarySuffixOperator
-    ]);
-  }
-
-  primary(
-    ctx: PrimaryCtx,
-    params?: { addParenthesisToWrapStatement?: boolean }
-  ) {
-    const countMethodInvocation = isUniqueMethodInvocation(ctx.primarySuffix);
-    const newExpression =
-      ctx.primaryPrefix[0].children.newExpression?.[0].children;
-    const isBreakableNewExpression =
-      countMethodInvocation <= 1 &&
-      this.isBreakableNewExpression(newExpression);
-    const firstMethodInvocation = ctx.primarySuffix
-      ?.map(suffix => suffix.children.methodInvocationSuffix?.[0].children)
-      .find(methodInvocationSuffix => methodInvocationSuffix);
-
-    const fqnOrRefType =
-      ctx.primaryPrefix[0].children.fqnOrRefType?.[0].children;
-    const hasFqnRefPart = fqnOrRefType?.fqnOrRefTypePartRest !== undefined;
-    const isCapitalizedIdentifier = this.isCapitalizedIdentifier(fqnOrRefType);
-
-    const shouldBreakBeforeFirstMethodInvocation =
-      countMethodInvocation > 1 && hasFqnRefPart && !isCapitalizedIdentifier;
-
-    const shouldBreakBeforeMethodInvocations =
-      shouldBreakBeforeFirstMethodInvocation ||
-      countMethodInvocation > 2 ||
-      (countMethodInvocation > 1 && !!newExpression) ||
-      !firstMethodInvocation?.argumentList;
-
-    const primaryPrefix = this.visit(ctx.primaryPrefix, {
-      ...params,
-      shouldBreakBeforeFirstMethodInvocation
-    });
-
-    const suffixes = this.getPrimarySuffixes(
-      ctx,
-      newExpression,
-      isBreakableNewExpression,
-      shouldBreakBeforeMethodInvocations
-    );
-
-    if (!newExpression && countMethodInvocation === 1) {
-      return group(
-        rejectAndConcat([
-          primaryPrefix,
-          suffixes[0],
-          indent(rejectAndConcat(suffixes.slice(1)))
-        ])
-      );
-    }
-
-    const methodInvocation =
-      ctx.primarySuffix?.[0].children.methodInvocationSuffix;
-    const isMethodInvocationWithArguments =
-      methodInvocation?.[0].children.argumentList !== undefined;
-    const isUnqualifiedMethodInvocation =
-      methodInvocation !== undefined && !fqnOrRefType?.Dot;
-    return group(
-      rejectAndConcat([
-        primaryPrefix,
-        isCapitalizedIdentifier || isUnqualifiedMethodInvocation
-          ? suffixes.shift()
-          : "",
-        !isBreakableNewExpression &&
-        (shouldBreakBeforeMethodInvocations || !isMethodInvocationWithArguments)
-          ? indent(concat(suffixes))
-          : concat(suffixes)
-      ])
-    );
-  }
-
-  primaryPrefix(ctx: PrimaryPrefixCtx, params: any) {
-    if (ctx.This || ctx.Void) {
-      return printTokenWithComments(this.getSingle(ctx) as IToken);
-    }
-
-    return this.visitSingle(ctx, params);
-  }
-
-  primarySuffix(ctx: PrimarySuffixCtx, params: any) {
-    if (ctx.Dot) {
-      if (ctx.This) {
-        return rejectAndConcat([ctx.Dot[0], ctx.This[0]]);
-      } else if (ctx.Identifier) {
-        const typeArguments = this.visit(ctx.typeArguments);
-        return rejectAndConcat([ctx.Dot[0], typeArguments, ctx.Identifier[0]]);
-      }
-
-      const suffix = this.visit(
-        ctx.unqualifiedClassInstanceCreationExpression ?? ctx.templateArgument
-      );
-      return rejectAndConcat([ctx.Dot[0], suffix]);
-    }
-    return this.visitSingle(ctx, params);
-  }
-
-  fqnOrRefType(ctx: FqnOrRefTypeCtx, params: any) {
-    const fqnOrRefTypePartFirst = this.visit(ctx.fqnOrRefTypePartFirst);
-    const fqnOrRefTypePartRest = this.mapVisit(ctx.fqnOrRefTypePartRest);
-    const dims = this.visit(ctx.dims);
-    const dots = ctx.Dot
-      ? ctx.Dot.map(dot => {
-          if (hasLeadingComments(dot)) {
-            return concat([softline, dot]);
-          }
-          return dot;
-        })
-      : [];
-
-    if (
-      params?.shouldBreakBeforeFirstMethodInvocation === true &&
-      ctx.Dot !== undefined
-    ) {
-      dots[dots.length - 1] = concat([softline, ctx.Dot[ctx.Dot.length - 1]]);
-    }
-
-    return indent(
-      rejectAndConcat([
-        rejectAndJoinSeps(dots, [
-          fqnOrRefTypePartFirst,
-          ...fqnOrRefTypePartRest
-        ]),
-        dims
-      ])
-    );
-  }
-
-  fqnOrRefTypePartFirst(ctx: FqnOrRefTypePartFirstCtx) {
-    const annotation = this.mapVisit(ctx.annotation);
-    const fqnOrRefTypeCommon = this.visit(ctx.fqnOrRefTypePartCommon);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", annotation),
-      fqnOrRefTypeCommon
-    ]);
-  }
-
-  fqnOrRefTypePartRest(ctx: FqnOrRefTypePartRestCtx) {
-    const annotation = this.mapVisit(ctx.annotation);
-    const fqnOrRefTypeCommon = this.visit(ctx.fqnOrRefTypePartCommon);
-
-    const typeArguments = this.visit(ctx.typeArguments);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", annotation),
-      rejectAndConcat([typeArguments, fqnOrRefTypeCommon])
-    ]);
-  }
-
-  fqnOrRefTypePartCommon(ctx: FqnOrRefTypePartCommonCtx) {
-    let keyWord = null;
-    if (ctx.Identifier) {
-      keyWord = ctx.Identifier[0];
-    } else {
-      keyWord = ctx.Super![0];
-    }
-
-    const typeArguments = this.visit(ctx.typeArguments);
-
-    return rejectAndConcat([keyWord, typeArguments]);
-  }
-
-  parenthesisExpression(
-    ctx: ParenthesisExpressionCtx,
-    params?: { addParenthesisToWrapStatement?: boolean }
-  ) {
-    const expression = this.visit(ctx.expression);
-    const separator = params?.addParenthesisToWrapStatement ? softline : "";
-    return putIntoBraces(expression, separator, ctx.LBrace[0], ctx.RBrace[0]);
-  }
-
-  castExpression(ctx: CastExpressionCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  primitiveCastExpression(ctx: PrimitiveCastExpressionCtx) {
-    const primitiveType = this.visit(ctx.primitiveType);
-    const unaryExpression = this.visit(ctx.unaryExpression);
-    return rejectAndJoin(" ", [
-      rejectAndConcat([ctx.LBrace[0], primitiveType, ctx.RBrace[0]]),
-      unaryExpression
-    ]);
-  }
-
-  referenceTypeCastExpression(ctx: ReferenceTypeCastExpressionCtx) {
-    const referenceType = this.visit(ctx.referenceType);
-    const hasAdditionalBounds = ctx.additionalBound !== undefined;
-    const additionalBounds = rejectAndJoin(
-      line,
-      this.mapVisit(ctx.additionalBound)
-    );
-
-    const expression = ctx.lambdaExpression
-      ? this.visit(ctx.lambdaExpression)
-      : this.visit(ctx.unaryExpressionNotPlusMinus);
-
-    return rejectAndJoin(" ", [
-      putIntoBraces(
-        rejectAndJoin(line, [referenceType, additionalBounds]),
-        hasAdditionalBounds ? softline : "",
-        ctx.LBrace[0],
-        ctx.RBrace[0]
-      ),
-      expression
-    ]);
-  }
-
-  newExpression(ctx: NewExpressionCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  unqualifiedClassInstanceCreationExpression(
-    ctx: UnqualifiedClassInstanceCreationExpressionCtx
-  ) {
-    const typeArguments = this.visit(ctx.typeArguments);
-    const classOrInterfaceTypeToInstantiate = this.visit(
-      ctx.classOrInterfaceTypeToInstantiate
-    );
-
-    let content = printArgumentListWithBraces.call(
-      this,
-      ctx.argumentList,
-      ctx.RBrace[0],
-      ctx.LBrace[0]
-    );
-
-    const classBody = this.visit(ctx.classBody);
-
-    return rejectAndJoin(" ", [
-      ctx.New[0],
-      rejectAndConcat([
-        typeArguments,
-        classOrInterfaceTypeToInstantiate,
-        content
-      ]),
-      classBody
-    ]);
-  }
-
-  classOrInterfaceTypeToInstantiate(ctx: ClassOrInterfaceTypeToInstantiateCtx) {
-    const tokens = sortAnnotationIdentifier(ctx.annotation, ctx.Identifier);
-
-    const segments: any[] = [];
-    let currentSegment: any[] = [];
-
-    forEach(tokens, token => {
-      if (isAnnotationCstNode(token)) {
-        currentSegment.push(this.visit([token]));
-      } else {
-        currentSegment.push(token);
-        segments.push(rejectAndJoin(" ", currentSegment));
-        currentSegment = [];
-      }
-    });
-
-    const typeArgumentsOrDiamond = this.visit(ctx.typeArgumentsOrDiamond);
-    const dots = ctx.Dot ? ctx.Dot : [];
-    return rejectAndConcat([
-      rejectAndJoinSeps(dots, segments),
-      typeArgumentsOrDiamond
-    ]);
-  }
-
-  typeArgumentsOrDiamond(ctx: TypeArgumentsOrDiamondCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  diamond(ctx: DiamondCtx) {
-    return concat([ctx.Less[0], ctx.Greater[0]]);
-  }
-
-  methodInvocationSuffix(ctx: MethodInvocationSuffixCtx) {
-    return printArgumentListWithBraces.call(
-      this,
-      ctx.argumentList,
-      ctx.RBrace[0],
-      ctx.LBrace[0]
-    );
-  }
-
-  argumentList(ctx: ArgumentListCtx) {
-    const headArgs = this.mapVisit(ctx.expression.slice(0, -1)).map(
-      (expression, index) => concat([expression, ctx.Comma![index], line])
-    );
-    const lastExpression = ctx.expression.at(-1);
-    const lastArg = this.visit(lastExpression);
-
-    if (this.isArgumentListHuggable(ctx)) {
-      const huggedLastArg = this.visit(lastExpression, { hug: true });
-      const lastArgNotHuggable =
-        typeof huggedLastArg === "object" &&
-        !Array.isArray(huggedLastArg) &&
-        huggedLastArg.type === "label" &&
-        huggedLastArg.label?.huggable === false;
-
-      if (lastArgNotHuggable || headArgs.some(willBreak)) {
-        return group([indent([line, ...headArgs, lastArg]), line], {
-          shouldBreak: true
-        });
-      }
-      const hugged = [...headArgs, group(huggedLastArg, { shouldBreak: true })];
-      const expanded = group([indent([line, ...headArgs, lastArg]), line], {
-        shouldBreak: true
-      });
-
-      return willBreak(huggedLastArg)
-        ? [breakParent, conditionalGroup([hugged, expanded])]
-        : conditionalGroup([[...headArgs, huggedLastArg], hugged, expanded]);
-    }
-
-    return group([indent([softline, ...headArgs, lastArg]), softline]);
-  }
-
-  arrayCreationExpression(ctx: ArrayCreationExpressionCtx) {
-    const type = ctx.primitiveType
-      ? this.visit(ctx.primitiveType)
-      : this.visit(ctx.classOrInterfaceType);
-    const suffix = ctx.arrayCreationExpressionWithoutInitializerSuffix
-      ? this.visit(ctx.arrayCreationExpressionWithoutInitializerSuffix)
-      : this.visit(ctx.arrayCreationWithInitializerSuffix);
-
-    return rejectAndConcat([concat([ctx.New[0], " "]), type, suffix]);
-  }
-
-  arrayCreationExpressionWithoutInitializerSuffix(
-    ctx: ArrayCreationExpressionWithoutInitializerSuffixCtx
-  ) {
-    const dimExprs = this.visit(ctx.dimExprs);
-    const dims = this.visit(ctx.dims);
-    return rejectAndConcat([dimExprs, dims]);
-  }
-
-  arrayCreationWithInitializerSuffix(
-    ctx: ArrayCreationWithInitializerSuffixCtx
-  ) {
-    const dims = this.visit(ctx.dims);
-    const arrayInitializer = this.visit(ctx.arrayInitializer);
-
-    return rejectAndJoin(" ", [dims, arrayInitializer]);
-  }
-
-  dimExprs(ctx: DimExprsCtx) {
-    const dimExpr = this.mapVisit(ctx.dimExpr);
-    return rejectAndConcat(dimExpr);
-  }
-
-  dimExpr(ctx: DimExprCtx) {
-    const annotations = this.mapVisit(ctx.annotation);
-    const expression = this.visit(ctx.expression);
-
-    return rejectAndJoin(" ", [
-      rejectAndJoin(" ", annotations),
-      rejectAndConcat([ctx.LSquare[0], expression, ctx.RSquare[0]])
-    ]);
-  }
-
-  classLiteralSuffix(ctx: ClassLiteralSuffixCtx) {
-    const squares = [];
-    if (ctx.LSquare) {
-      for (let i = 0; i < ctx.LSquare.length; i++) {
-        squares.push(concat([ctx.LSquare[i], ctx.RSquare![i]]));
-      }
-    }
-    return rejectAndConcat([...squares, ctx.Dot[0], ctx.Class[0]]);
-  }
-
-  arrayAccessSuffix(ctx: ArrayAccessSuffixCtx) {
-    const expression = this.visit(ctx.expression);
-    return rejectAndConcat([ctx.LSquare[0], expression, ctx.RSquare[0]]);
-  }
-
-  methodReferenceSuffix(ctx: MethodReferenceSuffixCtx) {
-    const typeArguments = this.visit(ctx.typeArguments);
-    const identifierOrNew = ctx.New ? ctx.New[0] : ctx.Identifier![0];
-    return rejectAndConcat([ctx.ColonColon[0], typeArguments, identifierOrNew]);
-  }
-
-  templateArgument(ctx: TemplateArgumentCtx) {
-    return ctx.template
-      ? this.visit(ctx.template)
-      : printTokenWithComments((ctx.StringLiteral ?? ctx.TextBlock)![0]);
-  }
-
-  template(ctx: TemplateCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  stringTemplate(ctx: StringTemplateCtx) {
-    const embeddedExpressions = this.mapVisit(ctx.embeddedExpression).flatMap(
-      expression =>
-        group([softline, expression, lineSuffixBoundary, dedent(softline)])
-    );
-    return concat([
-      ctx.StringTemplateBegin[0],
-      rejectAndJoinSeps(ctx.StringTemplateMid, embeddedExpressions),
-      ctx.StringTemplateEnd[0]
-    ]);
-  }
-
-  textBlockTemplate(ctx: TextBlockTemplateCtx) {
-    const embeddedExpressions = this.mapVisit(ctx.embeddedExpression).flatMap(
-      expression =>
-        group([softline, expression, lineSuffixBoundary, dedent(softline)])
-    );
-    return concat([
-      ctx.TextBlockTemplateBegin[0],
-      rejectAndJoinSeps(ctx.TextBlockTemplateMid, embeddedExpressions),
-      ctx.TextBlockTemplateEnd[0]
-    ]);
-  }
-
-  embeddedExpression(ctx: EmbeddedExpressionCtx) {
-    return this.visit(ctx.expression);
-  }
-
-  pattern(ctx: PatternCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  typePattern(ctx: TypePatternCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  recordPattern(ctx: RecordPatternCtx) {
-    const componentPatterns =
-      ctx.componentPatternList?.[0].children.componentPattern ?? [];
-    handleCommentsParameters(ctx.LBrace[0], componentPatterns, ctx.RBrace[0]);
-    const referenceType = this.visit(ctx.referenceType);
-    const componentPatternList = this.visit(ctx.componentPatternList);
-    return concat([
-      referenceType,
-      putIntoBraces(
-        componentPatternList,
-        softline,
-        ctx.LBrace[0],
-        ctx.RBrace[0]
-      )
-    ]);
-  }
-
-  componentPatternList(ctx: ComponentPatternListCtx) {
-    const componentPatterns = this.mapVisit(ctx.componentPattern);
-    const commas = ctx.Comma?.map(elt => concat([elt, line])) ?? [];
-    return rejectAndJoinSeps(commas, componentPatterns);
-  }
-
-  componentPattern(ctx: ComponentPatternCtx) {
-    return this.visitSingle(ctx);
-  }
-
-  matchAllPattern(ctx: MatchAllPatternCtx) {
-    return printTokenWithComments(ctx.Underscore[0]);
-  }
-
-  guard(ctx: GuardCtx) {
-    const expression = this.visit(ctx.expression, {
-      addParenthesisToWrapStatement: true
-    });
-
-    return concat([ctx.When[0], " ", expression]);
-  }
-
-  isRefTypeInMethodRef() {
-    return "isRefTypeInMethodRef";
-  }
-
-  private isArgumentListHuggable(argumentList: ArgumentListCtx) {
-    const expressions = argumentList.expression;
-    const lastArgument = expressions.at(-1);
-    const lastArgumentLambdaBodyExpression =
-      lastArgument?.children.lambdaExpression?.[0].children.lambdaBody[0]
-        .children.expression?.[0].children;
-    const lastArgumentLambdaBodyTernaryExpression =
-      lastArgumentLambdaBodyExpression?.conditionalExpression?.[0].children;
-    return (
-      !lastArgument?.leadingComments &&
-      !lastArgument?.trailingComments &&
-      (!lastArgumentLambdaBodyExpression ||
-        lastArgumentLambdaBodyTernaryExpression?.QuestionMark !== undefined ||
-        lastArgumentLambdaBodyTernaryExpression?.binaryExpression[0].children
-          .unaryExpression.length === 1) &&
-      expressions.findIndex(({ children }) => children.lambdaExpression) ===
-        expressions.length - 1
-    );
-  }
-
-  private isBreakableNewExpression(newExpression?: NewExpressionCtx) {
-    const arrayCreationExpression =
-      newExpression?.arrayCreationExpression?.[0].children;
-    const classInstanceCreationExpression =
-      newExpression?.unqualifiedClassInstanceCreationExpression?.[0].children;
-    return [
-      arrayCreationExpression?.classOrInterfaceType?.[0].children.classType[0]
-        .children.typeArguments,
-      arrayCreationExpression?.arrayCreationWithInitializerSuffix?.[0].children
-        .arrayInitializer[0].children.variableInitializerList,
-      classInstanceCreationExpression?.classOrInterfaceTypeToInstantiate[0]
-        .children.typeArgumentsOrDiamond?.[0].children.typeArguments,
-      classInstanceCreationExpression?.argumentList
-    ].some(breakablePart => breakablePart !== undefined);
-  }
-
-  private isCapitalizedIdentifier(fqnOrRefType?: FqnOrRefTypeCtx) {
-    const fqnOrRefTypeParts = [
-      fqnOrRefType?.fqnOrRefTypePartFirst[0],
-      ...(fqnOrRefType?.fqnOrRefTypePartRest ?? [])
     ];
-    const nextToLastIdentifier =
-      fqnOrRefTypeParts[fqnOrRefTypeParts.length - 2]?.children
-        .fqnOrRefTypePartCommon[0].children.Identifier?.[0].image;
-    return (
-      !!nextToLastIdentifier &&
-      /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier)
-    );
   }
+} satisfies Partial<JavaNodePrinters>;
 
-  private getPrimarySuffixes(
-    ctx: PrimaryCtx,
-    newExpression: NewExpressionCtx | undefined,
-    isBreakableNewExpression: boolean,
-    shouldBreakBeforeMethodInvocations: NewExpressionCtx | boolean
-  ) {
-    if (ctx.primarySuffix === undefined) {
-      return [];
-    }
+function binary(
+  operands: Doc[],
+  operators: { image: string; doc: Doc }[],
+  {
+    hasNonAssignmentOperators = false,
+    isRoot = false,
+    operatorPosition
+  }: {
+    hasNonAssignmentOperators?: boolean;
+    isRoot?: boolean;
+    operatorPosition: "end" | "start";
+  }
+): Doc {
+  let levelOperator: string | undefined;
+  let levelPrecedence: number | undefined;
+  let level: Doc[] = [];
+  while (operators.length) {
+    const nextOperator = operators[0].image;
+    const nextPrecedence = getOperatorPrecedence(nextOperator);
 
-    const suffixes = [];
-
-    if (
-      newExpression &&
-      !isBreakableNewExpression &&
-      ctx.primarySuffix[0].children.Dot !== undefined
-    ) {
-      suffixes.push(softline);
-    }
-    suffixes.push(this.visit(ctx.primarySuffix[0]));
-
-    for (let i = 1; i < ctx.primarySuffix.length; i++) {
+    if (levelPrecedence === undefined || nextPrecedence === levelPrecedence) {
+      const { image: operator, doc: operatorDoc } = operators.shift()!;
+      level.push(operands.shift()!);
       if (
-        shouldBreakBeforeMethodInvocations &&
-        ctx.primarySuffix[i].children.Dot !== undefined &&
-        ctx.primarySuffix[i - 1].children.methodInvocationSuffix !== undefined
+        levelOperator !== undefined &&
+        needsParentheses(levelOperator, operator)
       ) {
-        suffixes.push(softline);
+        level = [["(", group(indent(level)), ")"]];
       }
-      suffixes.push(this.visit(ctx.primarySuffix[i]));
+      const parts = [" ", operatorDoc, line];
+      if (operatorPosition === "start" && !isAssignmentOperator(operator)) {
+        parts.reverse();
+      }
+      level.push(parts);
+      levelOperator = operator;
+      levelPrecedence = nextPrecedence;
+    } else if (nextPrecedence < levelPrecedence) {
+      if (!isRoot) {
+        break;
+      }
+      level.push(operands.shift()!);
+      const content = group(indent(level));
+      operands.unshift(
+        levelOperator !== undefined &&
+          needsParentheses(levelOperator, nextOperator)
+          ? ["(", content, ")"]
+          : content
+      );
+      level = [];
+      levelOperator = undefined;
+      levelPrecedence = undefined;
+    } else {
+      const content = binary(operands, operators, { operatorPosition });
+      operands.unshift(
+        levelOperator !== undefined &&
+          needsParentheses(nextOperator, levelOperator)
+          ? ["(", indent(content), ")"]
+          : content
+      );
     }
-    return suffixes;
   }
+  level.push(operands.shift()!);
+  if (!levelOperator || !isAssignmentOperator(levelOperator)) {
+    return group(level);
+  }
+  if (!isRoot || hasNonAssignmentOperators) {
+    return group(indent(level));
+  }
+  const groupId = Symbol("assignment");
+  return group([
+    level[0],
+    group(indent(level[1]), { id: groupId }),
+    indentIfBreak(level[2], { groupId })
+  ]);
+}
+
+const precedencesByOperator = new Map(
+  [
+    ["||"],
+    ["&&"],
+    ["|"],
+    ["^"],
+    ["&"],
+    ["==", "!="],
+    ["<", ">", "<=", ">=", "instanceof"],
+    ["<<", ">>", ">>>"],
+    ["+", "-"],
+    ["*", "/", "%"]
+  ].flatMap((operators, index) => operators.map(operator => [operator, index]))
+);
+function getOperatorPrecedence(operator: string) {
+  return precedencesByOperator.get(operator) ?? -1;
+}
+
+function needsParentheses(operator: string, parentOperator: string) {
+  return (
+    (operator === "&&" && parentOperator === "||") ||
+    (["|", "^", "&", "<<", ">>", ">>>"].includes(parentOperator) &&
+      getOperatorPrecedence(operator) >
+        getOperatorPrecedence(parentOperator)) ||
+    [operator, parentOperator].every(o => ["==", "!="].includes(o)) ||
+    [operator, parentOperator].every(o => ["<<", ">>", ">>>"].includes(o)) ||
+    (operator === "*" && parentOperator === "/") ||
+    (operator === "/" && parentOperator === "*") ||
+    (operator === "%" && ["+", "-", "*", "/"].includes(parentOperator)) ||
+    (["*", "/"].includes(operator) && parentOperator === "%")
+  );
+}
+
+const assignmentOperators = new Set([
+  "=",
+  "*=",
+  "/=",
+  "%=",
+  "+=",
+  "-=",
+  "<<=",
+  ">>=",
+  ">>>=",
+  "&=",
+  "^=",
+  "|="
+]);
+function isAssignmentOperator(operator: string) {
+  return assignmentOperators.has(operator);
+}
+
+function isCapitalizedIdentifier(fqnOrRefType: FqnOrRefTypeCtx) {
+  const nextToLastIdentifier = [
+    fqnOrRefType.fqnOrRefTypePartFirst[0],
+    ...(fqnOrRefType.fqnOrRefTypePartRest ?? [])
+  ].at(-2)?.children.fqnOrRefTypePartCommon[0].children.Identifier?.[0].image;
+  return /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier ?? "");
+}
+
+function printTemplate<
+  T extends StringTemplateCstNode | TextBlockTemplateCstNode,
+  C extends Exclude<IterProperties<T["children"]>, "embeddedExpression">
+>(path: AstPath<T>, print: JavaPrintFn, beginKey: C, midKey: C, endKey: C) {
+  const { children } = path.node;
+  const begin = call(path, ({ node }) => node.image, beginKey);
+  const mids = map(path, ({ node }) => node.image, midKey);
+  const end = call(path, ({ node }) => node.image, endKey);
+  const lines = [begin, ...mids, end].join("").split("\n").slice(1);
+  const baseIndent = findBaseIndent(lines);
+  const prefix = "\n" + " ".repeat(baseIndent);
+  const parts = [begin, ...mids, end].map(image =>
+    join(hardline, image.split(prefix))
+  );
+  return [
+    parts[0],
+    ...map(
+      path,
+      (expressionPath, index) => {
+        const expression = group([
+          indent([softline, print(expressionPath), lineSuffixBoundary]),
+          softline
+        ]);
+        return index === 0 ? expression : [parts[index], expression];
+      },
+      "embeddedExpression" as IterProperties<T["children"]>
+    ),
+    parts.at(-1)!
+  ];
 }

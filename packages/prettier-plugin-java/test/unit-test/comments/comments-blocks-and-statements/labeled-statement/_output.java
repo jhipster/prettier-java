@@ -2,6 +2,7 @@ class LabeledStatements {
 
   void commentsLabeledStatementLineComment() {
     // Label statement
+
     // comment1
     loop: for (int num : arr) {}
 
@@ -30,6 +31,7 @@ class LabeledStatements {
 
   void commentsLabeledStatementBlockComment() {
     /* Label statement */
+
     /* comment1 */
     loop: for (int num : arr) {}
 
@@ -58,10 +60,12 @@ class LabeledStatements {
 
   void commentsLabeledStatementMixedComment() {
     // Label statement
+
     /* comment1 */
     loop: for (int num : arr) {}
 
     /* Label statement */
+
     // comment1
     loop: for (int num : arr) {}
 

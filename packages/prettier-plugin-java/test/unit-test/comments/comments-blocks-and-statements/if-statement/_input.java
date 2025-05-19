@@ -15,6 +15,11 @@ class IfStatements {
     if ( // test
     t) {
     }
+
+    if (true) // comment
+    {
+      System.out.println("Oops");
+    }
   }
 
   void commentsIfBlockComment() {

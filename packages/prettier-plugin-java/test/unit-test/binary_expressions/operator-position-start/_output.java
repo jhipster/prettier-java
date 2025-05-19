@@ -6,17 +6,17 @@ public class BinaryOperations {
   }
 
   @Annotation(
-    "This operation with two very long string should break" +
-    "in a very nice way"
+    "This operation with two very long string should break"
+    + "in a very nice way"
   )
   public String binaryOperationThatShouldBreak() {
     System.out.println(
-      "This operation with two very long string should break" +
-      "in a very nice way"
+      "This operation with two very long string should break"
+      + "in a very nice way"
     );
     return (
-      "This operation with two very long string should break" +
-      "in a very nice way"
+      "This operation with two very long string should break"
+      + "in a very nice way"
     );
   }
 
@@ -51,27 +51,30 @@ public class BinaryOperations {
 
   public boolean binaryOperationWithComments() {
     boolean a =
-      one ||
-      two >> 1 || // one
-      // five
+      one
+      || two >> 1
+      // one
       // two
       // three
+      // five
       // four
-      three;
+      || three;
 
     boolean b =
-      one ||
-      two >> 1 || // one
+      one
+      || two >> 1
+      // one
       // two
       // three
-      three;
+      || three;
 
     boolean c =
-      one ||
-      two >> 1 || // one
+      one
+      || two >> 1
+      // one
       // two
       // three
-      three;
+      || three;
 
     return a || b || c;
   }
@@ -83,10 +86,6 @@ public class BinaryOperations {
     foo(stuff, thing, "some very longuuuuuuuuuuuuuu stuff", "some more").bar(
       10
     );
-
-    // Issue 381
-    new MethodWrappingFollowingContstructor()
-      .aLongEnoughMethodNameToForceThingsToWrap();
   }
 
   public void binaryExpressionWithCast() {
@@ -98,48 +97,48 @@ public class BinaryOperations {
 
   void declarationVsAssignment() {
     var lineLengthInAssignmentMoreThanPrintWidth =
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890";
+      "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890";
     lineLengthInAssignmentMoreThanPrintWidth =
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890" +
-      "1234567890";
+      "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890"
+      + "1234567890";
 
     aaaaaaaaaa +=
-      bbbbbbbbbbb +
-      ccccccccccc +
-      ddddddddddd +
-      eeeeeeeeee +
-      ffffffffff +
-      gggggggggg;
+      bbbbbbbbbbb
+      + ccccccccccc
+      + ddddddddddd
+      + eeeeeeeeee
+      + ffffffffff
+      + gggggggggg;
     aaaaaaaaaa %=
-      bbbbbbbbbbb +
-      ccccccccccc +
-      ddddddddddd +
-      eeeeeeeeee +
-      ffffffffff +
-      gggggggggg;
+      bbbbbbbbbbb
+      + ccccccccccc
+      + ddddddddddd
+      + eeeeeeeeee
+      + ffffffffff
+      + gggggggggg;
     aaaaaaaaaa <<=
-      bbbbbbbbbbb +
-      ccccccccccc +
-      ddddddddddd +
-      eeeeeeeeee +
-      ffffffffff +
-      gggggggggg;
+      bbbbbbbbbbb
+      + ccccccccccc
+      + ddddddddddd
+      + eeeeeeeeee
+      + ffffffffff
+      + gggggggggg;
     aaaaaaaaaa &=
-      bbbbbbbbbbb +
-      ccccccccccc +
-      ddddddddddd +
-      eeeeeeeeee +
-      ffffffffff +
-      gggggggggg;
+      bbbbbbbbbbb
+      + ccccccccccc
+      + ddddddddddd
+      + eeeeeeeeee
+      + ffffffffff
+      + gggggggggg;
 
     var aaaaaaaaaa = bbbbbbbbbb || cccccccccc
       ? dddddddddd + eeeeeeeeee
@@ -162,21 +161,11 @@ public class BinaryOperations {
     );
 
     var something =
-      MyClass.staticFunction(
-        aaaaaaaaaa,
-        bbbbbbbbbbb,
-        ccccccccccc,
-        ddddddddddd
-      ) +
-      0;
+      MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd)
+      + 0;
     something =
-      MyClass.staticFunction(
-        aaaaaaaaaa,
-        bbbbbbbbbbb,
-        ccccccccccc,
-        ddddddddddd
-      ) +
-      0;
+      MyClass.staticFunction(aaaaaaaaaa, bbbbbbbbbbb, ccccccccccc, ddddddddddd)
+      + 0;
 
     var something12 = new MyClass(
       aaaaaaaaaa,
@@ -206,11 +195,11 @@ public class BinaryOperations {
     ((2 / 3) * 10) / 2 + 2;
     (2 * 3 * 10) / 2 + 2;
     var rotateX =
-      (RANGE / rect.height) * refY -
-      (RANGE / 2) * getXMultiplication(rect.width);
+      (RANGE / rect.height) * refY
+      - (RANGE / 2) * getXMultiplication(rect.width);
     var rotateY =
-      (RANGE / rect.width) * refX -
-      (RANGE / 2) * getYMultiplication(rect.width);
+      (RANGE / rect.width) * refX
+      - (RANGE / 2) * getYMultiplication(rect.width);
 
     (a % 10) - 5;
     a - (10 % 5);
@@ -237,23 +226,23 @@ public class BinaryOperations {
     1 & (2 == 3);
 
     if (
-      (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd &&
-        eeeeeeeeee + ffffffffff == gggggggggg + hhhhhhhhhh) ||
-      iiiiiiiiii
+      (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd
+        && eeeeeeeeee + ffffffffff == gggggggggg + hhhhhhhhhh)
+      || iiiiiiiiii
     ) {}
 
     if (
-      (((((a * b + c) << d < e == f) & g) ^ h) | i && j) ||
-      (k && l | (m ^ (n & (o != p > q >> (r - s / t)))))
+      (((((a * b + c) << d < e == f) & g) ^ h) | i && j)
+      || (k && l | (m ^ (n & (o != p > q >> (r - s / t)))))
     ) {}
 
     if (
-      (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd &&
-        eeeeeeeeee + ffffffffff == gggggggggg + hhhhhhhhhh) ||
-      (iiiiiiiiii + jjjjjjjjjj == kkkkkkkkkk + llllllllll &&
-        mmmmmmmmmm + nnnnnnnnnn == oooooooooo + pppppppppp) ||
-      (qqqqqqqqqq + rrrrrrrrrr == ssssssssss + tttttttttt &&
-        uuuuuuuuuu + vvvvvvvvvv == wwwwwwwwww + xxxxxxxxxxx)
+      (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd
+        && eeeeeeeeee + ffffffffff == gggggggggg + hhhhhhhhhh)
+      || (iiiiiiiiii + jjjjjjjjjj == kkkkkkkkkk + llllllllll
+        && mmmmmmmmmm + nnnnnnnnnn == oooooooooo + pppppppppp)
+      || (qqqqqqqqqq + rrrrrrrrrr == ssssssssss + tttttttttt
+        && uuuuuuuuuu + vvvvvvvvvv == wwwwwwwwww + xxxxxxxxxxx)
     ) {}
   }
 }

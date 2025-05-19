@@ -84,7 +84,6 @@ interface BlankLinesInInterfaces {
   private static String test();
 
   private @Nullable String test();
-
   private static String test();
 
   @Nullable
