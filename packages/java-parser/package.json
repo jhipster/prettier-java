@@ -1,6 +1,6 @@
 {
   "name": "java-parser",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Java Parser in JavaScript",
   "type": "module",
   "exports": {
