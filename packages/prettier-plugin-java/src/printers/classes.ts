@@ -15,6 +15,7 @@ import {
 import {
   concat,
   group,
+  ifBreak,
   indent,
   join,
   indentIfBreak
@@ -516,18 +517,23 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
 
   methodDeclaration(ctx: MethodDeclarationCtx) {
     const modifiers = sortModifiers(ctx.methodModifier);
+    const throwsGroupId = Symbol("throws");
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
 
-    const header = this.visit(ctx.methodHeader);
+    const header = this.visit(ctx.methodHeader, { throwsGroupId });
     const body = this.visit(ctx.methodBody);
 
-    const headerBodySeparator = isStatementEmptyStatement(body) ? "" : " ";
+    const headerBodySeparator = isStatementEmptyStatement(body)
+      ? ""
+      : ctx.methodHeader[0].children.throws
+        ? ifBreak(hardline, " ", { groupId: throwsGroupId })
+        : " ";
 
     return rejectAndJoin(hardline, [
-      rejectAndJoin(hardline, firstAnnotations),
+      ...firstAnnotations,
       rejectAndJoin(" ", [
-        rejectAndJoin(" ", otherModifiers),
+        ...otherModifiers,
         rejectAndJoin(headerBodySeparator, [header, body])
       ])
     ]);
@@ -541,12 +547,12 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  methodHeader(ctx: MethodHeaderCtx) {
+  methodHeader(ctx: MethodHeaderCtx, opts: { throwsGroupId: symbol }) {
     const typeParameters = this.visit(ctx.typeParameters);
     const annotations = this.mapVisit(ctx.annotation);
     const result = this.visit(ctx.result);
     const declarator = this.visit(ctx.methodDeclarator);
-    const throws = this.visit(ctx.throws);
+    const throws = this.visit(ctx.throws, opts);
 
     return group(
       concat([
@@ -658,15 +664,16 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
     return printTokenWithComments(this.getSingle(ctx) as IToken);
   }
 
-  throws(ctx: ThrowsCtx) {
+  throws(ctx: ThrowsCtx, opts: { throwsGroupId: symbol }) {
     const exceptionTypeList = this.visit(ctx.exceptionTypeList);
-    const throwsDeclaration = join(" ", [ctx.Throws[0], exceptionTypeList]);
-    return group(indent(rejectAndConcat([softline, throwsDeclaration])));
+    return group(indent(join(line, [ctx.Throws[0], exceptionTypeList])), {
+      id: opts.throwsGroupId
+    });
   }
 
   exceptionTypeList(ctx: ExceptionTypeListCtx) {
     const exceptionTypes = this.mapVisit(ctx.exceptionType);
-    const commas = ctx.Comma ? ctx.Comma.map(elt => concat([elt, " "])) : [];
+    const commas = ctx.Comma?.map(comma => concat([comma, line]));
     return rejectAndJoinSeps(commas, exceptionTypes);
   }
 
@@ -693,25 +700,26 @@ export class ClassesPrettierVisitor extends BaseCstPrettierPrinter {
   }
 
   constructorDeclaration(ctx: ConstructorDeclarationCtx) {
+    const throwsGroupId = Symbol("throws");
     const modifiers = sortModifiers(ctx.constructorModifier);
     const firstAnnotations = this.mapVisit(modifiers[0]);
     const otherModifiers = this.mapVisit(modifiers[1]);
-
     const constructorDeclarator = this.visit(ctx.constructorDeclarator);
-    const throws = this.visit(ctx.throws);
+    const throws = this.visit(ctx.throws, { throwsGroupId });
     const constructorBody = this.visit(ctx.constructorBody);
 
-    return rejectAndJoin(" ", [
+    return concat([
       group(
         rejectAndJoin(hardline, [
           rejectAndJoin(hardline, firstAnnotations),
           rejectAndJoin(" ", [
-            join(" ", otherModifiers),
+            rejectAndJoin(" ", otherModifiers),
             constructorDeclarator,
             throws
           ])
         ])
       ),
+      ctx.throws ? ifBreak(hardline, " ", { groupId: throwsGroupId }) : " ",
       constructorBody
     ]);
   }
