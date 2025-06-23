@@ -31,5 +31,21 @@ export default {
       { value: "end", description: "" }
     ],
     description: "Where to print operators when binary expressions wrap lines."
+  },
+  braceStyle: {
+    type: "choice",
+    category: "Java",
+    default: "same-line",
+    choices: [
+      {
+        value: "same-line",
+        description: "Put opening braces on same line (K&R style)"
+      },
+      {
+        value: "next-line",
+        description: "Put opening braces on new lines (Allman style)"
+      }
+    ],
+    description: "Placement of opening braces."
   }
 } satisfies SupportOptions;

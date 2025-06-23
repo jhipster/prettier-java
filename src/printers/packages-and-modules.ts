@@ -134,7 +134,7 @@ export default {
     return join(" ", parts);
   },
 
-  module_body(path, print) {
+  module_body(path, print, options) {
     return printBlock(
       path,
       path.map(
@@ -143,7 +143,8 @@ export default {
             ? [hardline, print(child)]
             : print(child),
         "namedChildren"
-      )
+      ),
+      options
     );
   },
 

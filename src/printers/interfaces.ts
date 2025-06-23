@@ -72,8 +72,8 @@ export default {
     ]);
   },
 
-  interface_body(path, print) {
-    return printBlock(path, printBodyDeclarations(path, print));
+  interface_body(path, print, options) {
+    return printBlock(path, printBodyDeclarations(path, print), options);
   },
 
   constant_declaration: printVariableDeclaration,
@@ -91,8 +91,8 @@ export default {
     return parts;
   },
 
-  annotation_type_body(path, print) {
-    return printBlock(path, printBodyDeclarations(path, print));
+  annotation_type_body(path, print, options) {
+    return printBlock(path, printBodyDeclarations(path, print), options);
   },
 
   annotation_type_element_declaration(path, print) {

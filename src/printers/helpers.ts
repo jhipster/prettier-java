@@ -129,9 +129,22 @@ export function printArrayInitializer(
 ) {
   if (!path.node.namedChildren.length) {
     const danglingComments = printDanglingComments(path);
-    return danglingComments.length
-      ? ["{", indent([hardline, ...danglingComments]), hardline, "}"]
-      : "{}";
+    if (danglingComments.length) {
+      if (options.braceStyle === "next-line") {
+        const isNested =
+          path.parent?.type === SyntaxType.ArrayInitializer ||
+          path.parent?.type === SyntaxType.ElementValueArrayInitializer;
+        const block = [
+          "{",
+          indent([hardline, ...danglingComments]),
+          hardline,
+          "}"
+        ];
+        return isNested ? block : [hardline, ...block];
+      }
+      return ["{", indent([hardline, ...danglingComments]), hardline, "}"];
+    }
+    return "{}";
   }
 
   const list = join([",", line], path.map(print, "namedChildren"));
@@ -140,10 +153,26 @@ export function printArrayInitializer(
     list.push(ifBreak(","));
   }
 
+  if (options.braceStyle === "next-line") {
+    const isNested =
+      path.parent?.type === SyntaxType.ArrayInitializer ||
+      path.parent?.type === SyntaxType.ElementValueArrayInitializer;
+    const block = ["{", indent([softline, ...list]), softline, "}"];
+    return isNested ? block : [hardline, ...block];
+  }
+
   return group(["{", indent([softline, ...list]), softline, "}"]);
 }
 
-export function printBlock(path: NamedNodePath, contents: Doc[]) {
+export function printBlock(
+  path: NamedNodePath,
+  contents: Doc[],
+  options?: JavaParserOptions
+) {
+  if (options?.braceStyle === "next-line") {
+    return printBlockNextLine(path, contents);
+  }
+
   if (contents.length) {
     return group([
       "{",
@@ -193,6 +222,40 @@ export function printBlock(path: NamedNodePath, contents: Doc[]) {
       ].includes(parent.type))
     ? "{}"
     : ["{", hardline, "}"];
+}
+
+function printBlockNextLine(path: NamedNodePath, contents: Doc[]) {
+  const parentType = path.parent?.type;
+  const isChildOfBodyDeclaration =
+    parentType != null &&
+    [
+      SyntaxType.AnnotationTypeBody,
+      SyntaxType.ClassBody,
+      SyntaxType.EnumBody,
+      SyntaxType.InterfaceBody
+    ].includes(parentType);
+  const prefix = isChildOfBodyDeclaration ? [] : [hardline];
+
+  if (contents.length) {
+    return [
+      ...prefix,
+      "{",
+      indent([hardline, ...join(hardline, contents)]),
+      hardline,
+      "}"
+    ];
+  }
+  const danglingComments = printDanglingComments(path);
+  if (danglingComments.length) {
+    return [
+      ...prefix,
+      "{",
+      indent([hardline, ...danglingComments]),
+      hardline,
+      "}"
+    ];
+  }
+  return [...prefix, "{", hardline, "}"];
 }
 
 export function printBlockStatements(
