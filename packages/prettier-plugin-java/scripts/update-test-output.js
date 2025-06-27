@@ -51,12 +51,20 @@ const updateTestOutput = async () => {
       try {
         console.log(`Reading <${fileDesc.path}>`);
         let newExpectedText = javaFileText;
+
+        const testDir = path.dirname(fileDesc.path);
+        const optionsPath = path.join(testDir, ".prettierrc.json");
+        const testOptions = fs.existsSync(optionsPath)
+          ? fs.readJsonSync(optionsPath)
+          : {};
+
         for (let i = 0; i < numberOfTime; i++) {
           newExpectedText = await prettier.format(newExpectedText, {
             parser: "java",
             plugins: [path.resolve(__dirname, "../dist/index.js")],
             tabWidth: 2,
-            endOfLine: "lf"
+            endOfLine: "lf",
+            ...testOptions
           });
         }
         let outputFilePath = fileDesc.path.replace(
