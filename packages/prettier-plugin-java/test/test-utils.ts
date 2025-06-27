@@ -14,12 +14,10 @@ const { readFileSync, existsSync, removeSync, copySync } = fs;
 const __dirname = dirname(url.fileURLToPath(import.meta.url));
 export function testSampleWithOptions({
   testFolder,
-  exclusive,
-  prettierOptions = {}
+  exclusive
 }: {
   testFolder: string;
   exclusive?: boolean;
-  prettierOptions?: any;
 }) {
   const itOrItOnly = exclusive ? it.only : it;
   const inputPath = resolve(testFolder, "_input.java");
@@ -28,6 +26,11 @@ export function testSampleWithOptions({
 
   let inputContents: string;
   let expectedContents: string;
+
+  const prettierrcPath = resolve(testFolder, ".prettierrc.json");
+  const prettierOptions = existsSync(prettierrcPath)
+    ? fs.readJsonSync(prettierrcPath)
+    : {};
 
   // @ts-ignore
   before(() => {
