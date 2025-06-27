@@ -22,8 +22,15 @@ import {
 const { group, hardline, indent, join, line } = builders;
 
 export default {
-  compilationUnit(path, print) {
-    return [...printDanglingComments(path), printSingle(path, print), hardline];
+  compilationUnit(path, print, options) {
+    const danglingComments = printDanglingComments(path);
+    const content = printSingle(path, print);
+    // If no filepath is provided (e.g., in tests), assume it's Java code
+    // Only skip the trailing newline for explicitly non-Java files like Markdown
+    const isNonJavaFile = options.filepath && !options.filepath.endsWith(".java");
+    return isNonJavaFile
+      ? [...danglingComments, content]
+      : [...danglingComments, content, hardline];
   },
 
   ordinaryCompilationUnit(path, print) {
