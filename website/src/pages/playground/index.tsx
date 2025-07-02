@@ -13,6 +13,7 @@ interface State {
   useTabs?: boolean;
   trailingComma?: TrailingComma;
   requirePragma?: boolean;
+  experimentalOperatorPosition?: ExperimentalOperatorPosition;
   code?: string;
 }
 
@@ -20,6 +21,11 @@ enum TrailingComma {
   All = "all",
   Es5 = "es5",
   None = "none"
+}
+
+enum ExperimentalOperatorPosition {
+  START = 'start',
+  END = 'end'
 }
 
 const codeSample = `public interface MyInterface {
@@ -69,6 +75,9 @@ function Inner() {
   const [requirePragma, setRequirePragma] = useState(
     initialState.requirePragma ?? false
   );
+  const [experimentalOperatorPosition, setExperimentalOperatorPosition] = useState(
+    initialState.experimentalOperatorPosition ?? ExperimentalOperatorPosition.END
+  );
   const [code, setCode] = useState(initialState.code ?? codeSample);
   const [formattedCode, setFormattedCode] = useState("");
 
@@ -84,6 +93,7 @@ function Inner() {
         useTabs,
         trailingComma,
         requirePragma,
+        experimentalOperatorPosition,
         code
       });
       history.replace({ ...location, hash });
@@ -97,6 +107,7 @@ function Inner() {
         tabWidth,
         useTabs,
         trailingComma,
+        experimentalOperatorPosition,
         requirePragma
       })
       .then(setFormattedCode)
@@ -146,6 +157,19 @@ function Inner() {
               }
             >
               {Object.values(TrailingComma).map(option => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+          </label>
+          <label title="Where to print operators when binary expressions wrap lines.">
+            --experimental-operator-position{" "}
+            <select
+              value={experimentalOperatorPosition}
+              onChange={event =>
+                setExperimentalOperatorPosition(event.target.value as ExperimentalOperatorPosition)
+              }
+            >
+              {Object.values(ExperimentalOperatorPosition).map(option => (
                 <option key={option}>{option}</option>
               ))}
             </select>
