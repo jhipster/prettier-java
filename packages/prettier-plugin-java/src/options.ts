@@ -253,6 +253,16 @@ export default {
     description:
       "Prettify from the entrypoint, allowing to use prettier on snippet."
   },
+  arrowParens: {
+    type: "choice",
+    category: "Java",
+    default: "avoid",
+    choices: [
+      { value: "always", description: "" },
+      { value: "avoid", description: "" }
+    ],
+    description: "Include parentheses around a sole arrow function parameter."
+  },
   trailingComma: {
     type: "choice",
     category: "Java",
@@ -263,5 +273,15 @@ export default {
       { value: "none", description: "" }
     ],
     description: "Print trailing commas wherever possible when multi-line."
+  },
+  experimentalOperatorPosition: {
+    type: "choice",
+    category: "Java",
+    default: "end",
+    choices: [
+      { value: "start", description: "" },
+      { value: "end", description: "" }
+    ],
+    description: "Where to print operators when binary expressions wrap lines."
   }
 } satisfies SupportOptions;

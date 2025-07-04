@@ -21,7 +21,7 @@
     "@monaco-editor/react": "^4",
     "lz-string": "^1",
     "prettier": "^3",
-    "prettier-plugin-java": "file:./../packages/prettier-plugin-java/dist",
+    "prettier-plugin-java": "file:../packages/prettier-plugin-java/dist",
     "prism-react-renderer": "^2",
     "react": "^19",
     "react-dom": "^19"
