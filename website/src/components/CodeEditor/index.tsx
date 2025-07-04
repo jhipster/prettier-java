@@ -1,5 +1,5 @@
 import { useColorMode } from "@docusaurus/theme-common";
-import Editor from "@monaco-editor/react";
+import { Editor, type OnChange } from "@monaco-editor/react";
 import styles from "./index.module.css";
 
 export default function CodeEditor(
@@ -7,7 +7,7 @@ export default function CodeEditor(
     readOnly?: boolean;
     rulers?: number[];
     value?: string;
-    onChange?: (value: string | undefined) => void;
+    onChange?: OnChange;
   }>
 ) {
   const { colorMode } = useColorMode();

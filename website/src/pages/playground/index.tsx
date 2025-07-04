@@ -11,15 +11,27 @@ interface State {
   printWidth?: number;
   tabWidth?: number;
   useTabs?: boolean;
+  arrowParens?: ArrowParens;
   trailingComma?: TrailingComma;
+  experimentalOperatorPosition?: ExperimentalOperatorPosition;
   requirePragma?: boolean;
   code?: string;
+}
+
+enum ArrowParens {
+  Always = "always",
+  Avoid = "avoid"
 }
 
 enum TrailingComma {
   All = "all",
   Es5 = "es5",
   None = "none"
+}
+
+enum ExperimentalOperatorPosition {
+  Start = "start",
+  End = "end"
 }
 
 const codeSample = `public interface MyInterface {
@@ -63,9 +75,17 @@ function Inner() {
   const [printWidth, setPrintWidth] = useState(initialState.printWidth ?? 80);
   const [tabWidth, setTabWidth] = useState(initialState.tabWidth ?? 2);
   const [useTabs, setUseTabs] = useState(initialState.useTabs ?? false);
-  const [trailingComma, setTrailingComma] = useState<TrailingComma>(
+  const [arrowParens, setArrowParens] = useState(
+    initialState.arrowParens ?? ArrowParens.Avoid
+  );
+  const [trailingComma, setTrailingComma] = useState(
     initialState.trailingComma ?? TrailingComma.All
   );
+  const [experimentalOperatorPosition, setExperimentalOperatorPosition] =
+    useState(
+      initialState.experimentalOperatorPosition ??
+        ExperimentalOperatorPosition.End
+    );
   const [requirePragma, setRequirePragma] = useState(
     initialState.requirePragma ?? false
   );
@@ -82,7 +102,9 @@ function Inner() {
         printWidth,
         tabWidth,
         useTabs,
+        arrowParens,
         trailingComma,
+        experimentalOperatorPosition,
         requirePragma,
         code
       });
@@ -96,12 +118,23 @@ function Inner() {
         printWidth,
         tabWidth,
         useTabs,
+        arrowParens,
         trailingComma,
+        experimentalOperatorPosition,
         requirePragma
       })
       .then(setFormattedCode)
       .catch(error => setFormattedCode(error.message));
-  }, [printWidth, tabWidth, useTabs, trailingComma, requirePragma, code]);
+  }, [
+    printWidth,
+    tabWidth,
+    useTabs,
+    arrowParens,
+    trailingComma,
+    experimentalOperatorPosition,
+    requirePragma,
+    code
+  ]);
 
   return (
     <div className={styles.playground}>
@@ -137,6 +170,19 @@ function Inner() {
         </details>
         <details open>
           <summary>Java</summary>
+          <label title="Include parentheses around a sole arrow function parameter.">
+            --arrow-parens{" "}
+            <select
+              value={arrowParens}
+              onChange={event =>
+                setArrowParens(event.target.value as ArrowParens)
+              }
+            >
+              {Object.values(ArrowParens).map(option => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+          </label>
           <label title="Print trailing commas wherever possible when multi-line.">
             --trailing-comma{" "}
             <select
@@ -146,6 +192,21 @@ function Inner() {
               }
             >
               {Object.values(TrailingComma).map(option => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+          </label>
+          <label title="Where to print operators when binary expressions wrap lines.">
+            --experimental-operator-position{" "}
+            <select
+              value={experimentalOperatorPosition}
+              onChange={event =>
+                setExperimentalOperatorPosition(
+                  event.target.value as ExperimentalOperatorPosition
+                )
+              }
+            >
+              {Object.values(ExperimentalOperatorPosition).map(option => (
                 <option key={option}>{option}</option>
               ))}
             </select>
