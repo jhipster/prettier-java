@@ -4,5 +4,6 @@
     "benchmark/*"
   ],
   "npmClient": "yarn",
-  "version": "independent"
+  "version": "independent",
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
