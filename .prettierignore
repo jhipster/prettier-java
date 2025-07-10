@@ -7,3 +7,4 @@ packages/prettier-plugin-java/dist
 CHANGELOG*
 website/build
 website/.docusaurus
+/.nx/workspace-data
