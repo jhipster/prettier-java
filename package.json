@@ -43,5 +43,6 @@
     "mocha": "10.8.2",
     "prettier": "^3.0.0",
     "sinon": "19.0.2"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
