@@ -7,10 +7,7 @@
     "esModuleInterop": true,
     "noImplicitThis": false,
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "paths": {
-      "java-parser": ["../java-parser"]
-    }
+    "moduleResolution": "Node"
   },
   "include": ["src"]
 }
