@@ -76,7 +76,7 @@ function Inner() {
   const [tabWidth, setTabWidth] = useState(initialState.tabWidth ?? 2);
   const [useTabs, setUseTabs] = useState(initialState.useTabs ?? false);
   const [arrowParens, setArrowParens] = useState(
-    initialState.arrowParens ?? ArrowParens.Avoid
+    initialState.arrowParens ?? ArrowParens.Always
   );
   const [trailingComma, setTrailingComma] = useState(
     initialState.trailingComma ?? TrailingComma.All
