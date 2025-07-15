@@ -256,7 +256,7 @@ export default {
   arrowParens: {
     type: "choice",
     category: "Java",
-    default: "avoid",
+    default: "always",
     choices: [
       { value: "always", description: "" },
       { value: "avoid", description: "" }
