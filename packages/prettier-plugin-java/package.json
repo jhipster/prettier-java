@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-java",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "Prettier Java Plugin",
   "type": "module",
   "exports": {
