@@ -304,26 +304,30 @@ export function printClassType(
   path: AstPath<JavaNonTerminal & { children: ClassTypeCtx }>,
   print: JavaPrintFn
 ) {
-  return flatMap(
-    path,
-    childPath => {
-      const { node, isLast } = childPath;
-      const child = [print(childPath)];
-      if (isTerminal(node)) {
-        if (!isLast) {
-          child.push(".");
+  const { children } = path.node;
+  return definedKeys(children, ["annotation", "Identifier", "typeArguments"])
+    .flatMap(child =>
+      children[child]!.map((node, index) => ({
+        child,
+        index,
+        startOffset: parser.locStart(node)
+      }))
+    )
+    .sort((a, b) => a.startOffset - b.startOffset)
+    .flatMap(({ child, index: childIndex }, index, array) => {
+      const node = children[child]![childIndex];
+      const next = array.at(index + 1);
+      const nextNode = next && children[next.child]![next.index];
+      const docs = [call(path, print, child, childIndex)];
+      if (nextNode) {
+        if (isNonTerminal(node)) {
+          docs.push(node.name === "annotation" ? " " : ".");
+        } else if (isTerminal(nextNode) || nextNode.name === "annotation") {
+          docs.push(".");
         }
-      } else if (node.name === "annotation") {
-        child.push(" ");
       }
-      return child;
-    },
-    definedKeys(path.node.children, [
-      "annotation",
-      "Identifier",
-      "typeArguments"
-    ])
-  );
+      return docs;
+    });
 }
 
 export function isBinaryExpression(expression: ExpressionCstNode) {

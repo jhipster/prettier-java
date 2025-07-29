@@ -22,4 +22,9 @@ public class Types {
     Boolean booleanVariable;
     String stringVariable;
   }
+
+  public void complexTypes() {
+    @A
+    B.C<D>.@E @F G.H h;
+  }
 }

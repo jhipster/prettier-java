@@ -23,4 +23,8 @@ public class Types {
     String stringVariable;
   }
 
+  public void complexTypes() {
+    @A B.C<D>.@E @F G.H h;
+  }
+
 }
