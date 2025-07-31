@@ -62,4 +62,14 @@ public class TryCatch {
     }
   }
 
+  void multiResourceTryWithTrailingSemi() {
+    try (
+      FirstResource firstResource = new FirstResource();
+      SecondResource secondResource = new SecondResource();
+    ) {
+      return br.readLine();
+    } catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+      System.out.println("Warning: Not breaking multi exceptions");
+    }
+  }
 }

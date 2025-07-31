@@ -394,9 +394,9 @@ export default {
     return join(" ", blocks);
   },
 
-  resourceSpecification(path, print, options) {
+  resourceSpecification(path, print) {
     const resources = [call(path, print, "resourceList")];
-    if (options.trailingComma !== "none") {
+    if (path.node.children.Semicolon) {
       resources.push(ifBreak(";"));
     }
     return indentInParentheses(resources);
