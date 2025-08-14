@@ -10,7 +10,7 @@ const { origin: url, pathname: baseUrl } = new URL(homepage);
 const [, organizationName, projectName] = new URL(repository).pathname.split(
   "/"
 );
-const editUrl = `${repository}/tree/docs/create-website/website/`;
+const editUrl = `${repository}/tree/main/website/`;
 
 export default {
   title: "Prettier Java",
