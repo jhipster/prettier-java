@@ -245,4 +245,17 @@ public class BinaryOperations {
         && uuuuuuuuuu + vvvvvvvvvv == wwwwwwwwww + xxxxxxxxxxx)
     ) {}
   }
+
+  void instanceOf() {
+    var a =
+      a
+      && Foo.get(longlinelonglinelonglinelonglinelongline)
+        instanceof NumberNumberNumberNumber n
+      && n.foo();
+
+    var a =
+      Foo.get(longlinelonglinelonglinelonglinelongline)
+        instanceof NumberNumberNumberNumber n
+      && n.foo();
+  }
 }
