@@ -684,7 +684,10 @@ function binary(
     }
   }
   level.push(operands.shift()!);
-  if (!levelOperator || !isAssignmentOperator(levelOperator)) {
+  if (
+    !levelOperator ||
+    (!isAssignmentOperator(levelOperator) && levelOperator !== "instanceof")
+  ) {
     return group(level);
   }
   if (!isRoot || hasNonAssignmentOperators) {
