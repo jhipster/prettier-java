@@ -84,10 +84,11 @@ export default {
   ifStatement(path, print) {
     const { children } = path.node;
     const hasEmptyStatement = isEmptyStatement(children.statement[0]);
+    const statements = map(path, print, "statement");
     const statement: Doc[] = [
       "if ",
       indentInParentheses(call(path, print, "expression")),
-      hasEmptyStatement ? ";" : [" ", call(path, print, "statement", 0)]
+      hasEmptyStatement ? ";" : [" ", statements[0]]
     ];
     if (children.Else) {
       const danglingComments = printDanglingComments(path);
@@ -103,7 +104,7 @@ export default {
       const elseHasEmptyStatement = isEmptyStatement(children.statement[1]);
       statement.push(
         "else",
-        elseHasEmptyStatement ? ";" : [" ", call(path, print, "statement", 1)]
+        elseHasEmptyStatement ? ";" : [" ", statements[1]]
       );
     }
     return statement;

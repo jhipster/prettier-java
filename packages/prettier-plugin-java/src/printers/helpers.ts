@@ -122,10 +122,9 @@ export function call<
 >(
   path: AstPath<T>,
   callback: MapCallback<IndexValue<IndexValue<T, "children">, P>, U>,
-  child: P,
-  index = 0
+  child: P
 ) {
-  return path.map(callback, "children", child)[index];
+  return path.map(callback, "children", child)[0];
 }
 
 export function each<
@@ -318,7 +317,7 @@ export function printClassType(
       const node = children[child]![childIndex];
       const next = array.at(index + 1);
       const nextNode = next && children[next.child]![next.index];
-      const docs = [call(path, print, child, childIndex)];
+      const docs = [path.call(print, "children", child, childIndex)];
       if (nextNode) {
         if (isNonTerminal(node)) {
           docs.push(node.name === "annotation" ? " " : ".");

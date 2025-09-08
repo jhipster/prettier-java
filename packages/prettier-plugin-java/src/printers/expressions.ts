@@ -115,13 +115,14 @@ export default {
 
   conditionalExpression(path, print) {
     const binaryExpression = call(path, print, "binaryExpression");
+    const expressions = map(path, print, "expression");
     return path.node.children.QuestionMark
       ? group(
           indent(
             join(line, [
               binaryExpression,
-              ["? ", call(path, print, "expression", 0)],
-              [": ", call(path, print, "expression", 1)]
+              ["? ", expressions[0]],
+              [": ", expressions[1]]
             ])
           )
         )
@@ -468,9 +469,9 @@ export default {
       return allArgsExpandable;
     }
     const headArgs = args.slice(0, -1);
-    const huggedLastArg = call(
-      path,
+    const huggedLastArg = path.call(
       argPath => print(argPath, { hug: true }),
+      "children",
       "expression",
       args.length - 1
     );
@@ -756,7 +757,6 @@ function printTemplate<
   T extends StringTemplateCstNode | TextBlockTemplateCstNode,
   C extends Exclude<IterProperties<T["children"]>, "embeddedExpression">
 >(path: AstPath<T>, print: JavaPrintFn, beginKey: C, midKey: C, endKey: C) {
-  const { children } = path.node;
   const begin = call(path, ({ node }) => node.image, beginKey);
   const mids = map(path, ({ node }) => node.image, midKey);
   const end = call(path, ({ node }) => node.image, endKey);
