@@ -12,6 +12,7 @@ import {
   each,
   findBaseIndent,
   flatMap,
+  hasLeadingComments,
   indentInParentheses,
   isBinaryExpression,
   isNonTerminal,
@@ -276,8 +277,11 @@ export default {
       },
       "primarySuffix"
     );
+    const hasSuffixComments = children.primarySuffix.some(suffix =>
+      hasLeadingComments(suffix)
+    );
     return group(
-      canBreakForCallExpressions || willBreak(suffixes)
+      canBreakForCallExpressions || hasSuffixComments
         ? [prefix, indent(suffixes)]
         : [prefix, ...suffixes]
     );
@@ -766,7 +770,7 @@ function printTemplate<
   const parts = [begin, ...mids, end].map(image =>
     join(hardline, image.split(prefix))
   );
-  return [
+  return indent([
     parts[0],
     ...map(
       path,
@@ -780,5 +784,5 @@ function printTemplate<
       "embeddedExpression" as IterProperties<T["children"]>
     ),
     parts.at(-1)!
-  ];
+  ]);
 }
