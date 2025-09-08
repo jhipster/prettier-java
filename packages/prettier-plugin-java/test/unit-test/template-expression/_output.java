@@ -7,8 +7,8 @@ class TemplateExpression {
   String s = STR."You have a \{getOfferType()} waiting for you!";
 
   String msg = STR."The file \{filePath} \{
-    file.exists() ? "does" : "does not"
-  } exist";
+      file.exists() ? "does" : "does not"
+    } exist";
 
   String time = STR."The time is \{
       // The java.time.format package is very useful
@@ -55,6 +55,6 @@ class TemplateExpression {
     """;
 
   PreparedStatement ps = DB."SELECT * FROM Person p WHERE p.last_name = \{
-    name
-  }";
+      name
+    }";
 }

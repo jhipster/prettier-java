@@ -179,6 +179,16 @@ public class Lambda {
         return f;
       }
     );
+
+    this.a(
+      aaaaaaaaaaaaaaaaaaaaaaaaaa,
+      bbbbbbbbbbbbbbbbbbbbbbbbbb,
+      cccccccccccccccccccccccccc,
+      dddddddddddddddddddddddddd,
+      e -> {
+        return f;
+      }
+    );
   }
 
   void singleLambdaWithBlockLastArgumentAndLongLambdaArgument() {
@@ -228,6 +238,10 @@ public class Lambda {
   }
 
   void huggableArguments() {
+    A.b().c(() -> {
+      return d;
+    });
+
     aaaaaaaaaaaaaaaaaaaaaaaa(
       (
         bbbbbbbbbbbbbbbbbbbbbbbb,
