@@ -49,6 +49,16 @@ public class BinaryOperations {
     return b ? b : c;
   }
 
+  void nestedTernary() {
+    aaaaaaaaaa
+      ? bbbbbbbbbb
+      : cccccccccc
+        ? dddddddddd
+        : eeeeeeeeee
+          ? ffffffffff
+          : gggggggggg;
+  }
+
   public boolean binaryOperationWithComments() {
     boolean a =
       one
