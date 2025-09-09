@@ -116,18 +116,21 @@ export default {
 
   conditionalExpression(path, print) {
     const binaryExpression = call(path, print, "binaryExpression");
+    if (!path.node.children.QuestionMark) {
+      return binaryExpression;
+    }
     const expressions = map(path, print, "expression");
-    return path.node.children.QuestionMark
-      ? group(
-          indent(
-            join(line, [
-              binaryExpression,
-              ["? ", expressions[0]],
-              [": ", expressions[1]]
-            ])
-          )
-        )
-      : binaryExpression;
+    const contents = indent(
+      join(line, [
+        binaryExpression,
+        ["? ", expressions[0]],
+        [": ", expressions[1]]
+      ])
+    );
+    const isNestedTernary =
+      (path.getNode(4) as JavaNonTerminal | null)?.name ===
+      "conditionalExpression";
+    return isNestedTernary ? contents : group(contents);
   },
 
   binaryExpression(path, print, options) {
