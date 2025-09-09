@@ -167,8 +167,12 @@ export default {
       (operators.length > 0 && !children.AssignmentOperator) ||
       (children.expression !== undefined &&
         isBinaryExpression(children.expression[0]));
+    const isInList =
+      (path.getNode(4) as JavaNonTerminal | null)?.name === "elementValue" ||
+      (path.getNode(6) as JavaNonTerminal | null)?.name === "argumentList";
     return binary(operands, operators, {
       hasNonAssignmentOperators,
+      isInList,
       isRoot: true,
       operatorPosition: options.experimentalOperatorPosition
     });
@@ -627,10 +631,12 @@ function binary(
   operators: { image: string; doc: Doc }[],
   {
     hasNonAssignmentOperators = false,
+    isInList = false,
     isRoot = false,
     operatorPosition
   }: {
     hasNonAssignmentOperators?: boolean;
+    isInList?: boolean;
     isRoot?: boolean;
     operatorPosition: "end" | "start";
   }
@@ -686,7 +692,9 @@ function binary(
   level.push(operands.shift()!);
   if (
     !levelOperator ||
-    (!isAssignmentOperator(levelOperator) && levelOperator !== "instanceof")
+    (!isInList &&
+      !isAssignmentOperator(levelOperator) &&
+      levelOperator !== "instanceof")
   ) {
     return group(level);
   }
