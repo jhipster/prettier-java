@@ -7,12 +7,12 @@ public class BinaryOperations {
 
   @Annotation(
     "This operation with two very long string should break" +
-    "in a very nice way"
+      "in a very nice way"
   )
   public String binaryOperationThatShouldBreak() {
     System.out.println(
       "This operation with two very long string should break" +
-      "in a very nice way"
+        "in a very nice way"
     );
     return (
       "This operation with two very long string should break" +
