@@ -3,6 +3,7 @@ import { builders } from "prettier/doc";
 import {
   call,
   definedKeys,
+  hasLeadingComments,
   indentInParentheses,
   isBinaryExpression,
   isEmptyStatement,
@@ -190,11 +191,13 @@ export default {
       "expression",
       "throwStatement"
     ]);
-    const parts = [
-      call(path, print, "switchLabel"),
-      " -> ",
-      call(path, print, bodyKey)
-    ];
+    const body = call(path, print, bodyKey);
+    const parts = [call(path, print, "switchLabel"), " ->"];
+    if (bodyKey !== "block" && hasLeadingComments(children[bodyKey]![0])) {
+      parts.push(indent([hardline, body]));
+    } else {
+      parts.push(" ", body);
+    }
     if (children.Semicolon) {
       parts.push(";");
     }

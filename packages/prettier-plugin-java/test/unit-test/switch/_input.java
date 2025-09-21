@@ -171,4 +171,18 @@ class Switch {
         log.info("Done !");
 
     }
+
+  void switchRulesWithComments() {
+    switch (a) {
+      case b ->
+        // comment
+        c;
+      case Dd d ->
+        // comment
+        e;
+      case f ->
+        // comment
+        throw new RuntimeException();
+    }
+  }
 }
