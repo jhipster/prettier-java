@@ -233,7 +233,7 @@ export function printComment(node: JavaTerminal) {
 }
 
 export function hasLeadingComments(node: JavaNode) {
-  return node.comments?.some(({ leading }) => leading);
+  return node.comments?.some(({ leading }) => leading) ?? false;
 }
 
 export function indentInParentheses(
