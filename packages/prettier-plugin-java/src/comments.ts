@@ -94,6 +94,7 @@ export function handleLineComment(
 ) {
   return [
     handleBinaryExpressionComments,
+    handleConditionalExpressionComments,
     handleFqnOrRefTypeComments,
     handleIfStatementComments,
     handleJumpStatementComments,
@@ -116,11 +117,7 @@ function handleBinaryExpressionComments(
   options: JavaParserOptions
 ) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
-  if (
-    enclosingNode &&
-    isNonTerminal(enclosingNode) &&
-    enclosingNode.name === "binaryExpression"
-  ) {
+  if (enclosingNode?.name === "binaryExpression") {
     if (isBinaryOperator(followingNode)) {
       if (options.experimentalOperatorPosition === "start") {
         util.addLeadingComment(followingNode, commentNode);
@@ -139,14 +136,27 @@ function handleBinaryExpressionComments(
   return false;
 }
 
+function handleConditionalExpressionComments(commentNode: JavaComment) {
+  const { startLine, endLine, enclosingNode, precedingNode, followingNode } =
+    commentNode;
+  if (
+    enclosingNode?.name === "conditionalExpression" &&
+    precedingNode &&
+    followingNode &&
+    isNonTerminal(precedingNode) &&
+    isNonTerminal(followingNode) &&
+    precedingNode.location.endLine < startLine &&
+    endLine < followingNode.location.startLine
+  ) {
+    util.addLeadingComment(followingNode, commentNode);
+    return true;
+  }
+  return false;
+}
+
 function handleFqnOrRefTypeComments(commentNode: JavaComment) {
   const { enclosingNode, followingNode } = commentNode;
-  if (
-    enclosingNode &&
-    isNonTerminal(enclosingNode) &&
-    enclosingNode.name === "fqnOrRefType" &&
-    followingNode
-  ) {
+  if (enclosingNode?.name === "fqnOrRefType" && followingNode) {
     util.addLeadingComment(followingNode, commentNode);
     return true;
   }
@@ -156,9 +166,7 @@ function handleFqnOrRefTypeComments(commentNode: JavaComment) {
 function handleIfStatementComments(commentNode: JavaComment) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
-    enclosingNode &&
-    isNonTerminal(enclosingNode) &&
-    enclosingNode.name === "ifStatement" &&
+    enclosingNode?.name === "ifStatement" &&
     precedingNode &&
     isNonTerminal(precedingNode) &&
     precedingNode.name === "statement"
@@ -175,7 +183,6 @@ function handleJumpStatementComments(commentNode: JavaComment) {
     enclosingNode &&
     !precedingNode &&
     !followingNode &&
-    isNonTerminal(enclosingNode) &&
     ["breakStatement", "continueStatement", "returnStatement"].includes(
       enclosingNode.name
     )
@@ -189,10 +196,8 @@ function handleJumpStatementComments(commentNode: JavaComment) {
 function handleLabeledStatementComments(commentNode: JavaComment) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
-    enclosingNode &&
+    enclosingNode?.name === "labeledStatement" &&
     precedingNode &&
-    isNonTerminal(enclosingNode) &&
-    enclosingNode.name === "labeledStatement" &&
     isTerminal(precedingNode) &&
     precedingNode.tokenType.name === "Identifier"
   ) {
@@ -205,9 +210,7 @@ function handleLabeledStatementComments(commentNode: JavaComment) {
 function handleMethodDeclaratorComments(commentNode: JavaComment) {
   const { enclosingNode } = commentNode;
   if (
-    enclosingNode &&
-    isNonTerminal(enclosingNode) &&
-    enclosingNode.name === "methodDeclarator" &&
+    enclosingNode?.name === "methodDeclarator" &&
     !enclosingNode.children.receiverParameter &&
     !enclosingNode.children.formalParameterList &&
     enclosingNode.children.LBrace[0].startOffset < commentNode.startOffset &&
@@ -224,7 +227,6 @@ function handleNameComments(commentNode: JavaComment) {
   if (
     enclosingNode &&
     precedingNode &&
-    isNonTerminal(enclosingNode) &&
     isTerminal(precedingNode) &&
     precedingNode.tokenType.name === "Identifier" &&
     [
@@ -262,8 +264,8 @@ export type JavaComment = IToken & {
   trailing: boolean;
   printed: boolean;
   enclosingNode?: JavaNonTerminal;
-  precedingNode?: JavaNonTerminal;
-  followingNode?: JavaNonTerminal;
+  precedingNode?: JavaNode;
+  followingNode?: JavaNode;
 };
 
 type FormatterOffOnRange = {

@@ -30,6 +30,7 @@ import {
 } from "./helpers.js";
 
 const {
+  align,
   breakParent,
   conditionalGroup,
   group,
@@ -114,23 +115,28 @@ export default {
   conciseLambdaParameter: printSingle,
   lambdaBody: printSingle,
 
-  conditionalExpression(path, print) {
+  conditionalExpression(path, print, options) {
     const binaryExpression = call(path, print, "binaryExpression");
     if (!path.node.children.QuestionMark) {
       return binaryExpression;
     }
-    const expressions = map(path, print, "expression");
-    const contents = indent(
-      join(line, [
-        binaryExpression,
-        ["? ", expressions[0]],
-        [": ", expressions[1]]
-      ])
-    );
+    const [consequent, alternate] = map(path, print, "expression");
+    const parts = [binaryExpression];
+    const part = [
+      line,
+      ["? ", options.useTabs ? indent(consequent) : align(2, consequent)],
+      line,
+      [": ", options.useTabs ? indent(alternate) : align(2, alternate)]
+    ];
     const isNestedTernary =
       (path.getNode(4) as JavaNonTerminal | null)?.name ===
       "conditionalExpression";
-    return isNestedTernary ? contents : group(contents);
+    parts.push(
+      !isNestedTernary || options.useTabs
+        ? part
+        : align(Math.max(0, options.tabWidth - 2), part)
+    );
+    return isNestedTernary ? parts : group(indent(parts));
   },
 
   binaryExpression(path, print, options) {
