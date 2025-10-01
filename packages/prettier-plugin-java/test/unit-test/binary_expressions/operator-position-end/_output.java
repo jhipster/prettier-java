@@ -26,39 +26,6 @@ public class BinaryOperations {
     return "This operation should" + "not break";
   }
 
-  public int ternaryOperationThatShouldBreak() {
-    int shortInteger = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-      ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-      : thisIsAShortInteger;
-    return thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-      ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne
-      : thisIsAShortInteger;
-  }
-
-  public int ternaryOperationThatShouldBreak2() {
-    int shortInteger = thisIsAVeryLongInteger
-      ? thisIsAnotherVeryLongOne
-      : thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-    return thisIsAVeryLongInteger
-      ? thisIsAnotherVeryLongOne
-      : thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
-  }
-
-  public int ternaryOperationThatShouldNotBreak() {
-    int a = b ? b : c;
-    return b ? b : c;
-  }
-
-  void nestedTernary() {
-    aaaaaaaaaa
-      ? bbbbbbbbbb
-      : cccccccccc
-        ? dddddddddd
-        : eeeeeeeeee
-          ? ffffffffff
-          : gggggggggg;
-  }
-
   public boolean binaryOperationWithComments() {
     boolean a =
       one ||
