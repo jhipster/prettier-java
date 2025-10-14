@@ -249,14 +249,16 @@ export function printArrayInitializer<
   T extends JavaNonTerminal,
   P extends IterProperties<T["children"]>
 >(path: AstPath<T>, print: JavaPrintFn, options: JavaParserOptions, child: P) {
-  const list: Doc[] = [];
-  if (child && child in path.node.children) {
-    list.push(call(path, print, child));
-    if (options.trailingComma !== "none") {
-      list.push(ifBreak(","));
-    }
+  if (!(child && child in path.node.children)) {
+    const danglingComments = printDanglingComments(path);
+    return danglingComments.length
+      ? ["{", indent([hardline, ...danglingComments]), hardline, "}"]
+      : "{}";
   }
-  list.push(...printDanglingComments(path));
+  const list = [call(path, print, child)];
+  if (options.trailingComma !== "none") {
+    list.push(ifBreak(","));
+  }
   return list.length ? group(["{", indent([line, ...list]), line, "}"]) : "{}";
 }
 
