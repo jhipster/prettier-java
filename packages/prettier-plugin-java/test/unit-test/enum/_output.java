@@ -162,3 +162,37 @@ enum PrettierErrors {
     System.out.println("Hey there");
   }
 }
+
+enum Aaaaaaaaaa implements Bbbbbbbbbb {
+  A,
+}
+
+enum Aaaaaaaaaa
+  implements Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff
+{
+  A,
+}
+
+enum Aaaaaaaaaa
+  implements Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff {}
+
+enum Aaaaaaaaaa
+  implements
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg
+{
+  A,
+}
+
+enum Aaaaaaaaaa
+  implements
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg {}

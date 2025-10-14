@@ -295,10 +295,7 @@ export function printClassPermits(
   path: AstPath<ClassPermitsCstNode | InterfacePermitsCstNode>,
   print: JavaPrintFn
 ) {
-  return group([
-    "permits",
-    indent([line, group(printList(path, print, "typeName"))])
-  ]);
+  return group(["permits", indent([line, printList(path, print, "typeName")])]);
 }
 
 export function printClassType(

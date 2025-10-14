@@ -161,3 +161,27 @@ public record Record(
     @Schema(type = "integer", description = "A longer description  ") Status status
     )
 {}
+
+record Aaaaaaaaaa<Bbbbbbbbbb>(Cccccccccc cccccccccc) implements Dddddddddd {
+
+  void a() {}
+}
+
+record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc>(Dddddddddd dddddddddd) implements Eeeeeeeeee {
+
+  void a() {}
+}
+
+record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc>(Dddddddddd dddddddddd) implements Eeeeeeeeee {}
+
+record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg>(Hhhhhhhhhh Hhhhhhhhhh) implements Iiiiiiiiii {
+
+  void a() {}
+}
+
+record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg>(Hhhhhhhhhh Hhhhhhhhhh) implements Iiiiiiiiii {}
+
+record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg>(Hhhhhhhhhh Hhhhhhhhhh) implements Iiiiiiiiii, Jjjjjjjjjj, Kkkkkkkkkk, Llllllllll, Mmmmmmmmmm, Nnnnnnnnnn {
+
+  void a() {}
+}
