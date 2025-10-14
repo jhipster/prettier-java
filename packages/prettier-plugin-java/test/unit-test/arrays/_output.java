@@ -10,4 +10,8 @@ class Array {
   Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa[] {
     new Aaaaaaaaaaaaaaaa(),
   }.getClass();
+
+  String[] DATA = {
+    // nothing yet
+  };
 }
