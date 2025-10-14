@@ -2,6 +2,7 @@ import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
 import {
   call,
+  definedKeys,
   each,
   hasDeclarationAnnotations,
   indentInParentheses,
@@ -35,19 +36,38 @@ export default {
   },
 
   normalInterfaceDeclaration(path, print) {
-    const { interfaceExtends, interfacePermits, typeParameters } =
-      path.node.children;
-    const header = ["interface ", call(path, print, "typeIdentifier")];
-    if (typeParameters) {
-      header.push(call(path, print, "typeParameters"));
+    const { children } = path.node;
+    const definedClauses = definedKeys(children, [
+      "interfaceExtends",
+      "interfacePermits"
+    ]);
+    const hasMultipleClauses = definedClauses.length > 1;
+    const hasTypeParameters = children.typeParameters !== undefined;
+    const parts = ["interface ", call(path, print, "typeIdentifier")];
+    if (hasTypeParameters) {
+      const typeParameters = call(path, print, "typeParameters");
+      parts.push(
+        hasMultipleClauses ? group(indent(typeParameters)) : typeParameters
+      );
     }
-    if (interfaceExtends) {
-      header.push(indent([line, call(path, print, "interfaceExtends")]));
+    if (definedClauses.length) {
+      const separator = hasTypeParameters && !hasMultipleClauses ? " " : line;
+      const clauses = definedClauses.flatMap(clause => [
+        separator,
+        call(path, print, clause)
+      ]);
+      const hasBody =
+        children.interfaceBody[0].children.interfaceMemberDeclaration !==
+        undefined;
+      const clauseGroup = [
+        hasTypeParameters && !hasMultipleClauses ? clauses : indent(clauses),
+        hasBody ? separator : " "
+      ];
+      parts.push(hasMultipleClauses ? clauseGroup : group(clauseGroup));
+    } else {
+      parts.push(" ");
     }
-    if (interfacePermits) {
-      header.push(indent([line, call(path, print, "interfacePermits")]));
-    }
-    return [group(header), " ", call(path, print, "interfaceBody")];
+    return [group(parts), call(path, print, "interfaceBody")];
   },
 
   interfaceModifier: printSingle,

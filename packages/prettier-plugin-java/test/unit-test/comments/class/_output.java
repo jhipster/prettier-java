@@ -81,7 +81,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @GwtCompatible(emulated = true)
 public final class ArrayTable<R, C, V>
   extends AbstractTable<R, C, V>
-  implements Serializable {
+  implements Serializable
+{
 
   /**
    * Returns the square of a given number
@@ -198,8 +199,10 @@ public final class ArrayTable<R, C, V>
     }
   }
 
-  private abstract static class ArrayMap<K, V>
-    extends IteratorBasedAbstractMap<K, V> {
+  private abstract static class ArrayMap<
+    K,
+    V
+  > extends IteratorBasedAbstractMap<K, V> {
 
     private final ImmutableMap<K, Integer> keyIndex;
 

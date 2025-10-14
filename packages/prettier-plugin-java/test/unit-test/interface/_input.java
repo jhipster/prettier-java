@@ -48,3 +48,39 @@ public interface InterfaceWithSemicolon {
   ;
   String STRING_1 = "STRING_1";
 }
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb> extends Cccccccccc permits Dddddddddd {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc> extends Dddddddddd permits Eeeeeeeeee {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc> extends Dddddddddd permits Eeeeeeeeee {}
+
+class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc> extends Dddddddddd<Eeeeeeeeee, Ffffffffff> {
+
+  void a() {}
+}
+
+class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc> extends Dddddddddd<Eeeeeeeeee, Ffffffffff, Gggggggggg, Hhhhhhhhhh, Iiiiiiiiii> {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg> extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj> permits Kkkkkkkkkk, Llllllllll {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg> extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj> permits Kkkkkkkkkk, Llllllllll {}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg> extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj, Kkkkkkkkkk, Llllllllll, Mmmmmmmmmm, Nnnnnnnnnn> permits Oooooooooo, Pppppppppp, Qqqqqqqqqq, Rrrrrrrrrr, Ssssssssss, Tttttttttt, Uuuuuuuuuu {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg> extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj, Kkkkkkkkkk, Llllllllll, Mmmmmmmmmm, Nnnnnnnnnn> permits Oooooooooo, Pppppppppp, Qqqqqqqqqq, Rrrrrrrrrr, Ssssssssss, Tttttttttt, Uuuuuuuuuu {}

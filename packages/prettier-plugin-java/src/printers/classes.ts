@@ -6,6 +6,7 @@ import type { AstPath, Doc } from "prettier";
 import { builders } from "prettier/doc";
 import {
   call,
+  definedKeys,
   each,
   hasDeclarationAnnotations,
   hasLeadingComments,
@@ -42,33 +43,49 @@ export default {
   },
 
   normalClassDeclaration(path, print) {
-    const { classExtends, classImplements, classPermits, typeParameters } =
-      path.node.children;
-    const header = ["class ", call(path, print, "typeIdentifier")];
-    if (typeParameters) {
-      header.push(call(path, print, "typeParameters"));
+    const { children } = path.node;
+    const definedClauses = definedKeys(children, [
+      "classExtends",
+      "classImplements",
+      "classPermits"
+    ]);
+    const hasMultipleClauses = definedClauses.length > 1;
+    const hasTypeParameters = children.typeParameters !== undefined;
+    const parts = ["class ", call(path, print, "typeIdentifier")];
+    if (hasTypeParameters) {
+      const typeParameters = call(path, print, "typeParameters");
+      parts.push(
+        hasMultipleClauses ? group(indent(typeParameters)) : typeParameters
+      );
     }
-    if (classExtends) {
-      header.push(indent([line, call(path, print, "classExtends")]));
+    if (definedClauses.length) {
+      const separator = hasTypeParameters && !hasMultipleClauses ? " " : line;
+      const clauses = definedClauses.flatMap(clause => [
+        separator,
+        call(path, print, clause)
+      ]);
+      const hasBody =
+        children.classBody[0].children.classBodyDeclaration !== undefined;
+      const clauseGroup = [
+        hasTypeParameters && !hasMultipleClauses ? clauses : indent(clauses),
+        hasBody ? separator : " "
+      ];
+      parts.push(hasMultipleClauses ? clauseGroup : group(clauseGroup));
+    } else {
+      parts.push(" ");
     }
-    if (classImplements) {
-      header.push(indent([line, call(path, print, "classImplements")]));
-    }
-    if (classPermits) {
-      header.push(indent([line, call(path, print, "classPermits")]));
-    }
-    return [group(header), " ", call(path, print, "classBody")];
+    return [group(parts), call(path, print, "classBody")];
   },
 
   classModifier: printSingle,
 
   typeParameters(path, print) {
-    return group([
+    return [
       "<",
       indent([softline, call(path, print, "typeParameterList")]),
       softline,
       ">"
-    ]);
+    ];
   },
 
   typeParameterList(path, print) {
@@ -89,7 +106,7 @@ export default {
   classPermits: printClassPermits,
 
   interfaceTypeList(path, print) {
-    return group(printList(path, print, "interfaceType"));
+    return printList(path, print, "interfaceType");
   },
 
   classBody(path, print) {
@@ -199,7 +216,7 @@ export default {
     const { typeParameters, annotation, throws } = path.node.children;
     const header: Doc[] = [];
     if (typeParameters) {
-      header.push(call(path, print, "typeParameters"));
+      header.push(group(call(path, print, "typeParameters")));
     }
     if (annotation) {
       header.push(join(line, map(path, print, "annotation")));
@@ -322,7 +339,7 @@ export default {
         : "()"
     );
     return children.typeParameters
-      ? [call(path, print, "typeParameters"), " ", ...header]
+      ? [group(call(path, print, "typeParameters")), " ", ...header]
       : header;
   },
 
@@ -379,11 +396,21 @@ export default {
   },
 
   enumDeclaration(path, print) {
-    const header = ["enum", call(path, print, "typeIdentifier")];
-    if (path.node.children.classImplements) {
-      header.push(call(path, print, "classImplements"));
+    const { children } = path.node;
+    const parts = ["enum ", call(path, print, "typeIdentifier")];
+    if (children.classImplements) {
+      const body = children.enumBody[0].children;
+      const hasBody =
+        body.enumBodyDeclarations !== undefined ||
+        body.enumConstantList !== undefined;
+      parts.push(
+        indent([line, call(path, print, "classImplements")]),
+        hasBody ? line : " "
+      );
+    } else {
+      parts.push(" ");
     }
-    return join(" ", [...header, call(path, print, "enumBody")]);
+    return [group(parts), call(path, print, "enumBody")];
   },
 
   enumBody(path, print, options) {
@@ -445,20 +472,40 @@ export default {
 
   recordDeclaration(path, print) {
     const { children } = path.node;
-    const header = ["record ", call(path, print, "typeIdentifier")];
+    const parts = ["record ", call(path, print, "typeIdentifier")];
     if (children.typeParameters) {
-      header.push(call(path, print, "typeParameters"));
+      parts.push(group(call(path, print, "typeParameters")));
     }
-    header.push(call(path, print, "recordHeader"));
+    parts.push(call(path, print, "recordHeader"));
     if (children.classImplements) {
-      header.push(" ", call(path, print, "classImplements"));
+      const hasComponents =
+        children.recordHeader[0].children.recordComponentList !== undefined;
+      const hasBody =
+        children.recordBody[0].children.recordBodyDeclaration !== undefined;
+      const classImplements = [
+        hasComponents ? " " : line,
+        call(path, print, "classImplements")
+      ];
+      parts.push(
+        group([
+          hasComponents ? classImplements : indent(classImplements),
+          hasBody ? line : " "
+        ])
+      );
+    } else {
+      parts.push(" ");
     }
-    return [group(header), " ", call(path, print, "recordBody")];
+    return [group(parts), call(path, print, "recordBody")];
   },
 
   recordHeader(path, print) {
     return path.node.children.recordComponentList
-      ? indentInParentheses(call(path, print, "recordComponentList"))
+      ? [
+          "(",
+          indent([softline, call(path, print, "recordComponentList")]),
+          softline,
+          ")"
+        ]
       : indentInParentheses(printDanglingComments(path), { shouldBreak: true });
   },
 

@@ -5,7 +5,8 @@ public interface Interfaces {
 }
 
 public interface Interfaces
-  extends Interface1, Interface2, Interface3, Interface4 {
+  extends Interface1, Interface2, Interface3, Interface4
+{
   boolean isAvailable(Object propertyId);
 
   public static final Method METHOD = SomeStatic.findMethod();
@@ -20,7 +21,8 @@ public interface Interfaces
     Interface5,
     Interface6,
     Interface7,
-    Interface8 {
+    Interface8
+{
   boolean isAvailable(Object propertyId);
 
   public static final Method METHOD = SomeStatic.findMethod();
@@ -60,3 +62,122 @@ public interface EmptyInterface {}
 public interface InterfaceWithSemicolon {
   String STRING_1 = "STRING_1";
 }
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb> extends Cccccccccc permits Dddddddddd {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc>
+  extends Dddddddddd
+  permits Eeeeeeeeee
+{
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc>
+  extends Dddddddddd
+  permits Eeeeeeeeee {}
+
+class Aaaaaaaaaa<
+  Bbbbbbbbbb,
+  Cccccccccc
+> extends Dddddddddd<Eeeeeeeeee, Ffffffffff> {
+
+  void a() {}
+}
+
+class Aaaaaaaaaa<
+  Bbbbbbbbbb,
+  Cccccccccc
+> extends Dddddddddd<
+  Eeeeeeeeee,
+  Ffffffffff,
+  Gggggggggg,
+  Hhhhhhhhhh,
+  Iiiiiiiiii
+> {
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg
+  >
+  extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj>
+  permits Kkkkkkkkkk, Llllllllll
+{
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg
+  >
+  extends Hhhhhhhhhh<Iiiiiiiiii, Jjjjjjjjjj>
+  permits Kkkkkkkkkk, Llllllllll {}
+
+sealed class Aaaaaaaaaa<
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg
+  >
+  extends Hhhhhhhhhh<
+    Iiiiiiiiii,
+    Jjjjjjjjjj,
+    Kkkkkkkkkk,
+    Llllllllll,
+    Mmmmmmmmmm,
+    Nnnnnnnnnn
+  >
+  permits
+    Oooooooooo,
+    Pppppppppp,
+    Qqqqqqqqqq,
+    Rrrrrrrrrr,
+    Ssssssssss,
+    Tttttttttt,
+    Uuuuuuuuuu
+{
+
+  void a() {}
+}
+
+sealed class Aaaaaaaaaa<
+    Bbbbbbbbbb,
+    Cccccccccc,
+    Dddddddddd,
+    Eeeeeeeeee,
+    Ffffffffff,
+    Gggggggggg
+  >
+  extends Hhhhhhhhhh<
+    Iiiiiiiiii,
+    Jjjjjjjjjj,
+    Kkkkkkkkkk,
+    Llllllllll,
+    Mmmmmmmmmm,
+    Nnnnnnnnnn
+  >
+  permits
+    Oooooooooo,
+    Pppppppppp,
+    Qqqqqqqqqq,
+    Rrrrrrrrrr,
+    Ssssssssss,
+    Tttttttttt,
+    Uuuuuuuuuu {}

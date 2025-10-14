@@ -5,7 +5,8 @@ import com.other.interfaces.RequiredI;
  * This is the comment describing the interface
  */
 public /*a*/ interface /*b*/ MyInterface
-  /*a*/ extends /*b*/ /*a*/ OfferedI /*b*/ /*a*/, /*b*/ /*a*/ RequiredI /*b*/ {
+  /*a*/ extends /*b*/ /*a*/ OfferedI /*b*/ /*a*/, /*b*/ /*a*/ RequiredI
+/*b*/ {
   // comment
   /**
    * Javadoc
