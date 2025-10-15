@@ -576,6 +576,11 @@ public class Lambda {
         .collect(Collectors.summingInt(v -> v))
     );
   }
+
+  void lambdaInParentheses() {
+    (aaaaaaaaaa ->
+      bbbbbbbbbb.cccccccccc().dddddddddd().eeeeeeeeee().ffffffffff());
+  }
 }
 
 class T {

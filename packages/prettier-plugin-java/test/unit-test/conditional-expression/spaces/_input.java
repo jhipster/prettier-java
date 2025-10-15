@@ -38,4 +38,8 @@ class ConditionalExpression {
             ? b // b
             : c; // c
     }
+
+    void ternaryInParentheses() {
+        (aaaaaaaaaa ? bbbbbbbbbb : cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff());
+    }
 }

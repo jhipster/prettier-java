@@ -374,13 +374,18 @@ export default {
     const expression = call(path, print, "expression");
     const ancestorName = (path.getNode(14) as JavaNonTerminal | null)?.name;
     const binaryExpression = path.getNode(8) as JavaNonTerminal | null;
+    const { conditionalExpression, lambdaExpression } =
+      path.node.children.expression[0].children;
+    const hasLambda = lambdaExpression !== undefined;
+    const hasTernary =
+      conditionalExpression?.[0].children.QuestionMark !== undefined;
     return ancestorName &&
       ["guard", "returnStatement"].includes(ancestorName) &&
       binaryExpression &&
       binaryExpression.name === "binaryExpression" &&
       Object.keys(binaryExpression.children).length === 1
       ? indentInParentheses(expression)
-      : ["(", indent(expression), ")"];
+      : ["(", hasLambda || hasTernary ? expression : indent(expression), ")"];
   },
 
   castExpression: printSingle,
