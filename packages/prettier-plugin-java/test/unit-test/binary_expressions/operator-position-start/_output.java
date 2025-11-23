@@ -163,7 +163,8 @@ public class BinaryOperations {
     var sizeIndex = ((index - 1) >>> level) & MASK;
     var from = offset > left ? 0 : (left - offset) >> level;
     var to = (right - offset) >> (level + 1);
-    if (rawIndex < 1 << (list._level + SHIFT)) {}
+    if (rawIndex < 1 << (list._level + SHIFT)) {
+    }
     var res = size < SIZE ? 0 : ((size - 1) >>> SHIFT) << SHIFT;
     sign = (1 - 2 * b[3]) >> 7;
     exponent = ((b[3] << 1) & 0xff) | (b[2] >> (7 - 127));
@@ -206,12 +207,14 @@ public class BinaryOperations {
       (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd
         && eeeeeeeeee + ffffffffff == gggggggggg + hhhhhhhhhh)
       || iiiiiiiiii
-    ) {}
+    ) {
+    }
 
     if (
       (((((a * b + c) << d < e == f) & g) ^ h) | i && j)
       || (k && l | (m ^ (n & (o != p > q >> (r - s / t)))))
-    ) {}
+    ) {
+    }
 
     if (
       (aaaaaaaaaa + bbbbbbbbbb == cccccccccc + dddddddddd
@@ -220,7 +223,8 @@ public class BinaryOperations {
         && mmmmmmmmmm + nnnnnnnnnn == oooooooooo + pppppppppp)
       || (qqqqqqqqqq + rrrrrrrrrr == ssssssssss + tttttttttt
         && uuuuuuuuuu + vvvvvvvvvv == wwwwwwwwww + xxxxxxxxxxx)
-    ) {}
+    ) {
+    }
   }
 
   void instanceOf() {

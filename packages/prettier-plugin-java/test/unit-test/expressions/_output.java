@@ -73,7 +73,8 @@ public class Expressions {
   }
 
   public void printSimple() {
-    if (myValue == 42) {}
+    if (myValue == 42) {
+    }
 
     if (myValue != 42) {
       System.out.println("Why not 42 !");
@@ -92,15 +93,18 @@ public class Expressions {
       myValue == 42 ||
       (myValue == 42 && myValue == 42 && myValue == 42) ||
       (myValue == 42 && myValue == 42)
-    ) {}
+    ) {
+    }
 
     if (
       (myValue != 42 && 42 / 42) ||
       (myValue & 42 && myValue > 42) ||
       (myValue < 42 && myValue == 42)
-    ) {}
+    ) {
+    }
 
-    if (myValue != 42 && myValue == 42) {}
+    if (myValue != 42 && myValue == 42) {
+    }
   }
 
   public void printSwitch() {
@@ -108,17 +112,21 @@ public class Expressions {
       myValue == 42 ||
       (myValue == 42 && myValue == 42 && myValue == 42) ||
       (myValue == 42 && myValue == 42)
-    ) {}
+    ) {
+    }
 
     switch (
       (myValue != 42 && 42 / 42) ||
       (myValue & 42 && myValue > 42) ||
       (myValue < 42 && myValue == 42)
-    ) {}
+    ) {
+    }
 
-    switch (myValue != 42) {}
+    switch (myValue != 42) {
+    }
 
-    switch (myValue != 42 && myValue == 42) {}
+    switch (myValue != 42 && myValue == 42) {
+    }
   }
 
   public void printWhile() {
