@@ -263,18 +263,52 @@ export function printArrayInitializer<
 }
 
 export function printBlock(path: AstPath<JavaNonTerminal>, contents: Doc[]) {
-  if (!contents.length) {
-    const danglingComments = printDanglingComments(path);
-    return danglingComments.length
-      ? ["{", indent([hardline, ...danglingComments]), hardline, "}"]
-      : "{}";
+  if (contents.length) {
+    return group([
+      "{",
+      indent([hardline, ...join(hardline, contents)]),
+      hardline,
+      "}"
+    ]);
   }
-  return group([
-    "{",
-    indent([hardline, ...join(hardline, contents)]),
-    hardline,
-    "}"
-  ]);
+  const danglingComments = printDanglingComments(path);
+  if (danglingComments.length) {
+    return ["{", indent([hardline, ...danglingComments]), hardline, "}"];
+  }
+  const parent = path.grandparent;
+  const grandparent = path.getNode(4);
+  const greatGrandparent = path.getNode(6);
+  return (grandparent?.name === "catches" &&
+    grandparent.children.catchClause.length === 1 &&
+    (greatGrandparent?.name === "tryStatement" ||
+      greatGrandparent?.name === "tryWithResourcesStatement") &&
+    !greatGrandparent.children.finally) ||
+    (greatGrandparent &&
+      [
+        "basicForStatement",
+        "doStatement",
+        "enhancedForStatement",
+        "whileStatement"
+      ].includes(greatGrandparent.name)) ||
+    [
+      "annotationInterfaceBody",
+      "classBody",
+      "constructorBody",
+      "enumBody",
+      "interfaceBody",
+      "moduleDeclaration",
+      "recordBody"
+    ].includes(path.node.name) ||
+    (parent &&
+      [
+        "instanceInitializer",
+        "lambdaBody",
+        "methodBody",
+        "staticInitializer",
+        "synchronizedStatement"
+      ].includes(parent.name))
+    ? "{}"
+    : ["{", hardline, "}"];
 }
 
 export function printName(

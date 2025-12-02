@@ -185,4 +185,14 @@ class Switch {
         throw new RuntimeException();
     }
   }
+
+  void emptyBlocks() {
+    switch (a) {}
+    switch (a) {
+      case 1: {}
+    }
+    switch (a) {
+      case 1 -> {}
+    }
+  }
 }

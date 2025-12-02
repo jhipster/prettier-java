@@ -79,4 +79,43 @@ public class TryCatch {
       System.out.println("Warning: Not breaking multi exceptions");
     }
   }
+
+  void emptyBlocks() {
+    try {
+    } catch (Exception e) {}
+    try (var a = new A()) {
+    } catch (Exception e) {}
+    try {
+    } finally {
+    }
+    try (var a = new A()) {
+    } finally {
+    }
+    try {
+    } catch (Exception e) {
+    } finally {
+    }
+    try (var a = new A()) {
+    } catch (Exception e) {
+    } finally {
+    }
+    try {
+    } catch (Exception e) {
+    } catch (Exception e) {
+    }
+    try (var a = new A()) {
+    } catch (Exception e) {
+    } catch (Exception e) {
+    }
+    try {
+    } catch (Exception e) {
+    } catch (Exception e) {
+    } finally {
+    }
+    try (var a = new A()) {
+    } catch (Exception e) {
+    } catch (Exception e) {
+    } finally {
+    }
+  }
 }
