@@ -55,8 +55,10 @@ class Switch {
 
   void switchCaseWithBlock1() {
     switch (a) {
-      case 0: {}
-      default: {}
+      case 0: {
+      }
+      default: {
+      }
     }
   }
 
@@ -231,6 +233,19 @@ class Switch {
       case f ->
         // comment
         throw new RuntimeException();
+    }
+  }
+
+  void emptyBlocks() {
+    switch (a) {
+    }
+    switch (a) {
+      case 1: {
+      }
+    }
+    switch (a) {
+      case 1 -> {
+      }
     }
   }
 }

@@ -99,7 +99,8 @@ export function handleLineComment(
     handleIfStatementComments,
     handleJumpStatementComments,
     handleLabeledStatementComments,
-    handleNameComments
+    handleNameComments,
+    handleTryStatementComments
   ].some(fn => fn(commentNode, options));
 }
 
@@ -242,6 +243,37 @@ function handleNameComments(commentNode: JavaComment) {
     ].includes(enclosingNode.name)
   ) {
     util.addTrailingComment(precedingNode, commentNode);
+    return true;
+  }
+  return false;
+}
+
+function handleTryStatementComments(commentNode: JavaComment) {
+  const { enclosingNode, followingNode } = commentNode;
+  if (
+    enclosingNode &&
+    ["catches", "tryStatement"].includes(enclosingNode.name) &&
+    followingNode &&
+    isNonTerminal(followingNode)
+  ) {
+    const block = (
+      followingNode.name === "catches"
+        ? followingNode.children.catchClause[0]
+        : followingNode.name === "catchClause" ||
+            followingNode.name === "finally"
+          ? followingNode
+          : null
+    )?.children.block[0];
+    if (!block) {
+      return false;
+    }
+    const blockStatement =
+      block.children.blockStatements?.[0].children.blockStatement[0];
+    if (blockStatement) {
+      util.addLeadingComment(blockStatement, commentNode);
+    } else {
+      util.addDanglingComment(block, commentNode, undefined);
+    }
     return true;
   }
   return false;
