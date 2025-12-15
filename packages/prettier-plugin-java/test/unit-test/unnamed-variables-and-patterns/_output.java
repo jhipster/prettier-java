@@ -37,7 +37,11 @@ class T {
   }
 
   void multipleCatchClauses() {
-    try {} catch (Exception _) {} catch (Throwable _) {} // Unnamed variable // Unnamed variable
+    try {
+    } catch (Exception _) {
+    } catch (Throwable _) {
+      // Unnamed variable
+    } // Unnamed variable
   }
 
   void tryWithResources() {
@@ -82,9 +86,12 @@ class T {
   }
 
   void instanceofExpressions() {
-    if (r instanceof ColoredPoint(Point(int x, int y), _)) {}
-    if (r instanceof ColoredPoint(_, Color c)) {}
-    if (r instanceof ColoredPoint(Point(int x, _), _)) {}
+    if (r instanceof ColoredPoint(Point(int x, int y), _)) {
+    }
+    if (r instanceof ColoredPoint(_, Color c)) {
+    }
+    if (r instanceof ColoredPoint(Point(int x, _), _)) {
+    }
   }
 
   void switchLabelWithMatchAllPattern() {

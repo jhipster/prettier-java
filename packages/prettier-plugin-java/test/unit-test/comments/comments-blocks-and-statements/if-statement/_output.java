@@ -4,18 +4,22 @@ class IfStatements {
     if (
       // test
       t
-    ) {}
+    ) {
+    }
 
     if (
       t // test
-    ) {}
+    ) {
+    }
 
-    if (t) {} // test
+    if (t) {
+    } // test
 
     if (
       // test
       t
-    ) {}
+    ) {
+    }
 
     if (
       true // comment
@@ -25,26 +29,38 @@ class IfStatements {
   }
 
   void commentsIfBlockComment() {
-    if (/* test */ t) {}
+    if (/* test */ t) {
+    }
 
-    if (t /* test */) {}
+    if (t /* test */) {
+    }
 
-    if (t) /* test */ {}
+    if (t) /* test */ {
+    }
 
-    if (/* test */ t) {}
+    if (/* test */ t) {
+    }
   }
 
   void commentsElseLineComment() {
-    if (t) {}
+    if (t) {
+    }
     // test
-    else {}
+    else {
+    }
 
-    if (t) {} else {} // test
+    if (t) {
+    } else {
+    } // test
   }
 
   void commentsElseBlockComment() {
-    if (t) {} /* test */ else {}
+    if (t) {
+    } /* test */ else {
+    }
 
-    if (t) {} else /* test */ {}
+    if (t) {
+    } else /* test */ {
+    }
   }
 }
