@@ -9,7 +9,7 @@ import type {
   IToken,
   StatementCstNode
 } from "java-parser";
-import type { AstPath, Doc, ParserOptions } from "prettier";
+import type { AstPath, Doc, Options, ParserOptions } from "prettier";
 import { builders } from "prettier/doc";
 import type { JavaComment } from "../comments.js";
 import parser from "../parser.js";
@@ -326,6 +326,94 @@ export function printClassType(
       }
       return docs;
     });
+}
+
+export function printTextBlock(path: AstPath<JavaTerminal>) {
+  const [open, ...lines] = path.node.image.split("\n");
+  const baseIndent = findBaseIndent(lines);
+  const textBlock = join(hardline, [
+    open,
+    ...lines.map(line => line.slice(baseIndent))
+  ]);
+  const ancestor = path.getNode(16) as JavaNonTerminal | null;
+  return ancestor?.name === "variableInitializer" ||
+    (ancestor?.name === "binaryExpression" &&
+      ancestor.children.AssignmentOperator)
+    ? indent(textBlock)
+    : textBlock;
+}
+
+export function embedTextBlock(path: AstPath<JavaTerminal>) {
+  const language = findEmbeddedLanguage(path);
+  if (!language) {
+    return null;
+  }
+  const text = path.node.image
+    .replace(/^"""\n/, "")
+    .replace(/"""$/, "")
+    .replace(/\\u+([0-9a-fA-F]{4})/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16))
+    );
+  const unindentedText = stripIndent(text);
+  const decodedText = translateEscapes(unindentedText);
+
+  return async (
+    textToDoc: (text: string, options: Options) => Promise<Doc>
+  ) => {
+    const doc = await textToDoc(decodedText, { parser: language });
+    return group(indent(['"""', hardline, doc, hardline, '"""']));
+  };
+}
+
+function findEmbeddedLanguage(path: AstPath<JavaNode>) {
+  return path.ancestors
+    .find(
+      node =>
+        (isNonTerminal(node) && node.name === "blockStatement") ||
+        node.comments?.some(({ leading }) => leading)
+    )
+    ?.comments?.filter(({ leading }) => leading)
+    .reverse()
+    .map(
+      ({ image }) =>
+        image.match(/^(?:\/\/|\/\*)\s*language\s*=\s*([^\s]+)/)?.[1]
+    )
+    .find(language => language)
+    ?.toLowerCase();
+}
+
+function stripIndent(text: string) {
+  const lines = text.split("\n");
+  const indent = findBaseIndent(lines);
+  return lines.map(line => line.slice(indent)).join("\n");
+}
+
+function translateEscapes(text: string) {
+  return text.replace(
+    /\\(?:([bfntr"'\\])|([0-7]{1,3})|\n)/g,
+    (_, single, octal) => {
+      if (single) {
+        switch (single) {
+          case "b":
+            return "\b";
+          case "f":
+            return "\f";
+          case "n":
+            return "\n";
+          case "t":
+            return "\t";
+          case "r":
+            return "\r";
+          default:
+            return single;
+        }
+      } else if (octal) {
+        return String.fromCharCode(parseInt(octal, 8));
+      } else {
+        return "";
+      }
+    }
+  );
 }
 
 export function isBinaryExpression(expression: ExpressionCstNode) {
