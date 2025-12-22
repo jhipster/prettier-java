@@ -6,9 +6,11 @@ import {
   isFullyBetweenFormatterOffOn
 } from "./comments.js";
 import {
+  embedTextBlock,
   isNonTerminal,
   isTerminal,
   printComment,
+  printTextBlock,
   type JavaNode,
   type JavaTerminal
 } from "./printers/helpers.js";
@@ -16,9 +18,17 @@ import { printerForNodeType } from "./printers/index.js";
 
 export default {
   print(path: DistributedAstPath<JavaNode>, options, print, args) {
-    return hasTerminal(path)
-      ? path.node.image
-      : printerForNodeType(path.node.name)(path, print, options, args);
+    if (hasTerminal(path)) {
+      return path.node.tokenType.name === "TextBlock"
+        ? printTextBlock(path)
+        : path.node.image;
+    }
+    return printerForNodeType(path.node.name)(path, print, options, args);
+  },
+  embed(path: DistributedAstPath<JavaNode>) {
+    return hasTerminal(path) && path.node.tokenType.name === "TextBlock"
+      ? embedTextBlock(path)
+      : null;
   },
   hasPrettierIgnore(path) {
     const { node } = path;
