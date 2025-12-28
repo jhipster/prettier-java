@@ -13,8 +13,8 @@ import {
   findBaseIndent,
   flatMap,
   hasLeadingComments,
+  hasNonAssignmentOperators,
   indentInParentheses,
-  isBinaryExpression,
   isNonTerminal,
   isTerminal,
   map,
@@ -121,8 +121,7 @@ export default {
       return binaryExpression;
     }
     const [consequent, alternate] = map(path, print, "expression");
-    const parts = [binaryExpression];
-    const part = [
+    const suffix = [
       line,
       ["? ", options.useTabs ? indent(consequent) : align(2, consequent)],
       line,
@@ -131,12 +130,13 @@ export default {
     const isNestedTernary =
       (path.getNode(4) as JavaNonTerminal | null)?.name ===
       "conditionalExpression";
-    parts.push(
+    const alignedSuffix =
       !isNestedTernary || options.useTabs
-        ? part
-        : align(Math.max(0, options.tabWidth - 2), part)
-    );
-    return isNestedTernary ? parts : group(indent(parts));
+        ? suffix
+        : align(Math.max(0, options.tabWidth - 2), suffix);
+    return isNestedTernary
+      ? [binaryExpression, alignedSuffix]
+      : group([binaryExpression, indent(alignedSuffix)]);
   },
 
   binaryExpression(path, print, options) {
@@ -172,15 +172,16 @@ export default {
         "shiftOperator"
       ])
     );
-    const hasNonAssignmentOperators =
-      (operators.length > 0 && !children.AssignmentOperator) ||
-      (children.expression !== undefined &&
-        isBinaryExpression(children.expression[0]));
     const isInList =
       (path.getNode(4) as JavaNonTerminal | null)?.name === "elementValue" ||
       (path.getNode(6) as JavaNonTerminal | null)?.name === "argumentList";
+    const binaryExpression =
+      children.expression?.[0].children.conditionalExpression?.[0].children
+        .binaryExpression[0];
     return binary(operands, operators, {
-      hasNonAssignmentOperators,
+      hasNonAssignmentOperators:
+        (operators.length > 0 && !children.AssignmentOperator) ||
+        (binaryExpression && hasNonAssignmentOperators(binaryExpression)),
       isInList,
       isRoot: true,
       operatorPosition: options.experimentalOperatorPosition
