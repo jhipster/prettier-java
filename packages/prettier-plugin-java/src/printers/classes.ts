@@ -10,8 +10,8 @@ import {
   each,
   hasDeclarationAnnotations,
   hasLeadingComments,
+  hasNonAssignmentOperators,
   indentInParentheses,
-  isBinaryExpression,
   lineEndWithComments,
   lineStartWithComments,
   map,
@@ -154,12 +154,14 @@ export default {
     if (!variableInitializer) {
       return declaratorId;
     }
-    const expression = variableInitializer.children.expression?.[0];
+    const binaryExpression =
+      variableInitializer.children.expression?.[0].children
+        .conditionalExpression?.[0].children.binaryExpression[0];
     const declarator = [declaratorId, " ", call(path, print, "Equals")];
     const initializer = call(path, print, "variableInitializer");
     if (
       hasLeadingComments(variableInitializer) ||
-      (expression && isBinaryExpression(expression))
+      (binaryExpression && hasNonAssignmentOperators(binaryExpression))
     ) {
       declarator.push(group(indent([line, initializer])));
     } else {

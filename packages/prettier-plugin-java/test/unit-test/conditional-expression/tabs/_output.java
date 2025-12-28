@@ -58,4 +58,38 @@ class ConditionalExpression {
 			? bbbbbbbbbb
 			: cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff());
 	}
+
+	void assignment() {
+		Aaaaaaaaaa aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccc, dddddddddd, eeeeeeeeee) != ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+
+		Aaaaaaaaaa aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccccccccccccc, dddddddddd, eeeeeeeeee) != ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+
+		Aaaaaaaaaa aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccccccccccccc, dddddddddddddddddddd, eeeeeeeeee) !=
+			ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+
+		aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccc, dddddddddd, eeeeeeeeee) != ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+
+		aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccccccccccccc, dddddddddd, eeeeeeeeee) != ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+
+		aaaaaaaaaa =
+			bbbbbbbbbb(cccccccccccccccccccc, dddddddddddddddddddd, eeeeeeeeee) !=
+			ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+	}
 }

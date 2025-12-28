@@ -1,5 +1,6 @@
 import type {
   AnnotationCstNode,
+  BinaryExpressionCstNode,
   ClassPermitsCstNode,
   ClassTypeCtx,
   CstElement,
@@ -372,16 +373,19 @@ export function isBinaryExpression(expression: ExpressionCstNode) {
   if (isTernary) {
     return false;
   }
-  const hasNonAssignmentOperators = Object.values(
-    conditionalExpression.binaryExpression[0].children
-  ).some(
+  return hasNonAssignmentOperators(conditionalExpression.binaryExpression[0]);
+}
+
+export function hasNonAssignmentOperators(
+  binaryExpression: BinaryExpressionCstNode
+) {
+  return Object.values(binaryExpression.children).some(
     child =>
       isTerminal(child[0]) &&
       !child[0].tokenType.CATEGORIES?.some(
         category => category.name === "AssignmentOperator"
       )
   );
-  return hasNonAssignmentOperators;
 }
 
 export function findBaseIndent(lines: string[]) {
