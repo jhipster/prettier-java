@@ -10,44 +10,44 @@ import {
   type JavaParserOptions
 } from "./printers/helpers.js";
 
-const formatterOffOnRangesByCst = new WeakMap<
+const prettierIgnoreRangesByCst = new WeakMap<
   JavaNode,
-  FormatterOffOnRange[]
+  PrettierIgnoreRange[]
 >();
 
-export function determineFormatterOffOnRanges(cst: JavaNonTerminal) {
+export function determinePrettierIgnoreRanges(cst: JavaNonTerminal) {
   const { comments } = cst;
   if (!comments) {
     return;
   }
   const ranges = comments
     .filter(({ image }) =>
-      /^(\/\/\s*@formatter:(off|on)\s*|\/\*\s*@formatter:(off|on)\s*\*\/)$/.test(
+      /^\/(?:\/\s*(?:prettier-ignore-(?:start|end)|@formatter:(?:off|on))\s*|\*\s*(?:prettier-ignore-(?:start|end)|@formatter:(?:off|on))\s*\*\/)$/.test(
         image
       )
     )
     .reduce((ranges, { image, startOffset }) => {
       const previous = ranges.at(-1);
-      if (image.endsWith("off")) {
-        if (previous?.on !== Infinity) {
-          ranges.push({ off: startOffset, on: Infinity });
+      if (image.includes("start") || image.includes("off")) {
+        if (previous?.end !== Infinity) {
+          ranges.push({ start: startOffset, end: Infinity });
         }
-      } else if (previous?.on === Infinity) {
-        previous.on = startOffset;
+      } else if (previous?.end === Infinity) {
+        previous.end = startOffset;
       }
       return ranges;
-    }, new Array<FormatterOffOnRange>());
-  formatterOffOnRangesByCst.set(cst, ranges);
+    }, new Array<PrettierIgnoreRange>());
+  prettierIgnoreRangesByCst.set(cst, ranges);
 }
 
-export function isFullyBetweenFormatterOffOn(path: AstPath<JavaNode>) {
+export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
   const { node, root } = path;
   const start = parser.locStart(node);
   const end = parser.locEnd(node);
   return (
-    formatterOffOnRangesByCst
+    prettierIgnoreRangesByCst
       .get(root)
-      ?.some(range => range.off < start && end < range.on) === true
+      ?.some(range => range.start < start && end < range.end) === true
   );
 }
 
@@ -300,7 +300,7 @@ export type JavaComment = IToken & {
   followingNode?: JavaNode;
 };
 
-type FormatterOffOnRange = {
-  off: number;
-  on: number;
+type PrettierIgnoreRange = {
+  start: number;
+  end: number;
 };
