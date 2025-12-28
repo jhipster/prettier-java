@@ -1,6 +1,6 @@
 import { parse } from "java-parser";
 import type { Parser } from "prettier";
-import { determineFormatterOffOnRanges } from "./comments.js";
+import { determinePrettierIgnoreRanges } from "./comments.js";
 import {
   isTerminal,
   type JavaNode,
@@ -14,7 +14,7 @@ export default {
     cst.comments?.forEach(comment => {
       comment.value = comment.image;
     });
-    determineFormatterOffOnRanges(cst);
+    determinePrettierIgnoreRanges(cst);
     return cst;
   },
   astFormat: "java",

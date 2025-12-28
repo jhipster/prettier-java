@@ -3,7 +3,7 @@ import {
   canAttachComment,
   handleLineComment,
   handleRemainingComment,
-  isFullyBetweenFormatterOffOn
+  isFullyBetweenPrettierIgnore
 } from "./comments.js";
 import {
   isNonTerminal,
@@ -26,7 +26,7 @@ export default {
       node.comments?.some(({ image }) =>
         /^(\/\/\s*prettier-ignore|\/\*\s*prettier-ignore\s*\*\/)$/.test(image)
       ) === true ||
-      (canAttachComment(node) && isFullyBetweenFormatterOffOn(path))
+      (canAttachComment(node) && isFullyBetweenPrettierIgnore(path))
     );
   },
   canAttachComment,
