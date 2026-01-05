@@ -376,15 +376,17 @@ export function isBinaryExpression(expression: ExpressionCstNode) {
   return hasNonAssignmentOperators(conditionalExpression.binaryExpression[0]);
 }
 
+export function hasAssignmentOperators(
+  binaryExpression: BinaryExpressionCstNode
+) {
+  return binaryExpression.children.AssignmentOperator !== undefined;
+}
+
 export function hasNonAssignmentOperators(
   binaryExpression: BinaryExpressionCstNode
 ) {
-  return Object.values(binaryExpression.children).some(
-    child =>
-      isTerminal(child[0]) &&
-      !child[0].tokenType.CATEGORIES?.some(
-        category => category.name === "AssignmentOperator"
-      )
+  return Object.keys(binaryExpression.children).some(name =>
+    ["BinaryOperator", "Instanceof", "shiftOperator"].includes(name)
   );
 }
 

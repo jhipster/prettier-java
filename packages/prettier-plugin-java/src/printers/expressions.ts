@@ -1,5 +1,7 @@
 import type {
+  BinaryExpressionCstNode,
   FqnOrRefTypeCtx,
+  PrimaryCstNode,
   StringTemplateCstNode,
   TextBlockTemplateCstNode
 } from "java-parser";
@@ -12,6 +14,7 @@ import {
   each,
   findBaseIndent,
   flatMap,
+  hasAssignmentOperators,
   hasLeadingComments,
   hasNonAssignmentOperators,
   indentInParentheses,
@@ -117,8 +120,11 @@ export default {
 
   conditionalExpression(path, print, options) {
     const binaryExpression = call(path, print, "binaryExpression");
+    const grandparentNodeName = (path.getNode(4) as JavaNonTerminal | null)
+      ?.name;
+    const isInParentheses = grandparentNodeName === "parenthesisExpression";
     if (!path.node.children.QuestionMark) {
-      return binaryExpression;
+      return isInParentheses ? binaryExpression : group(binaryExpression);
     }
     const [consequent, alternate] = map(path, print, "expression");
     const suffix = [
@@ -127,16 +133,16 @@ export default {
       line,
       [": ", options.useTabs ? indent(alternate) : align(2, alternate)]
     ];
-    const isNestedTernary =
-      (path.getNode(4) as JavaNonTerminal | null)?.name ===
-      "conditionalExpression";
+    const isNestedTernary = grandparentNodeName === "conditionalExpression";
     const alignedSuffix =
       !isNestedTernary || options.useTabs
         ? suffix
         : align(Math.max(0, options.tabWidth - 2), suffix);
-    return isNestedTernary
-      ? [binaryExpression, alignedSuffix]
-      : group([binaryExpression, indent(alignedSuffix)]);
+    if (isNestedTernary) {
+      return [group(binaryExpression), alignedSuffix];
+    }
+    const parts = [group(binaryExpression), indent(alignedSuffix)];
+    return isInParentheses ? parts : group(parts);
   },
 
   binaryExpression(path, print, options) {
@@ -373,20 +379,39 @@ export default {
 
   parenthesisExpression(path, print) {
     const expression = call(path, print, "expression");
-    const ancestorName = (path.getNode(14) as JavaNonTerminal | null)?.name;
-    const binaryExpression = path.getNode(8) as JavaNonTerminal | null;
+    const primaryAncestor = path.getNode(4) as PrimaryCstNode | null;
+    const binaryExpressionAncestor = path.getNode(
+      8
+    ) as BinaryExpressionCstNode | null;
+    const outerAncestor = path.getNode(14) as JavaNonTerminal | null;
     const { conditionalExpression, lambdaExpression } =
       path.node.children.expression[0].children;
     const hasLambda = lambdaExpression !== undefined;
     const hasTernary =
       conditionalExpression?.[0].children.QuestionMark !== undefined;
-    return ancestorName &&
-      ["guard", "returnStatement"].includes(ancestorName) &&
-      binaryExpression &&
-      binaryExpression.name === "binaryExpression" &&
-      Object.keys(binaryExpression.children).length === 1
-      ? indentInParentheses(expression)
-      : ["(", hasLambda || hasTernary ? expression : indent(expression), ")"];
+    const hasSuffix = primaryAncestor?.children.primarySuffix !== undefined;
+    const isAssignment =
+      (outerAncestor?.name === "binaryExpression" &&
+        hasAssignmentOperators(outerAncestor)) ||
+      outerAncestor?.name === "variableInitializer";
+    if (!hasLambda && hasSuffix && (!hasTernary || isAssignment)) {
+      return indentInParentheses(hasTernary ? group(expression) : expression);
+    } else if (
+      binaryExpressionAncestor &&
+      Object.keys(binaryExpressionAncestor.children).length === 1 &&
+      outerAncestor &&
+      ["guard", "returnStatement"].includes(outerAncestor.name)
+    ) {
+      return indentInParentheses(group(expression));
+    } else if (hasTernary && hasSuffix && !isAssignment) {
+      return group(["(", expression, softline, ")"]);
+    } else {
+      return group([
+        "(",
+        hasLambda || hasTernary ? expression : indent(expression),
+        ")"
+      ]);
+    }
   },
 
   castExpression: printSingle,
@@ -699,8 +724,8 @@ function binary(
       operands.unshift(
         levelOperator !== undefined &&
           needsParentheses(nextOperator, levelOperator)
-          ? ["(", indent(content), ")"]
-          : content
+          ? ["(", group(indent(content)), ")"]
+          : group(content)
       );
     }
   }
@@ -711,17 +736,17 @@ function binary(
       !isAssignmentOperator(levelOperator) &&
       levelOperator !== "instanceof")
   ) {
-    return group(level);
+    return level;
   }
   if (!isRoot || hasNonAssignmentOperators) {
-    return group(indent(level));
+    return indent(level);
   }
   const groupId = Symbol("assignment");
-  return group([
+  return [
     level[0],
     group(indent(level[1]), { id: groupId }),
     indentIfBreak(level[2], { groupId })
-  ]);
+  ];
 }
 
 const precedencesByOperator = new Map(
