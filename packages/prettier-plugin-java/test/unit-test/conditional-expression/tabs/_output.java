@@ -18,6 +18,53 @@ class ConditionalExpression {
 			: thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne;
 	}
 
+	void ternaryOperationThatShouldBreak3() {
+		aaaaaaaaaa &&
+		bbbbbbbbbb &&
+		cccccccccc &&
+		dddddddddd &&
+		eeeeeeeeee &&
+		ffffffffff
+			? gggggggggg
+			: hhhhhhhhhh;
+		var v =
+			aaaaaaaaaa &&
+			bbbbbbbbbb &&
+			cccccccccc &&
+			dddddddddd &&
+			eeeeeeeeee &&
+			ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+		v =
+			aaaaaaaaaa &&
+			bbbbbbbbbb &&
+			cccccccccc &&
+			dddddddddd &&
+			eeeeeeeeee &&
+			ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh;
+		f(
+			aaaaaaaaaa &&
+				bbbbbbbbbb &&
+				cccccccccc &&
+				dddddddddd &&
+				eeeeeeeeee &&
+				ffffffffff
+				? gggggggggg
+				: hhhhhhhhhh
+		);
+		return aaaaaaaaaa &&
+			bbbbbbbbbb &&
+			cccccccccc &&
+			dddddddddd &&
+			eeeeeeeeee &&
+			ffffffffff
+			? gggggggggg
+			: hhhhhhhhhh;
+	}
+
 	int ternaryOperationThatShouldNotBreak() {
 		int a = b ? b : c;
 		return b ? b : c;

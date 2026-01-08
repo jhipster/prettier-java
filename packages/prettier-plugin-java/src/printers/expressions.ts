@@ -126,6 +126,10 @@ export default {
     if (!path.node.children.QuestionMark) {
       return isInParentheses ? binaryExpression : group(binaryExpression);
     }
+    const isInReturn = grandparentNodeName === "returnStatement";
+    const prefix = group(
+      isInReturn ? indent(binaryExpression) : binaryExpression
+    );
     const [consequent, alternate] = map(path, print, "expression");
     const suffix = [
       line,
@@ -139,9 +143,9 @@ export default {
         ? suffix
         : align(Math.max(0, options.tabWidth - 2), suffix);
     if (isNestedTernary) {
-      return [group(binaryExpression), alignedSuffix];
+      return [prefix, alignedSuffix];
     }
-    const parts = [group(binaryExpression), indent(alignedSuffix)];
+    const parts = [prefix, indent(alignedSuffix)];
     return isInParentheses ? parts : group(parts);
   },
 
