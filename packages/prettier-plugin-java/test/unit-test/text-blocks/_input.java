@@ -55,4 +55,21 @@ aoeu
     );
   }
 
+  void json() {
+    // language=json
+    String config = """
+          {   "name":"example",
+      "enabled"   :true,
+            "timeout":30}
+    """;
+
+    /* language = JSON */
+    String query = """
+         {
+       "sql":"SELECT * FROM users \
+    WHERE active=1 \
+    AND deleted=0",
+       "limit":10}
+    """;
+  }
 }
