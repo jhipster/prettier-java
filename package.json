@@ -7,14 +7,21 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "default": "./dist/index.js"
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "require": {
+      "types": "./dist/index.d.cjs",
+      "default": "./dist/index.cjs"
+    }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc && cp src/tree-sitter-java_orchard.wasm dist/",
+    "build": "tsdown && cp src/tree-sitter-java_orchard.wasm dist/",
+    "build:watch": "tsdown --watch",
     "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
     "clone-samples": "node scripts/clone-samples.js",
     "format:fix": "prettier --write \"**/*.@(js|json|ts)\"",
@@ -66,7 +73,8 @@
     "prettier": "^3.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.57.0"
+    "typescript-eslint": "^8.57.0",
+    "tsdown": "^0.19.0-beta.5"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"
