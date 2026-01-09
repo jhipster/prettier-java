@@ -16,7 +16,8 @@
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/sunrabbit123/prettier-java",
+  "homepage": "https://jhipster.github.io/prettier-java/",
+  "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
     "java-parser": "3.0.1"
