@@ -42,6 +42,9 @@ export function determinePrettierIgnoreRanges(cst: JavaNonTerminal) {
 
 export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
   const { node, root } = path;
+  if (isNonTerminal(node) && node.location === undefined) {
+    return false;
+  }
   const start = parser.locStart(node);
   const end = parser.locEnd(node);
   return (
