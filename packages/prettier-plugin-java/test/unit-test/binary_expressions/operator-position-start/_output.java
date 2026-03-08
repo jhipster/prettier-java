@@ -238,7 +238,6 @@ public class BinaryOperations {
 
     var a =
       Foo.get(longlinelonglinelonglinelonglinelongline)
-        instanceof NumberNumberNumberNumber n
-      && n.foo();
+        instanceof NumberNumberNumberNumber n && n.foo();
   }
 }

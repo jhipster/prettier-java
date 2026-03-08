@@ -121,17 +121,14 @@ export function testRepositorySample(
 
 export async function formatJavaSnippet({
   snippet,
-  entryPoint,
   prettierOptions = {}
 }: {
   snippet: string;
-  entryPoint?: string;
   prettierOptions?: any;
 }) {
   return await format(snippet, {
     parser: "java",
     plugins: [plugin],
-    entrypoint: entryPoint,
     ...prettierOptions
   });
 }
@@ -139,22 +136,18 @@ export async function formatJavaSnippet({
 export async function expectSnippetToBeFormatted({
   snippet,
   expectedOutput,
-  entryPoint,
   prettierOptions = {}
 }: {
   snippet: string;
   expectedOutput: string;
-  entryPoint: string;
   prettierOptions?: any;
 }) {
   const onePass = await formatJavaSnippet({
     snippet,
-    entryPoint,
     prettierOptions
   });
   const secondPass = await formatJavaSnippet({
     snippet: onePass,
-    entryPoint,
     prettierOptions
   });
 

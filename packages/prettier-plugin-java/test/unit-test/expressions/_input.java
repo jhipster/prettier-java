@@ -205,7 +205,7 @@ public class Expressions {
   }
 
   public void typeExpressionsInFqnParts() {
-    var myVariable = ImmutableMap.<R, V>of<T>::a();
+    var map = new <String, Integer>HashMap<String, Integer>(Map.of("A", 1));
   }
 
   void parenthesesWithLeadingAndTrailingBreak() {

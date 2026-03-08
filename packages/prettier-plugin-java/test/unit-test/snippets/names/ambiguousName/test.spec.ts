@@ -4,16 +4,14 @@ describe("AmbiguousName", () => {
   it("can format a AmbiguousName without dots", () => {
     expectSnippetToBeFormatted({
       snippet: "myAmbiguousName",
-      expectedOutput: "myAmbiguousName",
-      entryPoint: "ambiguousName"
+      expectedOutput: "myAmbiguousName"
     });
   });
 
   it("can format a AmbiguousName with dots", () => {
     expectSnippetToBeFormatted({
       snippet: "myAmbiguousName.with.lot.of.dots",
-      expectedOutput: "myAmbiguousName.with.lot.of.dots",
-      entryPoint: "ambiguousName"
+      expectedOutput: "myAmbiguousName.with.lot.of.dots"
     });
   });
 });

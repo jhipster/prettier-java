@@ -40,7 +40,7 @@ public class Variables {
   private Object[] arrayVariable1 = new Object[3];
   private Object[][] arrayVariable2 = new Object[3][3];
   private Object[] arrayVariable3 = new Object[] {};
-  private Object[] arrayVariable4 = new Object[] { "abc", "def", "ghi" };
+  private Object[] arrayVariable4 = new Object[] {"abc", "def", "ghi"};
   private Object[] arrayVariable5 = new Object[] {
     "abc",
     "def",
@@ -48,7 +48,7 @@ public class Variables {
     "jkl",
     "mno",
   };
-  private Object[] arrayVariable6 = { "abc", "def", "ghi" };
+  private Object[] arrayVariable6 = {"abc", "def", "ghi"};
 
   private Range creator1 = this.dateRangeField.new Range(from, to);
   private Range creator2 = this.dateRangeField.new <Integer>Range(from, to);
@@ -202,7 +202,7 @@ public class Variables {
       new Object[10];
 
     Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
-      new Object[] { new Object(), new Object() };
+      new Object[] {new Object(), new Object()};
 
     Object[] aParticularlyLongAndObnoxiousNameForIllustrativePurposes =
       new Object[] {

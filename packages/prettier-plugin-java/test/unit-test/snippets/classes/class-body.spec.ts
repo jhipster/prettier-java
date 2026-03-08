@@ -4,8 +4,7 @@ describe("Class Body", () => {
   it("should handle an empty class body", () => {
     expectSnippetToBeFormatted({
       snippet: "{ }",
-      expectedOutput: "{}",
-      entryPoint: "classBody"
+      expectedOutput: "{}"
     });
   });
 
@@ -18,8 +17,7 @@ describe("Class Body", () => {
 
     expectSnippetToBeFormatted({
       snippet: "{int i;}",
-      expectedOutput,
-      entryPoint: "classBody"
+      expectedOutput
     });
   });
 
@@ -44,8 +42,7 @@ describe("Class Body", () => {
 
     expectSnippetToBeFormatted({
       snippet,
-      expectedOutput,
-      entryPoint: "classBody"
+      expectedOutput
     });
   });
 
@@ -70,8 +67,7 @@ describe("Class Body", () => {
 
     expectSnippetToBeFormatted({
       snippet,
-      expectedOutput,
-      entryPoint: "classBody"
+      expectedOutput
     });
   });
 
@@ -100,8 +96,7 @@ describe("Class Body", () => {
 
     expectSnippetToBeFormatted({
       snippet,
-      expectedOutput,
-      entryPoint: "classBody"
+      expectedOutput
     });
   });
 
@@ -109,8 +104,7 @@ describe("Class Body", () => {
     it("should handle an class body with only empty statements", () => {
       expectSnippetToBeFormatted({
         snippet: "{;;}",
-        expectedOutput: "{}",
-        entryPoint: "classBody"
+        expectedOutput: "{}"
       });
     });
 
@@ -138,8 +132,7 @@ describe("Class Body", () => {
 
       expectSnippetToBeFormatted({
         snippet,
-        expectedOutput,
-        entryPoint: "classBody"
+        expectedOutput
       });
     });
 
@@ -169,16 +162,14 @@ describe("Class Body", () => {
 
       expectSnippetToBeFormatted({
         snippet,
-        expectedOutput,
-        entryPoint: "classBody"
+        expectedOutput
       });
     });
 
     it("should print comments attached to empty statement where only empty statements", () => {
       expectSnippetToBeFormatted({
         snippet: "{;/* TODO */;}",
-        expectedOutput: "{\n" + "  /* TODO */\n" + "}",
-        entryPoint: "classBody"
+        expectedOutput: "{\n" + "  /* TODO */\n" + "}"
       });
     });
 
@@ -207,8 +198,7 @@ describe("Class Body", () => {
 
       expectSnippetToBeFormatted({
         snippet,
-        expectedOutput,
-        entryPoint: "classBody"
+        expectedOutput
       });
     });
   });

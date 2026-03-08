@@ -142,16 +142,14 @@ public class BinaryOperations {
         bbbbbbbbbbb,
         ccccccccccc,
         ddddddddddd
-      ) +
-      0;
+      ) + 0;
     something =
       MyClass.staticFunction(
         aaaaaaaaaa,
         bbbbbbbbbbb,
         ccccccccccc,
         ddddddddddd
-      ) +
-      0;
+      ) + 0;
 
     var something12 = new MyClass(
       aaaaaaaaaa,
@@ -245,7 +243,6 @@ public class BinaryOperations {
 
     var a =
       Foo.get(longlinelonglinelonglinelonglinelongline) instanceof
-        NumberNumberNumberNumber n &&
-      n.foo();
+        NumberNumberNumberNumber n && n.foo();
   }
 }

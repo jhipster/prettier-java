@@ -148,6 +148,13 @@ enum PrettierErrors {
   }
 }
 
+enum A {
+  ;
+
+  /**/
+  void b() {}
+}
+
 enum Aaaaaaaaaa implements Bbbbbbbbbb {
   A
 }

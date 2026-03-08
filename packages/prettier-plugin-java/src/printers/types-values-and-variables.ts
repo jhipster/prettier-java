@@ -1,125 +1,59 @@
 import { builders } from "prettier/doc";
-import {
-  call,
-  definedKeys,
-  flatMap,
-  isNonTerminal,
-  map,
-  onlyDefinedKey,
-  printClassType,
-  printList,
-  printSingle,
-  type JavaNodePrinters
-} from "./helpers.js";
+import { printValue, type JavaNodePrinters } from "./helpers.js";
 
 const { group, indent, join, line, softline } = builders;
 
 export default {
-  primitiveType(path, print) {
-    const { children } = path.node;
-    const typeKey = onlyDefinedKey(children, ["Boolean", "numericType"]);
-    return join(" ", [
-      ...map(path, print, "annotation"),
-      call(path, print, typeKey)
-    ]);
+  boolean_type: printValue,
+  integral_type: printValue,
+  floating_point_type: printValue,
+  void_type: printValue,
+
+  array_type(path, print) {
+    return [
+      path.call(print, "elementNode"),
+      path.call(print, "dimensionsNode")
+    ];
   },
 
-  numericType: printSingle,
-  integralType: printSingle,
-  floatingPointType: printSingle,
-
-  referenceType(path, print) {
-    const { children } = path.node;
-    const typeKey = onlyDefinedKey(children, [
-      "primitiveType",
-      "classOrInterfaceType"
-    ]);
-    const type = call(path, print, typeKey);
-    return join(" ", [
-      ...map(path, print, "annotation"),
-      children.dims ? [type, call(path, print, "dims")] : type
-    ]);
+  annotated_type(path, print) {
+    return join(" ", path.map(print, "children"));
   },
 
-  classOrInterfaceType: printSingle,
-  classType: printClassType,
-  interfaceType: printSingle,
-
-  typeVariable(path, print) {
-    return join(" ", [
-      ...map(path, print, "annotation"),
-      call(path, print, "Identifier")
-    ]);
-  },
-
-  dims(path, print) {
-    return flatMap(
-      path,
-      childPath => {
-        const child = print(childPath);
-        return isNonTerminal(childPath.node) ? [child, " "] : child;
-      },
-      definedKeys(path.node.children, ["annotation", "LSquare", "RSquare"])
+  dimensions(path, print) {
+    return path.map(
+      child => (child.node.isNamed ? [print(child), " "] : child.node.value),
+      "children"
     );
   },
 
-  typeParameter(path, print) {
-    const parameter = [
-      ...map(path, print, "typeParameterModifier"),
-      call(path, print, "typeIdentifier")
-    ];
-    if (path.node.children.typeBound) {
-      parameter.push(call(path, print, "typeBound"));
-    }
-    return join(" ", parameter);
+  type_parameter(path, print) {
+    return join(" ", path.map(print, "children"));
   },
 
-  typeParameterModifier: printSingle,
-
-  typeBound(path, print) {
-    const bound = ["extends ", call(path, print, "classOrInterfaceType")];
-    if (path.node.children.additionalBound) {
-      bound.push(
-        group(
-          indent([line, ...join(line, map(path, print, "additionalBound"))])
-        )
-      );
+  type_bound(path, print) {
+    const [firstType, ...restTypes] = path.map(print, "namedChildren");
+    const bound = ["extends ", firstType];
+    if (restTypes.length) {
+      bound.push(group(indent([line, "& ", ...join([line, "& "], restTypes)])));
     }
     return bound;
   },
 
-  additionalBound(path, print) {
-    return ["& ", call(path, print, "interfaceType")];
-  },
+  type_arguments(path, print) {
+    const types = path.map(print, "namedChildren");
 
-  typeArguments(path, print) {
-    return group([
-      "<",
-      indent([softline, call(path, print, "typeArgumentList")]),
-      softline,
-      ">"
-    ]);
+    return types.length
+      ? group([
+          "<",
+          indent([softline, join([",", line], types)]),
+          softline,
+          ">"
+        ])
+      : "<>";
   },
-
-  typeArgumentList(path, print) {
-    return printList(path, print, "typeArgument");
-  },
-
-  typeArgument: printSingle,
 
   wildcard(path, print) {
-    const wildcard = [...map(path, print, "annotation"), "?"];
-    if (path.node.children.wildcardBounds) {
-      wildcard.push(call(path, print, "wildcardBounds"));
-    }
-    return join(" ", wildcard);
-  },
-
-  wildcardBounds(path, print) {
-    return [
-      path.node.children.Extends ? "extends" : "super",
-      " ",
-      call(path, print, "referenceType")
-    ];
+    return join(" ", path.map(print, "children"));
   }
 } satisfies Partial<JavaNodePrinters>;

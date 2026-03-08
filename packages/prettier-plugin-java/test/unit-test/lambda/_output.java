@@ -51,8 +51,8 @@ public class Lambda {
         foo.isVeryVeryVeryLongConditionTrue() &&
         foo.isAnotherVeryVeryLongConditionTrue()
     );
-    aaaaaaaaaa(bbbbbbbbbb ->
-      "123456789012345678901234567890123456789012345678"
+    aaaaaaaaaa(
+      bbbbbbbbbb -> "123456789012345678901234567890123456789012345678"
     );
     aaaaaaaaaa(bbbbbbbbbb ->
       cccccccccc("123456789012345678901234567890123456")
@@ -113,13 +113,10 @@ public class Lambda {
   }
 
   public void callWithLambdaAndExtraParameter() {
-    CompletableFuture.supplyAsync(
-      () -> {
-        // some processing
-        return 2;
-      },
-      executor
-    );
+    CompletableFuture.supplyAsync(() -> {
+      // some processing
+      return 2;
+    }, executor);
   }
 
   public void testConstructor() {
@@ -251,15 +248,14 @@ public class Lambda {
     );
 
     a.b(
-      c ->
-        d ->
-          eeeeeeeeee.ffffffffff(
-            gggggggggg,
-            hhhhhhhhhh,
-            iiiiiiiiii,
-            jjjjjjjjjj,
-            kkkkkkkkkk
-          )
+      c -> d ->
+        eeeeeeeeee.ffffffffff(
+          gggggggggg,
+          hhhhhhhhhh,
+          iiiiiiiiii,
+          jjjjjjjjjj,
+          kkkkkkkkkk
+        )
     );
 
     a.b(c ->
@@ -277,8 +273,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -291,8 +286,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -303,8 +297,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -316,8 +309,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -481,8 +473,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -498,8 +489,7 @@ public class Lambda {
           iiiiiiiiii,
           jjjjjjjjjj,
           kkkkkkkkkk
-        ) >
-        0
+        ) > 0
     );
 
     a.b(
@@ -659,11 +649,8 @@ enum Enum {
       return n * 2;
     }
   ),
-  VALUE(
-    x -> {
-      // testing method
-      return n * 2;
-    },
-    other
-  ),
+  VALUE(x -> {
+    // testing method
+    return n * 2;
+  }, other),
 }

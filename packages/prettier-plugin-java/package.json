@@ -14,7 +14,8 @@
   "repository": "https://github.com/jhipster/prettier-java",
   "license": "Apache-2.0",
   "dependencies": {
-    "java-parser": "3.0.1"
+    "tree-sitter-java-orchard": "0.5.4",
+    "web-tree-sitter": "0.26.6"
   },
   "scripts": {
     "test": "yarn run test:unit && yarn run test:e2e-core",
@@ -24,12 +25,14 @@
     "test:e2e-jhipster2": "node scripts/clone-samples e2e-jhipster2 && mocha \"test/repository-test/jhipster-2-test.ts\"",
     "test:all": "yarn run test && yarn run test:e2e-jhipster1 && yarn run test:e2e-jhipster2",
     "clone-samples": "node scripts/clone-samples.js",
-    "build": "tsc",
-    "build:watch": "tsc --inlineSourceMap -w"
+    "build": "tsc && cp src/tree-sitter-java_orchard.wasm dist/",
+    "build:watch": "tsc --inlineSourceMap -w",
+    "generate": "cp ../../node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm src/ && dts-tree-sitter ../../node_modules/tree-sitter-java-orchard > src/tree-sitter-java.d.ts"
   },
   "devDependencies": {
-    "@chevrotain/types": "11.0.3",
+    "@asgerf/dts-tree-sitter": "0.21.0",
     "@types/chai": "5.0.1",
+    "@types/emscripten": "1.41.5",
     "@types/fs-extra": "11.0.4",
     "@types/jest": "29.5.14",
     "@types/klaw-sync": "6.0.5",

@@ -1,43 +1,48 @@
-import type { IToken } from "java-parser";
-import { util, type AstPath } from "prettier";
+import { util, type AstPath, type Doc } from "prettier";
+import { builders } from "prettier/doc";
 import parser from "./parser.js";
+import printer from "./printer.js";
 import {
-  isEmptyStatement,
-  isNonTerminal,
-  isTerminal,
+  hasChild,
+  printComment,
+  type JavaComment,
   type JavaNode,
-  type JavaNonTerminal,
+  type JavaNodePath,
   type JavaParserOptions
 } from "./printers/helpers.js";
+import { SyntaxType } from "./tree-sitter-java.js";
 
-const prettierIgnoreRangesByCst = new WeakMap<
+const { hasNewline, isPreviousLineEmpty, skipNewline, skipSpaces } = util;
+const { breakParent, hardline, line, lineSuffix } = builders;
+
+const prettierIgnoreRangesByTree = new WeakMap<
   JavaNode,
   PrettierIgnoreRange[]
 >();
 
-export function determinePrettierIgnoreRanges(cst: JavaNonTerminal) {
-  const { comments } = cst;
+export function determinePrettierIgnoreRanges(tree: JavaNode) {
+  const { comments } = tree;
   if (!comments) {
     return;
   }
   const ranges = comments
-    .filter(({ image }) =>
+    .filter(({ value }) =>
       /^\/(?:\/\s*(?:prettier-ignore-(?:start|end)|@formatter:(?:off|on))\s*|\*\s*(?:prettier-ignore-(?:start|end)|@formatter:(?:off|on))\s*\*\/)$/.test(
-        image
+        value
       )
     )
-    .reduce((ranges, { image, startOffset }) => {
+    .reduce((ranges, { value, start }) => {
       const previous = ranges.at(-1);
-      if (image.includes("start") || image.includes("off")) {
+      if (value.includes("start") || value.includes("off")) {
         if (previous?.end !== Infinity) {
-          ranges.push({ start: startOffset, end: Infinity });
+          ranges.push({ start: start.index, end: Infinity });
         }
       } else if (previous?.end === Infinity) {
-        previous.end = startOffset;
+        previous.end = start.index;
       }
       return ranges;
     }, new Array<PrettierIgnoreRange>());
-  prettierIgnoreRangesByCst.set(cst, ranges);
+  prettierIgnoreRangesByTree.set(tree, ranges);
 }
 
 export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
@@ -45,43 +50,34 @@ export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
   const start = parser.locStart(node);
   const end = parser.locEnd(node);
   return (
-    prettierIgnoreRangesByCst
+    prettierIgnoreRangesByTree
       .get(root)
       ?.some(range => range.start < start && end < range.end) === true
   );
 }
 
+export function isPrettierIgnore(comment: JavaComment) {
+  return /^(\/\/\s*prettier-ignore|\/\*\s*prettier-ignore\s*\*\/)$/.test(
+    comment.value
+  );
+}
+
+export function willPrintOwnComments(path: AstPath<JavaNode>): boolean {
+  return isMember(path.node) && !printer.hasPrettierIgnore(path);
+}
+
 export function canAttachComment(node: JavaNode) {
-  if (isTerminal(node)) {
-    const { name, CATEGORIES } = node.tokenType;
-    return (
-      name === "Identifier" ||
-      CATEGORIES?.find(({ name }) => name === "BinaryOperator") !== undefined
-    );
+  if (!node.isNamed) {
+    return isBinaryOperator(node);
   }
-  const { children, name } = node;
-  switch (name) {
-    case "argumentList":
-    case "blockStatements":
-    case "emptyStatement":
-    case "enumBodyDeclarations":
+  switch (node.type) {
+    case SyntaxType.EnumBodyDeclarations:
+    case SyntaxType.FormalParameters:
+    case SyntaxType.Modifier:
+    case SyntaxType.ParenthesizedExpression:
+    case SyntaxType.Program:
+    case SyntaxType.Visibility:
       return false;
-    case "annotationInterfaceMemberDeclaration":
-    case "classMemberDeclaration":
-    case "interfaceMemberDeclaration":
-    case "methodBody":
-      return !children.Semicolon;
-    case "blockStatement":
-      return !children.statement || !isEmptyStatement(children.statement[0]);
-    case "classBodyDeclaration":
-      return !children.classMemberDeclaration?.[0].children.Semicolon;
-    case "recordBodyDeclaration":
-      return !children.classBodyDeclaration?.[0].children
-        .classMemberDeclaration?.[0].children.Semicolon;
-    case "statement":
-      return !isEmptyStatement(node);
-    case "statementWithoutTrailingSubstatement":
-      return !children.emptyStatement;
     default:
       return true;
   }
@@ -94,12 +90,14 @@ export function handleLineComment(
 ) {
   return [
     handleBinaryExpressionComments,
-    handleConditionalExpressionComments,
     handleFqnOrRefTypeComments,
     handleIfStatementComments,
     handleJumpStatementComments,
     handleLabeledStatementComments,
+    handleMemberChainComments,
+    handleModifiersComments,
     handleNameComments,
+    handleTernaryExpressionComments,
     handleTryStatementComments
   ].some(fn => fn(commentNode, options));
 }
@@ -107,7 +105,6 @@ export function handleLineComment(
 export function handleRemainingComment(commentNode: JavaComment) {
   return [
     handleFqnOrRefTypeComments,
-    handleMethodDeclaratorComments,
     handleNameComments,
     handleJumpStatementComments
   ].some(fn => fn(commentNode));
@@ -118,7 +115,7 @@ function handleBinaryExpressionComments(
   options: JavaParserOptions
 ) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
-  if (enclosingNode?.name === "binaryExpression") {
+  if (enclosingNode?.type === SyntaxType.BinaryExpression) {
     if (isBinaryOperator(followingNode)) {
       if (options.experimentalOperatorPosition === "start") {
         util.addLeadingComment(followingNode, commentNode);
@@ -137,27 +134,12 @@ function handleBinaryExpressionComments(
   return false;
 }
 
-function handleConditionalExpressionComments(commentNode: JavaComment) {
-  const { startLine, endLine, enclosingNode, precedingNode, followingNode } =
-    commentNode;
-  if (
-    enclosingNode?.name === "conditionalExpression" &&
-    precedingNode &&
-    followingNode &&
-    isNonTerminal(precedingNode) &&
-    isNonTerminal(followingNode) &&
-    precedingNode.location.endLine < startLine &&
-    endLine < followingNode.location.startLine
-  ) {
-    util.addLeadingComment(followingNode, commentNode);
-    return true;
-  }
-  return false;
-}
-
 function handleFqnOrRefTypeComments(commentNode: JavaComment) {
   const { enclosingNode, followingNode } = commentNode;
-  if (enclosingNode?.name === "fqnOrRefType" && followingNode) {
+  if (
+    enclosingNode?.type === SyntaxType.ScopedTypeIdentifier &&
+    followingNode
+  ) {
     util.addLeadingComment(followingNode, commentNode);
     return true;
   }
@@ -167,10 +149,8 @@ function handleFqnOrRefTypeComments(commentNode: JavaComment) {
 function handleIfStatementComments(commentNode: JavaComment) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
-    enclosingNode?.name === "ifStatement" &&
-    precedingNode &&
-    isNonTerminal(precedingNode) &&
-    precedingNode.name === "statement"
+    enclosingNode?.type === SyntaxType.IfStatement &&
+    precedingNode?.fieldName === "consequence"
   ) {
     util.addDanglingComment(enclosingNode, commentNode, undefined);
     return true;
@@ -184,9 +164,9 @@ function handleJumpStatementComments(commentNode: JavaComment) {
     enclosingNode &&
     !precedingNode &&
     !followingNode &&
-    ["breakStatement", "continueStatement", "returnStatement"].includes(
-      enclosingNode.name
-    )
+    (enclosingNode.type === SyntaxType.BreakStatement ||
+      enclosingNode.type === SyntaxType.ContinueStatement ||
+      enclosingNode.type === SyntaxType.ReturnStatement)
   ) {
     util.addTrailingComment(enclosingNode, commentNode);
     return true;
@@ -197,10 +177,8 @@ function handleJumpStatementComments(commentNode: JavaComment) {
 function handleLabeledStatementComments(commentNode: JavaComment) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
-    enclosingNode?.name === "labeledStatement" &&
-    precedingNode &&
-    isTerminal(precedingNode) &&
-    precedingNode.tokenType.name === "Identifier"
+    enclosingNode?.type === SyntaxType.LabeledStatement &&
+    precedingNode?.type === SyntaxType.Identifier
   ) {
     util.addLeadingComment(precedingNode, commentNode);
     return true;
@@ -208,16 +186,35 @@ function handleLabeledStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleMethodDeclaratorComments(commentNode: JavaComment) {
-  const { enclosingNode } = commentNode;
+function handleMemberChainComments(commentNode: JavaComment) {
+  const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
-    enclosingNode?.name === "methodDeclarator" &&
-    !enclosingNode.children.receiverParameter &&
-    !enclosingNode.children.formalParameterList &&
-    enclosingNode.children.LBrace[0].startOffset < commentNode.startOffset &&
-    commentNode.startOffset < enclosingNode.children.RBrace[0].startOffset
+    (enclosingNode?.type === SyntaxType.FieldAccess ||
+      enclosingNode?.type === SyntaxType.MethodInvocation) &&
+    followingNode?.type === SyntaxType.Identifier
   ) {
-    util.addDanglingComment(enclosingNode, commentNode, undefined);
+    util.addLeadingComment(enclosingNode, commentNode);
+    return true;
+  } else if (
+    followingNode &&
+    isMember(followingNode) &&
+    precedingNode !== enclosingNode &&
+    !isPrettierIgnore(commentNode)
+  ) {
+    util.addDanglingComment(followingNode, commentNode, undefined);
+    return true;
+  }
+  return false;
+}
+
+function handleModifiersComments(commentNode: JavaComment) {
+  const { precedingNode } = commentNode;
+  if (
+    precedingNode?.type === SyntaxType.Annotation ||
+    precedingNode?.type === SyntaxType.MarkerAnnotation ||
+    precedingNode?.type === SyntaxType.Modifiers
+  ) {
+    util.addTrailingComment(precedingNode, commentNode);
     return true;
   }
   return false;
@@ -227,22 +224,28 @@ function handleNameComments(commentNode: JavaComment) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
     enclosingNode &&
-    precedingNode &&
-    isTerminal(precedingNode) &&
-    precedingNode.tokenType.name === "Identifier" &&
-    [
-      "ambiguousName",
-      "classOrInterfaceTypeToInstantiate",
-      "expressionName",
-      "moduleDeclaration",
-      "moduleName",
-      "packageDeclaration",
-      "packageName",
-      "packageOrTypeName",
-      "typeName"
-    ].includes(enclosingNode.name)
+    precedingNode?.type === SyntaxType.Identifier &&
+    (enclosingNode.type === SyntaxType.ScopedIdentifier ||
+      enclosingNode.type === SyntaxType.ModuleDeclaration ||
+      enclosingNode.type === SyntaxType.PackageDeclaration ||
+      enclosingNode.type === SyntaxType.ScopedTypeIdentifier)
   ) {
     util.addTrailingComment(precedingNode, commentNode);
+    return true;
+  }
+  return false;
+}
+
+function handleTernaryExpressionComments(commentNode: JavaComment) {
+  const { enclosingNode, precedingNode, followingNode } = commentNode;
+  if (
+    enclosingNode?.type === SyntaxType.TernaryExpression &&
+    precedingNode?.isNamed &&
+    followingNode?.isNamed &&
+    precedingNode.end.row < commentNode.start.row &&
+    commentNode.end.row < followingNode.start.row
+  ) {
+    util.addLeadingComment(followingNode, commentNode);
     return true;
   }
   return false;
@@ -252,23 +255,21 @@ function handleTryStatementComments(commentNode: JavaComment) {
   const { enclosingNode, followingNode } = commentNode;
   if (
     enclosingNode &&
-    ["catches", "tryStatement"].includes(enclosingNode.name) &&
-    followingNode &&
-    isNonTerminal(followingNode)
+    (enclosingNode.type === SyntaxType.CatchClause ||
+      enclosingNode.type === SyntaxType.TryStatement ||
+      enclosingNode.type === SyntaxType.TryWithResourcesStatement) &&
+    followingNode?.isNamed
   ) {
-    const block = (
-      followingNode.name === "catches"
-        ? followingNode.children.catchClause[0]
-        : followingNode.name === "catchClause" ||
-            followingNode.name === "finally"
-          ? followingNode
-          : null
-    )?.children.block[0];
+    const block =
+      followingNode.type === SyntaxType.CatchClause
+        ? followingNode.bodyNode
+        : followingNode.type === SyntaxType.FinallyClause
+          ? followingNode.namedChildren[0]
+          : null;
     if (!block) {
       return false;
     }
-    const blockStatement =
-      block.children.blockStatements?.[0].children.blockStatement[0];
+    const blockStatement = block.namedChildren.at(0);
     if (blockStatement) {
       util.addLeadingComment(blockStatement, commentNode);
     } else {
@@ -279,28 +280,182 @@ function handleTryStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function isBinaryOperator(node?: JavaNode) {
+function isMember(node: JavaNode) {
   return (
-    node !== undefined &&
-    (isNonTerminal(node)
-      ? node.name === "shiftOperator"
-      : node.tokenType.CATEGORIES?.some(
-          ({ name }) => name === "BinaryOperator"
-        ))
+    node.type === SyntaxType.ArrayAccess ||
+    node.type === SyntaxType.FieldAccess ||
+    node.type === SyntaxType.MethodInvocation
   );
 }
 
-export type JavaComment = IToken & {
-  value: string;
-  leading: boolean;
-  trailing: boolean;
-  printed: boolean;
-  enclosingNode?: JavaNonTerminal;
-  precedingNode?: JavaNode;
-  followingNode?: JavaNode;
-};
+const binaryOperators = new Set([
+  "<<",
+  ">>",
+  ">>>",
+  "instanceof",
+  "<=",
+  ">=",
+  "==",
+  "-",
+  "+",
+  "&&",
+  "&",
+  "^",
+  "!=",
+  "||",
+  "|",
+  "*",
+  "/",
+  "%"
+]);
+function isBinaryOperator(node?: JavaNode) {
+  return node !== undefined && binaryOperators.has(node.type);
+}
 
 type PrettierIgnoreRange = {
   start: number;
   end: number;
 };
+
+function printLeadingComment(path: AstPath<JavaComment>) {
+  const comment = path.node;
+  comment.printed = true;
+  const parts: Doc[] = [printComment(comment)];
+
+  const originalText = path.root.value;
+  const isBlock = comment.type === SyntaxType.BlockComment;
+
+  // Leading block comments should see if they need to stay on the
+  // same line or not.
+  if (isBlock) {
+    let lineBreak: Doc = " ";
+    if (hasNewline(originalText, parser.locEnd(comment))) {
+      if (
+        hasNewline(originalText, parser.locStart(comment), { backwards: true })
+      ) {
+        lineBreak = hardline;
+      } else {
+        lineBreak = line;
+      }
+    }
+
+    parts.push(lineBreak);
+  } else {
+    parts.push(hardline);
+  }
+
+  const index = skipNewline(
+    originalText,
+    skipSpaces(originalText, parser.locEnd(comment))
+  );
+
+  if (index !== false && hasNewline(originalText, index)) {
+    parts.push(hardline);
+  }
+
+  return parts;
+}
+
+function printTrailingComment(
+  path: AstPath<JavaComment>,
+  previousComment?: { doc: Doc; isBlock: boolean; hasLineSuffix: boolean }
+): NonNullable<typeof previousComment> {
+  const comment = path.node;
+  comment.printed = true;
+  const printed = printComment(comment);
+
+  const originalText = path.root.value;
+  const isBlock = comment.type === SyntaxType.BlockComment;
+
+  if (
+    (previousComment?.hasLineSuffix && !previousComment?.isBlock) ||
+    hasNewline(originalText, parser.locStart(comment), { backwards: true })
+  ) {
+    // This allows comments at the end of nested structures:
+    // f(
+    //   1,
+    //   2
+    //   // A comment
+    // );
+    // Those kinds of comments are almost always leading comments, but
+    // here it doesn't go "outside" the block and turns it into a
+    // trailing comment for `2`. We can simulate the above by checking
+    // if this a comment on its own line; normal trailing comments are
+    // always at the end of another expression.
+
+    const isLineBeforeEmpty = isPreviousLineEmpty(
+      originalText,
+      parser.locStart(comment)
+    );
+
+    return {
+      doc: lineSuffix([hardline, isLineBeforeEmpty ? hardline : "", printed]),
+      isBlock,
+      hasLineSuffix: true
+    };
+  }
+
+  if (!isBlock || previousComment?.hasLineSuffix) {
+    return {
+      doc: [lineSuffix([" ", printed]), breakParent],
+      isBlock,
+      hasLineSuffix: true
+    };
+  }
+
+  return { doc: [" ", printed], isBlock, hasLineSuffix: false };
+}
+
+function printLeadingComments(path: JavaNodePath) {
+  if (!hasChild(path, "comments")) {
+    return [];
+  }
+  const docs: Doc[] = [];
+
+  path.each(path => {
+    const { node: comment } = path;
+    if (!comment.leading) {
+      return;
+    }
+
+    docs.push(printLeadingComment(path));
+  }, "comments");
+
+  return docs;
+}
+
+function printTrailingComments(path: JavaNodePath) {
+  if (!hasChild(path, "comments")) {
+    return [];
+  }
+  const docs: Doc[] = [];
+  let printedTrailingComment:
+    | ReturnType<typeof printTrailingComment>
+    | undefined;
+
+  path.each(path => {
+    const { node: comment } = path;
+    if (!comment.trailing) {
+      return;
+    }
+
+    printedTrailingComment = printTrailingComment(path, printedTrailingComment);
+
+    docs.push(printedTrailingComment.doc);
+  }, "comments");
+
+  return docs;
+}
+
+export function printCommentsSeparately(path: JavaNodePath) {
+  return {
+    leading: printLeadingComments(path),
+    trailing: printTrailingComments(path)
+  };
+}
+
+export function printComments(path: JavaNodePath, doc: Doc) {
+  const leading = printLeadingComments(path);
+  const trailing = printTrailingComments(path);
+  return leading.length || trailing.length ? [leading, doc, trailing] : doc;
+}

@@ -14,4 +14,8 @@ class Array {
   String[] DATA = {
     // nothing yet
   };
+
+  Weather currentWeather = enumValues[
+    (currentWeather.ordinal() + 1) % enumValues.length
+  ];
 }

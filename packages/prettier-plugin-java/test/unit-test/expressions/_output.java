@@ -209,9 +209,9 @@ public class Expressions {
 
   public void unannTypePrimitiveWithMethodReferenceSuffix(String[] args) {
     List.of(
-      new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-      new double[][] { 1, 2, 3, 4.1, 5.6846465 },
-      new double[][] { 1, 2, 3, 4.1, 5.6846465 }
+      new double[][] {1, 2, 3, 4.1, 5.6846465},
+      new double[][] {1, 2, 3, 4.1, 5.6846465},
+      new double[][] {1, 2, 3, 4.1, 5.6846465}
     ).toArray(double[][]::new);
   }
 
@@ -247,7 +247,7 @@ public class Expressions {
   }
 
   public void typeExpressionsInFqnParts() {
-    var myVariable = ImmutableMap.<R, V>of<T>::a();
+    var map = new <String, Integer>HashMap<String, Integer>(Map.of("A", 1));
   }
 
   void parenthesesWithLeadingAndTrailingBreak() {
@@ -272,9 +272,9 @@ public class Expressions {
     aaaaaaaaaa = (
       bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee
     )::ffffffffff;
-    aaaaaaaaaa = (
-      bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee
-    )[ffffffffff];
+    aaaaaaaaaa = (bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)[
+      ffffffffff
+    ];
 
     Aaaaaaaaaa aaaaaaaaaa = (
       bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee
@@ -311,10 +311,9 @@ public class Expressions {
       ? dddddddddd
       : eeeeeeeeee
     )::ffffffffff;
-    (aaaaaaaaaa && bbbbbbbbbb && cccccccccc
-      ? dddddddddd
-      : eeeeeeeeee
-    )[ffffffffff];
+    (aaaaaaaaaa && bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)[
+      ffffffffff
+    ];
   }
 
   void parenthesesWithoutBreak() {
@@ -322,15 +321,17 @@ public class Expressions {
       bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();
     (aaaaaaaaaa ->
       bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)::ffffffffff;
-    (aaaaaaaaaa ->
-      bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)[ffffffffff];
+    (aaaaaaaaaa -> bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)[
+      ffffffffff
+    ];
 
     aaaaaaaaaa = (bbbbbbbbbb ->
       cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();
     aaaaaaaaaa = (bbbbbbbbbb ->
       cccccccccc ? dddddddddd : eeeeeeeeee)::ffffffffff;
-    aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee)[ffffffffff];
+    aaaaaaaaaa = (bbbbbbbbbb -> cccccccccc ? dddddddddd : eeeeeeeeee)[
+      ffffffffff
+    ];
 
     Aaaaaaaaaa aaaaaaaaaa = (bbbbbbbbbb ->
       cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();

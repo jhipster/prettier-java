@@ -48,17 +48,17 @@ class J {
 
   void one() {}
 
-  void two() {}
-  // alpha
+  void two() // alpha
+  {}
 
-  void three() {}
-  // alpha
+  void three() // alpha
   // beta
+  {}
 
-  void four() {}
-  // alpha
+  void four() // alpha
   // beta
   /* gamma */
+  {}
 
   void five() {} // alpha
 
@@ -66,38 +66,34 @@ class J {
     int i;
   }
 
-  void six(/* alpha */) {}
+  void six /* alpha */() {}
 
-  void seven() {}
-  /* alpha */
+  void seven() /* alpha */
   /* beta */
+  {}
 
-  void eight() {}
-  /* alpha */
+  void eight() /* alpha */
   // beta
+  {}
 
-  void nine() {}
-  /* alpha */
+  void nine() /* alpha */
+  {}
 
   void one(String one) {}
 
-  void two(
-    String one
-    // alpha
-  ) {}
+  void two(String one) // alpha
+  {}
 
-  void three(
-    String one
-    // alpha
-    // beta
-  ) {}
+  void three(String one) // alpha
+  // beta
+  {}
 
   void four(
     // alpha
     String one
-    // beta
-    /* gamma */
-  ) {}
+  ) // beta
+  /* gamma */
+  {}
 
   void five(
     String one // alpha
@@ -108,17 +104,15 @@ class J {
   void seven(
     /* alpha */
     String one
-    /* beta */
-  ) {}
+  ) /* beta */
+  {}
 
   void eight(
     /* alpha */
     String one
-    // beta
-  ) {}
+  ) // beta
+  {}
 
-  void nine(
-    String one
-    /* alpha */
-  ) {}
+  void nine(String one) /* alpha */
+  {}
 }

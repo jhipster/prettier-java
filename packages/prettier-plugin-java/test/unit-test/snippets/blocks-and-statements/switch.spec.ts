@@ -21,8 +21,7 @@ describe("Switches", () => {
 
       expectSnippetToBeFormatted({
         snippet,
-        expectedOutput,
-        entryPoint: "switchStatement"
+        expectedOutput
       });
     });
   });

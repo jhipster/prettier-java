@@ -3,86 +3,78 @@ import { formatJavaSnippet } from "../../../../test-utils.js";
 
 describe("VariableDeclarator", () => {
   it("should format a variable declaration", async () => {
-    const snippet = "i=1";
-    const entryPoint = "variableDeclarator";
+    const snippet = "int i=1;";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "i = 1";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "int i = 1;\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should format a variable declaration with an array initialisation", async () => {
-    const snippet = "i={alpha}";
-    const entryPoint = "variableDeclarator";
+    const snippet = "int[]i={alpha};";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "i = { alpha }";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "int[] i = {alpha};\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should not add a blank line with an array initialisation that break", async () => {
     const snippet =
-      "i={alpha, beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu, nu, xi}";
-    const entryPoint = "variableDeclarator";
+      "int[]i={alpha, beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu, nu, xi};";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
+    const formattedText = await formatJavaSnippet({ snippet });
     const expectedContents =
-      "i = {\n  alpha,\n  beta,\n  gamma,\n  delta,\n  epsilon,\n  zeta,\n  eta,\n  theta,\n  iota,\n  kappa,\n  lambda,\n  mu,\n  nu,\n  xi,\n}";
+      "int[] i = {\n  alpha,\n  beta,\n  gamma,\n  delta,\n  epsilon,\n  zeta,\n  eta,\n  theta,\n  iota,\n  kappa,\n  lambda,\n  mu,\n  nu,\n  xi,\n};\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should format a variable declaration with a lambda", async () => {
-    const snippet = "lambda= test -> {}";
-    const entryPoint = "variableDeclarator";
+    const snippet = "Function<Void>lambda= test -> {};";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "lambda = test -> {}";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "Function<Void> lambda = test -> {};\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should not add a blank line with a lambda that break", async () => {
-    const snippet = "lambda= test -> {int i;}";
-    const entryPoint = "variableDeclarator";
+    const snippet = "Function<Void>lambda= test -> {int i;};";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "lambda = test -> {\n  int i;\n}";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents =
+      "Function<Void> lambda = test -> {\n  int i;\n};\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should format a variable declaration with a ternary expression", async () => {
-    const snippet = "value= bool ? one : two";
-    const entryPoint = "variableDeclarator";
+    const snippet = "int value= bool ? one : two;";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "value = bool ? one : two";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "int value = bool ? one : two;\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should not add a blank line with a ternary expression that break", async () => {
     const snippet =
-      "value = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne : thisIsAShortInteger";
-    const entryPoint = "variableDeclarator";
+      "int value = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne : thisIsAShortInteger;";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
+    const formattedText = await formatJavaSnippet({ snippet });
     const expectedContents =
-      "value = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  : thisIsAShortInteger";
+      "int value = thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  ? thisIsAnotherVeryLongIntegerThatIsEvenLongerThanFirstOne\n  : thisIsAShortInteger;\n";
     expect(formattedText).to.equal(expectedContents);
   });
   it("should format comment on its own line between equal and variable initializer", async () => {
-    const snippet = "value = \n// comment2\n 1";
-    const entryPoint = "variableDeclarator";
+    const snippet = "int value = \n// comment2\n 1;";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "value =\n  // comment2\n  1";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "int value =\n  // comment2\n  1;\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
   it("should format comments on several lines between equal and variable initializer", async () => {
-    const snippet = "value = // comment1\n// comment2\n 1";
-    const entryPoint = "variableDeclarator";
+    const snippet = "int value = // comment1\n// comment2\n 1;";
 
-    const formattedText = await formatJavaSnippet({ snippet, entryPoint });
-    const expectedContents = "value = // comment1\n  // comment2\n  1";
+    const formattedText = await formatJavaSnippet({ snippet });
+    const expectedContents = "int value = // comment1\n  // comment2\n  1;\n";
     expect(formattedText).to.equal(expectedContents);
   });
 });

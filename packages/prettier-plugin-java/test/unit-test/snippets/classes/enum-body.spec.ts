@@ -12,8 +12,7 @@ describe("Enum Body", () => {
       "}";
     expectSnippetToBeFormatted({
       snippet,
-      expectedOutput,
-      entryPoint: "enumBody"
+      expectedOutput
     });
   });
 
@@ -32,7 +31,6 @@ describe("Enum Body", () => {
     expectSnippetToBeFormatted({
       snippet,
       expectedOutput,
-      entryPoint: "enumBody",
       prettierOptions
     });
   });
@@ -52,7 +50,6 @@ describe("Enum Body", () => {
     expectSnippetToBeFormatted({
       snippet,
       expectedOutput,
-      entryPoint: "enumBody",
       prettierOptions
     });
   });
@@ -68,8 +65,7 @@ describe("Enum Body", () => {
       "}";
     expectSnippetToBeFormatted({
       snippet,
-      expectedOutput,
-      entryPoint: "enumBody"
+      expectedOutput
     });
   });
 
@@ -88,7 +84,6 @@ describe("Enum Body", () => {
     expectSnippetToBeFormatted({
       snippet,
       expectedOutput,
-      entryPoint: "enumBody",
       prettierOptions
     });
   });

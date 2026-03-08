@@ -26,4 +26,36 @@ public class Cast {
       ) (othrElement, value) -> othrElement + value
     );
   }
+
+  void many_nested_casts() {
+    (
+      (Map) (
+        (Map) (
+          (Map) (
+            (Map) (
+              (Map) (
+                (Map) (
+                  (Map) (
+                    (Map) (
+                      (Map) (
+                        (Map) (
+                          (Map) (
+                            (Map) (
+                              (Map) (
+                                (Map) ((Map) ((Map) map).get(1)).get(1)
+                              ).get(1)
+                            ).get(1)
+                          ).get(1)
+                        ).get(1)
+                      ).get(1)
+                    ).get(1)
+                  ).get(1)
+                ).get(1)
+              ).get(1)
+            ).get(1)
+          ).get(1)
+        ).get(1)
+      ).get(1)
+    ).get(1);
+  }
 }

@@ -4,8 +4,7 @@ describe("element Value Array Initializer", () => {
   it("can format a elementValueArrayInitializer", () => {
     expectSnippetToBeFormatted({
       snippet: "{alpha}",
-      expectedOutput: "{ alpha }",
-      entryPoint: "elementValueArrayInitializer"
+      expectedOutput: "{ alpha }"
     });
   });
 
@@ -13,8 +12,7 @@ describe("element Value Array Initializer", () => {
     it("should remove extra comma in elementValueArrayInitializer by default", () => {
       expectSnippetToBeFormatted({
         snippet: "{alpha,}",
-        expectedOutput: "{ alpha }",
-        entryPoint: "elementValueArrayInitializer"
+        expectedOutput: "{ alpha }"
       });
     });
 
@@ -28,7 +26,6 @@ describe("element Value Array Initializer", () => {
       expectSnippetToBeFormatted({
         snippet: "{oneVeryLongArrayValue,}",
         expectedOutput,
-        entryPoint: "elementValueArrayInitializer",
         prettierOptions: {
           printWidth: 15
         }
@@ -39,7 +36,6 @@ describe("element Value Array Initializer", () => {
       expectSnippetToBeFormatted({
         snippet: "{oneVeryLongArrayValue,}",
         expectedOutput: "{ oneVeryLongArrayValue }",
-        entryPoint: "elementValueArrayInitializer",
         prettierOptions: {
           trailingComma: "all"
         }
@@ -50,7 +46,6 @@ describe("element Value Array Initializer", () => {
       expectSnippetToBeFormatted({
         snippet: "{oneVeryLongArrayValue}",
         expectedOutput: "{ oneVeryLongArrayValue }",
-        entryPoint: "elementValueArrayInitializer",
         prettierOptions: {
           trailingComma: "all"
         }
@@ -67,7 +62,6 @@ describe("element Value Array Initializer", () => {
       expectSnippetToBeFormatted({
         snippet: "{oneVeryLongArrayValue /* COMMA */,}",
         expectedOutput,
-        entryPoint: "elementValueArrayInitializer",
         prettierOptions: {
           printWidth: 15,
           trailingComma: "all"
@@ -85,7 +79,6 @@ describe("element Value Array Initializer", () => {
       expectSnippetToBeFormatted({
         snippet: "{oneVeryLongArrayValue}",
         expectedOutput,
-        entryPoint: "elementValueArrayInitializer",
         prettierOptions: {
           printWidth: 15,
           trailingComma: "all"

@@ -63,6 +63,11 @@ public interface InterfaceWithSemicolon {
   String STRING_1 = "STRING_1";
 }
 
+@FunctionalInterface
+public interface Filterer<G, E> {
+  //
+}
+
 sealed class Aaaaaaaaaa<Bbbbbbbbbb> extends Cccccccccc permits Dddddddddd {
 
   void a() {}

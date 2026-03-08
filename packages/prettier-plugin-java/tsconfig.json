@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2023",
     "outDir": "dist",
     "strict": true,
     "declaration": true,
     "esModuleInterop": true,
     "noImplicitThis": false,
-    "module": "ESNext",
-    "moduleResolution": "Node"
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "include": ["src"]
 }

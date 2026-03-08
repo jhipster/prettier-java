@@ -122,4 +122,8 @@ public class BreakLongFunctionCall {
         new Instance(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).invocation(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa).andAnother();
     }
 
+    void methodReferences() {
+        dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
+    }
+
 }

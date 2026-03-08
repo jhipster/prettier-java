@@ -14,4 +14,8 @@ public class Cast {
         foo((Aaeaozeaonzeoazneaozenazone & Bazoieoainzeonaozenoazne & Cjneazeanezoanezoanzeoaneonazeono) (othrElement, value) -> othrElement + value);
     }
 
+    void many_nested_casts() {
+       ((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map)((Map) ((Map) map).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1)).get(1);
+    }
+
 }
