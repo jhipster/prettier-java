@@ -1,210 +1,88 @@
-import type {
-  AnnotationCstNode,
-  BinaryExpressionCstNode,
-  ClassPermitsCstNode,
-  ClassTypeCtx,
-  CstElement,
-  CstNode,
-  ExpressionCstNode,
-  InterfacePermitsCstNode,
-  IToken,
-  StatementCstNode
-} from "java-parser";
 import type { AstPath, Doc, ParserOptions } from "prettier";
 import { builders } from "prettier/doc";
-import type { JavaComment } from "../comments.js";
-import parser from "../parser.js";
+import {
+  SyntaxType,
+  type NodeOfType,
+  type SyntaxNode,
+  type TypeString,
+  type UnnamedType
+} from "../tree-sitter-java.js";
 
 const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 
-export function onlyDefinedKey<
-  T extends Record<string, any>,
-  K extends Key<T> & string
->(obj: T, options?: K[]) {
-  const keys = definedKeys(obj, options);
-  if (keys.length === 1) {
-    return keys[0];
-  }
-  throw new Error(
-    keys.length > 1
-      ? `More than one defined key found: ${keys}`
-      : "No defined keys found"
-  );
+export function hasType<T extends JavaTypeString>(
+  path: AstPath<JavaNode>,
+  type: T
+): path is AstPath<JavaNode<T>> {
+  return path.node.type === type;
 }
 
-export function definedKeys<
-  T extends Record<string, any>,
-  K extends Key<T> & string
->(obj: T, options?: K[]) {
+export function hasChild<T, K extends keyof T>(
+  path: AstPath<T>,
+  fieldName: K
+): path is AstPath<T & { [P in K]-?: NonNullable<T[P]> }> {
+  return path.node[fieldName] != null;
+}
+
+export function definedKeys<T extends Record<string, any>, K extends keyof T>(
+  obj: T,
+  options?: K[]
+) {
   return (options ?? (Object.keys(obj) as K[])).filter(
     key => obj[key] !== undefined
   );
 }
 
-const indexByModifier = [
-  "public",
-  "protected",
-  "private",
-  "abstract",
-  "default",
-  "static",
-  "final",
-  "transient",
-  "volatile",
-  "synchronized",
-  "native",
-  "sealed",
-  "non-sealed",
-  "strictfp"
-].reduce((map, name, index) => map.set(name, index), new Map<string, number>());
-
-export function printWithModifiers<
-  T extends CstNode,
-  P extends IterProperties<T["children"]>
->(
-  path: AstPath<T>,
+export function printModifiers(
+  path: JavaNodePath,
   print: JavaPrintFn,
-  modifierChild: P,
-  contents: Doc,
-  noTypeAnnotations = false
-) {
-  const declarationAnnotations: Doc[] = [];
-  const otherModifiers: string[] = [];
-  const typeAnnotations: Doc[] = [];
-  each(
-    path,
-    modifierPath => {
-      const { children } = modifierPath.node as ModifierNode;
-      const modifier = print(modifierPath);
-      if (children.annotation) {
-        (otherModifiers.length ? typeAnnotations : declarationAnnotations).push(
-          modifier
-        );
-      } else {
-        otherModifiers.push(modifier as string);
-        declarationAnnotations.push(...typeAnnotations);
-        typeAnnotations.length = 0;
-      }
-    },
-    modifierChild
+  annotationMode?: "declarationOnly" | "avoidBreak" | "noBreak"
+): Doc[] {
+  const modifiersIndex = path.node.namedChildren.findIndex(
+    ({ type }) => type === SyntaxType.Modifiers
   );
-  if (noTypeAnnotations) {
-    declarationAnnotations.push(...typeAnnotations);
-    typeAnnotations.length = 0;
+  if (modifiersIndex === -1) {
+    return [];
   }
-  otherModifiers.sort(
-    (a, b) => indexByModifier.get(a)! - indexByModifier.get(b)!
-  );
-  return join(hardline, [
-    ...declarationAnnotations,
-    join(" ", [...otherModifiers, ...typeAnnotations, contents])
-  ]);
+  const separator =
+    annotationMode === "avoidBreak"
+      ? line
+      : annotationMode === "noBreak" ||
+          path.node.namedChildren[modifiersIndex].children.some(
+            ({ type }) =>
+              type !== SyntaxType.Annotation &&
+              type !== SyntaxType.MarkerAnnotation
+          )
+        ? " "
+        : hardline;
+  return [
+    path.call(
+      modifiers => print(modifiers, { annotationMode }),
+      "namedChildren",
+      modifiersIndex
+    ),
+    separator
+  ];
 }
 
-export function hasDeclarationAnnotations(modifiers: ModifierNode[]) {
-  let hasAnnotation = false;
-  let hasNonAnnotation = false;
-  for (const modifier of modifiers) {
-    if (modifier.children.annotation) {
-      hasAnnotation = true;
-    } else if (hasAnnotation) {
-      return true;
-    } else {
-      hasNonAnnotation = true;
-    }
-  }
-  return hasAnnotation && !hasNonAnnotation;
+export function printValue(path: AstPath<JavaNode>) {
+  return path.node.value;
 }
 
-export function call<
-  T extends CstNode,
-  U,
-  P extends IterProperties<T["children"]>
->(
-  path: AstPath<T>,
-  callback: MapCallback<IndexValue<IndexValue<T, "children">, P>, U>,
-  child: P
-) {
-  return path.map(callback, "children", child)[0];
+export function lineStartWithComments(node: JavaNode) {
+  return node.comments?.length
+    ? Math.min(node.start.row, node.comments[0].start.row)
+    : node.start.row;
 }
 
-export function each<
-  T extends CstNode,
-  P extends IterProperties<T["children"]>
->(
-  path: AstPath<T>,
-  callback: MapCallback<IndexValue<IndexValue<T, "children">, P>, void>,
-  child: P
-) {
-  if (path.node.children[child]) {
-    path.each(callback, "children", child);
-  }
+export function lineEndWithComments(node: JavaNode) {
+  return node.comments?.length
+    ? Math.max(node.end.row, node.comments.at(-1)!.end.row)
+    : node.end.row;
 }
 
-export function map<
-  T extends CstNode,
-  U,
-  P extends IterProperties<T["children"]>
->(
-  path: AstPath<T>,
-  callback: MapCallback<IndexValue<IndexValue<T, "children">, P>, U>,
-  child: P
-) {
-  return path.node.children[child] ? path.map(callback, "children", child) : [];
-}
-
-export function flatMap<
-  T extends CstNode,
-  U,
-  P extends IterProperties<T["children"]>
->(
-  path: AstPath<T>,
-  callback: MapCallback<IndexValue<IndexValue<T, "children">, P>, U>,
-  children: P[]
-) {
-  return children
-    .flatMap(child =>
-      map(path, callback, child).map((doc, index) => {
-        const node = path.node.children[child][index];
-        return {
-          doc,
-          startOffset: parser.locStart(node)
-        };
-      })
-    )
-    .sort((a, b) => a.startOffset - b.startOffset)
-    .map(({ doc }) => doc);
-}
-
-export function printSingle(
-  path: AstPath<JavaNonTerminal>,
-  print: JavaPrintFn,
-  _?: JavaParserOptions,
-  args?: unknown
-) {
-  return call(
-    path,
-    childPath => print(childPath, args),
-    onlyDefinedKey(path.node.children)
-  );
-}
-
-export function lineStartWithComments(node: JavaNonTerminal) {
-  const { comments, location } = node;
-  return comments
-    ? Math.min(location.startLine, comments[0].startLine)
-    : location.startLine;
-}
-
-export function lineEndWithComments(node: JavaNonTerminal) {
-  const { comments, location } = node;
-  return comments
-    ? Math.max(location.endLine, comments.at(-1)!.endLine)
-    : location.endLine;
-}
-
-export function printDanglingComments(path: AstPath<JavaNonTerminal>) {
-  if (!path.node.comments) {
+export function printDanglingComments(path: JavaNodePath) {
+  if (!path.node.comments?.length) {
     return [];
   }
   const comments: Doc[] = [];
@@ -219,9 +97,8 @@ export function printDanglingComments(path: AstPath<JavaNonTerminal>) {
   return join(hardline, comments);
 }
 
-export function printComment(node: JavaTerminal) {
-  const { image } = node;
-  const lines = image.split("\n").map(line => line.trim());
+export function printComment(comment: JavaComment) {
+  const lines = comment.value.split("\n").map(line => line.trim());
   return lines.length > 1 &&
     lines[0].startsWith("/*") &&
     lines.slice(1).every(line => line.startsWith("*")) &&
@@ -230,40 +107,43 @@ export function printComment(node: JavaTerminal) {
         hardline,
         lines.map((line, index) => (index === 0 ? line : ` ${line}`))
       )
-    : image;
+    : comment.value;
 }
 
 export function hasLeadingComments(node: JavaNode) {
   return node.comments?.some(({ leading }) => leading) ?? false;
 }
 
-export function indentInParentheses(
-  contents: Doc,
-  opts?: { shouldBreak?: boolean }
-) {
+export function indentInParentheses(contents: Doc) {
   return !Array.isArray(contents) || contents.length
-    ? group(["(", indent([softline, contents]), softline, ")"], opts)
+    ? ["(", indent([softline, contents]), softline, ")"]
     : "()";
 }
 
-export function printArrayInitializer<
-  T extends JavaNonTerminal,
-  P extends IterProperties<T["children"]>
->(path: AstPath<T>, print: JavaPrintFn, options: JavaParserOptions, child: P) {
-  if (!(child && child in path.node.children)) {
+export function printArrayInitializer(
+  path: JavaNodePath<
+    SyntaxType.ArrayInitializer | SyntaxType.ElementValueArrayInitializer
+  >,
+  print: JavaPrintFn,
+  options: JavaParserOptions
+) {
+  if (!path.node.namedChildren.length) {
     const danglingComments = printDanglingComments(path);
     return danglingComments.length
       ? ["{", indent([hardline, ...danglingComments]), hardline, "}"]
       : "{}";
   }
-  const list = [call(path, print, child)];
-  if (options.trailingComma !== "none") {
+
+  const list = join([",", line], path.map(print, "namedChildren"));
+
+  if (list.length && options.trailingComma !== "none") {
     list.push(ifBreak(","));
   }
-  return list.length ? group(["{", indent([line, ...list]), line, "}"]) : "{}";
+
+  return group(["{", indent([softline, ...list]), softline, "}"]);
 }
 
-export function printBlock(path: AstPath<JavaNonTerminal>, contents: Doc[]) {
+export function printBlock(path: JavaNodePath, contents: Doc[]) {
   if (contents.length) {
     return group([
       "{",
@@ -276,118 +156,163 @@ export function printBlock(path: AstPath<JavaNonTerminal>, contents: Doc[]) {
   if (danglingComments.length) {
     return ["{", indent([hardline, ...danglingComments]), hardline, "}"];
   }
-  const parent = path.grandparent;
-  const grandparent = path.getNode(4);
-  const greatGrandparent = path.getNode(6);
-  return (grandparent?.name === "catches" &&
-    grandparent.children.catchClause.length === 1 &&
-    (greatGrandparent?.name === "tryStatement" ||
-      greatGrandparent?.name === "tryWithResourcesStatement") &&
-    !greatGrandparent.children.finally) ||
-    (greatGrandparent &&
-      [
-        "basicForStatement",
-        "doStatement",
-        "enhancedForStatement",
-        "whileStatement"
-      ].includes(greatGrandparent.name)) ||
-    [
-      "annotationInterfaceBody",
-      "classBody",
-      "constructorBody",
-      "enumBody",
-      "interfaceBody",
-      "moduleDeclaration",
-      "recordBody"
-    ].includes(path.node.name) ||
+  const parent = path.parent;
+  const grandparent = path.grandparent;
+  return (parent?.type === SyntaxType.CatchClause &&
+    (grandparent?.type === SyntaxType.TryStatement ||
+      grandparent?.type === SyntaxType.TryWithResourcesStatement) &&
+    grandparent.namedChildren.filter(
+      ({ type }) => type === SyntaxType.CatchClause
+    ).length === 1 &&
+    !grandparent.namedChildren.some(
+      ({ type }) => type === SyntaxType.FinallyClause
+    )) ||
     (parent &&
       [
-        "instanceInitializer",
-        "lambdaBody",
-        "methodBody",
-        "staticInitializer",
-        "synchronizedStatement"
-      ].includes(parent.name))
+        SyntaxType.ForStatement,
+        SyntaxType.DoStatement,
+        SyntaxType.EnhancedForStatement,
+        SyntaxType.WhileStatement
+      ].includes(parent.type)) ||
+    [
+      SyntaxType.AnnotationTypeBody,
+      SyntaxType.ClassBody,
+      SyntaxType.ConstructorBody,
+      SyntaxType.EnumBody,
+      SyntaxType.InterfaceBody,
+      SyntaxType.ModuleBody,
+      SyntaxType.RecordPatternBody
+    ].includes(path.node.type) ||
+    (parent &&
+      [
+        SyntaxType.Block,
+        SyntaxType.LambdaExpression,
+        SyntaxType.MethodDeclaration,
+        SyntaxType.StaticInitializer,
+        SyntaxType.SynchronizedStatement
+      ].includes(parent.type))
     ? "{}"
     : ["{", hardline, "}"];
 }
 
-export function printName(
-  path: AstPath<JavaNonTerminal & { children: { Identifier: IToken[] } }>,
+export function printBlockStatements(
+  path: JavaNodePath<
+    | SyntaxType.Block
+    | SyntaxType.ConstructorBody
+    | SyntaxType.SwitchBlockStatementGroup
+  >,
   print: JavaPrintFn
 ) {
-  return join(".", map(path, print, "Identifier"));
+  const parts: Doc[] = [];
+  path.each(child => {
+    const { node, previous } = child;
+
+    if (node.type === SyntaxType.SwitchLabel) {
+      return;
+    }
+
+    const blankLine =
+      parts.length &&
+      previous &&
+      lineStartWithComments(node) > lineEndWithComments(previous) + 1;
+
+    const declaration = print(child);
+    parts.push(blankLine ? [hardline, declaration] : declaration);
+  }, "namedChildren");
+  return parts;
 }
 
-export function printList<
-  T extends JavaNonTerminal,
-  P extends IterProperties<T["children"]>
->(path: AstPath<T>, print: JavaPrintFn, child: P) {
-  return join([",", line], map(path, print, child));
+export function printBodyDeclarations(
+  path: JavaNodePath<
+    | SyntaxType.AnnotationTypeBody
+    | SyntaxType.ClassBody
+    | SyntaxType.EnumBody
+    | SyntaxType.EnumBodyDeclarations
+    | SyntaxType.FormalParameters
+    | SyntaxType.InterfaceBody
+  >,
+  print: JavaPrintFn,
+  padFirst = false
+) {
+  const isInterfaceBody = path.node.type === SyntaxType.InterfaceBody;
+  const isFormalParameters = path.node.type === SyntaxType.FormalParameters;
+  const separator = isFormalParameters ? softline : hardline;
+  let previousRequiresPadding = padFirst;
+
+  return path.map(child => {
+    const { node, previous } = child;
+
+    const modifiers =
+      node.namedChildren.find(({ type }) => type === SyntaxType.Modifiers)
+        ?.children ?? [];
+    const firstAnnotationIndex = modifiers.findIndex(
+      ({ type }) =>
+        type === SyntaxType.Annotation || type === SyntaxType.MarkerAnnotation
+    );
+    const lastNonAnnotationIndex = modifiers.findLastIndex(
+      ({ type }) =>
+        type !== SyntaxType.Annotation && type !== SyntaxType.MarkerAnnotation
+    );
+    const hasDeclarationAnnotation =
+      firstAnnotationIndex !== -1 &&
+      ((!isFormalParameters && lastNonAnnotationIndex === -1) ||
+        firstAnnotationIndex < lastNonAnnotationIndex);
+    const currentRequiresPadding =
+      hasDeclarationAnnotation ||
+      (!isFormalParameters &&
+        node.type !== SyntaxType.ConstantDeclaration &&
+        node.type !== SyntaxType.EnumConstant &&
+        node.type !== SyntaxType.FieldDeclaration &&
+        !(
+          isInterfaceBody &&
+          node.type === SyntaxType.MethodDeclaration &&
+          !node.bodyNode
+        ));
+
+    const blankLine =
+      previousRequiresPadding ||
+      (previous &&
+        (currentRequiresPadding ||
+          lineStartWithComments(node) > lineEndWithComments(previous) + 1));
+
+    previousRequiresPadding = currentRequiresPadding;
+
+    const declaration = print(child);
+    return blankLine ? [separator, declaration] : declaration;
+  }, "namedChildren");
 }
 
-export function printClassPermits(
-  path: AstPath<ClassPermitsCstNode | InterfacePermitsCstNode>,
+export function printVariableDeclaration(
+  path: JavaNodePath<
+    | SyntaxType.ConstantDeclaration
+    | SyntaxType.FieldDeclaration
+    | SyntaxType.LocalVariableDeclaration
+  >,
   print: JavaPrintFn
 ) {
-  return group(["permits", indent([line, printList(path, print, "typeName")])]);
-}
+  const declaration = printModifiers(path, print);
 
-export function printClassType(
-  path: AstPath<JavaNonTerminal & { children: ClassTypeCtx }>,
-  print: JavaPrintFn
-) {
-  const { children } = path.node;
-  return definedKeys(children, ["annotation", "Identifier", "typeArguments"])
-    .flatMap(child =>
-      children[child]!.map((node, index) => ({
-        child,
-        index,
-        startOffset: parser.locStart(node)
-      }))
-    )
-    .sort((a, b) => a.startOffset - b.startOffset)
-    .flatMap(({ child, index: childIndex }, index, array) => {
-      const node = children[child]![childIndex];
-      const next = array.at(index + 1);
-      const nextNode = next && children[next.child]![next.index];
-      const docs = [path.call(print, "children", child, childIndex)];
-      if (nextNode) {
-        if (isNonTerminal(node)) {
-          docs.push(node.name === "annotation" ? " " : ".");
-        } else if (isTerminal(nextNode) || nextNode.name === "annotation") {
-          docs.push(".");
-        }
-      }
-      return docs;
-    });
-}
+  declaration.push(path.call(print, "typeNode"), " ");
 
-export function isBinaryExpression(expression: ExpressionCstNode) {
-  const conditionalExpression =
-    expression.children.conditionalExpression?.[0].children;
-  if (!conditionalExpression) {
-    return false;
+  const declarators = path.map(print, "declaratorNodes");
+
+  if (
+    declarators.length > 1 &&
+    path.node.declaratorNodes.some(({ valueNode }) => valueNode)
+  ) {
+    declaration.push(
+      group(indent(join([",", line], declarators)), {
+        shouldBreak:
+          (path.parent as JavaNode | null)?.type !== SyntaxType.ForStatement
+      })
+    );
+  } else {
+    declaration.push(join(", ", declarators));
   }
-  const isTernary = conditionalExpression.QuestionMark !== undefined;
-  if (isTernary) {
-    return false;
-  }
-  return hasNonAssignmentOperators(conditionalExpression.binaryExpression[0]);
-}
 
-export function hasAssignmentOperators(
-  binaryExpression: BinaryExpressionCstNode
-) {
-  return binaryExpression.children.AssignmentOperator !== undefined;
-}
+  declaration.push(";");
 
-export function hasNonAssignmentOperators(
-  binaryExpression: BinaryExpressionCstNode
-) {
-  return Object.keys(binaryExpression.children).some(name =>
-    ["BinaryOperator", "Instanceof", "shiftOperator"].includes(name)
-  );
+  return declaration;
 }
 
 export function findBaseIndent(lines: string[]) {
@@ -398,65 +323,76 @@ export function findBaseIndent(lines: string[]) {
     : 0;
 }
 
-export function isEmptyStatement(statement: StatementCstNode) {
-  return (
-    statement.children.statementWithoutTrailingSubstatement?.[0].children
-      .emptyStatement !== undefined
-  );
-}
-
-export function isNonTerminal(node: CstElement): node is JavaNonTerminal {
-  return !isTerminal(node);
-}
-
-export function isTerminal(node: CstElement): node is IToken {
-  return "tokenType" in node;
-}
-
-export type JavaNode = CstElement & { comments?: JavaComment[] };
-export type JavaNonTerminal = Exclude<JavaNode, IToken>;
-export type JavaTerminal = Exclude<JavaNode, CstNode>;
-export type JavaNodePrinters = {
-  [T in JavaNonTerminal["name"]]: JavaNodePrinter<T>;
+export type JavaNode<T extends JavaTypeString = JavaTypeString> =
+  JavaNodeOrComment<T>;
+export type JavaNodeOrComment<T extends TypeString = TypeString> =
+  T extends JavaCommentType
+    ? JavaComment
+    : T extends JavaNodeType
+      ? JavaNamedNode<T>
+      : T extends UnnamedType
+        ? JavaUnnamedNode<T>
+        : never;
+export type JavaNodeFields<T extends NodeOfType<JavaTypeString>> = {
+  [K in keyof T as K extends `${string}Node${"s" | ""}`
+    ? K
+    : never]: MapJavaNodeField<T[K]>;
 };
-export type JavaNodePrinter<T> = (
-  path: AstPath<Extract<JavaNonTerminal, { name: T }>>,
+export type JavaComment<T extends JavaCommentType = JavaCommentType> =
+  BaseNode<T> & {
+    leading: boolean;
+    trailing: boolean;
+    printed: boolean;
+    enclosingNode?: JavaNode;
+    precedingNode?: JavaNode;
+    followingNode?: JavaNode;
+  };
+export type JavaNodePrinters = {
+  [T in JavaNodeType]: JavaNodePrinter<T>;
+};
+export type JavaNodePrinter<T extends JavaNodeType> = (
+  path: JavaNodePath<T>,
   print: JavaPrintFn,
-  options: JavaParserOptions,
+  options: ParserOptions<JavaNode>,
   args?: unknown
 ) => Doc;
+export type JavaNodePath<T extends JavaNodeType = JavaNodeType> = AstPath<
+  JavaNode<T>
+>;
+export type JavaNodeType = Exclude<SyntaxType, JavaCommentType>;
 export type JavaPrintFn = (path: AstPath<JavaNode>, args?: unknown) => Doc;
-export type JavaParserOptions = ParserOptions<JavaNode> & {
-  entrypoint?: string;
-};
-export type IterProperties<T> = T extends any[]
-  ? IndexProperties<T>
-  : ArrayProperties<T>;
+export type JavaParserOptions = ParserOptions<JavaNode>;
 
-type Key<T> = T extends T ? keyof T : never;
-type ModifierNode = JavaNonTerminal & {
-  children: { annotation?: AnnotationCstNode[] };
+type JavaCommentType = SyntaxType.BlockComment | SyntaxType.LineComment;
+type JavaTypeString = Exclude<TypeString, JavaCommentType>;
+type GetJavaNodeType<N> = Extract<N, NodeOfType<JavaTypeString>>["type"];
+type MapJavaNodeField<V> = V extends undefined
+  ? undefined
+  : V extends (infer U)[]
+    ? JavaNode<GetJavaNodeType<U>>[]
+    : V extends SyntaxNode
+      ? JavaNode<GetJavaNodeType<V>>
+      : never;
+type BaseNode<T extends TypeString> = {
+  type: T;
+  value: string;
+  start: Position;
+  end: Position;
 };
-type IsTuple<T> = T extends []
-  ? true
-  : T extends [infer First, ...infer Remain]
-    ? IsTuple<Remain>
-    : false;
-type IndexProperties<T extends { length: number }> =
-  IsTuple<T> extends true ? Exclude<Partial<T>["length"], T["length"]> : number;
-type ArrayProperties<T> = {
-  [K in keyof T]: NonNullable<T[K]> extends readonly any[] ? K : never;
-}[keyof T];
-type ArrayElement<T> = T extends Array<infer E> ? E : never;
-type MapCallback<T, U> = (
-  path: AstPath<ArrayElement<T>>,
-  index: number,
-  value: any
-) => U;
-type IndexValue<T, P> = T extends any[]
-  ? P extends number
-    ? T[P]
-    : never
-  : P extends keyof T
-    ? T[P]
-    : never;
+type JavaUnnamedNode<T extends UnnamedType> = BaseNode<T> & {
+  isNamed: T extends SyntaxType ? true : false;
+  fieldName: string | null;
+  comments?: JavaComment[];
+};
+type JavaNamedNode<T extends JavaNodeType> = BaseNode<T> & {
+  isNamed: T extends SyntaxType ? true : false;
+  children: JavaNode[];
+  namedChildren: JavaNode<JavaNodeType>[];
+  fieldName: string | null;
+  comments?: JavaComment[];
+} & JavaNodeFields<NodeOfType<T>>;
+type Position = {
+  index: number;
+  row: number;
+  column: number;
+};

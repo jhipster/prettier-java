@@ -1,34 +1,17 @@
-import type {
-  BinaryExpressionCstNode,
-  FqnOrRefTypeCtx,
-  PrimaryCstNode,
-  StringTemplateCstNode,
-  TextBlockTemplateCstNode
-} from "java-parser";
-import type { AstPath, Doc } from "prettier";
+import { util, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import type { JavaComment } from "../comments.js";
+import { printComments, printCommentsSeparately } from "../comments.js";
+import { SyntaxType } from "../tree-sitter-java.js";
 import {
-  call,
-  definedKeys,
-  each,
-  findBaseIndent,
-  flatMap,
-  hasAssignmentOperators,
+  hasChild,
   hasLeadingComments,
-  hasNonAssignmentOperators,
+  hasType,
   indentInParentheses,
-  isNonTerminal,
-  isTerminal,
-  map,
-  onlyDefinedKey,
   printDanglingComments,
-  printList,
-  printName,
-  printSingle,
-  type IterProperties,
+  type JavaNode,
+  type JavaNodePath,
   type JavaNodePrinters,
-  type JavaNonTerminal,
+  type JavaParserOptions,
   type JavaPrintFn
 } from "./helpers.js";
 
@@ -43,370 +26,361 @@ const {
   indentIfBreak,
   join,
   line,
-  lineSuffixBoundary,
   softline
 } = builders;
+const { getNextNonSpaceNonCommentCharacterIndex, hasNewline, isNextLineEmpty } =
+  util;
 const { removeLines, willBreak } = utils;
 
 export default {
-  expression: printSingle,
+  lambda_expression(path, print, options, args) {
+    const signatureDocs: Doc[] = [];
+    let bodyDoc: Doc | undefined;
+    const bodyComments: Doc[] = [];
+    let shouldBreakChain = false;
+    const shouldPrintAsChain =
+      !(
+        args &&
+        typeof args === "object" &&
+        "expandLastArg" in args &&
+        args.expandLastArg
+      ) && path.node.bodyNode.type === SyntaxType.LambdaExpression;
+    let functionBody: typeof path.node.bodyNode | undefined;
 
-  lambdaExpression(path, print, _, args = {}) {
-    const hug = (args as { hug?: boolean }).hug ?? false;
-    const parameters = call(path, print, "lambdaParameters");
-    const expression = [hug ? removeLines(parameters) : parameters, " ->"];
-    const lambdaExpression =
-      path.node.children.lambdaBody[0].children.expression;
-    const body = call(path, print, "lambdaBody");
-    if (lambdaExpression) {
-      const suffix = indent([line, body]);
-      expression.push(group(hug ? [suffix, softline] : suffix));
-    } else {
-      expression.push(" ", body);
+    (function rec() {
+      const { node } = path;
+      const signatureDoc = printLambdaExpressionSignature(
+        path,
+        options,
+        print,
+        args
+      );
+      if (signatureDocs.length === 0) {
+        signatureDocs.push(signatureDoc);
+      } else {
+        const { leading, trailing } = printCommentsSeparately(path);
+        signatureDocs.push([leading, signatureDoc]);
+        bodyComments.unshift(trailing);
+      }
+
+      if (
+        !shouldPrintAsChain ||
+        node.bodyNode.type !== SyntaxType.LambdaExpression
+      ) {
+        bodyDoc = path.call(child => print(child, args), "bodyNode");
+        functionBody = node.bodyNode;
+      } else {
+        path.call(rec, "bodyNode");
+      }
+    })();
+
+    // We want to always keep these types of nodes on the same line
+    // as the arrow.
+    const shouldPutBodyOnSameLine =
+      !functionBody!.comments?.some(
+        ({ leading }) =>
+          leading && hasNewline(options.originalText, functionBody!.end.index)
+      ) && mayBreakAfterShortPrefix(functionBody!, bodyDoc!);
+
+    const isCallee =
+      path.node.fieldName === "object" &&
+      (path.parent as JavaNode | null)?.type === SyntaxType.MethodInvocation;
+    const chainGroupId = Symbol("arrow-chain");
+
+    const signaturesDoc = printArrowFunctionSignatures(path, {
+      signatureDocs,
+      shouldBreak: shouldBreakChain
+    });
+    let shouldBreakSignatures = false;
+    let shouldIndentSignatures = false;
+    let shouldPrintSoftlineInIndent = false;
+    if (shouldPrintAsChain && isCallee) {
+      shouldIndentSignatures = true;
+      // If the lambda expression has a leading line comment, there should be a
+      // hardline above it so we should not print a softline in indent call
+      shouldPrintSoftlineInIndent = !path.node.comments?.some(
+        ({ type, leading }) => leading && type === SyntaxType.LineComment
+      );
+      shouldBreakSignatures = isCallee && !shouldPutBodyOnSameLine;
     }
-    return expression;
-  },
 
-  lambdaParameters(path, print, options) {
-    const parameters = printSingle(path, print);
-    return !path.node.children.lambdaParametersWithBraces &&
-      options.arrowParens === "always"
-      ? ["(", parameters, ")"]
-      : parameters;
-  },
+    // if the arrow function is expanded as last argument, we are adding a
+    // level of indentation and need to add a softline to align the closing )
+    // with the opening (.
+    const trailingSpace =
+      args &&
+      typeof args === "object" &&
+      "expandLastArg" in args &&
+      args.expandLastArg &&
+      !path.node.comments
+        ? softline
+        : "";
 
-  lambdaParametersWithBraces(path, print, options) {
-    const { lambdaParameterList } = path.node.children;
-    if (!lambdaParameterList) {
-      return "()";
-    }
-    const { conciseLambdaParameterList, normalLambdaParameterList } =
-      lambdaParameterList[0].children;
-    const parameterCount = (conciseLambdaParameterList?.[0].children
-      .conciseLambdaParameter ??
-      normalLambdaParameterList?.[0].children.normalLambdaParameter)!.length;
-    const parameters = call(path, print, "lambdaParameterList");
-    if (parameterCount > 1) {
-      return indentInParentheses(parameters);
-    }
-    return conciseLambdaParameterList && options.arrowParens === "avoid"
-      ? parameters
-      : ["(", parameters, ")"];
-  },
+    bodyDoc = shouldPutBodyOnSameLine
+      ? [" ", bodyDoc!, bodyComments]
+      : [indent([line, bodyDoc!, bodyComments]), trailingSpace];
 
-  lambdaParameterList: printSingle,
-
-  conciseLambdaParameterList(path, print) {
-    return printList(path, print, "conciseLambdaParameter");
-  },
-
-  normalLambdaParameterList(path, print) {
-    return printList(path, print, "normalLambdaParameter");
-  },
-
-  normalLambdaParameter: printSingle,
-
-  regularLambdaParameter(path, print) {
-    return join(" ", [
-      ...map(path, print, "variableModifier"),
-      call(path, print, "lambdaParameterType"),
-      call(path, print, "variableDeclaratorId")
+    return group([
+      group(
+        shouldIndentSignatures
+          ? indent([shouldPrintSoftlineInIndent ? softline : "", signaturesDoc])
+          : signaturesDoc,
+        { shouldBreak: shouldBreakSignatures, id: chainGroupId }
+      ),
+      " ->",
+      shouldPrintAsChain
+        ? indentIfBreak(bodyDoc, { groupId: chainGroupId })
+        : group(bodyDoc),
+      shouldPrintAsChain && isCallee
+        ? ifBreak(softline, "", { groupId: chainGroupId })
+        : ""
     ]);
   },
 
-  lambdaParameterType: printSingle,
-  conciseLambdaParameter: printSingle,
-  lambdaBody: printSingle,
+  inferred_parameters(path, print, options) {
+    const identifiers: Doc[] = [];
+    path.each(child => {
+      if (child.node.type === SyntaxType.Identifier) {
+        identifiers.push(print(child));
+      }
+    }, "namedChildren");
 
-  conditionalExpression(path, print, options) {
-    const binaryExpression = call(path, print, "binaryExpression");
-    const grandparentNodeName = (path.getNode(4) as JavaNonTerminal | null)
-      ?.name;
-    const isInParentheses = grandparentNodeName === "parenthesisExpression";
-    if (!path.node.children.QuestionMark) {
-      return isInParentheses ? binaryExpression : group(binaryExpression);
+    if (!identifiers.length) {
+      return "()";
     }
-    const isInReturn = grandparentNodeName === "returnStatement";
-    const prefix = group(
-      isInReturn ? indent(binaryExpression) : binaryExpression
-    );
-    const [consequent, alternate] = map(path, print, "expression");
+
+    const parameters = join([",", line], identifiers);
+    if (identifiers.length > 1) {
+      return group(indentInParentheses(parameters));
+    }
+    return options.arrowParens === "avoid"
+      ? parameters
+      : ["(", ...parameters, ")"];
+  },
+
+  ternary_expression(path, print, options) {
+    const condition = path.call(print, "conditionNode");
+    const consequence = path.call(print, "consequenceNode");
+    const alternative = path.call(print, "alternativeNode");
+
+    const parentType = path.parent?.type;
+    const isNestedTernary = parentType === SyntaxType.TernaryExpression;
     const suffix = [
       line,
-      ["? ", options.useTabs ? indent(consequent) : align(2, consequent)],
+      ["? ", options.useTabs ? indent(consequence) : align(2, consequence)],
       line,
-      [": ", options.useTabs ? indent(alternate) : align(2, alternate)]
+      [": ", options.useTabs ? indent(alternative) : align(2, alternative)]
     ];
-    const isNestedTernary = grandparentNodeName === "conditionalExpression";
+
+    const prefix = group(condition);
     const alignedSuffix =
       !isNestedTernary || options.useTabs
         ? suffix
         : align(Math.max(0, options.tabWidth - 2), suffix);
+
     if (isNestedTernary) {
       return [prefix, alignedSuffix];
     }
+
     const parts = [prefix, indent(alignedSuffix)];
-    return isInParentheses ? parts : group(parts);
+    return parentType === SyntaxType.ParenthesizedExpression
+      ? parts
+      : group(parts);
   },
 
-  binaryExpression(path, print, options) {
-    const { children } = path.node;
-    const operands = flatMap(
+  assignment_expression(path, print) {
+    const { operatorNode, rightNode } = path.node;
+    const parts = [path.call(print, "leftNode"), " ", operatorNode.type];
+    const right = path.call(print, "rightNode");
+
+    if (
+      rightNode.type === SyntaxType.BinaryExpression ||
+      (rightNode.type === SyntaxType.TernaryExpression &&
+        rightNode.conditionNode.type === SyntaxType.BinaryExpression) ||
+      hasLeadingComments(rightNode)
+    ) {
+      parts.push(group(indent([line, right])));
+    } else {
+      const groupId = Symbol("assignment");
+      parts.push(
+        group(indent(line), { id: groupId }),
+        indentIfBreak(right, { groupId })
+      );
+    }
+
+    return parts;
+  },
+
+  binary_expression(path, print, options) {
+    const { node } = path;
+    const parent = path.parent as JavaNode | null;
+    const grandparent = path.grandparent as JavaNode | null;
+    const isInsideParentheses =
+      (parent?.fieldName === "condition" &&
+        (grandparent?.type === SyntaxType.IfStatement ||
+          grandparent?.type === SyntaxType.WhileStatement ||
+          grandparent?.type === SyntaxType.SwitchExpression ||
+          grandparent?.type === SyntaxType.DoStatement)) ||
+      (parent?.fieldName !== "body" &&
+        grandparent?.type === SyntaxType.SynchronizedStatement);
+
+    const parts = printBinaryExpressions(
       path,
       print,
-      definedKeys(children, [
-        "expression",
-        "pattern",
-        "referenceType",
-        "unaryExpression"
-      ])
+      options,
+      isInsideParentheses
     );
-    const operators = flatMap(
-      path,
-      operatorPath => {
-        const { node } = operatorPath;
-        let image: string;
-        if (isTerminal(node)) {
-          image = node.image;
-        } else if (node.children.Less) {
-          image = "<<";
-        } else {
-          image = node.children.Greater!.length === 2 ? ">>" : ">>>";
-        }
-        return { image, doc: print(operatorPath) };
-      },
-      definedKeys(children, [
-        "AssignmentOperator",
-        "BinaryOperator",
-        "Instanceof",
-        "shiftOperator"
-      ])
-    );
-    const isInList =
-      (path.getNode(4) as JavaNonTerminal | null)?.name === "elementValue" ||
-      (path.getNode(6) as JavaNonTerminal | null)?.name === "argumentList";
-    const binaryExpression =
-      children.expression?.[0].children.conditionalExpression?.[0].children
-        .binaryExpression[0];
-    return binary(operands, operators, {
-      hasNonAssignmentOperators:
-        (operators.length > 0 && !children.AssignmentOperator) ||
-        (binaryExpression && hasNonAssignmentOperators(binaryExpression)),
-      isInList,
-      isRoot: true,
-      operatorPosition: options.experimentalOperatorPosition
-    });
-  },
 
-  unaryExpression(path, print) {
-    return [
-      ...map(path, print, "UnaryPrefixOperator"),
-      call(path, print, "primary"),
-      ...map(path, print, "UnarySuffixOperator")
-    ];
-  },
-
-  unaryExpressionNotPlusMinus(path, print) {
-    const { children } = path.node;
-    const expression: Doc[] = [];
-    if (children.UnaryPrefixOperatorNotPlusMinus) {
-      expression.push(...map(path, print, "UnaryPrefixOperatorNotPlusMinus"));
+    if (isInsideParentheses) {
+      return parts;
     }
-    expression.push(call(path, print, "primary"));
-    if (children.UnarySuffixOperator) {
-      expression.push(...map(path, print, "UnarySuffixOperator"));
+
+    if (
+      (parent?.fieldName === "object" &&
+        (grandparent?.type === SyntaxType.MethodInvocation ||
+          grandparent?.type === SyntaxType.ExplicitConstructorInvocation ||
+          grandparent?.type === SyntaxType.FieldAccess)) ||
+      grandparent?.type === SyntaxType.MethodReference
+    ) {
+      return parts;
     }
-    return join(" ", expression);
-  },
 
-  primary(path, print) {
-    const { children } = path.node;
-    if (!children.primarySuffix) {
-      return call(path, print, "primaryPrefix");
+    // Avoid indenting sub-expressions in some cases where the first sub-expression is already
+    // indented accordingly. We should indent sub-expressions where the first case isn't indented.
+    const shouldNotIndent =
+      parent?.type === SyntaxType.ReturnStatement ||
+      parent?.type === SyntaxType.ThrowStatement ||
+      parent?.type === SyntaxType.ParenthesizedExpression ||
+      parent?.type === SyntaxType.AssignmentExpression ||
+      parent?.type === SyntaxType.VariableDeclarator ||
+      parent?.type === SyntaxType.Guard ||
+      (node.fieldName === "body" &&
+        parent?.type === SyntaxType.LambdaExpression) ||
+      (node.fieldName !== "body" && parent?.type === SyntaxType.ForStatement) ||
+      (parent?.type === SyntaxType.TernaryExpression &&
+        grandparent?.type !== SyntaxType.ReturnStatement &&
+        grandparent?.type !== SyntaxType.ThrowStatement &&
+        grandparent?.type !== SyntaxType.ParenthesizedExpression &&
+        grandparent?.type !== SyntaxType.ArgumentList) ||
+      (node.fieldName === "operand" &&
+        parent?.type === SyntaxType.UnaryExpression);
+
+    if (shouldNotIndent) {
+      return group(parts);
     }
-    const methodInvocations = children.primarySuffix
-      .filter(({ children }) => children.methodInvocationSuffix)
-      .map(({ children }) => children.methodInvocationSuffix![0].children);
-    const hasLambdaMethodParameter = methodInvocations.some(
-      ({ argumentList }) =>
-        argumentList?.[0].children.expression.some(
-          ({ children }) => children.lambdaExpression
-        )
-    );
-    const prefixIsCallExpression =
-      children.primaryPrefix[0].children.newExpression;
-    const callExpressionCount =
-      methodInvocations.length +
-      (prefixIsCallExpression ? 1 : 0) +
-      children.primarySuffix.filter(
-        ({ children }) => children.unqualifiedClassInstanceCreationExpression
-      ).length;
-    const fqnOrRefType =
-      children.primaryPrefix[0].children.fqnOrRefType?.[0].children;
-    const prefixIsMethodInvocation =
-      fqnOrRefType?.fqnOrRefTypePartRest !== undefined &&
-      children.primarySuffix?.[0].children.methodInvocationSuffix !== undefined;
-    const prefixIsStaticMethodInvocation =
-      prefixIsMethodInvocation && isCapitalizedIdentifier(fqnOrRefType);
-    const prefixIsInstanceMethodInvocation =
-      prefixIsMethodInvocation && !prefixIsStaticMethodInvocation;
-    const mustBreakForCallExpressions =
-      methodInvocations.length > 2 && hasLambdaMethodParameter;
-    const separator = mustBreakForCallExpressions ? hardline : softline;
-    const prefix = [
-      call(
-        path,
-        prefixPath =>
-          print(prefixPath, {
-            lastSeparator:
-              prefixIsStaticMethodInvocation ||
-              (prefixIsInstanceMethodInvocation && callExpressionCount === 1)
-                ? ""
-                : separator
-          }),
-        "primaryPrefix"
-      )
-    ];
-    const canBreakForCallExpressions =
-      callExpressionCount > 2 ||
-      (callExpressionCount === 2 && prefixIsInstanceMethodInvocation) ||
-      willBreak(prefix);
-    const suffixes: Doc[] = [];
-    each(
-      path,
-      suffixPath => {
-        const { node, previous } = suffixPath;
-        const suffix = print(suffixPath);
-        if (node.children.Dot) {
-          if (
-            (canBreakForCallExpressions &&
-              ((!previous && prefixIsCallExpression) ||
-                previous?.children.methodInvocationSuffix ||
-                previous?.children
-                  .unqualifiedClassInstanceCreationExpression)) ||
-            (!node.children.templateArgument && willBreak(suffix))
-          ) {
-            suffixes.push(separator);
-          }
-          suffixes.push(suffix);
-        } else if (previous) {
-          suffixes.push(suffix);
-        } else {
-          prefix.push(
-            prefixIsInstanceMethodInvocation && callExpressionCount >= 2
-              ? indent(suffix)
-              : suffix
-          );
-        }
-      },
-      "primarySuffix"
-    );
-    const hasSuffixComments = children.primarySuffix.some(suffix =>
-      hasLeadingComments(suffix)
-    );
-    return group(
-      canBreakForCallExpressions || hasSuffixComments
-        ? [prefix, indent(suffixes)]
-        : [prefix, ...suffixes]
-    );
-  },
 
-  primaryPrefix: printSingle,
-
-  primarySuffix(path, print) {
-    const { children } = path.node;
-    if (!children.Dot) {
-      return printSingle(path, print);
+    if (parts.length === 0) {
+      return "";
     }
-    const suffix: Doc[] = ["."];
-    if (children.This) {
-      suffix.push("this");
-    } else if (children.Identifier) {
-      if (children.typeArguments) {
-        suffix.push(call(path, print, "typeArguments"));
-      }
-      suffix.push(call(path, print, "Identifier"));
-    } else {
-      const suffixKey = onlyDefinedKey(children, [
-        "templateArgument",
-        "unqualifiedClassInstanceCreationExpression"
-      ]);
-      suffix.push(call(path, print, suffixKey));
-    }
-    return suffix;
-  },
 
-  fqnOrRefType(path, print, _, args) {
-    const lastSeparator = (args as { lastSeparator?: Doc }).lastSeparator ?? "";
-    const fqnOrRefType = [
-      call(path, print, "fqnOrRefTypePartFirst"),
-      ...map(
-        path,
-        partPath => {
-          const part = print(partPath);
-          return partPath.isLast
-            ? [willBreak(part) ? hardline : lastSeparator, part]
-            : part;
-        },
-        "fqnOrRefTypePartRest"
-      )
-    ];
-    fqnOrRefType.push(indent(fqnOrRefType.pop()!));
-    return path.node.children.dims
-      ? [fqnOrRefType, call(path, print, "dims")]
-      : fqnOrRefType;
-  },
+    const firstGroupIndex = parts.findIndex(
+      part =>
+        typeof part !== "string" &&
+        !Array.isArray(part) &&
+        part.type === "group"
+    );
 
-  fqnOrRefTypePartFirst(path, print) {
-    return join(" ", [
-      ...map(path, print, "annotation"),
-      call(path, print, "fqnOrRefTypePartCommon")
+    // Separate the leftmost expression, possibly with its leading comments.
+    const headParts = parts.slice(
+      0,
+      firstGroupIndex === -1 ? 1 : firstGroupIndex + 1
+    );
+
+    const rest = parts.slice(headParts.length);
+
+    return group([
+      // Don't include the initial expression in the indentation
+      // level. The first item is guaranteed to be the first
+      // left-most expression.
+      ...headParts,
+      indent(rest)
     ]);
   },
 
-  fqnOrRefTypePartRest(path, print) {
-    const common = call(path, print, "fqnOrRefTypePartCommon");
-    const type = path.node.children.typeArguments
-      ? [call(path, print, "typeArguments"), common]
-      : common;
-    return [".", ...join(" ", [...map(path, print, "annotation"), type])];
+  instanceof_expression(path, print, options) {
+    return group(
+      indent(
+        path.map(child => {
+          if (!child.previous) {
+            return print(child);
+          }
+
+          const separator = (
+            options.experimentalOperatorPosition === "start"
+              ? child.node.type === "instanceof"
+              : child.previous.type === "instanceof"
+          )
+            ? line
+            : " ";
+
+          return [separator, print(child)];
+        }, "children")
+      )
+    );
   },
 
-  fqnOrRefTypePartCommon(path, print) {
-    const { children } = path.node;
-    const keywordKey = onlyDefinedKey(children, ["Identifier", "Super"]);
-    const keyword = call(path, print, keywordKey);
-    return children.typeArguments
-      ? [keyword, call(path, print, "typeArguments")]
-      : keyword;
+  unary_expression(path, print) {
+    return path.map(print, "children");
   },
 
-  parenthesisExpression(path, print) {
-    const expression = call(path, print, "expression");
-    const primaryAncestor = path.getNode(4) as PrimaryCstNode | null;
-    const binaryExpressionAncestor = path.getNode(
-      8
-    ) as BinaryExpressionCstNode | null;
-    const outerAncestor = path.getNode(14) as JavaNonTerminal | null;
-    const { conditionalExpression, lambdaExpression } =
-      path.node.children.expression[0].children;
-    const hasLambda = lambdaExpression !== undefined;
-    const hasTernary =
-      conditionalExpression?.[0].children.QuestionMark !== undefined;
-    const hasSuffix = primaryAncestor?.children.primarySuffix !== undefined;
+  field_access: printMemberChain,
+
+  generic_type(path, print) {
+    const typeIdentifierIndex = path.node.namedChildren.findIndex(
+      ({ type }) =>
+        type === SyntaxType.ScopedTypeIdentifier ||
+        type === SyntaxType.TypeIdentifier
+    );
+    const typeArgumentsIndex = path.node.namedChildren.findIndex(
+      ({ type }) => type === SyntaxType.TypeArguments
+    );
+    return [
+      path.call(print, "namedChildren", typeIdentifierIndex),
+      path.call(print, "namedChildren", typeArgumentsIndex)
+    ];
+  },
+
+  parenthesized_expression(path, print) {
+    const expression = path.call(print, "namedChildren", 0);
+    const parentType = (path.parent as JavaNode | null)?.type;
+    const grandparentType = (path.grandparent as JavaNode | null)?.type;
+    const expressionType = path.node.namedChildren[0].type;
+    const hasLambda = expressionType === SyntaxType.LambdaExpression;
+    const hasTernary = expressionType === SyntaxType.TernaryExpression;
+    const hasSuffix =
+      parentType &&
+      (parentType === SyntaxType.ArrayAccess ||
+        parentType === SyntaxType.ExplicitConstructorInvocation ||
+        parentType === SyntaxType.FieldAccess ||
+        parentType === SyntaxType.MethodInvocation ||
+        parentType === SyntaxType.MethodReference ||
+        parentType === SyntaxType.ObjectCreationExpression);
     const isAssignment =
-      (outerAncestor?.name === "binaryExpression" &&
-        hasAssignmentOperators(outerAncestor)) ||
-      outerAncestor?.name === "variableInitializer";
+      (parentType &&
+        (parentType === SyntaxType.AssignmentExpression ||
+          parentType === SyntaxType.VariableDeclarator)) ||
+      (hasSuffix &&
+        (grandparentType === SyntaxType.AssignmentExpression ||
+          grandparentType === SyntaxType.VariableDeclarator));
     if (!hasLambda && hasSuffix && (!hasTernary || isAssignment)) {
-      return indentInParentheses(hasTernary ? group(expression) : expression);
+      return group(
+        indentInParentheses(hasTernary ? group(expression) : expression)
+      );
     } else if (
-      binaryExpressionAncestor &&
-      Object.keys(binaryExpressionAncestor.children).length === 1 &&
-      outerAncestor &&
-      ["guard", "returnStatement"].includes(outerAncestor.name)
+      parentType &&
+      (parentType === SyntaxType.Guard ||
+        parentType === SyntaxType.ReturnStatement ||
+        (parentType === SyntaxType.UnaryExpression &&
+          grandparentType === SyntaxType.ReturnStatement) ||
+        (path.node.fieldName === "condition" &&
+          (parentType === SyntaxType.DoStatement ||
+            parentType === SyntaxType.IfStatement ||
+            parentType === SyntaxType.SwitchExpression ||
+            parentType === SyntaxType.WhileStatement)) ||
+        (path.node.fieldName !== "body" &&
+          parentType === SyntaxType.SynchronizedStatement))
     ) {
-      return indentInParentheses(group(expression));
+      return group(indentInParentheses(group(expression)));
     } else if (hasTernary && hasSuffix && !isAssignment) {
       return group(["(", expression, softline, ")"]);
     } else {
@@ -418,244 +392,247 @@ export default {
     }
   },
 
-  castExpression: printSingle,
+  cast_expression(path, print) {
+    const types = path.map(print, "typeNodes");
+    const value = path.call(print, "valueNode");
 
-  primitiveCastExpression(path, print) {
-    return [
-      "(",
-      call(path, print, "primitiveType"),
-      ") ",
-      call(path, print, "unaryExpression")
-    ];
+    return types.length > 1
+      ? [group(indentInParentheses(join([line, "& "], types))), " ", value]
+      : ["(", ...types, ") ", value];
   },
 
-  referenceTypeCastExpression(path, print) {
-    const { children } = path.node;
-    const type = call(path, print, "referenceType");
-    const cast = children.additionalBound
-      ? indentInParentheses(
-          join(line, [type, ...map(path, print, "additionalBound")])
-        )
-      : ["(", type, ")"];
-    const expressionKey = onlyDefinedKey(children, [
-      "lambdaExpression",
-      "unaryExpressionNotPlusMinus"
-    ]);
-    return [cast, " ", call(path, print, expressionKey)];
-  },
+  object_creation_expression(path, print) {
+    const expression: Doc[] = [];
 
-  newExpression: printSingle,
+    path.each(child => {
+      if (child.node.type === SyntaxType.ClassBody) {
+        expression.push(" ");
+      }
 
-  unqualifiedClassInstanceCreationExpression(path, print) {
-    const { children } = path.node;
-    const expression: Doc[] = ["new "];
-    if (children.typeArguments) {
-      expression.push(call(path, print, "typeArguments"));
-    }
-    expression.push(
-      call(path, print, "classOrInterfaceTypeToInstantiate"),
-      children.argumentList
-        ? group(["(", call(path, print, "argumentList"), ")"])
-        : "()"
-    );
-    if (children.classBody) {
-      expression.push(" ", call(path, print, "classBody"));
-    }
+      expression.push(print(child));
+
+      if (
+        child.node.type === SyntaxType.Annotation ||
+        child.node.type === SyntaxType.MarkerAnnotation ||
+        child.node.type === "new"
+      ) {
+        expression.push(" ");
+      }
+    }, "children");
+
     return expression;
   },
 
-  classOrInterfaceTypeToInstantiate(path, print) {
-    const { children } = path.node;
-    const type = children.annotation
-      ? flatMap(
-          path,
-          childPath => [
-            print(childPath),
-            isNonTerminal(childPath.node) ? " " : "."
-          ],
-          ["annotation", "Identifier"]
-        )
-      : printName(path, print);
-    if (children.typeArgumentsOrDiamond) {
-      type.push(call(path, print, "typeArgumentsOrDiamond"));
+  method_invocation: printMemberChain,
+
+  argument_list(path, print, options) {
+    const args = path.node.namedChildren;
+
+    if (args.length === 0) {
+      const shouldBreak = path.node.comments?.some(
+        ({ type, leading, trailing }) =>
+          !leading && !trailing && type === SyntaxType.LineComment
+      );
+      return group(indentInParentheses(printDanglingComments(path)), {
+        shouldBreak
+      });
     }
-    return type;
-  },
 
-  typeArgumentsOrDiamond: printSingle,
+    const lastArgIndex = args.length - 1;
 
-  diamond() {
-    return "<>";
-  },
+    let anyArgEmptyLine = false;
+    const printedArguments: Doc[] = [];
+    path.each((arg, index) => {
+      let argDoc = print(arg);
 
-  methodInvocationSuffix(path, print) {
-    return path.node.children.argumentList
-      ? group(["(", call(path, print, "argumentList"), ")"])
-      : indentInParentheses(printDanglingComments(path), { shouldBreak: true });
-  },
+      if (index === lastArgIndex) {
+        // do nothing
+      } else if (isNextLineEmpty(options.originalText, arg.node.end.index)) {
+        anyArgEmptyLine = true;
+        argDoc = [argDoc, ",", hardline, hardline];
+      } else {
+        argDoc = [argDoc, ",", line];
+      }
 
-  argumentList(path, print) {
-    const expressions = path.node.children.expression;
-    const lastExpression = expressions.at(
-      -1
-    ) as (typeof expressions)[number] & { comments?: JavaComment[] };
-    const lastExpressionLambdaBodyExpression =
-      lastExpression.children.lambdaExpression?.[0].children.lambdaBody[0]
-        .children.expression?.[0].children;
-    const lastExpressionLambdaBodyTernaryExpression =
-      lastExpressionLambdaBodyExpression?.conditionalExpression?.[0].children;
-    const isHuggable =
-      !lastExpression.comments &&
-      (!lastExpressionLambdaBodyExpression ||
-        lastExpressionLambdaBodyTernaryExpression?.QuestionMark !== undefined ||
-        lastExpressionLambdaBodyTernaryExpression?.binaryExpression?.[0]
-          .children.unaryExpression.length === 1) &&
-      expressions.findIndex(({ children }) => children.lambdaExpression) ===
-        expressions.length - 1;
-    const args = map(path, print, "expression");
-    const allArgsExpandable = [
-      indent([softline, ...join([",", line], args)]),
-      softline
-    ];
-    if (!isHuggable || willBreak((args.at(-1) as Doc[])[0])) {
-      return allArgsExpandable;
+      printedArguments.push(argDoc);
+    }, "namedChildren");
+
+    function allArgsBrokenOut() {
+      return group(["(", indent([line, ...printedArguments]), line, ")"], {
+        shouldBreak: true
+      });
     }
-    const headArgs = args.slice(0, -1);
-    const huggedLastArg = path.call(
-      argPath => print(argPath, { hug: true }),
-      "children",
-      "expression",
-      args.length - 1
+
+    if (anyArgEmptyLine) {
+      return allArgsBrokenOut();
+    }
+
+    if (shouldExpandFirstArg(args)) {
+      const tailArgs = printedArguments.slice(1);
+      if (tailArgs.some(willBreak)) {
+        return allArgsBrokenOut();
+      }
+      let firstArg: Doc;
+      try {
+        firstArg = path.call(
+          arg => print(arg, { expandFirstArg: true }),
+          "namedChildren",
+          0
+        );
+      } catch (caught) {
+        if (caught instanceof ArgExpansionBailout) {
+          return allArgsBrokenOut();
+        }
+        throw caught;
+      }
+
+      if (willBreak(firstArg)) {
+        return [
+          breakParent,
+          conditionalGroup([
+            [
+              "(",
+              group(firstArg, { shouldBreak: true }),
+              ", ",
+              ...tailArgs,
+              ")"
+            ],
+            allArgsBrokenOut()
+          ])
+        ];
+      }
+
+      return conditionalGroup([
+        ["(", firstArg, ", ", ...tailArgs, ")"],
+        ["(", group(firstArg, { shouldBreak: true }), ", ", ...tailArgs, ")"],
+        allArgsBrokenOut()
+      ]);
+    }
+
+    if (shouldExpandLastArg(args)) {
+      const headArgs = printedArguments.slice(0, -1);
+      if (headArgs.some(willBreak)) {
+        return allArgsBrokenOut();
+      }
+      let lastArg: Doc;
+      try {
+        lastArg = path.call(
+          arg =>
+            print(arg, {
+              expandLastArg: true
+            }),
+          "namedChildren",
+          lastArgIndex
+        );
+      } catch (caught) {
+        if (caught instanceof ArgExpansionBailout) {
+          return allArgsBrokenOut();
+        }
+        throw caught;
+      }
+
+      if (willBreak(lastArg)) {
+        return [
+          breakParent,
+          conditionalGroup([
+            ["(", ...headArgs, group(lastArg, { shouldBreak: true }), ")"],
+            allArgsBrokenOut()
+          ])
+        ];
+      }
+
+      return conditionalGroup([
+        ["(", ...headArgs, lastArg, ")"],
+        ["(", ...headArgs, group(lastArg, { shouldBreak: true }), ")"],
+        allArgsBrokenOut()
+      ]);
+    }
+
+    return group(indentInParentheses(printedArguments), {
+      shouldBreak: printedArguments.some(willBreak) || anyArgEmptyLine
+    });
+  },
+
+  array_creation_expression(path, print) {
+    const parts: Doc[] = ["new "];
+
+    path.each(child => {
+      if (
+        child.node.type === SyntaxType.Annotation ||
+        child.node.type === SyntaxType.MarkerAnnotation
+      ) {
+        parts.push(print(child), " ");
+      }
+    }, "namedChildren");
+
+    parts.push(
+      path.call(print, "typeNode"),
+      ...path.map(print, "dimensionsNodes")
     );
-    const lastArgExpanded = join(", ", [
-      ...headArgs,
-      group(huggedLastArg, { shouldBreak: true })
-    ]);
-    if (willBreak(huggedLastArg)) {
-      return [
-        breakParent,
-        conditionalGroup([lastArgExpanded, allArgsExpandable])
-      ];
+
+    if (hasChild(path, "valueNode")) {
+      parts.push(" ", path.call(print, "valueNode"));
     }
-    return conditionalGroup([
-      join(", ", [...headArgs, huggedLastArg]),
-      lastArgExpanded,
-      allArgsExpandable
-    ]);
+
+    return parts;
   },
 
-  arrayCreationExpression(path, print) {
-    const { children } = path.node;
-    const typeKey = onlyDefinedKey(children, [
-      "classOrInterfaceType",
-      "primitiveType"
-    ]);
-    const suffixKey = onlyDefinedKey(children, [
-      "arrayCreationExpressionWithoutInitializerSuffix",
-      "arrayCreationWithInitializerSuffix"
-    ]);
-    return ["new ", call(path, print, typeKey), call(path, print, suffixKey)];
+  dimensions_expr(path, print) {
+    return path.map(
+      child =>
+        child.node.type === SyntaxType.Annotation ||
+        child.node.type === SyntaxType.MarkerAnnotation
+          ? [print(child), " "]
+          : ["[", print(child), "]"],
+      "namedChildren"
+    );
   },
 
-  arrayCreationExpressionWithoutInitializerSuffix(path, print) {
-    const expressions = call(path, print, "dimExprs");
-    return path.node.children.dims
-      ? [expressions, call(path, print, "dims")]
-      : expressions;
+  class_literal(path, print) {
+    return [path.call(print, "namedChildren", 0), ".class"];
   },
 
-  arrayCreationWithInitializerSuffix(path, print) {
+  array_access: printMemberChain,
+
+  method_reference(path, print) {
+    return path.map(print, "children");
+  },
+
+  template_expression(path, print) {
     return [
-      call(path, print, "dims"),
-      " ",
-      call(path, print, "arrayInitializer")
+      path.call(print, "template_processorNode"),
+      ".",
+      path.call(print, "template_argumentNode")
     ];
   },
 
-  dimExprs(path, print) {
-    return map(path, print, "dimExpr");
+  pattern(path, print) {
+    return path.call(print, "namedChildren", 0);
   },
 
-  dimExpr(path, print) {
-    return join(" ", [
-      ...map(path, print, "annotation"),
-      ["[", call(path, print, "expression"), "]"]
-    ]);
+  type_pattern(path, print) {
+    return join(" ", path.map(print, "children"));
   },
 
-  classLiteralSuffix(path, print) {
-    const lSquares = map(path, print, "LSquare");
-    const rSquares = map(path, print, "RSquare");
-    return [
-      ...lSquares.flatMap((lSquare, index) => [lSquare, rSquares[index]]),
-      ".class"
-    ];
+  record_pattern(path, print) {
+    return path.map(print, "children");
   },
 
-  arrayAccessSuffix(path, print) {
-    return ["[", call(path, print, "expression"), "]"];
-  },
-
-  methodReferenceSuffix(path, print) {
-    const { children } = path.node;
-    const reference: Doc[] = ["::"];
-    if (children.typeArguments) {
-      reference.push(call(path, print, "typeArguments"));
-    }
-    reference.push(
-      call(path, print, onlyDefinedKey(children, ["Identifier", "New"]))
-    );
-    return reference;
-  },
-
-  templateArgument: printSingle,
-  template: printSingle,
-
-  stringTemplate(path, print) {
-    return printTemplate(
-      path,
-      print,
-      "StringTemplateBegin",
-      "StringTemplateMid",
-      "StringTemplateEnd"
+  record_pattern_body(path, print) {
+    return group(
+      indentInParentheses(join([",", line], path.map(print, "namedChildren")))
     );
   },
 
-  textBlockTemplate(path, print) {
-    return printTemplate(
-      path,
-      print,
-      "TextBlockTemplateBegin",
-      "TextBlockTemplateMid",
-      "TextBlockTemplateEnd"
-    );
+  record_pattern_component(path, print) {
+    return join(" ", path.map(print, "children"));
   },
-
-  embeddedExpression: printSingle,
-  pattern: printSingle,
-  typePattern: printSingle,
-
-  recordPattern(path, print) {
-    const patterns = path.node.children.componentPatternList
-      ? indentInParentheses(call(path, print, "componentPatternList"))
-      : "()";
-    return [call(path, print, "referenceType"), patterns];
-  },
-
-  componentPatternList(path, print) {
-    return printList(path, print, "componentPattern");
-  },
-
-  componentPattern: printSingle,
-  matchAllPattern: printSingle,
 
   guard(path, print) {
-    const expression = call(path, print, "expression");
     const hasParentheses =
-      path.node.children.expression[0].children.conditionalExpression?.[0]
-        .children.binaryExpression[0].children.unaryExpression[0].children
-        .primary[0].children.primaryPrefix[0].children.parenthesisExpression !==
-      undefined;
+      path.node.namedChildren[0].type === SyntaxType.ParenthesizedExpression;
+    const expression = path.call(print, "namedChildren", 0);
+
     return [
       "when ",
       hasParentheses
@@ -670,90 +647,643 @@ export default {
   }
 } satisfies Partial<JavaNodePrinters>;
 
-function binary(
-  operands: Doc[],
-  operators: { image: string; doc: Doc }[],
-  {
-    hasNonAssignmentOperators = false,
-    isInList = false,
-    isRoot = false,
-    operatorPosition
-  }: {
-    hasNonAssignmentOperators?: boolean;
-    isInList?: boolean;
-    isRoot?: boolean;
-    operatorPosition: "end" | "start";
-  }
-): Doc {
-  let levelOperator: string | undefined;
-  let levelPrecedence: number | undefined;
-  let level: Doc[] = [];
-  while (operators.length) {
-    const nextOperator = operators[0].image;
-    const nextPrecedence = getOperatorPrecedence(nextOperator);
+function printLambdaExpressionSignature(
+  path: JavaNodePath<SyntaxType.LambdaExpression>,
+  options: JavaParserOptions,
+  print: JavaPrintFn,
+  args: unknown
+) {
+  const parts: Doc[] = [];
 
-    if (levelPrecedence === undefined || nextPrecedence === levelPrecedence) {
-      const { image: operator, doc: operatorDoc } = operators.shift()!;
-      level.push(operands.shift()!);
-      if (
-        levelOperator !== undefined &&
-        needsParentheses(levelOperator, operator)
-      ) {
-        level = [["(", group(indent(level)), ")"]];
+  const parameters = path.call(print, "parametersNode");
+  if (shouldPrintParamsWithoutParens(path, options)) {
+    parts.push(parameters);
+  } else {
+    const shouldExpandParameters =
+      args != null &&
+      typeof args === "object" &&
+      (("expandLastArg" in args && args.expandLastArg === true) ||
+        ("expandFirstArg" in args && args.expandFirstArg === true));
+
+    // If the parent is a call with the first/last argument expansion and this
+    // is the params of the first/last argument, we don't want the arguments to
+    // break and instead want the whole expression to be on a new line.
+    //
+    // Good:                 Bad:
+    //   verylongcall(         verylongcall((
+    //     (a, b) => {           a,
+    //     }                     b,
+    //   )                     ) => {
+    //                         })
+    if (shouldExpandParameters) {
+      if (willBreak(parameters)) {
+        // Removing lines in this case leads to broken or ugly output
+        throw new ArgExpansionBailout();
       }
-      const parts = [" ", operatorDoc, line];
-      if (operatorPosition === "start" && !isAssignmentOperator(operator)) {
-        parts.reverse();
-      }
-      level.push(parts);
-      levelOperator = operator;
-      levelPrecedence = nextPrecedence;
-    } else if (nextPrecedence < levelPrecedence) {
-      if (!isRoot) {
-        break;
-      }
-      level.push(operands.shift()!);
-      const content = group(indent(level));
-      operands.unshift(
-        levelOperator !== undefined &&
-          needsParentheses(levelOperator, nextOperator)
-          ? ["(", content, ")"]
-          : content
-      );
-      level = [];
-      levelOperator = undefined;
-      levelPrecedence = undefined;
+      parts.push(group(removeLines(parameters)));
     } else {
-      const content = binary(operands, operators, { operatorPosition });
-      operands.unshift(
-        levelOperator !== undefined &&
-          needsParentheses(nextOperator, levelOperator)
-          ? ["(", group(indent(content)), ")"]
-          : group(content)
-      );
+      parts.push(parameters);
     }
   }
-  level.push(operands.shift()!);
-  if (
-    !levelOperator ||
-    (!isInList &&
-      !isAssignmentOperator(levelOperator) &&
-      levelOperator !== "instanceof")
-  ) {
-    return level;
+
+  const dangling = printDanglingComments(path);
+  if (dangling.length) {
+    parts.push(" ", dangling);
   }
-  if (!isRoot || hasNonAssignmentOperators) {
-    return indent(level);
-  }
-  const groupId = Symbol("assignment");
-  return [
-    level[0],
-    group(indent(level[1]), { id: groupId }),
-    indentIfBreak(level[2], { groupId })
-  ];
+  return parts;
 }
 
-const precedencesByOperator = new Map(
+function mayBreakAfterShortPrefix(functionBody: JavaNode, bodyDoc: Doc) {
+  return (
+    functionBody.type === SyntaxType.ArrayCreationExpression ||
+    functionBody.type === SyntaxType.LambdaExpression ||
+    functionBody.type === SyntaxType.Block
+  );
+}
+
+function printArrowFunctionSignatures(
+  path: JavaNodePath,
+  { signatureDocs, shouldBreak }: { signatureDocs: Doc[]; shouldBreak: boolean }
+) {
+  if (signatureDocs.length === 1) {
+    return signatureDocs[0];
+  }
+
+  const { node, parent } = path;
+  if (
+    (node.fieldName !== "object" &&
+      parent?.type === SyntaxType.MethodInvocation) ||
+    parent?.type === SyntaxType.BinaryExpression
+  ) {
+    return group(
+      [
+        signatureDocs[0],
+        " ->",
+        indent([line, join([" ->", line], signatureDocs.slice(1))])
+      ],
+      { shouldBreak }
+    );
+  }
+
+  if (
+    node.fieldName === "object" &&
+    parent?.type === SyntaxType.MethodInvocation
+  ) {
+    return group(join([" ->", line], signatureDocs), { shouldBreak });
+  }
+
+  return group(indent(join([" ->", line], signatureDocs)), { shouldBreak });
+}
+
+function shouldPrintParamsWithoutParens(
+  path: JavaNodePath<SyntaxType.LambdaExpression>,
+  options: JavaParserOptions
+) {
+  if (options.arrowParens === "always") {
+    return false;
+  }
+
+  if (options.arrowParens === "avoid") {
+    const { node } = path;
+    return canPrintParamsWithoutParens(node);
+  }
+
+  // Fallback default; should be unreachable
+  return false;
+}
+
+function canPrintParamsWithoutParens(
+  node: JavaNode<SyntaxType.LambdaExpression>
+) {
+  return (
+    node.parametersNode.type === SyntaxType.Identifier &&
+    !node.comments?.some(({ leading, trailing }) => !leading && !trailing) &&
+    !node.parametersNode.comments
+  );
+}
+
+function printMemberChain(
+  path: JavaNodePath<
+    | SyntaxType.ArrayAccess
+    | SyntaxType.FieldAccess
+    | SyntaxType.MethodInvocation
+  >,
+  print: JavaPrintFn,
+  options: JavaParserOptions
+) {
+  const isExpressionStatement =
+    (path.parent as JavaNode | null)?.type === SyntaxType.ExpressionStatement;
+
+  // The first phase is to linearize the AST by traversing it down.
+  //
+  //   a().b()
+  // has the following AST structure:
+  //   MethodInvocation(MethodInvocation)
+  // and we transform it into
+  //   [MethodInvocation, MethodInvocation]
+  const printedNodes: {
+    node: JavaNode;
+    hasTrailingEmptyLine?: boolean;
+    printed: Doc;
+  }[] = [];
+
+  // Here we try to retain one typed empty line after each call expression or
+  // the first group whether it is in parentheses or not
+  function shouldInsertEmptyLineAfter(node: JavaNode) {
+    const { originalText } = options;
+    const nextCharIndex = getNextNonSpaceNonCommentCharacterIndex(
+      originalText,
+      node.end.index
+    );
+    const nextChar = nextCharIndex ? originalText.charAt(nextCharIndex) : "";
+
+    // if it is cut off by a parenthesis, we only account for one typed empty
+    // line after that parenthesis
+    if (nextChar === ")") {
+      return (
+        nextCharIndex !== false &&
+        isNextLineEmpty(originalText, nextCharIndex + 1)
+      );
+    }
+
+    return isNextLineEmpty(originalText, node.end.index);
+  }
+
+  function rec(path: JavaNodePath) {
+    const { node } = path;
+
+    if (
+      hasType(path, SyntaxType.MethodInvocation) &&
+      hasChild(path, "objectNode")
+    ) {
+      const hasTrailingEmptyLine = shouldInsertEmptyLineAfter(node);
+      printedNodes.unshift({
+        node,
+        hasTrailingEmptyLine,
+        printed: [
+          printComments(path, printMethodInvocation(path, print)),
+          hasTrailingEmptyLine ? hardline : ""
+        ]
+      });
+      path.call(rec, "objectNode");
+    } else if (hasType(path, SyntaxType.ArrayAccess)) {
+      printedNodes.unshift({
+        node,
+        printed: printComments(path, printArrayAccess(path, print))
+      });
+      path.call(rec, "arrayNode");
+    } else if (hasType(path, SyntaxType.FieldAccess)) {
+      printedNodes.unshift({
+        node,
+        printed: printComments(path, printFieldAccess(path, print))
+      });
+      path.call(rec, "objectNode");
+    } else {
+      printedNodes.unshift({
+        node,
+        printed: print(path)
+      });
+    }
+  }
+
+  const { node } = path;
+  if (hasType(path, SyntaxType.MethodInvocation)) {
+    printedNodes.unshift({
+      node,
+      printed: printComments(path, printMethodInvocation(path, print))
+    });
+
+    if (hasChild(path, "objectNode")) {
+      path.call(rec, "objectNode");
+    }
+  } else if (hasType(path, SyntaxType.ArrayAccess)) {
+    printedNodes.unshift({
+      node,
+      printed: printComments(path, printArrayAccess(path, print))
+    });
+
+    if (hasChild(path, "arrayNode")) {
+      path.call(rec, "arrayNode");
+    }
+  } else if (hasType(path, SyntaxType.FieldAccess)) {
+    printedNodes.unshift({
+      node,
+      printed: printComments(path, printFieldAccess(path, print))
+    });
+
+    if (hasChild(path, "objectNode")) {
+      path.call(rec, "objectNode");
+    }
+  }
+
+  const danglingComments = printDanglingComments(path);
+  if (danglingComments.length) {
+    printedNodes[0].printed = [
+      ...danglingComments,
+      hardline,
+      printedNodes[0].printed
+    ];
+  }
+
+  // Once we have a linear list of printed nodes, we want to create groups out
+  // of it.
+  //
+  //   a().b.c().d().e
+  // will be grouped as
+  //   [
+  //     [MethodInvocation],
+  //     [FieldAccess, MethodInvocation],
+  //     [MethodInvocation],
+  //     [FieldAccess],
+  //   ]
+  // so that we can print it as
+  //   a()
+  //     .b.c()
+  //     .d()
+  //     .e
+
+  // The first group is the first node followed by
+  //   - as many ArrayAccess as possible
+  //       < fn()[0][1][2] >.something()
+  //   - then, as many FieldAccess as possible
+  //       < this.items >.something()
+  const groups: (typeof printedNodes)[] = [];
+  let currentGroup = [printedNodes[0]];
+  let i = 1;
+  for (; i < printedNodes.length; ++i) {
+    if (printedNodes[i].node.type === SyntaxType.ArrayAccess) {
+      currentGroup.push(printedNodes[i]);
+    } else {
+      break;
+    }
+  }
+  if (printedNodes[0].node.type !== SyntaxType.MethodInvocation) {
+    for (; i + 1 < printedNodes.length; ++i) {
+      if (printedNodes[i].node.type !== SyntaxType.MethodInvocation) {
+        currentGroup.push(printedNodes[i]);
+      } else {
+        break;
+      }
+    }
+  }
+  groups.push(currentGroup);
+  currentGroup = [];
+
+  // Then, each following group is a sequence of FieldAccess followed by
+  // a MethodInvocation. To compute it, we keep adding things to the
+  // group until we have seen a MethodInvocation in the past and reach a
+  // FieldAccess or MethodInvocation
+  let hasSeenMethodInvocation = false;
+  for (; i < printedNodes.length; ++i) {
+    if (hasSeenMethodInvocation) {
+      // [0] should be appended at the end of the group instead of the
+      // beginning of the next one
+      if (printedNodes[i].node.type === SyntaxType.ArrayAccess) {
+        currentGroup.push(printedNodes[i]);
+        continue;
+      }
+
+      groups.push(currentGroup);
+      currentGroup = [];
+      hasSeenMethodInvocation = false;
+    }
+
+    if (printedNodes[i].node.type === SyntaxType.MethodInvocation) {
+      hasSeenMethodInvocation = true;
+    }
+    currentGroup.push(printedNodes[i]);
+
+    if (printedNodes[i].node.comments?.some(({ trailing }) => trailing)) {
+      groups.push(currentGroup);
+      currentGroup = [];
+      hasSeenMethodInvocation = false;
+    }
+  }
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+
+  // There are cases like Object.keys(), Observable.of(), _.values() where
+  // they are the subject of all the chained calls and therefore should
+  // be kept on the same line:
+  //
+  //   Object.keys(items)
+  //     .filter(x -> x)
+  //     .map(x -> x)
+  //
+  // In order to detect those cases, we use an heuristic: if the first
+  // node is an identifier with the name starting with a capital
+  // letter or just a sequence of _$. The rationale is that they are
+  // likely to be factories.
+  function isFactory(name: string) {
+    return /^[A-Z]|^[$_]+$/.test(name);
+  }
+
+  // In case the Identifier is shorter than tab width, we can keep the
+  // first call in a single line, if it's an ExpressionStatement.
+  //
+  //   d3.scaleLinear()
+  //     .domain(0, 100)
+  //     .range(0, width);
+  //
+  function isShort(name: string) {
+    return name.length <= options.tabWidth;
+  }
+
+  function shouldNotWrap(groups: (typeof printedNodes)[]) {
+    const hasArrayAccess = groups[1][0]?.node.type === SyntaxType.ArrayAccess;
+
+    if (groups[0].length === 1) {
+      const firstNode = groups[0][0].node;
+      return (
+        firstNode.type === "this" ||
+        (firstNode.type === SyntaxType.Identifier &&
+          (isFactory(firstNode.value) ||
+            (isExpressionStatement && isShort(firstNode.value)) ||
+            hasArrayAccess))
+      );
+    }
+
+    const lastNode = groups[0].at(-1)!.node;
+    return (
+      lastNode.type === SyntaxType.FieldAccess &&
+      lastNode.fieldNode.type === SyntaxType.Identifier &&
+      (isFactory(lastNode.fieldNode.value) || hasArrayAccess)
+    );
+  }
+
+  const shouldMerge =
+    groups.length >= 2 &&
+    !groups[1][0].node.comments?.length &&
+    shouldNotWrap(groups);
+
+  function printGroup(printedGroup: typeof printedNodes) {
+    return printedGroup.map(tuple => tuple.printed);
+  }
+
+  function printIndentedGroup(groups: (typeof printedNodes)[]) {
+    if (groups.length === 0) {
+      return "";
+    }
+    return indent([hardline, join(hardline, groups.map(printGroup))]);
+  }
+
+  const printedGroups = groups.map(printGroup);
+  const oneLine = printedGroups;
+
+  const cutoff = shouldMerge ? 3 : 2;
+  const flatGroups = groups.flat();
+
+  const nodeHasComment = flatGroups.some(node =>
+    node.node.comments?.some(({ leading, trailing }) => leading || trailing)
+  );
+
+  // If we only have a single `.`, we shouldn't do anything fancy and just
+  // render everything concatenated together.
+  if (
+    groups.length <= cutoff &&
+    !nodeHasComment &&
+    !groups.some(g => g.at(-1)!.hasTrailingEmptyLine)
+  ) {
+    return group(oneLine);
+  }
+
+  // Find out the last node in the first group and check if it has an
+  // empty line after
+  const lastNodeBeforeIndent = groups[shouldMerge ? 1 : 0].at(-1)!.node;
+  const shouldHaveEmptyLineBeforeIndent =
+    lastNodeBeforeIndent.type !== SyntaxType.MethodInvocation &&
+    shouldInsertEmptyLineAfter(lastNodeBeforeIndent);
+
+  const expanded = [
+    printGroup(groups[0]),
+    shouldMerge ? groups.slice(1, 2).map(printGroup) : "",
+    shouldHaveEmptyLineBeforeIndent ? hardline : "",
+    printIndentedGroup(groups.slice(shouldMerge ? 2 : 1))
+  ];
+
+  const methodInvocations = printedNodes
+    .map(({ node }) => node)
+    .filter(
+      (node): node is JavaNode<SyntaxType.MethodInvocation> =>
+        node.type === SyntaxType.MethodInvocation
+    );
+
+  function lastGroupWillBreakAndOtherCallsHaveFunctionArguments() {
+    const lastGroupNode = groups.at(-1)!.at(-1)!.node;
+    const lastGroupDoc = printedGroups.at(-1)!;
+    return (
+      lastGroupNode.type === SyntaxType.MethodInvocation &&
+      willBreak(lastGroupDoc) &&
+      methodInvocations
+        .slice(0, -1)
+        .some(node =>
+          node.argumentsNode.namedChildren.some(
+            ({ type }) => type === SyntaxType.LambdaExpression
+          )
+        )
+    );
+  }
+
+  let result;
+
+  // We don't want to print in one line if at least one of these conditions occurs:
+  //  * the chain has comments,
+  //  * the chain is an expression statement and all the arguments are literal-like ("fluent configuration" pattern),
+  //  * the chain is longer than 2 calls and has non-trivial arguments or more than 2 arguments in any call but the first one,
+  //  * any group but the last one has a hard line,
+  //  * the last call's arguments have a hard line and other calls have non-trivial arguments.
+  if (
+    nodeHasComment ||
+    (methodInvocations.length > 2 &&
+      methodInvocations.some(
+        inv =>
+          !inv.argumentsNode.namedChildren.every(arg =>
+            isSimpleCallArgument(arg)
+          )
+      )) ||
+    printedGroups.slice(0, -1).some(willBreak) ||
+    lastGroupWillBreakAndOtherCallsHaveFunctionArguments()
+  ) {
+    result = group(expanded);
+  } else {
+    result = [
+      // We only need to check `oneLine` because if `expanded` is chosen
+      // that means that the parent group has already been broken
+      // naturally
+      willBreak(oneLine) || shouldHaveEmptyLineBeforeIndent ? breakParent : "",
+      conditionalGroup([oneLine, expanded])
+    ];
+  }
+
+  return result;
+}
+
+function printMethodInvocation(
+  path: JavaNodePath<SyntaxType.MethodInvocation>,
+  print: JavaPrintFn
+) {
+  const parts: Doc[] = [];
+  if (hasChild(path, "objectNode")) {
+    parts.push(".");
+  }
+  if (path.node.children.filter(({ type }) => type === ".").length === 2) {
+    parts.push("super", ".");
+  }
+  if (hasChild(path, "type_argumentsNode")) {
+    parts.push(path.call(print, "type_argumentsNode"));
+  }
+  parts.push(path.call(print, "nameNode"), path.call(print, "argumentsNode"));
+  return parts;
+}
+
+function printArrayAccess(
+  path: JavaNodePath<SyntaxType.ArrayAccess>,
+  print: JavaPrintFn
+) {
+  const index = path.call(print, "indexNode");
+  return path.node.indexNode.type === SyntaxType.DecimalIntegerLiteral
+    ? ["[", index, "]"]
+    : group(["[", indent([softline, index]), softline, "]"]);
+}
+
+function printFieldAccess(
+  path: JavaNodePath<SyntaxType.FieldAccess>,
+  print: JavaPrintFn
+) {
+  const parts: Doc[] = ["."];
+
+  if (path.node.children.filter(({ type }) => type === ".").length === 2) {
+    parts.push("super.");
+  }
+
+  parts.push(path.call(print, "fieldNode"));
+
+  return parts;
+}
+
+/**
+ * For binary expressions to be consistent, we need to group
+ * subsequent operators with the same precedence level under a single
+ * group. Otherwise they will be nested such that some of them break
+ * onto new lines but not all. Operators with the same precedence
+ * level should either all break or not. Because we group them by
+ * precedence level and the AST is structured based on precedence
+ * level, things are naturally broken up correctly, i.e. `&&` is
+ * broken before `+`.
+ */
+function printBinaryExpressions(
+  path: JavaNodePath,
+  print: JavaPrintFn,
+  options: JavaParserOptions,
+  isInsideParentheses: boolean
+) {
+  // Simply print the node normally.
+  if (!hasType(path, SyntaxType.BinaryExpression)) {
+    return [group(print(path))];
+  }
+
+  const { node } = path;
+  let parts: Doc[] = [];
+
+  // Put all operators with the same precedence level in the same
+  // group. The reason we only need to do this with the `left`
+  // expression is because given an expression like `1 + 2 - 3`, it
+  // is always parsed like `((1 + 2) - 3)`, meaning the `left` side
+  // is where the rest of the expression will exist. Binary
+  // expressions on the right side mean they have a difference
+  // precedence level and should be treated as a separate group, so
+  // print them normally.
+  if (
+    node.leftNode.type === SyntaxType.BinaryExpression &&
+    shouldFlatten(node.operatorNode.type, node.leftNode.operatorNode.type)
+  ) {
+    // Flatten them out by recursively calling this function.
+    parts = path.call(
+      () => printBinaryExpressions(path, print, options, isInsideParentheses),
+      "leftNode"
+    );
+  } else {
+    parts.push(group(path.call(print, "leftNode")));
+  }
+
+  const operator = node.operatorNode.type;
+  const operatorDoc = path.call(print, "operatorNode");
+  const rightContent = path.call(print, "rightNode");
+  let right: Doc =
+    options.experimentalOperatorPosition === "start"
+      ? [line, operatorDoc, " ", rightContent]
+      : [" ", operatorDoc, line, rightContent];
+
+  // If there's only a single binary expression, we want to create a group
+  // in order to avoid having a small right part like -1 be on its own line.
+  const { parent } = path;
+  const shouldBreak =
+    node.leftNode.comments?.some(
+      ({ trailing, type }) => trailing && type === SyntaxType.LineComment
+    ) ?? false;
+  const shouldGroup =
+    shouldBreak ||
+    (!(isInsideParentheses && logicalOperators.has(operator)) &&
+      (parent?.type !== node.type ||
+        logicalOperators.has(parent.operatorNode.value) !==
+          logicalOperators.has(operator)) &&
+      node.leftNode.type !== node.type &&
+      node.rightNode.type !== node.type);
+  if (shouldGroup) {
+    right = group(right, { shouldBreak });
+  }
+
+  parts.push(right);
+
+  return parent?.type === SyntaxType.BinaryExpression &&
+    needsParentheses(parent.operatorNode.type, operator)
+    ? ["(", ...parts, ")"]
+    : parts;
+}
+
+const logicalOperators = new Set(["||", "&&"]);
+const equalityOperators = new Set(["==", "!="]);
+const multiplicativeOperators = new Set(["*", "/", "%"]);
+const bitshiftOperators = new Set([">>", ">>>", "<<"]);
+
+function shouldFlatten(parentOp: string, nodeOp: string) {
+  if (getPrecedence(nodeOp) !== getPrecedence(parentOp)) {
+    return false;
+  }
+
+  // x == y == z --> (x == y) == z
+  if (equalityOperators.has(parentOp) && equalityOperators.has(nodeOp)) {
+    return false;
+  }
+
+  // x * y % z --> (x * y) % z
+  if (
+    (nodeOp === "%" && multiplicativeOperators.has(parentOp)) ||
+    (parentOp === "%" && multiplicativeOperators.has(nodeOp))
+  ) {
+    return false;
+  }
+
+  // x * y / z --> (x * y) / z
+  // x / y * z --> (x / y) * z
+  if (
+    nodeOp !== parentOp &&
+    multiplicativeOperators.has(nodeOp) &&
+    multiplicativeOperators.has(parentOp)
+  ) {
+    return false;
+  }
+
+  // x << y << z --> (x << y) << z
+  if (bitshiftOperators.has(parentOp) && bitshiftOperators.has(nodeOp)) {
+    return false;
+  }
+
+  return true;
+}
+
+const PRECEDENCE = new Map(
   [
     ["||"],
     ["&&"],
@@ -767,16 +1297,15 @@ const precedencesByOperator = new Map(
     ["*", "/", "%"]
   ].flatMap((operators, index) => operators.map(operator => [operator, index]))
 );
-function getOperatorPrecedence(operator: string) {
-  return precedencesByOperator.get(operator) ?? -1;
+function getPrecedence(operator: string) {
+  return PRECEDENCE.get(operator) ?? -1;
 }
 
-function needsParentheses(operator: string, parentOperator: string) {
+function needsParentheses(parentOperator: string, operator: string) {
   return (
     (operator === "&&" && parentOperator === "||") ||
     (["|", "^", "&", "<<", ">>", ">>>"].includes(parentOperator) &&
-      getOperatorPrecedence(operator) >
-        getOperatorPrecedence(parentOperator)) ||
+      getPrecedence(operator) > getPrecedence(parentOperator)) ||
     [operator, parentOperator].every(o => ["==", "!="].includes(o)) ||
     [operator, parentOperator].every(o => ["<<", ">>", ">>>"].includes(o)) ||
     (operator === "*" && parentOperator === "/") ||
@@ -786,58 +1315,162 @@ function needsParentheses(operator: string, parentOperator: string) {
   );
 }
 
-const assignmentOperators = new Set([
-  "=",
-  "*=",
-  "/=",
-  "%=",
-  "+=",
-  "-=",
-  "<<=",
-  ">>=",
-  ">>>=",
-  "&=",
-  "^=",
-  "|="
-]);
-function isAssignmentOperator(operator: string) {
-  return assignmentOperators.has(operator);
+function isSimpleCallArgument(node: JavaNode, depth = 2): boolean {
+  if (depth <= 0) {
+    return false;
+  }
+
+  const isChildSimple = (child: JavaNode) =>
+    isSimpleCallArgument(child, depth - 1);
+
+  if (
+    node.type.endsWith("_literal") ||
+    node.type === "true" ||
+    node.type === "false" ||
+    node.type === SyntaxType.Identifier ||
+    node.type === "this"
+  ) {
+    return true;
+  }
+
+  if (
+    node.type === SyntaxType.ObjectCreationExpression ||
+    node.type === SyntaxType.MethodInvocation
+  ) {
+    if (
+      node.type === SyntaxType.ObjectCreationExpression ||
+      !node.objectNode ||
+      isSimpleCallArgument(node.objectNode, depth)
+    ) {
+      const args = node.argumentsNode.namedChildren;
+      return args.length <= depth && args.every(isChildSimple);
+    }
+    return false;
+  }
+
+  if (node.type === SyntaxType.ArrayAccess) {
+    return (
+      isSimpleCallArgument(node.arrayNode, depth) &&
+      isSimpleCallArgument(node.indexNode, depth)
+    );
+  }
+
+  if (node.type === SyntaxType.FieldAccess) {
+    return (
+      isSimpleCallArgument(node.objectNode, depth) &&
+      isSimpleCallArgument(node.fieldNode, depth)
+    );
+  }
+
+  if (
+    node.type === SyntaxType.MethodReference ||
+    node.type === SyntaxType.UnaryExpression ||
+    node.type === SyntaxType.UpdateExpression
+  ) {
+    return isSimpleCallArgument(node.namedChildren[0], depth);
+  }
+
+  return false;
 }
 
-function isCapitalizedIdentifier(fqnOrRefType: FqnOrRefTypeCtx) {
-  const nextToLastIdentifier = [
-    fqnOrRefType.fqnOrRefTypePartFirst[0],
-    ...(fqnOrRefType.fqnOrRefTypePartRest ?? [])
-  ].at(-2)?.children.fqnOrRefTypePartCommon[0].children.Identifier?.[0].image;
-  return /^\p{Uppercase_Letter}/u.test(nextToLastIdentifier ?? "");
+function couldExpandArg(arg: JavaNode, lambdaChainRecursion = false) {
+  if (
+    arg.type === SyntaxType.ArrayCreationExpression &&
+    arg.valueNode &&
+    (arg.valueNode.namedChildren.length > 0 || arg.valueNode.comments)
+  ) {
+    return true;
+  }
+
+  if (arg.type === SyntaxType.LambdaExpression) {
+    const { bodyNode: body } = arg;
+
+    if (
+      body.type === SyntaxType.Block ||
+      body.type === SyntaxType.ArrayCreationExpression
+    ) {
+      return true;
+    }
+
+    if (
+      body.type === SyntaxType.LambdaExpression &&
+      couldExpandArg(body, true)
+    ) {
+      return true;
+    }
+
+    if (!lambdaChainRecursion) {
+      if (body.type === SyntaxType.TernaryExpression) {
+        return true;
+      }
+
+      if (
+        body.type === SyntaxType.MethodInvocation ||
+        body.type === SyntaxType.ObjectCreationExpression
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
-function printTemplate<
-  T extends StringTemplateCstNode | TextBlockTemplateCstNode,
-  C extends Exclude<IterProperties<T["children"]>, "embeddedExpression">
->(path: AstPath<T>, print: JavaPrintFn, beginKey: C, midKey: C, endKey: C) {
-  const begin = call(path, ({ node }) => node.image, beginKey);
-  const mids = map(path, ({ node }) => node.image, midKey);
-  const end = call(path, ({ node }) => node.image, endKey);
-  const lines = [begin, ...mids, end].join("").split("\n").slice(1);
-  const baseIndent = findBaseIndent(lines);
-  const prefix = "\n" + " ".repeat(baseIndent);
-  const parts = [begin, ...mids, end].map(image =>
-    join(hardline, image.split(prefix))
+function shouldExpandLastArg(args: JavaNode[]) {
+  const lastArg = args.at(-1)!;
+  const penultimateArg = args.at(-2);
+  return (
+    !lastArg.comments?.some(({ leading }) => leading) &&
+    !lastArg.comments?.some(({ trailing }) => trailing) &&
+    couldExpandArg(lastArg) &&
+    // If the last two arguments are of the same type,
+    // disable last element expansion.
+    (!penultimateArg || penultimateArg.type !== lastArg.type) &&
+    (args.length !== 2 || penultimateArg!.type !== SyntaxType.LambdaExpression)
   );
-  return indent([
-    parts[0],
-    ...map(
-      path,
-      (expressionPath, index) => {
-        const expression = group([
-          indent([softline, print(expressionPath), lineSuffixBoundary]),
-          softline
-        ]);
-        return index === 0 ? expression : [parts[index], expression];
-      },
-      "embeddedExpression" as IterProperties<T["children"]>
-    ),
-    parts.at(-1)!
-  ]);
+}
+
+function shouldExpandFirstArg(args: JavaNode[]) {
+  if (args.length !== 2) {
+    return false;
+  }
+
+  const [firstArg, secondArg] = args;
+
+  return (
+    !firstArg.comments &&
+    firstArg.type === SyntaxType.LambdaExpression &&
+    firstArg.bodyNode.type === SyntaxType.Block &&
+    secondArg.type !== SyntaxType.LambdaExpression &&
+    secondArg.type !== SyntaxType.TernaryExpression &&
+    isHopefullyShortCallArgument(secondArg) &&
+    !couldExpandArg(secondArg)
+  );
+}
+
+function isHopefullyShortCallArgument(node: JavaNode) {
+  if (node.type === SyntaxType.ParenthesizedExpression) {
+    return isHopefullyShortCallArgument(node.namedChildren[0]);
+  }
+
+  if (
+    (node.type === SyntaxType.MethodInvocation ||
+      node.type === SyntaxType.ObjectCreationExpression) &&
+    node.argumentsNode.namedChildren.length > 1
+  ) {
+    return false;
+  }
+
+  if (node.type === SyntaxType.BinaryExpression) {
+    return (
+      isSimpleCallArgument(node.leftNode, 1) &&
+      isSimpleCallArgument(node.rightNode, 1)
+    );
+  }
+
+  return isSimpleCallArgument(node);
+}
+
+class ArgExpansionBailout extends Error {
+  name = "ArgExpansionBailout";
 }

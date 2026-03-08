@@ -1,7 +1,7 @@
 {
   "packages": [
     "packages/*",
-    "benchmark/*"
+    "benchmark"
   ],
   "npmClient": "yarn",
   "version": "independent",

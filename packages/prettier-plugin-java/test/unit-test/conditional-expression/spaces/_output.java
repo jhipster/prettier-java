@@ -124,8 +124,7 @@ class ConditionalExpression {
                 cccccccccccccccccccc,
                 dddddddddddddddddddd,
                 eeeeeeeeee
-            ) !=
-            ffffffffff
+            ) != ffffffffff
                 ? gggggggggg
                 : hhhhhhhhhh;
 
@@ -145,8 +144,7 @@ class ConditionalExpression {
                 cccccccccccccccccccc,
                 dddddddddddddddddddd,
                 eeeeeeeeee
-            ) !=
-            ffffffffff
+            ) != ffffffffff
                 ? gggggggggg
                 : hhhhhhhhhh;
     }

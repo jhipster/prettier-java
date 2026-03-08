@@ -175,4 +175,8 @@ public class BreakLongFunctionCall {
       )
       .andAnother();
   }
+
+  void methodReferences() {
+    dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
+  }
 }

@@ -2,16 +2,14 @@ import { formatJavaSnippet } from "../../../../test-utils.js";
 
 describe("numericType", () => {
   it("can format byte keyword", async () => {
-    const snippet = "byte";
-    const entryPoint = "numericType";
+    const snippet = "byte b;";
 
-    await formatJavaSnippet({ snippet, entryPoint });
+    await formatJavaSnippet({ snippet });
   });
 
   it("can format double keyword", async () => {
-    const snippet = "double";
-    const entryPoint = "numericType";
+    const snippet = "double d;";
 
-    await formatJavaSnippet({ snippet, entryPoint });
+    await formatJavaSnippet({ snippet });
   });
 });

@@ -13,19 +13,17 @@ public @interface AnnotationInterfaceDeclaration {
   )
   Integer[][] annotatedArray = (Integer[][]) new Object[4][2];
 
-  @RandomAnnotationWithObject(
-    {
-      "One",
-      "Two",
-      "Three",
-      "Four",
-      "Five",
-      "Six",
-      "Seven",
-      "Eight",
-      "Nine",
-      "Ten",
-    }
-  )
+  @RandomAnnotationWithObject({
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+  })
   V[][] annotatedArray = (V[][]) new Object[rowList.size()][columnList.size()];
 }

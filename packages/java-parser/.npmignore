@@ -1,8 +1,0 @@
-resources/Unicode/*
-docs
-samples
-scripts
-test
-.mocharc.cjs
-diagrams.html
-*.log

@@ -4,7 +4,7 @@
   "homepage": "https://www.jhipster.tech/prettier-java/",
   "workspaces": [
     "packages/*",
-    "benchmark/*"
+    "benchmark"
   ],
   "scripts": {
     "prepare": "husky",
@@ -17,7 +17,7 @@
     "lint": "eslint packages/**/*.js",
     "format:fix": "prettier --write \"**/*.@(js|json|ts)\"",
     "format:validate": "prettier --list-different \"**/*.@(js|json|ts)\"",
-    "build": "yarn build:prettier-plugin-java && node packages/java-parser/scripts/unicode.js packages/java-parser/resources/Unicode/UnicodeData.txt && prettier --write packages/java-parser/src/unicodesets.js && node packages/java-parser/scripts/gen-diagrams.js",
+    "build": "yarn build:prettier-plugin-java",
     "build:prettier-plugin-java": "cd packages/prettier-plugin-java && yarn build && cd ../..",
     "update-test-outputs": "node packages/prettier-plugin-java/scripts/update-test-output.js"
   },

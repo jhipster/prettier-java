@@ -59,6 +59,17 @@ const updateTestOutput = async () => {
           : {};
 
         for (let i = 0; i < numberOfTime; i++) {
+          if (process.argv.indexOf("-doc") > -1) {
+            console.log(
+              "doc:",
+              await prettier.__debug.formatDoc(
+                await prettier.__debug.printToDoc(newExpectedText, {
+                  parser: "java",
+                  plugins: [path.resolve(__dirname, "../dist/index.js")]
+                })
+              )
+            );
+          }
           newExpectedText = await prettier.format(newExpectedText, {
             parser: "java",
             plugins: [path.resolve(__dirname, "../dist/index.js")],

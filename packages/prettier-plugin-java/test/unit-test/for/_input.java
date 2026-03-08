@@ -40,4 +40,8 @@ public class For {
     for(SomeClass<?> elem : elements) for(SomeClass<?> elem : elements) for(SomeClass<?> elem : elements)
       doSomeThing();
   }
+
+  void noUpdate() {
+    for (var e = jp.candies.keys(); e.hasMoreElements();) {}
+  }
 }

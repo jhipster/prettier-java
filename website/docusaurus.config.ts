@@ -90,5 +90,31 @@ export default {
       darkTheme: themes.dracula,
       additionalLanguages: ["bash", "java"]
     }
-  } satisfies ThemeConfig
+  } satisfies ThemeConfig,
+  plugins: [
+    () => ({
+      name: "webpack-config-plugin",
+      configureWebpack(_, isServer) {
+        return {
+          resolve: isServer
+            ? {}
+            : {
+                fallback: {
+                  fs: false,
+                  "fs/promises": false,
+                  module: false,
+                  os: false,
+                  path: false
+                }
+              },
+          externals: isServer
+            ? {
+                "prettier-plugin-java": "commonjs prettier-plugin-java",
+                "web-tree-sitter": "commonjs web-tree-sitter"
+              }
+            : {}
+        };
+      }
+    })
+  ]
 } satisfies Config;

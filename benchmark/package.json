@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/jhipster/prettier-java#readme",
   "devDependencies": {
-    "java-parser-npm": "npm:java-parser@2.0.5"
+    "mitata": "^1.0.34",
+    "prettier": "^3.0.0"
   }
 }

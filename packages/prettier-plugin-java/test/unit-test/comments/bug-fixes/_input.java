@@ -59,4 +59,10 @@ class T {
                       // d
         /*e*/)
     );
+
+  void danglingArgumentList() {
+    a(
+      // a
+    );
+  }
 }

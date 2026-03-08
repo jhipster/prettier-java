@@ -36,6 +36,10 @@ public abstract class Return {
     );
   }
 
+  boolean unaryParenthesized() {
+    return !(r.getLeft() > getRight() || r.getRight() < getLeft() || r.getTop() > getBottom() || r.getBottom() < getTop());
+  }
+
   // Bug fix #290
   public boolean shouldBreakInOneLine(Example that) {
     return oneVeryLongPrimaryExpression && andYetAnotherVeryVeryLongPrimaryExpression;

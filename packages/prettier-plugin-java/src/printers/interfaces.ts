@@ -1,64 +1,51 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
+import { SyntaxType } from "../tree-sitter-java.js";
 import {
-  call,
-  definedKeys,
-  each,
-  hasDeclarationAnnotations,
+  hasChild,
   indentInParentheses,
-  lineEndWithComments,
-  lineStartWithComments,
-  onlyDefinedKey,
   printArrayInitializer,
   printBlock,
-  printClassPermits,
-  printList,
-  printSingle,
-  printWithModifiers,
+  printBodyDeclarations,
+  printModifiers,
+  printVariableDeclaration,
   type JavaNodePrinters
 } from "./helpers.js";
 
-const { group, hardline, indent, join, line } = builders;
+const { group, indent, join, line } = builders;
 
 export default {
-  interfaceDeclaration(path, print) {
-    const declarationKey = onlyDefinedKey(path.node.children, [
-      "annotationInterfaceDeclaration",
-      "normalInterfaceDeclaration"
-    ]);
-    return printWithModifiers(
-      path,
-      print,
-      "interfaceModifier",
-      call(path, print, declarationKey),
-      true
-    );
-  },
+  interface_declaration(path, print) {
+    const parts = ["interface ", path.call(print, "nameNode")];
 
-  normalInterfaceDeclaration(path, print) {
-    const { children } = path.node;
-    const definedClauses = definedKeys(children, [
-      "interfaceExtends",
-      "interfacePermits"
-    ]);
-    const hasMultipleClauses = definedClauses.length > 1;
-    const hasTypeParameters = children.typeParameters !== undefined;
-    const parts = ["interface ", call(path, print, "typeIdentifier")];
+    const extendsInterfacesIndex = path.node.namedChildren.findIndex(
+      ({ type }) => type === SyntaxType.ExtendsInterfaces
+    );
+    const hasExtendsInterfaces = extendsInterfacesIndex !== -1;
+    const hasPermits = hasChild(path, "permitsNode");
+    const hasMultipleClauses = hasExtendsInterfaces && hasPermits;
+
+    const hasTypeParameters = hasChild(path, "type_parametersNode");
     if (hasTypeParameters) {
-      const typeParameters = call(path, print, "typeParameters");
+      const typeParameters = path.call(print, "type_parametersNode");
       parts.push(
         hasMultipleClauses ? group(indent(typeParameters)) : typeParameters
       );
     }
-    if (definedClauses.length) {
+
+    if (hasExtendsInterfaces || hasPermits) {
       const separator = hasTypeParameters && !hasMultipleClauses ? " " : line;
-      const clauses = definedClauses.flatMap(clause => [
-        separator,
-        call(path, print, clause)
-      ]);
-      const hasBody =
-        children.interfaceBody[0].children.interfaceMemberDeclaration !==
-        undefined;
+      const clauses: Doc[] = [];
+      if (hasExtendsInterfaces) {
+        clauses.push(
+          separator,
+          path.call(print, "namedChildren", extendsInterfacesIndex)
+        );
+      }
+      if (hasPermits) {
+        clauses.push(separator, path.call(print, "permitsNode"));
+      }
+      const hasBody = path.node.bodyNode.namedChildren.length > 0;
       const clauseGroup = [
         hasTypeParameters && !hasMultipleClauses ? clauses : indent(clauses),
         hasBody ? separator : " "
@@ -67,185 +54,98 @@ export default {
     } else {
       parts.push(" ");
     }
-    return [group(parts), call(path, print, "interfaceBody")];
+
+    return [
+      ...printModifiers(path, print, "declarationOnly"),
+      group(parts),
+      path.call(print, "bodyNode")
+    ];
   },
 
-  interfaceModifier: printSingle,
-
-  interfaceExtends(path, print) {
+  extends_interfaces(path, print) {
+    const typeListIndex = path.node.namedChildren.findIndex(
+      ({ type }) => type === SyntaxType.TypeList
+    );
     return group([
       "extends",
-      indent([line, call(path, print, "interfaceTypeList")])
+      indent([line, path.call(print, "namedChildren", typeListIndex)])
     ]);
   },
 
-  interfacePermits: printClassPermits,
-
-  interfaceBody(path, print) {
-    const declarations: Doc[] = [];
-    let previousRequiresPadding = false;
-    each(
-      path,
-      declarationPath => {
-        const declaration = print(declarationPath);
-        if (declaration === "") {
-          return;
-        }
-        const { node, previous } = declarationPath;
-        const constantDeclaration =
-          node.children.constantDeclaration?.[0].children;
-        const methodDeclaration =
-          node.children.interfaceMethodDeclaration?.[0].children;
-        const currentRequiresPadding =
-          (!constantDeclaration && !methodDeclaration) ||
-          methodDeclaration?.methodBody[0].children.block !== undefined ||
-          hasDeclarationAnnotations(
-            constantDeclaration?.constantModifier ??
-              methodDeclaration?.interfaceMethodModifier ??
-              []
-          );
-        const blankLine =
-          declarations.length > 0 &&
-          (previousRequiresPadding ||
-            currentRequiresPadding ||
-            lineStartWithComments(node) > lineEndWithComments(previous!) + 1);
-        declarations.push(blankLine ? [hardline, declaration] : declaration);
-        previousRequiresPadding = currentRequiresPadding;
-      },
-      "interfaceMemberDeclaration"
-    );
-    return printBlock(path, declarations);
+  interface_body(path, print) {
+    return printBlock(path, printBodyDeclarations(path, print));
   },
 
-  interfaceMemberDeclaration(path, print) {
-    const { children } = path.node;
-    return children.Semicolon
-      ? ""
-      : call(path, print, onlyDefinedKey(children));
-  },
+  constant_declaration: printVariableDeclaration,
 
-  constantDeclaration(path, print) {
-    const declaration = [
-      call(path, print, "unannType"),
+  annotation_type_declaration(path, print) {
+    const parts = printModifiers(path, print);
+
+    parts.push(
+      "@interface ",
+      path.call(print, "nameNode"),
       " ",
-      call(path, print, "variableDeclaratorList"),
-      ";"
-    ];
-    return printWithModifiers(path, print, "constantModifier", declaration);
-  },
-
-  constantModifier: printSingle,
-
-  interfaceMethodDeclaration(path, print) {
-    const declaration = [
-      call(path, print, "methodHeader"),
-      path.node.children.methodBody[0].children.Semicolon ? "" : " ",
-      call(path, print, "methodBody")
-    ];
-    return printWithModifiers(
-      path,
-      print,
-      "interfaceMethodModifier",
-      declaration
+      path.call(print, "bodyNode")
     );
+
+    return parts;
   },
 
-  interfaceMethodModifier: printSingle,
-
-  annotationInterfaceDeclaration(path, print) {
-    return join(" ", [
-      "@interface",
-      call(path, print, "typeIdentifier"),
-      call(path, print, "annotationInterfaceBody")
-    ]);
+  annotation_type_body(path, print) {
+    return printBlock(path, printBodyDeclarations(path, print));
   },
 
-  annotationInterfaceBody(path, print) {
-    const declarations: Doc[] = [];
-    each(
-      path,
-      declarationPath => {
-        const declaration = print(declarationPath);
-        if (declaration === "") {
-          return;
-        }
-        declarations.push(
-          declarationPath.isFirst ? declaration : [hardline, declaration]
-        );
-      },
-      "annotationInterfaceMemberDeclaration"
-    );
-    return printBlock(path, declarations);
-  },
+  annotation_type_element_declaration(path, print) {
+    const parts = printModifiers(path, print);
 
-  annotationInterfaceMemberDeclaration(path, print) {
-    const { children } = path.node;
-    return children.Semicolon
-      ? ""
-      : call(path, print, onlyDefinedKey(children));
-  },
-
-  annotationInterfaceElementDeclaration(path, print) {
-    const { dims, defaultValue } = path.node.children;
-    const declaration = [
-      call(path, print, "unannType"),
+    parts.push(
+      path.call(print, "typeNode"),
       " ",
-      call(path, print, "Identifier"),
+      path.call(print, "nameNode"),
       "()"
-    ];
-    if (dims) {
-      declaration.push(call(path, print, "dims"));
-    }
-    if (defaultValue) {
-      declaration.push(" ", call(path, print, "defaultValue"));
-    }
-    declaration.push(";");
-    return printWithModifiers(
-      path,
-      print,
-      "annotationInterfaceElementModifier",
-      declaration
     );
-  },
 
-  annotationInterfaceElementModifier: printSingle,
+    if (hasChild(path, "dimensionsNode")) {
+      parts.push(path.call(print, "dimensionsNode"));
+    }
 
-  defaultValue(path, print) {
-    return ["default ", call(path, print, "elementValue")];
+    if (hasChild(path, "valueNode")) {
+      parts.push(" default ", path.call(print, "valueNode"));
+    }
+
+    parts.push(";");
+
+    return parts;
   },
 
   annotation(path, print) {
-    const { children } = path.node;
-    const annotation = ["@", call(path, print, "typeName")];
-    if (children.elementValue || children.elementValuePairList) {
-      const valuesKey = onlyDefinedKey(children, [
-        "elementValue",
-        "elementValuePairList"
-      ]);
-      annotation.push(indentInParentheses(call(path, print, valuesKey)));
-    }
-    return annotation;
+    return [
+      "@",
+      path.call(print, "nameNode"),
+      path.call(print, "argumentsNode")
+    ];
   },
 
-  elementValuePairList(path, print) {
-    return printList(path, print, "elementValuePair");
+  marker_annotation(path, print) {
+    return ["@", path.call(print, "nameNode")];
   },
 
-  elementValuePair(path, print) {
-    return join(" ", [
-      call(path, print, "Identifier"),
-      call(path, print, "Equals"),
-      call(path, print, "elementValue")
+  annotation_argument_list(path, print) {
+    const args = path.map(print, "namedChildren");
+    return args.length === 1 &&
+      path.node.namedChildren[0].type ===
+        SyntaxType.ElementValueArrayInitializer
+      ? ["(", args[0], ")"]
+      : group(indentInParentheses(join([",", line], args)));
+  },
+
+  element_value_pair(path, print) {
+    return group([
+      path.call(print, "keyNode"),
+      " = ",
+      path.call(print, "valueNode")
     ]);
   },
 
-  elementValue: printSingle,
-
-  elementValueArrayInitializer(path, print, options) {
-    return printArrayInitializer(path, print, options, "elementValueList");
-  },
-
-  elementValueList(path, print) {
-    return group(printList(path, print, "elementValue"));
-  }
+  element_value_array_initializer: printArrayInitializer
 } satisfies Partial<JavaNodePrinters>;

@@ -4,16 +4,14 @@ describe("VariableInitializerList", () => {
   it("format variableInitializerList with one variableInitializer", () => {
     expectSnippetToBeFormatted({
       snippet: "alpha ",
-      expectedOutput: "alpha",
-      entryPoint: "variableInitializerList"
+      expectedOutput: "alpha"
     });
   });
 
   it("format variableInitializerList with multiple variableInitializer", () => {
     expectSnippetToBeFormatted({
       snippet: "alpha,beta, gamma",
-      expectedOutput: "alpha,\nbeta,\ngamma",
-      entryPoint: "variableInitializerList"
+      expectedOutput: "alpha,\nbeta,\ngamma"
     });
   });
 });

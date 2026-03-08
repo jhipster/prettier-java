@@ -16,6 +16,15 @@ class ClassWithSemicolon {
   private FieldOneClass fieldOne;
 }
 
+@RequiredArgsConstructor
+class A<B, C> {
+
+  @Override
+  public <B, C> void a() {
+    //
+  }
+}
+
 class Aaaaaaaaaa<Bbbbbbbbbb> extends Cccccccccc implements Dddddddddd {
 
   void a() {}

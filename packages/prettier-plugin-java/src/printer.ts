@@ -3,47 +3,42 @@ import {
   canAttachComment,
   handleLineComment,
   handleRemainingComment,
-  isFullyBetweenPrettierIgnore
+  isFullyBetweenPrettierIgnore,
+  isPrettierIgnore,
+  willPrintOwnComments
 } from "./comments.js";
 import {
-  isNonTerminal,
-  isTerminal,
   printComment,
+  printValue,
+  type JavaComment,
   type JavaNode,
-  type JavaTerminal
+  type JavaNodePath
 } from "./printers/helpers.js";
 import { printerForNodeType } from "./printers/index.js";
+import { SyntaxType } from "./tree-sitter-java.js";
 
 export default {
-  print(path: DistributedAstPath<JavaNode>, options, print, args) {
-    return hasTerminal(path)
-      ? path.node.image
-      : printerForNodeType(path.node.name)(path, print, options, args);
+  print(path, options, print, args) {
+    return hasJavaNode(path)
+      ? printerForNodeType(path.node.type)(path, print, options, args)
+      : printValue(path);
   },
   hasPrettierIgnore(path) {
-    const { node } = path;
     return (
-      node.comments?.some(({ image }) =>
-        /^(\/\/\s*prettier-ignore|\/\*\s*prettier-ignore\s*\*\/)$/.test(image)
-      ) === true ||
-      (canAttachComment(node) && isFullyBetweenPrettierIgnore(path))
+      path.node.comments?.some(isPrettierIgnore) === true ||
+      (canAttachComment(path.node) && isFullyBetweenPrettierIgnore(path))
     );
   },
   canAttachComment,
   isBlockComment(node) {
-    return isTerminal(node) && node.tokenType.name === "TraditionalComment";
+    return (node as unknown as JavaComment).type === SyntaxType.BlockComment;
   },
+  willPrintOwnComments,
   printComment(commentPath) {
-    const { node } = commentPath;
-    if (isNonTerminal(node) || node.tokenType.GROUP !== "comments") {
-      throw new Error(`Not a comment: ${JSON.stringify(node)}`);
-    }
-    return printComment(node);
+    return printComment(commentPath.node as unknown as JavaComment);
   },
   getCommentChildNodes(node) {
-    return isNonTerminal(node)
-      ? Object.values(node.children).flatMap(child => child)
-      : [];
+    return node.isNamed ? node.children : [];
   },
   handleComments: {
     ownLine: handleLineComment,
@@ -52,8 +47,6 @@ export default {
   }
 } satisfies Printer<JavaNode>;
 
-function hasTerminal(path: AstPath<JavaNode>): path is AstPath<JavaTerminal> {
-  return isTerminal(path.node);
+function hasJavaNode(path: AstPath<JavaNode>): path is JavaNodePath {
+  return path.node.isNamed;
 }
-
-type DistributedAstPath<T> = T extends any ? AstPath<T> : never;
