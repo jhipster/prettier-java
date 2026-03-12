@@ -1,80 +1,18 @@
-[![npm](https://img.shields.io/npm/v/prettier-plugin-java.svg)](https://www.npmjs.com/package/prettier-plugin-java)
+[![Prettier Java Banner](https://raw.githubusercontent.com/jhipster/prettier-java/main/logo/prettier-java-banner-light.svg)](https://www.jhipster.tech/prettier-java/)
 
-# prettier-plugin-java
+# Prettier Java Plugin
 
-![Prettier Java Banner](https://raw.githubusercontent.com/jhipster/prettier-java/main/logo/prettier-java-banner-light.svg)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/jhipster/prettier-java/github-ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/jhipster/prettier-java/actions/workflows/github-ci.yml?query=branch%3Amain) [![npm version](https://img.shields.io/npm/v/prettier-plugin-java.svg?style=flat-square)](https://www.npmjs.com/package/prettier-plugin-java) [![weekly downloads from npm](https://img.shields.io/npm/dw/prettier-plugin-java.svg?style=flat-square)](https://www.npmjs.com/package/prettier-plugin-java) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier#badge)
 
-Prettier is an opinionated code formatter which forces a certain coding style. It makes the code consistent through an entire project.
+## Intro
 
-This plugin allows the support of Java on Prettier.
+Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
 
-The plugin implementation is pretty straightforward as it uses [java-parser](../java-parser) (thanks to Chevrotain) visitor to traverse the **C**oncrete **S**yntax **T**ree and apply the format processing on each node (it uses Prettier API).
-
-## Installation
-
-### Pre-requirements
-
-Since the plugin is meant to be used with Prettier, you need to install it:
-
-`npm install --save-dev --save-exact prettier`
-
-or
-
-`yarn add prettier --dev --exact`
-
-### Install plugin
-
-`npm install prettier-plugin-java --save-dev`
-
-or
-
-`yarn add prettier-plugin-java --dev`
-
-### CLI
-
-If you installed Prettier globally and want to format java code via the CLI, run the following command:
-
-`npm install -g prettier-plugin-java`
-
-The plugin will be automatically loaded, check [here](https://prettier.io/docs/en/plugins.html#using-plugins) for more.
-
-## Usage
-
-### CLI
-
-```bash
-prettier --write MyJavaFile.java
-```
-
-If the plugin is not automatically loaded:
-
-```bash
-# Example where the plugin is locate in node_modules
-prettier --write MyJavaFile.java --plugin=./node_modules/prettier-plugin-java
-```
-
-### API
-
-```javascript
-const prettier = require("prettier");
-const javaText = `
-public class HelloWorldExample{
-  public static void main(String args[]){
-    System.out.println("Hello World !");
-  }
-}
-`;
-
-const formattedText = prettier.format(javaText, {
-  parser: "java",
-  tabWidth: 2
-});
-```
-
-## Example of formatted code
+This plugin adds support for the Java language to Prettier.
 
 ### Input
 
+<!-- prettier-ignore -->
 ```java
 public class HelloWorld {
 public static void main(String[] args) {System.out.println("Hello World!");;;;;}
@@ -116,43 +54,45 @@ public class HelloWorld {
 }
 ```
 
-## Options
-We added a custom option ```entrypoint``` in order to run prettier on code snippet.
+### Playground
+
+You can give the plugin a try in our [playground](https://www.jhipster.tech/prettier-java/playground)!
+
+## Getting Started
+
+### Installation
+
+npm:
+
+```shell
+npm install --save-dev --save-exact prettier prettier-plugin-java
+```
+
+Yarn:
+
+```shell
+yarn add --dev --exact prettier prettier-plugin-java
+```
 
 ### Usage
-```prettier --write MyJava.java --entrypoint compilationUnit``` \
-[Here](https://github.com/jhipster/prettier-java/blob/main/packages/prettier-plugin-java/src/options.js) is the exhaustive list of all entrypoints.
 
-### Example
-MyJavaCode.java content:
-```java
-public void myfunction() {
-    mymethod.is().very().very().very().very().very().very().very().very().very().very().very().very().very().very().big();
-}
+npm:
+
+```shell
+npx prettier --plugin=prettier-plugin-java --write "**/*.java"
 ```
 
-Run: \
-```prettier --write MyJavaCode.java --entrypoint classBodyDeclaration```
+Yarn:
 
-Result:
-```java
-public void myfunction() {
-  mymethod
-    .is()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .very()
-    .big();
-}
+```shell
+yarn exec prettier --plugin=prettier-plugin-java --write "**/*.java"
 ```
+
+### Integration
+
+- [Editors](https://prettier.io/docs/editors)
+- [Spotless](https://github.com/diffplug/spotless) lets you run Prettier from [Gradle](https://github.com/diffplug/spotless/tree/main/plugin-gradle#prettier) or [Maven](https://github.com/diffplug/spotless/tree/main/plugin-maven#prettier)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).

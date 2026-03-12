@@ -2,6 +2,9 @@
   "name": "prettier-plugin-java",
   "version": "2.8.1",
   "description": "Prettier Java Plugin",
+  "homepage": "https://jhipster.github.io/prettier-java/",
+  "repository": "https://github.com/jhipster/prettier-java",
+  "license": "Apache-2.0",
   "type": "module",
   "exports": {
     "types": "./dist/index.d.ts",
@@ -10,24 +13,37 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://jhipster.github.io/prettier-java/",
-  "repository": "https://github.com/jhipster/prettier-java",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "tree-sitter-java-orchard": "0.5.4",
-    "web-tree-sitter": "0.26.6"
-  },
   "scripts": {
+    "build": "tsc && cp src/tree-sitter-java_orchard.wasm dist/",
+    "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
+    "clone-samples": "node scripts/clone-samples.js",
+    "format:fix": "prettier --write \"**/*.@(js|json|ts)\"",
+    "format:validate": "prettier --list-different \"**/*.@(js|json|ts)\"",
+    "postinstall": "cp node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm src/ && dts-tree-sitter node_modules/tree-sitter-java-orchard > src/tree-sitter-java.d.ts",
+    "lerna:publish": "lerna publish from-git --yes",
+    "lerna:version": "lerna version --exact --no-private",
+    "lint": "eslint packages/**/*.js",
+    "prepare": "husky",
     "test": "yarn run test:unit && yarn run test:e2e-core",
-    "test:unit": "mocha \"test/unit-test/**/*.spec.ts\" \"test/unit-test/**/*-spec.ts\"",
+    "test:all": "yarn run test && yarn run test:e2e-jhipster1 && yarn run test:e2e-jhipster2",
     "test:e2e-core": "node scripts/clone-samples e2e-core && mocha \"test/repository-test/core-test.ts\"",
     "test:e2e-jhipster1": "node scripts/clone-samples e2e-jhipster1 && mocha \"test/repository-test/jhipster-1-test.ts\"",
     "test:e2e-jhipster2": "node scripts/clone-samples e2e-jhipster2 && mocha \"test/repository-test/jhipster-2-test.ts\"",
-    "test:all": "yarn run test && yarn run test:e2e-jhipster1 && yarn run test:e2e-jhipster2",
-    "clone-samples": "node scripts/clone-samples.js",
-    "build": "tsc && cp src/tree-sitter-java_orchard.wasm dist/",
-    "build:watch": "tsc --inlineSourceMap -w",
-    "generate": "cp ../../node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm src/ && dts-tree-sitter ../../node_modules/tree-sitter-java-orchard > src/tree-sitter-java.d.ts"
+    "test:unit": "mocha \"test/unit-test/**/*.spec.ts\" \"test/unit-test/**/*-spec.ts\"",
+    "update-test-outputs": "node scripts/update-test-output.js"
+  },
+  "lint-staged": {
+    "*.json": [
+      "prettier --write"
+    ],
+    "*.js,*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "tree-sitter-java-orchard": "0.5.4",
+    "web-tree-sitter": "0.26.6"
   },
   "devDependencies": {
     "@asgerf/dts-tree-sitter": "0.21.0",
@@ -38,10 +54,24 @@
     "@types/klaw-sync": "6.0.5",
     "@types/node": "18.19.64",
     "@types/sinon": "17.0.3",
+    "chai": "5.1.2",
+    "eslint": "9.14.0",
+    "eslint-config-google": "0.14.0",
+    "eslint-config-prettier": "9.1.0",
+    "fs-extra": "11.2.0",
+    "husky": "9.1.6",
+    "klaw-sync": "6.0.0",
+    "lerna": "8.1.9",
+    "lint-staged": "15.2.10",
+    "mitata": "^1.0.34",
+    "mocha": "10.8.2",
+    "prettier": "^3.0.0",
+    "sinon": "19.0.2",
     "ts-node": "10.9.2",
     "typescript": "5.6.3"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
