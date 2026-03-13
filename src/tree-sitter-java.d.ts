@@ -12,8 +12,7 @@ export class Parser {
 }
 
 export type Options = {
-  bufferSize?: number;
-  includedRanges?: Range[];
+  bufferSize?: number, includedRanges?: Range[];
 };
 
 export type Point = {
@@ -22,10 +21,10 @@ export type Point = {
 };
 
 export type Range = {
-  startIndex: number;
-  endIndex: number;
-  startPosition: Point;
-  endPosition: Point;
+  startIndex: number,
+  endIndex: number,
+  startPosition: Point,
+  endPosition: Point
 };
 
 export type Edit = {
@@ -100,15 +99,8 @@ interface SyntaxNodeBase {
   descendantForPosition(position: Point): SyntaxNode;
   descendantForPosition(startPosition: Point, endPosition: Point): SyntaxNode;
   namedDescendantForPosition(position: Point): SyntaxNode;
-  namedDescendantForPosition(
-    startPosition: Point,
-    endPosition: Point
-  ): SyntaxNode;
-  descendantsOfType<T extends TypeString>(
-    types: T | readonly T[],
-    startPosition?: Point,
-    endPosition?: Point
-  ): NodeOfType<T>[];
+  namedDescendantForPosition(startPosition: Point, endPosition: Point): SyntaxNode;
+  descendantsOfType<T extends TypeString>(types: T | readonly T[], startPosition?: Point, endPosition?: Point): NodeOfType<T>[];
 
   closest<T extends SyntaxType>(types: T | readonly T[]): NamedNode<T> | null;
   walk(): TreeCursor;
@@ -213,7 +205,7 @@ export class LookaheadIterable {
 }
 
 interface NamedNodeBase extends SyntaxNodeBase {
-  isNamed: true;
+    isNamed: true;
 }
 
 /** An unnamed node with the given type string. */
@@ -222,20 +214,12 @@ export interface UnnamedNode<T extends string = string> extends SyntaxNodeBase {
   isNamed: false;
 }
 
-type PickNamedType<Node, T extends string> = Node extends {
-  type: T;
-  isNamed: true;
-}
-  ? Node
-  : never;
+type PickNamedType<Node, T extends string> = Node extends { type: T; isNamed: true } ? Node : never;
 
 type PickType<Node, T extends string> = Node extends { type: T } ? Node : never;
 
 /** A named node with the given `type` string. */
-export type NamedNode<T extends SyntaxType = SyntaxType> = PickNamedType<
-  SyntaxNode,
-  T
->;
+export type NamedNode<T extends SyntaxType = SyntaxType> = PickNamedType<SyntaxNode, T>;
 
 /**
  * A node with the given `type` string.
@@ -249,9 +233,7 @@ interface TreeCursorOfType<S extends string, T extends SyntaxNodeBase> {
   currentNode: T;
 }
 
-type TreeCursorRecord = {
-  [K in TypeString]: TreeCursorOfType<K, NodeOfType<K>>;
-};
+type TreeCursorRecord = { [K in TypeString]: TreeCursorOfType<K, NodeOfType<K>> };
 
 /**
  * A tree cursor whose `nodeType` correlates with `currentNode`.
@@ -278,8 +260,8 @@ type TreeCursorRecord = {
 export type TypedTreeCursor = TreeCursorRecord[keyof TreeCursorRecord];
 
 export interface ErrorNode extends NamedNodeBase {
-  type: SyntaxType.ERROR;
-  hasError: true;
+    type: SyntaxType.ERROR;
+    hasError: true;
 }
 
 export const enum SyntaxType {
@@ -427,14 +409,14 @@ export const enum SyntaxType {
   True = "true",
   TypeIdentifier = "type_identifier",
   UnderscorePattern = "underscore_pattern",
-  VoidType = "void_type"
+  VoidType = "void_type",
 }
 
 export type UnnamedType =
   | "!"
   | "!="
-  | '"'
-  | '"""'
+  | "\""
+  | "\"\"\""
   | "%"
   | "%="
   | "&"
@@ -544,7 +526,8 @@ export type UnnamedType =
   | "|="
   | "||"
   | "}"
-  | "~";
+  | "~"
+  ;
 
 export type TypeString = SyntaxType | UnnamedType;
 
@@ -683,8 +666,8 @@ export type SyntaxNode =
   | YieldStatementNode
   | UnnamedNode<"!">
   | UnnamedNode<"!=">
-  | UnnamedNode<'"'>
-  | UnnamedNode<'"""'>
+  | UnnamedNode<"\"">
+  | UnnamedNode<"\"\"\"">
   | UnnamedNode<"%">
   | UnnamedNode<"%=">
   | UnnamedNode<"&">
@@ -816,7 +799,8 @@ export type SyntaxNode =
   | UnnamedNode<"||">
   | UnnamedNode<"}">
   | UnnamedNode<"~">
-  | ErrorNode;
+  | ErrorNode
+  ;
 
 export type LiteralNode =
   | BinaryIntegerLiteralNode
@@ -829,7 +813,8 @@ export type LiteralNode =
   | NullLiteralNode
   | OctalIntegerLiteralNode
   | StringLiteralNode
-  | TrueNode;
+  | TrueNode
+  ;
 
 export type SimpleTypeNode =
   | BooleanTypeNode
@@ -838,11 +823,18 @@ export type SimpleTypeNode =
   | IntegralTypeNode
   | ScopedTypeIdentifierNode
   | TypeIdentifierNode
-  | VoidTypeNode;
+  | VoidTypeNode
+  ;
 
-export type TypeNode = UnannotatedTypeNode | AnnotatedTypeNode;
+export type TypeNode =
+  | UnannotatedTypeNode
+  | AnnotatedTypeNode
+  ;
 
-export type UnannotatedTypeNode = SimpleTypeNode | ArrayTypeNode;
+export type UnannotatedTypeNode =
+  | SimpleTypeNode
+  | ArrayTypeNode
+  ;
 
 export type DeclarationNode =
   | AnnotationTypeDeclarationNode
@@ -852,7 +844,8 @@ export type DeclarationNode =
   | InterfaceDeclarationNode
   | ModuleDeclarationNode
   | PackageDeclarationNode
-  | RecordDeclarationNode;
+  | RecordDeclarationNode
+  ;
 
 export type ExpressionNode =
   | AssignmentExpressionNode
@@ -864,14 +857,16 @@ export type ExpressionNode =
   | SwitchExpressionNode
   | TernaryExpressionNode
   | UnaryExpressionNode
-  | UpdateExpressionNode;
+  | UpdateExpressionNode
+  ;
 
 export type ModuleDirectiveNode =
   | ExportsModuleDirectiveNode
   | OpensModuleDirectiveNode
   | ProvidesModuleDirectiveNode
   | RequiresModuleDirectiveNode
-  | UsesModuleDirectiveNode;
+  | UsesModuleDirectiveNode
+  ;
 
 export type PrimaryExpressionNode =
   | LiteralNode
@@ -885,7 +880,8 @@ export type PrimaryExpressionNode =
   | ObjectCreationExpressionNode
   | ParenthesizedExpressionNode
   | TemplateExpressionNode
-  | ThisNode;
+  | ThisNode
+  ;
 
 export type StatementNode =
   | UnnamedNode<";">
@@ -908,7 +904,8 @@ export type StatementNode =
   | TryStatementNode
   | TryWithResourcesStatementNode
   | WhileStatementNode
-  | YieldStatementNode;
+  | YieldStatementNode
+  ;
 
 export interface AnnotatedTypeNode extends NamedNodeBase {
   type: SyntaxType.AnnotatedType;
@@ -939,11 +936,7 @@ export interface AnnotationTypeElementDeclarationNode extends NamedNodeBase {
   dimensionsNode?: DimensionsNode;
   nameNode: IdentifierNode;
   typeNode: UnannotatedTypeNode;
-  valueNode?:
-    | AnnotationNode
-    | ElementValueArrayInitializerNode
-    | ExpressionNode
-    | MarkerAnnotationNode;
+  valueNode?: AnnotationNode | ElementValueArrayInitializerNode | ExpressionNode | MarkerAnnotationNode;
 }
 
 export interface ArgumentListNode extends NamedNodeBase {
@@ -980,19 +973,7 @@ export interface AssertStatementNode extends NamedNodeBase {
 export interface AssignmentExpressionNode extends NamedNodeBase {
   type: SyntaxType.AssignmentExpression;
   leftNode: ArrayAccessNode | FieldAccessNode | IdentifierNode;
-  operatorNode:
-    | UnnamedNode<"%=">
-    | UnnamedNode<"&=">
-    | UnnamedNode<"*=">
-    | UnnamedNode<"+=">
-    | UnnamedNode<"-=">
-    | UnnamedNode<"/=">
-    | UnnamedNode<"<<=">
-    | UnnamedNode<"=">
-    | UnnamedNode<">>=">
-    | UnnamedNode<">>>=">
-    | UnnamedNode<"^=">
-    | UnnamedNode<"|=">;
+  operatorNode: UnnamedNode<"%="> | UnnamedNode<"&="> | UnnamedNode<"*="> | UnnamedNode<"+="> | UnnamedNode<"-="> | UnnamedNode<"/="> | UnnamedNode<"<<="> | UnnamedNode<"="> | UnnamedNode<">>="> | UnnamedNode<">>>="> | UnnamedNode<"^="> | UnnamedNode<"|=">;
   rightNode: ExpressionNode;
 }
 
@@ -1003,26 +984,7 @@ export interface AsteriskNode extends NamedNodeBase {
 export interface BinaryExpressionNode extends NamedNodeBase {
   type: SyntaxType.BinaryExpression;
   leftNode: ExpressionNode;
-  operatorNode:
-    | UnnamedNode<"!=">
-    | UnnamedNode<"%">
-    | UnnamedNode<"&">
-    | UnnamedNode<"&&">
-    | UnnamedNode<"*">
-    | UnnamedNode<"+">
-    | UnnamedNode<"-">
-    | UnnamedNode<"/">
-    | UnnamedNode<"<">
-    | UnnamedNode<"<<">
-    | UnnamedNode<"<=">
-    | UnnamedNode<"==">
-    | UnnamedNode<">">
-    | UnnamedNode<">=">
-    | UnnamedNode<">>">
-    | UnnamedNode<">>>">
-    | UnnamedNode<"^">
-    | UnnamedNode<"|">
-    | UnnamedNode<"||">;
+  operatorNode: UnnamedNode<"!="> | UnnamedNode<"%"> | UnnamedNode<"&"> | UnnamedNode<"&&"> | UnnamedNode<"*"> | UnnamedNode<"+"> | UnnamedNode<"-"> | UnnamedNode<"/"> | UnnamedNode<"<"> | UnnamedNode<"<<"> | UnnamedNode<"<="> | UnnamedNode<"=="> | UnnamedNode<">"> | UnnamedNode<">="> | UnnamedNode<">>"> | UnnamedNode<">>>"> | UnnamedNode<"^"> | UnnamedNode<"|"> | UnnamedNode<"||">;
   rightNode: ExpressionNode;
 }
 
@@ -1122,11 +1084,7 @@ export interface ElementValueArrayInitializerNode extends NamedNodeBase {
 export interface ElementValuePairNode extends NamedNodeBase {
   type: SyntaxType.ElementValuePair;
   keyNode: IdentifierNode;
-  valueNode:
-    | AnnotationNode
-    | ElementValueArrayInitializerNode
-    | ExpressionNode
-    | MarkerAnnotationNode;
+  valueNode: AnnotationNode | ElementValueArrayInitializerNode | ExpressionNode | MarkerAnnotationNode;
 }
 
 export interface EnhancedForStatementNode extends NamedNodeBase {
@@ -1275,10 +1233,7 @@ export interface LabeledStatementNode extends NamedNodeBase {
 export interface LambdaExpressionNode extends NamedNodeBase {
   type: SyntaxType.LambdaExpression;
   bodyNode: BlockNode | ExpressionNode;
-  parametersNode:
-    | FormalParametersNode
-    | IdentifierNode
-    | InferredParametersNode;
+  parametersNode: FormalParametersNode | IdentifierNode | InferredParametersNode;
 }
 
 export interface LocalVariableDeclarationNode extends NamedNodeBase {
@@ -1549,11 +1504,7 @@ export interface TypePatternNode extends NamedNodeBase {
 export interface UnaryExpressionNode extends NamedNodeBase {
   type: SyntaxType.UnaryExpression;
   operandNode: ExpressionNode;
-  operatorNode:
-    | UnnamedNode<"!">
-    | UnnamedNode<"+">
-    | UnnamedNode<"-">
-    | UnnamedNode<"~">;
+  operatorNode: UnnamedNode<"!"> | UnnamedNode<"+"> | UnnamedNode<"-"> | UnnamedNode<"~">;
 }
 
 export interface UpdateExpressionNode extends NamedNodeBase {
@@ -1673,3 +1624,4 @@ export interface UnderscorePatternNode extends NamedNodeBase {
 export interface VoidTypeNode extends NamedNodeBase {
   type: SyntaxType.VoidType;
 }
+

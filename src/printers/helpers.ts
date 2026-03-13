@@ -24,10 +24,10 @@ export function hasChild<T, K extends keyof T>(
   return path.node[fieldName] != null;
 }
 
-export function definedKeys<T extends Record<string, any>, K extends keyof T>(
-  obj: T,
-  options?: K[]
-) {
+export function definedKeys<
+  T extends Record<string, unknown>,
+  K extends keyof T
+>(obj: T, options?: K[]) {
   return (options ?? (Object.keys(obj) as K[])).filter(
     key => obj[key] !== undefined
   );

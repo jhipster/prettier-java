@@ -1,10 +1,6 @@
-samples
-lerna.json
-packages/prettier-plugin-java/samples
-packages/prettier-plugin-java/test-samples
-packages/prettier-plugin-java/README.md
-packages/prettier-plugin-java/dist
-CHANGELOG*
-website/build
-website/.docusaurus
 /.nx/workspace-data
+/src/tree-sitter-java.d.ts
+/website/.docusaurus
+/website/build
+/CHANGELOG.md
+/lerna.json

@@ -23,10 +23,10 @@ jobs:
           cache: yarn
 
       - name: Install prettier-plugin-java dependencies
-        working-directory: ./packages/prettier-plugin-java
+        working-directory: .
         run: yarn install --frozen-lockfile
       - name: Build prettier-plugin-java
-        working-directory: ./packages/prettier-plugin-java
+        working-directory: .
         run: yarn build
 
       - name: Install dependencies

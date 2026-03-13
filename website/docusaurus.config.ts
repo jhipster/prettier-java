@@ -1,10 +1,7 @@
 import type { Options, ThemeConfig } from "@docusaurus/preset-classic";
 import type { Config } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
-import {
-  homepage,
-  repository
-} from "../packages/prettier-plugin-java/package.json";
+import { homepage, repository } from "../package.json";
 
 const { origin: url, pathname: baseUrl } = new URL(homepage);
 const [, organizationName, projectName] = new URL(repository).pathname.split(

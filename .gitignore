@@ -10,7 +10,7 @@
 
 # Tests
 /samples
-/test-samples
+/test-samples/**/*
 !/test-samples/.eslintrc.json
 
 # Misc

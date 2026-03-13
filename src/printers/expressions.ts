@@ -37,7 +37,6 @@ export default {
     const signatureDocs: Doc[] = [];
     let bodyDoc: Doc | undefined;
     const bodyComments: Doc[] = [];
-    let shouldBreakChain = false;
     const shouldPrintAsChain =
       !(
         args &&
@@ -80,7 +79,7 @@ export default {
       !functionBody!.comments?.some(
         ({ leading }) =>
           leading && hasNewline(options.originalText, functionBody!.end.index)
-      ) && mayBreakAfterShortPrefix(functionBody!, bodyDoc!);
+      ) && mayBreakAfterShortPrefix(functionBody!);
 
     const isCallee =
       path.node.fieldName === "object" &&
@@ -88,8 +87,7 @@ export default {
     const chainGroupId = Symbol("arrow-chain");
 
     const signaturesDoc = printArrowFunctionSignatures(path, {
-      signatureDocs,
-      shouldBreak: shouldBreakChain
+      signatureDocs
     });
     let shouldBreakSignatures = false;
     let shouldIndentSignatures = false;
@@ -693,7 +691,7 @@ function printLambdaExpressionSignature(
   return parts;
 }
 
-function mayBreakAfterShortPrefix(functionBody: JavaNode, bodyDoc: Doc) {
+function mayBreakAfterShortPrefix(functionBody: JavaNode) {
   return (
     functionBody.type === SyntaxType.ArrayCreationExpression ||
     functionBody.type === SyntaxType.LambdaExpression ||
@@ -703,7 +701,7 @@ function mayBreakAfterShortPrefix(functionBody: JavaNode, bodyDoc: Doc) {
 
 function printArrowFunctionSignatures(
   path: JavaNodePath,
-  { signatureDocs, shouldBreak }: { signatureDocs: Doc[]; shouldBreak: boolean }
+  { signatureDocs }: { signatureDocs: Doc[] }
 ) {
   if (signatureDocs.length === 1) {
     return signatureDocs[0];
@@ -715,24 +713,21 @@ function printArrowFunctionSignatures(
       parent?.type === SyntaxType.MethodInvocation) ||
     parent?.type === SyntaxType.BinaryExpression
   ) {
-    return group(
-      [
-        signatureDocs[0],
-        " ->",
-        indent([line, join([" ->", line], signatureDocs.slice(1))])
-      ],
-      { shouldBreak }
-    );
+    return group([
+      signatureDocs[0],
+      " ->",
+      indent([line, join([" ->", line], signatureDocs.slice(1))])
+    ]);
   }
 
   if (
     node.fieldName === "object" &&
     parent?.type === SyntaxType.MethodInvocation
   ) {
-    return group(join([" ->", line], signatureDocs), { shouldBreak });
+    return group(join([" ->", line], signatureDocs));
   }
 
-  return group(indent(join([" ->", line], signatureDocs)), { shouldBreak });
+  return group(indent(join([" ->", line], signatureDocs)));
 }
 
 function shouldPrintParamsWithoutParens(

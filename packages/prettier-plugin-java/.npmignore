@@ -1,9 +1,0 @@
-docs
-scripts
-test
-test-samples
-samples
-*.log
-src
-dist/test
-*-spec.js

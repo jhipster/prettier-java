@@ -4,15 +4,16 @@
 
 ## Example
 
-```java
-// Input
+### Input
 
-// Output
+```java
+
+```
+
+### Output
+
+```java
 
 ```
 
 ## Relative issues or prs:
-
-<!--
-Please also reference the issue number in a commit message to [automatically close the related Github issue](https://help.github.com/articles/closing-issues-via-commit-messages/)
--->

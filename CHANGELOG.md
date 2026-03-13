@@ -1,4 +1,85 @@
-# Latest v2.6.7
+# Latest v2.8.1
+
+## What's Changed
+* fix: indent ternary binary expressions in return statements by @jtkiesel in https://github.com/jhipster/prettier-java/pull/803
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.8.0...prettier-plugin-java@2.8.1
+
+# v2.8.0
+
+## What's Changed
+* feat: improve class/enum/interface/record clause wrapping/indentation by @jtkiesel in https://github.com/jhipster/prettier-java/pull/783
+* fix: break empty switch/rule, try/catch/finally, and if blocks by @jtkiesel in https://github.com/jhipster/prettier-java/pull/791
+* feat: support `prettier-ignore-start`/`-end` in addition to `@formatter:off`/`:on` by @jtkiesel in https://github.com/jhipster/prettier-java/pull/796
+* fix: improve binary expression assignment breaking by @jtkiesel in https://github.com/jhipster/prettier-java/pull/797
+* fix: proper breaking of parenthesized expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/800
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.7.7...prettier-plugin-java@2.8.0
+
+# v2.7.7
+
+## What's Changed
+* fix: remove extra indent from ternary/lambda expressions in parentheses by @jtkiesel in https://github.com/jhipster/prettier-java/pull/787
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.7.6...prettier-plugin-java@2.7.7
+
+# v2.7.6
+
+## What's Changed
+* fix: indent non-block switch rule bodies with leading comments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/778
+* fix: ternary comment placement and indentation by @jtkiesel in https://github.com/jhipster/prettier-java/pull/780
+* fix: avoid unwrapping empty array initializer with comments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/784
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.7.5...prettier-plugin-java@2.7.6
+
+# v2.7.5
+
+## What's Changed
+* fix: eliminate repeated printer function execution from our naively-implemented 'call' helper by @jtkiesel in https://github.com/jhipster/prettier-java/pull/771
+* fix: correct indentation of some method argument lists containing lambda bodies by @jtkiesel in https://github.com/jhipster/prettier-java/pull/772
+* fix: correct indentation of non-root instanceof expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/773
+* fix: indent binary expressions in annotation element value or argument lists by @jtkiesel in https://github.com/jhipster/prettier-java/pull/774
+* fix: break nested ternaries together by @jtkiesel in https://github.com/jhipster/prettier-java/pull/775
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.7.4...prettier-plugin-java@2.7.5
+
+# v2.7.4
+
+## What's Changed
+* fix: print class type arguments and dots in the proper order by @jtkiesel in https://github.com/jhipster/prettier-java/pull/754
+* fix: revert connection of trailing semicolon to trailingComma option by @jtkiesel in https://github.com/jhipster/prettier-java/pull/755
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.7.3...prettier-plugin-java@2.7.4
+
+# v2.7.3
+
+## What's Changed
+* fix: align arrowParens option's default with Prettier by @jtkiesel in https://github.com/jhipster/prettier-java/pull/749
+
+# v2.7.2
+
+## What's Changed
+* docs: Add arrowParens and experimentalOperatorPosition options to plugin and website playground by @jtkiesel in https://github.com/jhipster/prettier-java/pull/743
+* Fix update-test-outputs script to use test-specific prettier options. by @motlin in https://github.com/jhipster/prettier-java/pull/741
+* chore: add packageManager field to package.json for corepack by @mshima in https://github.com/jhipster/prettier-java/pull/744
+* chore: fix generated types by @mshima in https://github.com/jhipster/prettier-java/pull/747
+* chore: run lerna repair by @mshima in https://github.com/jhipster/prettier-java/pull/745
+
+# v2.7.1
+
+## What's Changed
+* feat: support `experimentalOperatorPosition` option (issue #534) by @jtkiesel in #731
+* fix: make formatting of comments on if statements stable (issue #592) by @jtkiesel in #731
+* fix: break nested statements without braces at the top level first (issue #720) by @jtkiesel in #731
+* fix: do not add a blank line at the end of embedded Java (issue #737) by @jtkiesel in #731
+
+# v2.6.8
+
+## What's Changed
+* fix: break hugged lambda body when closing parenthesis wraps by @jtkiesel in https://github.com/jhipster/prettier-java/pull/721
+* fix: limit TypePattern's VariableDeclaratorList to a single VariableDeclarator by @jtkiesel in https://github.com/jhipster/prettier-java/pull/734
+
+# v2.6.7
 
 ## Fixes
 
@@ -14,6 +95,29 @@
 ## Fixes
 
 - Support dims in record patterns (Issue [#707](https://github.com/jhipster/prettier-java/issues/707) closed by [#708](https://github.com/jhipster/prettier-java/pull/708) by [@clementdessoude](https://github.com/clementdessoude))
+
+# v2.6.5
+
+## Fixes
+
+- Print comment before first binary operator without failing (Issue #685) fixed by #688 by @jtkiesel
+- Add whitespace between label and statement (Issue #686) fixed by #689 by @jtkiesel
+- Break and indent assignments like declarations (Issue #687) fixed by #690 by @jtkiesel
+
+# v2.6.4
+
+## Fixes
+
+- Add es5 as trailingComma option (Issue #652) fixed by #655 by @jtkiesel
+- Add types to exports in package.json (Issue #663) fixed by #664 by @mshima
+- Hug lambdas without blocks (Issue #650) fixed by #653 by @jtkiesel
+- Align with JDK 22 spec (Issue #665) fixed by #666 by @jtkiesel
+
+## Misc
+
+- Update advanced_usage.md with current working configuration for IntelliJ (#669 by @tfield)
+- Update trailingComma option on advanced_usage.md (#451 by @jslivane)
+- Automate GitHub Pages deployment (#672 by @jtkiesel)
 
 # v2.6.0
 
