@@ -46,6 +46,6 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Build prettier-plugin-java
-        run: yarn run build:prettier-plugin-java
+        run: yarn run build
       - name: Run e2e tests
-        run: yarn run test:prettier-plugin-java test:${{ matrix.test_repository }}
+        run: yarn run test:${{ matrix.test_repository }}

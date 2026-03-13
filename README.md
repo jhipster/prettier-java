@@ -90,7 +90,7 @@ yarn exec prettier --plugin=prettier-plugin-java --write "**/*.java"
 
 ### Integration
 
-- [Editors](https://prettier.io/docs/editors)
+- [Editors](docs/advanced_usage.md#ide-integrations)
 - [Spotless](https://github.com/diffplug/spotless) lets you run Prettier from [Gradle](https://github.com/diffplug/spotless/tree/main/plugin-gradle#prettier) or [Maven](https://github.com/diffplug/spotless/tree/main/plugin-maven#prettier)
 
 ## Contributing

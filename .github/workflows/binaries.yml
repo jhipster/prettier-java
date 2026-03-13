@@ -22,14 +22,6 @@ jobs:
           sudo apt update
           sudo apt install jq
           npm i -g pkg
-      - name: Installing/Linking dependencies
-        run: |
-          cd $GITHUB_WORKSPACE/prettier-java/packages/java-parser
-          npm i
-          npm link
-          cd $GITHUB_WORKSPACE/prettier-java/packages/prettier-plugin-java
-          npm i
-          npm link java-parser
       - name: Checkout Prettier
         uses: actions/checkout@v2
         with:

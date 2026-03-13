@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { bench, do_not_optimize, run } from "mitata";
 import prettier from "prettier";
-import javaPlugin from "prettier-plugin-java";
+import javaPlugin from "../dist/index.js";
 
-const dir = "../packages/prettier-plugin-java/samples";
+const dir = "samples";
 const files = fs
   .readdirSync(dir, { recursive: true })
   .filter(file => file.endsWith(".java"))

@@ -7108,7 +7108,7 @@ postcss@^8.4.21, postcss@^8.4.24, postcss@^8.4.33, postcss@^8.5.4:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
-"prettier-plugin-java@file:../packages/prettier-plugin-java/dist":
+"prettier-plugin-java@file:../dist":
   version "0.0.0"
 
 prettier@^3:

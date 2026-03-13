@@ -357,7 +357,7 @@ export default {
     const enumBodyDeclarationsIndex = path.node.namedChildren.findIndex(
       ({ type }) => type === SyntaxType.EnumBodyDeclarations
     );
-    let declarations: Doc[] = [];
+    const declarations: Doc[] = [];
     if (enumBodyDeclarationsIndex !== -1) {
       const hasDeclarations =
         path.node.namedChildren[enumBodyDeclarationsIndex].namedChildren
