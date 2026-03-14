@@ -1,5 +1,5 @@
-import type { AstPath, Doc, ParserOptions } from "prettier";
-import { builders } from "prettier/doc";
+import type { AstPath, Doc, Options, ParserOptions } from "prettier";
+import { builders, utils } from "prettier/doc";
 import {
   SyntaxType,
   type CommentNode,
@@ -9,6 +9,7 @@ import {
 } from "../node-types.ts";
 
 const { group, hardline, ifBreak, indent, join, line, softline } = builders;
+const { mapDoc } = utils;
 
 export function hasType<T extends NamedType>(
   path: AstPath<NamedNode>,
@@ -315,12 +316,117 @@ export function printVariableDeclaration(
   return declaration;
 }
 
-export function findBaseIndent(lines: string[]) {
-  return lines.length
-    ? Math.min(
-        ...lines.map(line => line.search(/\S/)).filter(indent => indent >= 0)
-      )
-    : 0;
+export function printTextBlock(
+  path: NamedNodePath<SyntaxType.StringLiteral>,
+  contents: Doc
+) {
+  const parts = ['"""', hardline, contents, '"""'];
+  const parentType = (path.parent as NamedNode | null)?.type;
+  const grandparentType = (path.grandparent as NamedNode | null)?.type;
+  return parentType === SyntaxType.AssignmentExpression ||
+    parentType === SyntaxType.VariableDeclarator ||
+    (path.node.fieldName === "object" &&
+      (grandparentType === SyntaxType.AssignmentExpression ||
+        grandparentType === SyntaxType.VariableDeclarator))
+    ? indent(parts)
+    : parts;
+}
+
+export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
+  const hasInterpolations = path.node.namedChildren.some(
+    ({ type }) => type === SyntaxType.StringInterpolation
+  );
+  if (hasInterpolations || path.node.children[0].value === '"') {
+    return null;
+  }
+
+  const language = findEmbeddedLanguage(path);
+  if (!language) {
+    return null;
+  }
+
+  const text = unescapeTextBlockContents(textBlockContents(path.node));
+
+  return async (
+    textToDoc: (text: string, options: Options) => Promise<Doc>
+  ) => {
+    const doc = await textToDoc(text, { parser: language });
+    return printTextBlock(path, escapeDocForTextBlock(doc));
+  };
+}
+
+export function textBlockContents(node: NamedNode<SyntaxType.StringLiteral>) {
+  const lines = node.value
+    .replace(
+      /(?<=^|[^\\])((?:\\\\)*)\\u+([0-9a-fA-F]{4})/g,
+      (_, backslashPairs: string, hex: string) =>
+        backslashPairs + String.fromCharCode(parseInt(hex, 16))
+    )
+    .split("\n")
+    .slice(1);
+  const baseIndent = findBaseIndent(lines);
+  return lines
+    .map(line => line.slice(baseIndent))
+    .join("\n")
+    .slice(0, -3);
+}
+
+function findBaseIndent(lines: string[]) {
+  return Math.min(
+    ...lines.map(line => line.search(/\S/)).filter(indent => indent >= 0)
+  );
+}
+
+function findEmbeddedLanguage(path: NamedNodePath) {
+  return path.ancestors
+    .find(
+      ({ type, comments }) =>
+        type === SyntaxType.Block || comments?.some(({ leading }) => leading)
+    )
+    ?.comments?.filter(({ leading }) => leading)
+    .map(
+      ({ value }) => value.match(/^(?:\/\/|\/\*)\s*language\s*=\s*(\S+)/)?.[1]
+    )
+    .findLast(language => language)
+    ?.toLowerCase();
+}
+
+function escapeDocForTextBlock(doc: Doc) {
+  return mapDoc(doc, currentDoc =>
+    typeof currentDoc === "string"
+      ? currentDoc.replace(/\\|"""/g, match => `\\${match}`)
+      : currentDoc
+  );
+}
+
+function unescapeTextBlockContents(text: string) {
+  return text.replace(
+    /\\(?:([bstnfr"'\\])|\n|\r\n?|([0-3][0-7]{0,2}|[0-7]{1,2}))/g,
+    (_, single, octal) => {
+      if (single) {
+        switch (single) {
+          case "b":
+            return "\b";
+          case "s":
+            return " ";
+          case "t":
+            return "\t";
+          case "n":
+            return "\n";
+          case "f":
+            return "\f";
+          case "r":
+            return "\r";
+          default:
+            return single;
+        }
+      } else if (octal) {
+        return String.fromCharCode(parseInt(octal, 8));
+      } else {
+        return "";
+      }
+    }
+  );
 }
 
 export type NamedNodePrinters = {

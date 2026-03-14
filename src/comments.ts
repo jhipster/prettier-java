@@ -70,10 +70,13 @@ export function canAttachComment(node: SyntaxNode) {
   }
   switch (node.type) {
     case SyntaxType.EnumBodyDeclarations:
+    case SyntaxType.EscapeSequence:
     case SyntaxType.FormalParameters:
     case SyntaxType.Modifier:
+    case SyntaxType.MultilineStringFragment:
     case SyntaxType.ParenthesizedExpression:
     case SyntaxType.Program:
+    case SyntaxType.StringFragment:
     case SyntaxType.Visibility:
       return false;
     default:

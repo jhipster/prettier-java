@@ -65,5 +65,55 @@ public class TextBlock {
   String escapes = """
     \n\t\r\f\b\s\\
     \077
-    \u0041""";
+    A""";
+
+  void json() {
+    // language = json
+    String someJson = """
+      { "glossary": { "title": "example glossary" } }""";
+
+    // language=json
+    String config = """
+      { "name": "example", "enabled": true, "timeout": 30 }""";
+
+    /* language = JSON */
+    String query = """
+      {
+        "sql": "SELECT * FROM users WHERE active=1 AND deleted=0",
+        "limit": 10
+      }""";
+  }
+
+  void java() {
+    // language=Java
+    String java = """
+      class Class {
+
+        void method() {
+          // comment
+        }
+      }""";
+  }
+
+  void html() {
+    // language=html
+    String html = """
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Page Title</title>
+        </head>
+        <body>
+          <h1>My First Heading</h1>
+          <p>My first paragraph.</p>
+        </body>
+      </html>""";
+  }
+
+  void unsupported() {
+    // language=unsupported
+    String unsupported = """
+      function f(){let i=0;}
+      """;
+  }
 }

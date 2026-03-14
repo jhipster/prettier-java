@@ -9,6 +9,8 @@ import {
 } from "./comments.ts";
 import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
+  embedTextBlock,
+  hasType,
   printComment,
   printValue,
   type NamedNodePath
@@ -20,6 +22,11 @@ export default {
     return hasJavaNode(path)
       ? printerForNodeType(path.node.type)(path, print, options, args)
       : printValue(path);
+  },
+  embed(path) {
+    return hasType(path, SyntaxType.StringLiteral)
+      ? embedTextBlock(path)
+      : null;
   },
   hasPrettierIgnore(path) {
     return (
@@ -42,6 +49,9 @@ export default {
     ownLine: handleLineComment,
     endOfLine: handleLineComment,
     remaining: handleRemainingComment
+  },
+  getVisitorKeys() {
+    return ["namedChildren"];
   }
 } satisfies Printer<SyntaxNode>;
 

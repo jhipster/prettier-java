@@ -1,8 +1,9 @@
 import { builders } from "prettier/doc";
-import { SyntaxType, type NamedNode } from "../node-types.ts";
+import { SyntaxType } from "../node-types.ts";
 import {
-  findBaseIndent,
+  printTextBlock,
   printValue,
+  textBlockContents,
   type NamedNodePrinters
 } from "./helpers.ts";
 
@@ -17,25 +18,10 @@ export default {
       return path.map(print, "children");
     }
 
-    const lines = path.node.children
-      .map(({ value }) => value)
-      .join("")
-      .split("\n")
-      .slice(1);
-    const baseIndent = findBaseIndent(lines);
-    const textBlock = join(hardline, [
-      '"""',
-      ...lines.map(line => line.slice(baseIndent))
-    ]);
-    const parentType = (path.parent as NamedNode | null)?.type;
-    const grandparentType = (path.grandparent as NamedNode | null)?.type;
-    return parentType === SyntaxType.AssignmentExpression ||
-      parentType === SyntaxType.VariableDeclarator ||
-      (path.node.fieldName === "object" &&
-        (grandparentType === SyntaxType.AssignmentExpression ||
-          grandparentType === SyntaxType.VariableDeclarator))
-      ? indent(textBlock)
-      : textBlock;
+    return printTextBlock(
+      path,
+      join(hardline, textBlockContents(path.node).split("\n"))
+    );
   },
 
   string_fragment: printValue,
