@@ -19,7 +19,7 @@
     "clone-samples": "node scripts/clone-samples.js",
     "format:fix": "prettier --write \"**/*.@(js|json|ts)\"",
     "format:validate": "prettier --list-different \"**/*.@(js|json|ts)\"",
-    "postinstall": "cp node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm src/ && dts-tree-sitter node_modules/tree-sitter-java-orchard > src/tree-sitter-java.d.ts",
+    "postinstall": "cp node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm src/ && node scripts/generate-node-types.ts && prettier --write src/node-types.ts",
     "lerna:publish": "lerna publish from-git --yes",
     "lerna:version": "lerna version --exact --no-private",
     "lint": "eslint src/**/*.ts",
@@ -46,7 +46,6 @@
     "web-tree-sitter": "0.26.6"
   },
   "devDependencies": {
-    "@asgerf/dts-tree-sitter": "^0.21.0",
     "@eslint/js": "^10.0.1",
     "@types/chai": "^5.0.1",
     "@types/emscripten": "^1.41.5",

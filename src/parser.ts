@@ -2,12 +2,7 @@ import type Prettier from "prettier";
 import nodeTypeInfo from "tree-sitter-java-orchard/src/node-types.json" with { type: "json" };
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { determinePrettierIgnoreRanges } from "./comments.js";
-import type {
-  JavaComment,
-  JavaNode,
-  JavaNodeOrComment
-} from "./printers/helpers.js";
-import { SyntaxType } from "./tree-sitter-java.js";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
 
 export default {
   async parse(text) {
@@ -35,7 +30,7 @@ export default {
   locEnd(node) {
     return node.end.index;
   }
-} satisfies Prettier.Parser<JavaNodeOrComment>;
+} satisfies Prettier.Parser<SyntaxNode | CommentNode>;
 
 const parser = (async () => {
   await Parser.init();
@@ -59,12 +54,12 @@ const multipleFieldsByType = nodeTypeInfo.reduce((map, nodeInfo) => {
     }
   }
   return map;
-}, new Map<string, Set<String>>());
+}, new Map<string, Set<string>>());
 
 function processTree(
   node: Node,
   fieldName: string | null = null,
-  comments?: JavaComment[]
+  comments?: CommentNode[]
 ) {
   const { type, isNamed, text: value, startPosition, endPosition } = node;
   const javaNode = {
@@ -84,9 +79,9 @@ function processTree(
     children: [],
     namedChildren: [],
     fieldName
-  } as JavaNode & {
-    [key: `${string}Node`]: JavaNode | undefined;
-    [key: `${string}Nodes`]: JavaNode[];
+  } as SyntaxNode & {
+    [key: `${string}Node`]: SyntaxNode | undefined;
+    [key: `${string}Nodes`]: SyntaxNode[];
   };
 
   if (!comments) {

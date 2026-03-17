@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         node_version:
-          - 20.x
           - 22.x
+          - 24.x
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -33,7 +33,7 @@ jobs:
         test_repository:
           - e2e-jhipster1
           - e2e-jhipster2
-        node_version: [22.x]
+        node_version: [24.x]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3

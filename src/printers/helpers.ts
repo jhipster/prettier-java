@@ -2,18 +2,18 @@ import type { AstPath, Doc, ParserOptions } from "prettier";
 import { builders } from "prettier/doc";
 import {
   SyntaxType,
-  type NodeOfType,
-  type SyntaxNode,
-  type TypeString,
-  type UnnamedType
-} from "../tree-sitter-java.js";
+  type CommentNode,
+  type NamedNode,
+  type NamedType,
+  type SyntaxNode
+} from "../node-types.js";
 
 const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 
-export function hasType<T extends JavaTypeString>(
-  path: AstPath<JavaNode>,
+export function hasType<T extends NamedType>(
+  path: AstPath<NamedNode>,
   type: T
-): path is AstPath<JavaNode<T>> {
+): path is AstPath<NamedNode<T>> {
   return path.node.type === type;
 }
 
@@ -24,18 +24,18 @@ export function hasChild<T, K extends keyof T>(
   return path.node[fieldName] != null;
 }
 
-export function definedKeys<
-  T extends Record<string, unknown>,
-  K extends keyof T
->(obj: T, options?: K[]) {
+export function definedKeys<T extends SyntaxNode, K extends keyof T>(
+  obj: T,
+  options?: K[]
+) {
   return (options ?? (Object.keys(obj) as K[])).filter(
     key => obj[key] !== undefined
   );
 }
 
 export function printModifiers(
-  path: JavaNodePath,
-  print: JavaPrintFn,
+  path: NamedNodePath,
+  print: PrintFunction,
   annotationMode?: "declarationOnly" | "avoidBreak" | "noBreak"
 ): Doc[] {
   const modifiersIndex = path.node.namedChildren.findIndex(
@@ -65,23 +65,23 @@ export function printModifiers(
   ];
 }
 
-export function printValue(path: AstPath<JavaNode>) {
+export function printValue(path: AstPath<SyntaxNode>) {
   return path.node.value;
 }
 
-export function lineStartWithComments(node: JavaNode) {
+export function lineStartWithComments(node: SyntaxNode) {
   return node.comments?.length
     ? Math.min(node.start.row, node.comments[0].start.row)
     : node.start.row;
 }
 
-export function lineEndWithComments(node: JavaNode) {
+export function lineEndWithComments(node: SyntaxNode) {
   return node.comments?.length
     ? Math.max(node.end.row, node.comments.at(-1)!.end.row)
     : node.end.row;
 }
 
-export function printDanglingComments(path: JavaNodePath) {
+export function printDanglingComments(path: NamedNodePath) {
   if (!path.node.comments?.length) {
     return [];
   }
@@ -97,7 +97,7 @@ export function printDanglingComments(path: JavaNodePath) {
   return join(hardline, comments);
 }
 
-export function printComment(comment: JavaComment) {
+export function printComment(comment: CommentNode) {
   const lines = comment.value.split("\n").map(line => line.trim());
   return lines.length > 1 &&
     lines[0].startsWith("/*") &&
@@ -110,7 +110,7 @@ export function printComment(comment: JavaComment) {
     : comment.value;
 }
 
-export function hasLeadingComments(node: JavaNode) {
+export function hasLeadingComments(node: SyntaxNode) {
   return node.comments?.some(({ leading }) => leading) ?? false;
 }
 
@@ -121,10 +121,10 @@ export function indentInParentheses(contents: Doc) {
 }
 
 export function printArrayInitializer(
-  path: JavaNodePath<
+  path: NamedNodePath<
     SyntaxType.ArrayInitializer | SyntaxType.ElementValueArrayInitializer
   >,
-  print: JavaPrintFn,
+  print: PrintFunction,
   options: JavaParserOptions
 ) {
   if (!path.node.namedChildren.length) {
@@ -143,7 +143,7 @@ export function printArrayInitializer(
   return group(["{", indent([softline, ...list]), softline, "}"]);
 }
 
-export function printBlock(path: JavaNodePath, contents: Doc[]) {
+export function printBlock(path: NamedNodePath, contents: Doc[]) {
   if (contents.length) {
     return group([
       "{",
@@ -196,12 +196,12 @@ export function printBlock(path: JavaNodePath, contents: Doc[]) {
 }
 
 export function printBlockStatements(
-  path: JavaNodePath<
+  path: NamedNodePath<
     | SyntaxType.Block
     | SyntaxType.ConstructorBody
     | SyntaxType.SwitchBlockStatementGroup
   >,
-  print: JavaPrintFn
+  print: PrintFunction
 ) {
   const parts: Doc[] = [];
   path.each(child => {
@@ -223,7 +223,7 @@ export function printBlockStatements(
 }
 
 export function printBodyDeclarations(
-  path: JavaNodePath<
+  path: NamedNodePath<
     | SyntaxType.AnnotationTypeBody
     | SyntaxType.ClassBody
     | SyntaxType.EnumBody
@@ -231,7 +231,7 @@ export function printBodyDeclarations(
     | SyntaxType.FormalParameters
     | SyntaxType.InterfaceBody
   >,
-  print: JavaPrintFn,
+  print: PrintFunction,
   padFirst = false
 ) {
   const isInterfaceBody = path.node.type === SyntaxType.InterfaceBody;
@@ -283,12 +283,12 @@ export function printBodyDeclarations(
 }
 
 export function printVariableDeclaration(
-  path: JavaNodePath<
+  path: NamedNodePath<
     | SyntaxType.ConstantDeclaration
     | SyntaxType.FieldDeclaration
     | SyntaxType.LocalVariableDeclaration
   >,
-  print: JavaPrintFn
+  print: PrintFunction
 ) {
   const declaration = printModifiers(path, print);
 
@@ -303,7 +303,7 @@ export function printVariableDeclaration(
     declaration.push(
       group(indent(join([",", line], declarators)), {
         shouldBreak:
-          (path.parent as JavaNode | null)?.type !== SyntaxType.ForStatement
+          (path.parent as NamedNode | null)?.type !== SyntaxType.ForStatement
       })
     );
   } else {
@@ -323,76 +323,17 @@ export function findBaseIndent(lines: string[]) {
     : 0;
 }
 
-export type JavaNode<T extends JavaTypeString = JavaTypeString> =
-  JavaNodeOrComment<T>;
-export type JavaNodeOrComment<T extends TypeString = TypeString> =
-  T extends JavaCommentType
-    ? JavaComment
-    : T extends JavaNodeType
-      ? JavaNamedNode<T>
-      : T extends UnnamedType
-        ? JavaUnnamedNode<T>
-        : never;
-export type JavaNodeFields<T extends NodeOfType<JavaTypeString>> = {
-  [K in keyof T as K extends `${string}Node${"s" | ""}`
-    ? K
-    : never]: MapJavaNodeField<T[K]>;
+export type NamedNodePrinters = {
+  [T in NamedType]: NamedNodePrinter<T>;
 };
-export type JavaComment<T extends JavaCommentType = JavaCommentType> =
-  BaseNode<T> & {
-    leading: boolean;
-    trailing: boolean;
-    printed: boolean;
-    enclosingNode?: JavaNode;
-    precedingNode?: JavaNode;
-    followingNode?: JavaNode;
-  };
-export type JavaNodePrinters = {
-  [T in JavaNodeType]: JavaNodePrinter<T>;
-};
-export type JavaNodePrinter<T extends JavaNodeType> = (
-  path: JavaNodePath<T>,
-  print: JavaPrintFn,
-  options: ParserOptions<JavaNode>,
+export type NamedNodePrinter<T extends NamedType> = (
+  path: NamedNodePath<T>,
+  print: PrintFunction,
+  options: JavaParserOptions,
   args?: unknown
 ) => Doc;
-export type JavaNodePath<T extends JavaNodeType = JavaNodeType> = AstPath<
-  JavaNode<T>
+export type NamedNodePath<T extends NamedType = NamedType> = AstPath<
+  NamedNode<T>
 >;
-export type JavaNodeType = Exclude<SyntaxType, JavaCommentType>;
-export type JavaPrintFn = (path: AstPath<JavaNode>, args?: unknown) => Doc;
-export type JavaParserOptions = ParserOptions<JavaNode>;
-
-type JavaCommentType = SyntaxType.BlockComment | SyntaxType.LineComment;
-type JavaTypeString = Exclude<TypeString, JavaCommentType>;
-type GetJavaNodeType<N> = Extract<N, NodeOfType<JavaTypeString>>["type"];
-type MapJavaNodeField<V> = V extends undefined
-  ? undefined
-  : V extends (infer U)[]
-    ? JavaNode<GetJavaNodeType<U>>[]
-    : V extends SyntaxNode
-      ? JavaNode<GetJavaNodeType<V>>
-      : never;
-type BaseNode<T extends TypeString> = {
-  type: T;
-  value: string;
-  start: Position;
-  end: Position;
-};
-type JavaUnnamedNode<T extends UnnamedType> = BaseNode<T> & {
-  isNamed: T extends SyntaxType ? true : false;
-  fieldName: string | null;
-  comments?: JavaComment[];
-};
-type JavaNamedNode<T extends JavaNodeType> = BaseNode<T> & {
-  isNamed: T extends SyntaxType ? true : false;
-  children: JavaNode[];
-  namedChildren: JavaNode<JavaNodeType>[];
-  fieldName: string | null;
-  comments?: JavaComment[];
-} & JavaNodeFields<NodeOfType<T>>;
-type Position = {
-  index: number;
-  row: number;
-  column: number;
-};
+export type PrintFunction = (path: AstPath<SyntaxNode>, args?: unknown) => Doc;
+export type JavaParserOptions = ParserOptions<SyntaxNode>;

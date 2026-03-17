@@ -1,14 +1,13 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType, type NamedNode } from "../node-types.js";
 import {
   printBlock,
   printDanglingComments,
   printValue,
-  type JavaNode,
-  type JavaNodePath,
-  type JavaNodePrinters,
-  type JavaPrintFn
+  type NamedNodePath,
+  type NamedNodePrinters,
+  type PrintFunction
 } from "./helpers.js";
 
 const { group, hardline, indent, join, line } = builders;
@@ -34,7 +33,7 @@ export default {
 
       if (child.node.type === SyntaxType.ImportDeclaration) {
         const names = extractNames(
-          child.node.namedChildren[0] as JavaNode<
+          child.node.namedChildren[0] as NamedNode<
             SyntaxType.Identifier | SyntaxType.ScopedIdentifier
           >
         );
@@ -185,10 +184,10 @@ export default {
   },
 
   requires_modifier: printValue
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;
 
 function extractNames(
-  node: JavaNode<SyntaxType.Identifier | SyntaxType.ScopedIdentifier>
+  node: NamedNode<SyntaxType.Identifier | SyntaxType.ScopedIdentifier>
 ): string[] {
   return node.type === SyntaxType.Identifier
     ? [node.value]
@@ -214,10 +213,10 @@ function compareFqn(
 }
 
 function printToModuleNamesDirective(
-  path: JavaNodePath<
+  path: NamedNodePath<
     SyntaxType.ExportsModuleDirective | SyntaxType.OpensModuleDirective
   >,
-  print: JavaPrintFn
+  print: PrintFunction
 ) {
   const prefix =
     path.node.type === SyntaxType.ExportsModuleDirective ? "exports" : "opens";
