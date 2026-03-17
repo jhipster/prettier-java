@@ -1,6 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType, type NamedNode } from "../node-types.js";
 import {
   definedKeys,
   hasChild,
@@ -12,8 +12,7 @@ import {
   printModifiers,
   printValue,
   printVariableDeclaration,
-  type JavaNode,
-  type JavaNodePrinters
+  type NamedNodePrinters
 } from "./helpers.js";
 
 const { group, hardline, indent, indentIfBreak, join, line, softline } =
@@ -96,7 +95,7 @@ export default {
       printBodyDeclarations(
         path,
         print,
-        (path.parent as JavaNode | null)?.type === SyntaxType.ClassDeclaration
+        (path.parent as NamedNode | null)?.type === SyntaxType.ClassDeclaration
       )
     );
   },
@@ -182,8 +181,7 @@ export default {
     return indentInParentheses(
       join(
         [",", line],
-        (path.parent as JavaNode | undefined)?.type ===
-          SyntaxType.RecordDeclaration
+        (path.parent as NamedNode | null)?.type === SyntaxType.RecordDeclaration
           ? printBodyDeclarations(path, print)
           : path.map(print, "namedChildren")
       )
@@ -194,7 +192,7 @@ export default {
     const parameter = printModifiers(
       path,
       print,
-      (path.grandparent as JavaNode | undefined)?.type ===
+      (path.grandparent as NamedNode | null)?.type ===
         SyntaxType.RecordDeclaration
         ? "avoidBreak"
         : "noBreak"
@@ -438,7 +436,7 @@ export default {
 
     return parts;
   }
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;
 
 const indexByModifier = [
   "public",

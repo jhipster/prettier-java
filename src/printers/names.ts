@@ -1,5 +1,5 @@
-import { SyntaxType } from "../tree-sitter-java.js";
-import { printValue, type JavaNodePrinters } from "./helpers.js";
+import { SyntaxType } from "../node-types.js";
+import { printValue, type NamedNodePrinters } from "./helpers.js";
 
 export default {
   identifier: printValue,
@@ -19,4 +19,4 @@ export default {
       "children"
     );
   }
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;

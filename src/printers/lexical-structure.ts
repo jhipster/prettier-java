@@ -1,10 +1,9 @@
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType, type NamedNode } from "../node-types.js";
 import {
   findBaseIndent,
   printValue,
-  type JavaNode,
-  type JavaNodePrinters
+  type NamedNodePrinters
 } from "./helpers.js";
 
 const { group, hardline, indent, join, softline } = builders;
@@ -28,8 +27,8 @@ export default {
       '"""',
       ...lines.map(line => line.slice(baseIndent))
     ]);
-    const parentType = (path.parent as JavaNode | null)?.type;
-    const grandparentType = (path.grandparent as JavaNode | null)?.type;
+    const parentType = (path.parent as NamedNode | null)?.type;
+    const grandparentType = (path.grandparent as NamedNode | null)?.type;
     return parentType === SyntaxType.AssignmentExpression ||
       parentType === SyntaxType.VariableDeclarator ||
       (path.node.fieldName === "object" &&
@@ -67,4 +66,4 @@ export default {
   super: printValue,
   underscore_pattern: printValue,
   asterisk: printValue
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;

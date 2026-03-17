@@ -7,15 +7,13 @@ import {
   isPrettierIgnore,
   willPrintOwnComments
 } from "./comments.js";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
 import {
   printComment,
   printValue,
-  type JavaComment,
-  type JavaNode,
-  type JavaNodePath
+  type NamedNodePath
 } from "./printers/helpers.js";
 import { printerForNodeType } from "./printers/index.js";
-import { SyntaxType } from "./tree-sitter-java.js";
 
 export default {
   print(path, options, print, args) {
@@ -31,11 +29,11 @@ export default {
   },
   canAttachComment,
   isBlockComment(node) {
-    return (node as unknown as JavaComment).type === SyntaxType.BlockComment;
+    return (node as unknown as CommentNode).type === SyntaxType.BlockComment;
   },
   willPrintOwnComments,
   printComment(commentPath) {
-    return printComment(commentPath.node as unknown as JavaComment);
+    return printComment(commentPath.node as unknown as CommentNode);
   },
   getCommentChildNodes(node) {
     return node.isNamed ? node.children : [];
@@ -45,8 +43,8 @@ export default {
     endOfLine: handleLineComment,
     remaining: handleRemainingComment
   }
-} satisfies Printer<JavaNode>;
+} satisfies Printer<SyntaxNode>;
 
-function hasJavaNode(path: AstPath<JavaNode>): path is JavaNodePath {
+function hasJavaNode(path: AstPath<SyntaxNode>): path is NamedNodePath {
   return path.node.isNamed;
 }

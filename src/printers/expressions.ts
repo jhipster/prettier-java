@@ -1,18 +1,17 @@
 import { util, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import { printComments, printCommentsSeparately } from "../comments.js";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType, type NamedNode } from "../node-types.js";
 import {
   hasChild,
   hasLeadingComments,
   hasType,
   indentInParentheses,
   printDanglingComments,
-  type JavaNode,
-  type JavaNodePath,
-  type JavaNodePrinters,
   type JavaParserOptions,
-  type JavaPrintFn
+  type NamedNodePath,
+  type NamedNodePrinters,
+  type PrintFunction
 } from "./helpers.js";
 
 const {
@@ -83,7 +82,7 @@ export default {
 
     const isCallee =
       path.node.fieldName === "object" &&
-      (path.parent as JavaNode | null)?.type === SyntaxType.MethodInvocation;
+      (path.parent as NamedNode | null)?.type === SyntaxType.MethodInvocation;
     const chainGroupId = Symbol("arrow-chain");
 
     const signaturesDoc = printArrowFunctionSignatures(path, {
@@ -211,8 +210,8 @@ export default {
 
   binary_expression(path, print, options) {
     const { node } = path;
-    const parent = path.parent as JavaNode | null;
-    const grandparent = path.grandparent as JavaNode | null;
+    const parent = path.parent as NamedNode | null;
+    const grandparent = path.grandparent as NamedNode | null;
     const isInsideParentheses =
       (parent?.fieldName === "condition" &&
         (grandparent?.type === SyntaxType.IfStatement ||
@@ -340,8 +339,8 @@ export default {
 
   parenthesized_expression(path, print) {
     const expression = path.call(print, "namedChildren", 0);
-    const parentType = (path.parent as JavaNode | null)?.type;
-    const grandparentType = (path.grandparent as JavaNode | null)?.type;
+    const parentType = (path.parent as NamedNode | null)?.type;
+    const grandparentType = (path.grandparent as NamedNode | null)?.type;
     const expressionType = path.node.namedChildren[0].type;
     const hasLambda = expressionType === SyntaxType.LambdaExpression;
     const hasTernary = expressionType === SyntaxType.TernaryExpression;
@@ -643,12 +642,12 @@ export default {
           ])
     ];
   }
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;
 
 function printLambdaExpressionSignature(
-  path: JavaNodePath<SyntaxType.LambdaExpression>,
+  path: NamedNodePath<SyntaxType.LambdaExpression>,
   options: JavaParserOptions,
-  print: JavaPrintFn,
+  print: PrintFunction,
   args: unknown
 ) {
   const parts: Doc[] = [];
@@ -691,7 +690,7 @@ function printLambdaExpressionSignature(
   return parts;
 }
 
-function mayBreakAfterShortPrefix(functionBody: JavaNode) {
+function mayBreakAfterShortPrefix(functionBody: NamedNode) {
   return (
     functionBody.type === SyntaxType.ArrayCreationExpression ||
     functionBody.type === SyntaxType.LambdaExpression ||
@@ -700,7 +699,7 @@ function mayBreakAfterShortPrefix(functionBody: JavaNode) {
 }
 
 function printArrowFunctionSignatures(
-  path: JavaNodePath,
+  path: NamedNodePath,
   { signatureDocs }: { signatureDocs: Doc[] }
 ) {
   if (signatureDocs.length === 1) {
@@ -731,7 +730,7 @@ function printArrowFunctionSignatures(
 }
 
 function shouldPrintParamsWithoutParens(
-  path: JavaNodePath<SyntaxType.LambdaExpression>,
+  path: NamedNodePath<SyntaxType.LambdaExpression>,
   options: JavaParserOptions
 ) {
   if (options.arrowParens === "always") {
@@ -748,7 +747,7 @@ function shouldPrintParamsWithoutParens(
 }
 
 function canPrintParamsWithoutParens(
-  node: JavaNode<SyntaxType.LambdaExpression>
+  node: NamedNode<SyntaxType.LambdaExpression>
 ) {
   return (
     node.parametersNode.type === SyntaxType.Identifier &&
@@ -758,16 +757,16 @@ function canPrintParamsWithoutParens(
 }
 
 function printMemberChain(
-  path: JavaNodePath<
+  path: NamedNodePath<
     | SyntaxType.ArrayAccess
     | SyntaxType.FieldAccess
     | SyntaxType.MethodInvocation
   >,
-  print: JavaPrintFn,
+  print: PrintFunction,
   options: JavaParserOptions
 ) {
   const isExpressionStatement =
-    (path.parent as JavaNode | null)?.type === SyntaxType.ExpressionStatement;
+    (path.parent as NamedNode | null)?.type === SyntaxType.ExpressionStatement;
 
   // The first phase is to linearize the AST by traversing it down.
   //
@@ -777,14 +776,14 @@ function printMemberChain(
   // and we transform it into
   //   [MethodInvocation, MethodInvocation]
   const printedNodes: {
-    node: JavaNode;
+    node: NamedNode;
     hasTrailingEmptyLine?: boolean;
     printed: Doc;
   }[] = [];
 
   // Here we try to retain one typed empty line after each call expression or
   // the first group whether it is in parentheses or not
-  function shouldInsertEmptyLineAfter(node: JavaNode) {
+  function shouldInsertEmptyLineAfter(node: NamedNode) {
     const { originalText } = options;
     const nextCharIndex = getNextNonSpaceNonCommentCharacterIndex(
       originalText,
@@ -804,7 +803,7 @@ function printMemberChain(
     return isNextLineEmpty(originalText, node.end.index);
   }
 
-  function rec(path: JavaNodePath) {
+  function rec(path: NamedNodePath) {
     const { node } = path;
 
     if (
@@ -1060,7 +1059,7 @@ function printMemberChain(
   const methodInvocations = printedNodes
     .map(({ node }) => node)
     .filter(
-      (node): node is JavaNode<SyntaxType.MethodInvocation> =>
+      (node): node is NamedNode<SyntaxType.MethodInvocation> =>
         node.type === SyntaxType.MethodInvocation
     );
 
@@ -1115,8 +1114,8 @@ function printMemberChain(
 }
 
 function printMethodInvocation(
-  path: JavaNodePath<SyntaxType.MethodInvocation>,
-  print: JavaPrintFn
+  path: NamedNodePath<SyntaxType.MethodInvocation>,
+  print: PrintFunction
 ) {
   const parts: Doc[] = [];
   if (hasChild(path, "objectNode")) {
@@ -1133,8 +1132,8 @@ function printMethodInvocation(
 }
 
 function printArrayAccess(
-  path: JavaNodePath<SyntaxType.ArrayAccess>,
-  print: JavaPrintFn
+  path: NamedNodePath<SyntaxType.ArrayAccess>,
+  print: PrintFunction
 ) {
   const index = path.call(print, "indexNode");
   return path.node.indexNode.type === SyntaxType.DecimalIntegerLiteral
@@ -1143,8 +1142,8 @@ function printArrayAccess(
 }
 
 function printFieldAccess(
-  path: JavaNodePath<SyntaxType.FieldAccess>,
-  print: JavaPrintFn
+  path: NamedNodePath<SyntaxType.FieldAccess>,
+  print: PrintFunction
 ) {
   const parts: Doc[] = ["."];
 
@@ -1168,8 +1167,8 @@ function printFieldAccess(
  * broken before `+`.
  */
 function printBinaryExpressions(
-  path: JavaNodePath,
-  print: JavaPrintFn,
+  path: NamedNodePath,
+  print: PrintFunction,
   options: JavaParserOptions,
   isInsideParentheses: boolean
 ) {
@@ -1310,12 +1309,12 @@ function needsParentheses(parentOperator: string, operator: string) {
   );
 }
 
-function isSimpleCallArgument(node: JavaNode, depth = 2): boolean {
+function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   if (depth <= 0) {
     return false;
   }
 
-  const isChildSimple = (child: JavaNode) =>
+  const isChildSimple = (child: NamedNode) =>
     isSimpleCallArgument(child, depth - 1);
 
   if (
@@ -1368,7 +1367,7 @@ function isSimpleCallArgument(node: JavaNode, depth = 2): boolean {
   return false;
 }
 
-function couldExpandArg(arg: JavaNode, lambdaChainRecursion = false) {
+function couldExpandArg(arg: NamedNode, lambdaChainRecursion = false) {
   if (
     arg.type === SyntaxType.ArrayCreationExpression &&
     arg.valueNode &&
@@ -1411,7 +1410,7 @@ function couldExpandArg(arg: JavaNode, lambdaChainRecursion = false) {
   return false;
 }
 
-function shouldExpandLastArg(args: JavaNode[]) {
+function shouldExpandLastArg(args: NamedNode[]) {
   const lastArg = args.at(-1)!;
   const penultimateArg = args.at(-2);
   return (
@@ -1425,7 +1424,7 @@ function shouldExpandLastArg(args: JavaNode[]) {
   );
 }
 
-function shouldExpandFirstArg(args: JavaNode[]) {
+function shouldExpandFirstArg(args: NamedNode[]) {
   if (args.length !== 2) {
     return false;
   }
@@ -1443,7 +1442,7 @@ function shouldExpandFirstArg(args: JavaNode[]) {
   );
 }
 
-function isHopefullyShortCallArgument(node: JavaNode) {
+function isHopefullyShortCallArgument(node: NamedNode) {
   if (node.type === SyntaxType.ParenthesizedExpression) {
     return isHopefullyShortCallArgument(node.namedChildren[0]);
   }

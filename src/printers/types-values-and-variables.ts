@@ -1,5 +1,5 @@
 import { builders } from "prettier/doc";
-import { printValue, type JavaNodePrinters } from "./helpers.js";
+import { printValue, type NamedNodePrinters } from "./helpers.js";
 
 const { group, indent, join, line, softline } = builders;
 
@@ -56,4 +56,4 @@ export default {
   wildcard(path, print) {
     return join(" ", path.map(print, "children"));
   }
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;

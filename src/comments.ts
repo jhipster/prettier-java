@@ -1,26 +1,24 @@
 import { util, type AstPath, type Doc } from "prettier";
 import { builders } from "prettier/doc";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
 import parser from "./parser.js";
 import printer from "./printer.js";
 import {
   hasChild,
   printComment,
-  type JavaComment,
-  type JavaNode,
-  type JavaNodePath,
-  type JavaParserOptions
+  type JavaParserOptions,
+  type NamedNodePath
 } from "./printers/helpers.js";
-import { SyntaxType } from "./tree-sitter-java.js";
 
 const { hasNewline, isPreviousLineEmpty, skipNewline, skipSpaces } = util;
 const { breakParent, hardline, line, lineSuffix } = builders;
 
 const prettierIgnoreRangesByTree = new WeakMap<
-  JavaNode,
+  SyntaxNode,
   PrettierIgnoreRange[]
 >();
 
-export function determinePrettierIgnoreRanges(tree: JavaNode) {
+export function determinePrettierIgnoreRanges(tree: SyntaxNode) {
   const { comments } = tree;
   if (!comments) {
     return;
@@ -45,7 +43,7 @@ export function determinePrettierIgnoreRanges(tree: JavaNode) {
   prettierIgnoreRangesByTree.set(tree, ranges);
 }
 
-export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
+export function isFullyBetweenPrettierIgnore(path: AstPath<SyntaxNode>) {
   const { node, root } = path;
   const start = parser.locStart(node);
   const end = parser.locEnd(node);
@@ -56,17 +54,17 @@ export function isFullyBetweenPrettierIgnore(path: AstPath<JavaNode>) {
   );
 }
 
-export function isPrettierIgnore(comment: JavaComment) {
+export function isPrettierIgnore(comment: CommentNode) {
   return /^(\/\/\s*prettier-ignore|\/\*\s*prettier-ignore\s*\*\/)$/.test(
     comment.value
   );
 }
 
-export function willPrintOwnComments(path: AstPath<JavaNode>): boolean {
+export function willPrintOwnComments(path: AstPath<SyntaxNode>): boolean {
   return isMember(path.node) && !printer.hasPrettierIgnore(path);
 }
 
-export function canAttachComment(node: JavaNode) {
+export function canAttachComment(node: SyntaxNode) {
   if (!node.isNamed) {
     return isBinaryOperator(node);
   }
@@ -84,7 +82,7 @@ export function canAttachComment(node: JavaNode) {
 }
 
 export function handleLineComment(
-  commentNode: JavaComment,
+  commentNode: CommentNode,
   _: string,
   options: JavaParserOptions
 ) {
@@ -102,7 +100,7 @@ export function handleLineComment(
   ].some(fn => fn(commentNode, options));
 }
 
-export function handleRemainingComment(commentNode: JavaComment) {
+export function handleRemainingComment(commentNode: CommentNode) {
   return [
     handleFqnOrRefTypeComments,
     handleNameComments,
@@ -111,7 +109,7 @@ export function handleRemainingComment(commentNode: JavaComment) {
 }
 
 function handleBinaryExpressionComments(
-  commentNode: JavaComment,
+  commentNode: CommentNode,
   options: JavaParserOptions
 ) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
@@ -134,7 +132,7 @@ function handleBinaryExpressionComments(
   return false;
 }
 
-function handleFqnOrRefTypeComments(commentNode: JavaComment) {
+function handleFqnOrRefTypeComments(commentNode: CommentNode) {
   const { enclosingNode, followingNode } = commentNode;
   if (
     enclosingNode?.type === SyntaxType.ScopedTypeIdentifier &&
@@ -146,7 +144,7 @@ function handleFqnOrRefTypeComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleIfStatementComments(commentNode: JavaComment) {
+function handleIfStatementComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
     enclosingNode?.type === SyntaxType.IfStatement &&
@@ -158,7 +156,7 @@ function handleIfStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleJumpStatementComments(commentNode: JavaComment) {
+function handleJumpStatementComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
     enclosingNode &&
@@ -174,7 +172,7 @@ function handleJumpStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleLabeledStatementComments(commentNode: JavaComment) {
+function handleLabeledStatementComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
     enclosingNode?.type === SyntaxType.LabeledStatement &&
@@ -186,7 +184,7 @@ function handleLabeledStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleMemberChainComments(commentNode: JavaComment) {
+function handleMemberChainComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
     (enclosingNode?.type === SyntaxType.FieldAccess ||
@@ -207,7 +205,7 @@ function handleMemberChainComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleModifiersComments(commentNode: JavaComment) {
+function handleModifiersComments(commentNode: CommentNode) {
   const { precedingNode } = commentNode;
   if (
     precedingNode?.type === SyntaxType.Annotation ||
@@ -220,7 +218,7 @@ function handleModifiersComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleNameComments(commentNode: JavaComment) {
+function handleNameComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode } = commentNode;
   if (
     enclosingNode &&
@@ -236,7 +234,7 @@ function handleNameComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleTernaryExpressionComments(commentNode: JavaComment) {
+function handleTernaryExpressionComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
     enclosingNode?.type === SyntaxType.TernaryExpression &&
@@ -251,7 +249,7 @@ function handleTernaryExpressionComments(commentNode: JavaComment) {
   return false;
 }
 
-function handleTryStatementComments(commentNode: JavaComment) {
+function handleTryStatementComments(commentNode: CommentNode) {
   const { enclosingNode, followingNode } = commentNode;
   if (
     enclosingNode &&
@@ -280,7 +278,7 @@ function handleTryStatementComments(commentNode: JavaComment) {
   return false;
 }
 
-function isMember(node: JavaNode) {
+function isMember(node: SyntaxNode) {
   return (
     node.type === SyntaxType.ArrayAccess ||
     node.type === SyntaxType.FieldAccess ||
@@ -308,7 +306,7 @@ const binaryOperators = new Set([
   "/",
   "%"
 ]);
-function isBinaryOperator(node?: JavaNode) {
+function isBinaryOperator(node?: SyntaxNode) {
   return node !== undefined && binaryOperators.has(node.type);
 }
 
@@ -317,7 +315,7 @@ type PrettierIgnoreRange = {
   end: number;
 };
 
-function printLeadingComment(path: AstPath<JavaComment>) {
+function printLeadingComment(path: AstPath<CommentNode>) {
   const comment = path.node;
   comment.printed = true;
   const parts: Doc[] = [printComment(comment)];
@@ -357,7 +355,7 @@ function printLeadingComment(path: AstPath<JavaComment>) {
 }
 
 function printTrailingComment(
-  path: AstPath<JavaComment>,
+  path: AstPath<CommentNode>,
   previousComment?: { doc: Doc; isBlock: boolean; hasLineSuffix: boolean }
 ): NonNullable<typeof previousComment> {
   const comment = path.node;
@@ -406,7 +404,7 @@ function printTrailingComment(
   return { doc: [" ", printed], isBlock, hasLineSuffix: false };
 }
 
-function printLeadingComments(path: JavaNodePath) {
+function printLeadingComments(path: NamedNodePath) {
   if (!hasChild(path, "comments")) {
     return [];
   }
@@ -424,7 +422,7 @@ function printLeadingComments(path: JavaNodePath) {
   return docs;
 }
 
-function printTrailingComments(path: JavaNodePath) {
+function printTrailingComments(path: NamedNodePath) {
   if (!hasChild(path, "comments")) {
     return [];
   }
@@ -447,14 +445,14 @@ function printTrailingComments(path: JavaNodePath) {
   return docs;
 }
 
-export function printCommentsSeparately(path: JavaNodePath) {
+export function printCommentsSeparately(path: NamedNodePath) {
   return {
     leading: printLeadingComments(path),
     trailing: printTrailingComments(path)
   };
 }
 
-export function printComments(path: JavaNodePath, doc: Doc) {
+export function printComments(path: NamedNodePath, doc: Doc) {
   const leading = printLeadingComments(path);
   const trailing = printTrailingComments(path);
   return leading.length || trailing.length ? [leading, doc, trailing] : doc;

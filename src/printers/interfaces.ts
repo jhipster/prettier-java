@@ -1,6 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType } from "../node-types.js";
 import {
   hasChild,
   indentInParentheses,
@@ -9,7 +9,7 @@ import {
   printBodyDeclarations,
   printModifiers,
   printVariableDeclaration,
-  type JavaNodePrinters
+  type NamedNodePrinters
 } from "./helpers.js";
 
 const { group, indent, join, line } = builders;
@@ -148,4 +148,4 @@ export default {
   },
 
   element_value_array_initializer: printArrayInitializer
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;

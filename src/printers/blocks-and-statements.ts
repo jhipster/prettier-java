@@ -1,6 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../tree-sitter-java.js";
+import { SyntaxType } from "../node-types.js";
 import {
   hasChild,
   hasLeadingComments,
@@ -10,7 +10,7 @@ import {
   printDanglingComments,
   printModifiers,
   printVariableDeclaration,
-  type JavaNodePrinters
+  type NamedNodePrinters
 } from "./helpers.js";
 
 const {
@@ -474,7 +474,7 @@ export default {
   yield_statement(path, print) {
     return ["yield ", path.call(print, "namedChildren", 0), ";"];
   }
-} satisfies Partial<JavaNodePrinters>;
+} satisfies Partial<NamedNodePrinters>;
 
 function printExpressionList(expressions: Doc[]) {
   return group(
