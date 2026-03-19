@@ -65,14 +65,14 @@ const updateTestOutput = async () => {
               await prettier.__debug.formatDoc(
                 await prettier.__debug.printToDoc(newExpectedText, {
                   parser: "java",
-                  plugins: [path.resolve(__dirname, "../dist/index.js")]
+                  plugins: [path.resolve(__dirname, "../dist/index.mjs")]
                 })
               )
             );
           }
           newExpectedText = await prettier.format(newExpectedText, {
             parser: "java",
-            plugins: [path.resolve(__dirname, "../dist/index.js")],
+            plugins: [path.resolve(__dirname, "../dist/index.mjs")],
             tabWidth: 2,
             endOfLine: "lf",
             ...testOptions

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { bench, do_not_optimize, run } from "mitata";
 import prettier from "prettier";
-import javaPlugin from "../dist/index.js";
+import javaPlugin from "../dist/index.mjs";
 
 const dir = "samples";
 const files = fs
