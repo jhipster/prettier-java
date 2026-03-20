@@ -12,7 +12,7 @@ jobs:
           - 24.x
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
       - uses: actions/setup-java@v3
@@ -36,7 +36,7 @@ jobs:
         node_version: [24.x]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
       - uses: actions/setup-java@v3
