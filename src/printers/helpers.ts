@@ -6,7 +6,7 @@ import {
   type NamedNode,
   type NamedType,
   type SyntaxNode
-} from "../node-types.js";
+} from "../node-types.ts";
 
 const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 

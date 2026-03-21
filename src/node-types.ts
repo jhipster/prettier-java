@@ -27,7 +27,7 @@ export interface UnnamedNode<
 }
 
 export interface CommentNode extends SyntaxNodeBase {
-  type: SyntaxType.BlockComment | SyntaxType.LineComment;
+  type: CommentType;
   leading: boolean;
   trailing: boolean;
   printed: boolean;
@@ -196,10 +196,9 @@ export const enum SyntaxType {
   VoidType = "void_type"
 }
 
-export type NamedType = Exclude<
-  SyntaxType,
-  SyntaxType.BlockComment | SyntaxType.LineComment
->;
+export type CommentType = SyntaxType.BlockComment | SyntaxType.LineComment;
+
+export type NamedType = Exclude<SyntaxType, CommentType>;
 
 export type UnnamedType =
   | "!"

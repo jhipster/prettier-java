@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../test-utils.ts";
 
 describe("Class Body", () => {
   it("should handle an empty class body", () => {

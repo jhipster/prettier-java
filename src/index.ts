@@ -1,8 +1,8 @@
 import type { Plugin } from "prettier";
-import type { SyntaxNode } from "./node-types.js";
-import options from "./options.js";
-import parser from "./parser.js";
-import printer from "./printer.js";
+import type { SyntaxNode } from "./node-types.ts";
+import options from "./options.ts";
+import parser from "./parser.ts";
+import printer from "./printer.ts";
 
 export default {
   languages: [

@@ -1,4 +1,4 @@
-import { printArrayInitializer, type NamedNodePrinters } from "./helpers.js";
+import { printArrayInitializer, type NamedNodePrinters } from "./helpers.ts";
 
 export default {
   array_initializer: printArrayInitializer

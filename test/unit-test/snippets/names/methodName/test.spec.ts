@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.ts";
 
 describe("MethodName", () => {
   it("can format a MethodName", () => {

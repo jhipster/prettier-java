@@ -1,7 +1,7 @@
-import fs from "node:fs";
+import { writeFileSync } from "node:fs";
 import nodeTypeInfo from "tree-sitter-java-orchard/src/node-types.json" with { type: "json" };
 
-fs.writeFileSync(
+writeFileSync(
   "src/node-types.ts",
   `interface Point {
   index: number;
@@ -30,7 +30,7 @@ export interface UnnamedNode<T extends UnnamedType = UnnamedType> extends Syntax
 }
 
 export interface CommentNode extends SyntaxNodeBase {
-  type: SyntaxType.BlockComment | SyntaxType.LineComment;
+  type: CommentType;
   leading: boolean;
   trailing: boolean;
   printed: boolean;
@@ -54,7 +54,9 @@ ${nodeTypeInfo
   .join("\n")}
 };
 
-export type NamedType = Exclude<SyntaxType, SyntaxType.BlockComment | SyntaxType.LineComment>;
+export type CommentType = SyntaxType.BlockComment | SyntaxType.LineComment;
+
+export type NamedType = Exclude<SyntaxType, CommentType>;
 
 export type UnnamedType = ${nodeTypeInfo
     .filter(({ named }) => !named)

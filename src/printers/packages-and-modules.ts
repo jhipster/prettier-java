@@ -1,6 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType, type NamedNode } from "../node-types.js";
+import { SyntaxType, type NamedNode } from "../node-types.ts";
 import {
   printBlock,
   printDanglingComments,
@@ -8,7 +8,7 @@ import {
   type NamedNodePath,
   type NamedNodePrinters,
   type PrintFunction
-} from "./helpers.js";
+} from "./helpers.ts";
 
 const { group, hardline, indent, join, line } = builders;
 

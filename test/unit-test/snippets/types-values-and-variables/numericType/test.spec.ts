@@ -1,4 +1,4 @@
-import { formatJavaSnippet } from "../../../../test-utils.js";
+import { formatJavaSnippet } from "../../../../test-utils.ts";
 
 describe("numericType", () => {
   it("can format byte keyword", async () => {

@@ -1,8 +1,8 @@
-import { dirname, resolve } from "path";
-import url from "url";
-import { testRepositorySample } from "../test-utils.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { testRepositorySample } from "../test-utils.ts";
 
-const __dirname = dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const jhipsterRepository = [
   "jhipster-sample-app-elasticsearch",
   "jhipster-sample-app-dto",
@@ -14,7 +14,7 @@ const jhipsterRepository = [
 describe("prettier-java", () => {
   jhipsterRepository.forEach(repository => {
     testRepositorySample(
-      resolve(__dirname, `../../samples/${repository}`),
+      path.resolve(__dirname, `../../samples/${repository}`),
       "./mvnw",
       ["compile"]
     );

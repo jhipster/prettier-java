@@ -1,17 +1,13 @@
-/*eslint no-console: ["error", { allow: ["error"] }] */
-
 import { expect } from "chai";
-import { spawnSync } from "child_process";
-import fs from "fs-extra";
-import klawSync from "klaw-sync";
-import { basename, dirname, relative, resolve } from "path";
-import { format } from "prettier";
-import url from "url";
-import plugin from "../src/index.js";
+import { spawnSync } from "node:child_process";
+import { cpSync, existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import prettier from "prettier";
+import plugin from "../src/index.ts";
 
-const { readFileSync, existsSync, removeSync, copySync } = fs;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const __dirname = dirname(url.fileURLToPath(import.meta.url));
 export function testSampleWithOptions({
   testFolder,
   exclusive
@@ -20,19 +16,18 @@ export function testSampleWithOptions({
   exclusive?: boolean;
 }) {
   const itOrItOnly = exclusive ? it.only : it;
-  const inputPath = resolve(testFolder, "_input.java");
-  const expectedPath = resolve(testFolder, "_output.java");
-  const relativeInputPath = relative(__dirname, inputPath);
+  const inputPath = path.resolve(testFolder, "_input.java");
+  const expectedPath = path.resolve(testFolder, "_output.java");
+  const relativeInputPath = path.relative(__dirname, inputPath);
 
   let inputContents: string;
   let expectedContents: string;
 
-  const prettierrcPath = resolve(testFolder, ".prettierrc.json");
+  const prettierrcPath = path.resolve(testFolder, ".prettierrc.json");
   const prettierOptions = existsSync(prettierrcPath)
-    ? fs.readJsonSync(prettierrcPath)
+    ? JSON.parse(readFileSync(prettierrcPath, "utf-8"))
     : {};
 
-  // @ts-ignore
   before(() => {
     inputContents = readFileSync(inputPath, "utf8");
     expectedContents = readFileSync(expectedPath, "utf8");
@@ -73,33 +68,28 @@ export function testRepositorySample(
   describe(`Prettify the repository <${testFolder}>`, function () {
     this.timeout(0);
 
-    const testsamples = resolve(__dirname, "../test-samples");
-    const samplesDir = resolve(testsamples, basename(testFolder));
+    const testsamples = path.resolve(__dirname, "../test-samples");
+    const samplesDir = path.resolve(testsamples, path.basename(testFolder));
 
     if (existsSync(samplesDir)) {
-      removeSync(samplesDir);
+      rmSync(samplesDir, { recursive: true });
     }
-    copySync(testFolder, samplesDir);
+    cpSync(testFolder, samplesDir, { recursive: true });
 
-    const sampleFiles = klawSync(resolve(__dirname, samplesDir), {
-      nodir: true
-    });
-    const javaSampleFiles = sampleFiles.filter(fileDesc =>
-      fileDesc.path.endsWith(".java")
-    );
+    readdirSync(samplesDir, { encoding: "utf-8", recursive: true })
+      .filter(filePath => filePath.endsWith(".java"))
+      .forEach(filePath => {
+        it(`Performs a stable formatting for <${filePath}>`, async () => {
+          const javaFileText = readFileSync(
+            path.join(samplesDir, filePath),
+            "utf8"
+          );
 
-    javaSampleFiles.forEach(fileDesc => {
-      it(`Performs a stable formatting for <${relative(
-        samplesDir,
-        fileDesc.path
-      )}>`, async () => {
-        const javaFileText = readFileSync(fileDesc.path, "utf8");
-
-        const onePass = await formatJavaSnippet({ snippet: javaFileText });
-        const secondPass = await formatJavaSnippet({ snippet: onePass });
-        expect(onePass).to.equal(secondPass);
+          const onePass = await formatJavaSnippet({ snippet: javaFileText });
+          const secondPass = await formatJavaSnippet({ snippet: onePass });
+          expect(onePass).to.equal(secondPass);
+        });
       });
-    });
 
     it(`verify semantic validity ${testFolder}`, function () {
       const code = spawnSync(command, args, {
@@ -124,9 +114,9 @@ export async function formatJavaSnippet({
   prettierOptions = {}
 }: {
   snippet: string;
-  prettierOptions?: any;
+  prettierOptions?: Record<string, unknown>;
 }) {
-  return await format(snippet, {
+  return await prettier.format(snippet, {
     parser: "java",
     plugins: [plugin],
     ...prettierOptions
@@ -140,7 +130,7 @@ export async function expectSnippetToBeFormatted({
 }: {
   snippet: string;
   expectedOutput: string;
-  prettierOptions?: any;
+  prettierOptions?: Record<string, unknown>;
 }) {
   const onePass = await formatJavaSnippet({
     snippet,
