@@ -1,7 +1,7 @@
 import { util, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { printComments, printCommentsSeparately } from "../comments.js";
-import { SyntaxType, type NamedNode } from "../node-types.js";
+import { printComments, printCommentsSeparately } from "../comments.ts";
+import { SyntaxType, type NamedNode } from "../node-types.ts";
 import {
   hasChild,
   hasLeadingComments,
@@ -12,7 +12,7 @@ import {
   type NamedNodePath,
   type NamedNodePrinters,
   type PrintFunction
-} from "./helpers.js";
+} from "./helpers.ts";
 
 const {
   align,

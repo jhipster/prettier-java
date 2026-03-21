@@ -1,10 +1,9 @@
-/* eslint-disable no-console */
-import cp from "child_process";
-import path from "path";
-import fs from "fs-extra";
-import url from "url";
+import { execSync } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const samplesDir = path.resolve(__dirname, "../samples");
 
 const core = [
@@ -86,23 +85,24 @@ if (process.argv.length === 3) {
   }
 }
 
-fs.emptyDirSync(samplesDir);
+rmSync(samplesDir, { force: true, recursive: true });
+mkdirSync(samplesDir);
 
 sampleRepos.forEach(cloneRepo);
 
 function cloneRepo({ repoUrl, branch, commitHash }) {
   console.log(`cloning ${repoUrl}`);
   if (commitHash) {
-    cp.execSync(`git clone ${repoUrl} --branch ${branch}`, {
+    execSync(`git clone ${repoUrl} --branch ${branch}`, {
       cwd: samplesDir,
       stdio: [0, 1, 2]
     });
-    cp.execSync(`git checkout ${commitHash}`, {
+    execSync(`git checkout ${commitHash}`, {
       cwd: path.resolve(samplesDir, repoUrl.split("/").pop()),
       stdio: [0, 1, 2]
     });
   } else {
-    cp.execSync(`git clone ${repoUrl} --branch ${branch} --depth 1`, {
+    execSync(`git clone ${repoUrl} --branch ${branch} --depth 1`, {
       cwd: samplesDir,
       stdio: [0, 1, 2]
     });

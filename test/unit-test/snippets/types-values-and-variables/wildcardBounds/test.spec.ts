@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.ts";
 
 describe("Wildcard Bounds", () => {
   it("can format a wildcardBounds with extends", async () => {

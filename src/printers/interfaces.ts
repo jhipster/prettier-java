@@ -1,6 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../node-types.js";
+import { SyntaxType } from "../node-types.ts";
 import {
   hasChild,
   indentInParentheses,
@@ -10,7 +10,7 @@ import {
   printModifiers,
   printVariableDeclaration,
   type NamedNodePrinters
-} from "./helpers.js";
+} from "./helpers.ts";
 
 const { group, indent, join, line } = builders;
 

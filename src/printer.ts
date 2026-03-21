@@ -6,14 +6,14 @@ import {
   isFullyBetweenPrettierIgnore,
   isPrettierIgnore,
   willPrintOwnComments
-} from "./comments.js";
-import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
+} from "./comments.ts";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
   printComment,
   printValue,
   type NamedNodePath
-} from "./printers/helpers.js";
-import { printerForNodeType } from "./printers/index.js";
+} from "./printers/helpers.ts";
+import { printerForNodeType } from "./printers/index.ts";
 
 export default {
   print(path, options, print, args) {

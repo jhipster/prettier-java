@@ -1,14 +1,14 @@
 import { util, type AstPath, type Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
-import parser from "./parser.js";
-import printer from "./printer.js";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
+import parser from "./parser.ts";
+import printer from "./printer.ts";
 import {
   hasChild,
   printComment,
   type JavaParserOptions,
   type NamedNodePath
-} from "./printers/helpers.js";
+} from "./printers/helpers.ts";
 
 const { hasNewline, isPreviousLineEmpty, skipNewline, skipSpaces } = util;
 const { breakParent, hardline, line, lineSuffix } = builders;

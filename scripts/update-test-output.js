@@ -1,29 +1,33 @@
-/* eslint-disable no-console */
-import klawSync from "klaw-sync";
-import path from "path";
-import fs from "fs-extra";
+import {
+  cpSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import prettier from "prettier";
-import url from "url";
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const updateTestOutput = async () => {
   let samplesDir = path.resolve(__dirname, "../test/unit-test");
-  let originalSamplesDir = samplesDir;
   if (process.argv.indexOf("-single") > -1) {
     samplesDir = path.resolve(__dirname, "./single-printer-run");
   } else if (process.argv.indexOf("-repository") > -1) {
     const testSamples = path.resolve(__dirname, "../test-samples");
-    originalSamplesDir = path.resolve(
+    const originalSamplesDir = path.resolve(
       __dirname,
       process.argv[process.argv.indexOf("-repository") + 1]
     );
     samplesDir = path.resolve(testSamples, path.basename(originalSamplesDir));
-    if (fs.existsSync(samplesDir)) {
-      fs.removeSync(samplesDir);
+    if (existsSync(samplesDir)) {
+      rmSync(samplesDir, { recursive: true });
     }
     console.log(`start copy ${originalSamplesDir} to ${samplesDir}`);
-    fs.copySync(originalSamplesDir, samplesDir);
+    cpSync(originalSamplesDir, samplesDir, { recursive: true });
     console.log(`end copy ${originalSamplesDir} to ${samplesDir}`);
   }
 
@@ -32,30 +36,35 @@ const updateTestOutput = async () => {
     numberOfTime = process.argv[process.argv.indexOf("-times") + 1];
   }
 
-  const sampleFiles = klawSync(samplesDir, { nodir: true });
-  const javaSampleFiles = sampleFiles.filter(fileDesc => {
-    if (fileDesc.path.includes("node_modules")) {
-      return false;
-    }
-    if (process.argv.indexOf("-repository") > -1) {
-      return fileDesc.path.endsWith(".java");
-    }
-    return fileDesc.path.endsWith("input.java");
+  const sampleFiles = readdirSync(samplesDir, {
+    encoding: "utf-8",
+    recursive: true
   });
+  const javaSampleFiles = sampleFiles
+    .filter(filePath => {
+      if (filePath.includes("node_modules")) {
+        return false;
+      }
+      if (process.argv.indexOf("-repository") > -1) {
+        return filePath.endsWith(".java");
+      }
+      return filePath.endsWith("input.java");
+    })
+    .map(filePath => path.join(samplesDir, filePath));
 
   let failures = 0;
   await Promise.all(
-    javaSampleFiles.map(async fileDesc => {
-      const javaFileText = fs.readFileSync(fileDesc.path, "utf8");
+    javaSampleFiles.map(async filePath => {
+      const javaFileText = readFileSync(filePath, "utf8");
 
       try {
-        console.log(`Reading <${fileDesc.path}>`);
+        console.log(`Reading <${filePath}>`);
         let newExpectedText = javaFileText;
 
-        const testDir = path.dirname(fileDesc.path);
+        const testDir = path.dirname(filePath);
         const optionsPath = path.join(testDir, ".prettierrc.json");
-        const testOptions = fs.existsSync(optionsPath)
-          ? fs.readJsonSync(optionsPath)
+        const testOptions = existsSync(optionsPath)
+          ? JSON.parse(readFileSync(optionsPath, "utf-8"))
           : {};
 
         for (let i = 0; i < numberOfTime; i++) {
@@ -78,18 +87,15 @@ const updateTestOutput = async () => {
             ...testOptions
           });
         }
-        let outputFilePath = fileDesc.path.replace(
-          /input.java$/,
-          "output.java"
-        );
+        let outputFilePath = filePath.replace(/input.java$/, "output.java");
         if (process.argv.indexOf("-repository") > -1) {
-          outputFilePath = fileDesc.path;
+          outputFilePath = filePath;
         }
         console.log(`writing <${outputFilePath}>`);
-        fs.writeFileSync(outputFilePath, newExpectedText);
+        writeFileSync(outputFilePath, newExpectedText);
       } catch (e) {
         failures++;
-        console.log(`Failed parsing: <${fileDesc.path}>`);
+        console.log(`Failed parsing: <${filePath}>`);
         console.log(e);
       }
     })

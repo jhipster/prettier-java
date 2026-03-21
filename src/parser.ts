@@ -1,8 +1,8 @@
 import type Prettier from "prettier";
 import nodeTypeInfo from "tree-sitter-java-orchard/src/node-types.json" with { type: "json" };
 import { Language, Parser, type Node } from "web-tree-sitter";
-import { determinePrettierIgnoreRanges } from "./comments.js";
-import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.js";
+import { determinePrettierIgnoreRanges } from "./comments.ts";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 
 export default {
   async parse(text) {

@@ -1,18 +1,18 @@
-import type { NamedType } from "../node-types.js";
-import arrays from "./arrays.js";
-import blocksAndStatements from "./blocks-and-statements.js";
-import classes from "./classes.js";
-import expressions from "./expressions.js";
+import type { NamedType } from "../node-types.ts";
+import arrays from "./arrays.ts";
+import blocksAndStatements from "./blocks-and-statements.ts";
+import classes from "./classes.ts";
+import expressions from "./expressions.ts";
 import {
   printValue,
   type NamedNodePrinter,
   type NamedNodePrinters
-} from "./helpers.js";
-import interfaces from "./interfaces.js";
-import lexicalStructure from "./lexical-structure.js";
-import names from "./names.js";
-import packagesAndModules from "./packages-and-modules.js";
-import typesValuesAndVariables from "./types-values-and-variables.js";
+} from "./helpers.ts";
+import interfaces from "./interfaces.ts";
+import lexicalStructure from "./lexical-structure.ts";
+import names from "./names.ts";
+import packagesAndModules from "./packages-and-modules.ts";
+import typesValuesAndVariables from "./types-values-and-variables.ts";
 
 const printersByNodeType: NamedNodePrinters = {
   ERROR(path) {

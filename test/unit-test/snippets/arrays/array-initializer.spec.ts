@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../test-utils.ts";
 
 describe("Arrays Initializer", () => {
   it("can format an empty arrayInitializer", () => {

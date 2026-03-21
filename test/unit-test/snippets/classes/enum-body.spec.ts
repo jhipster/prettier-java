@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../test-utils.ts";
 
 describe("Enum Body", () => {
   it("Remove trailing comma by default", () => {

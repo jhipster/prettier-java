@@ -1,5 +1,5 @@
 import { builders } from "prettier/doc";
-import { printValue, type NamedNodePrinters } from "./helpers.js";
+import { printValue, type NamedNodePrinters } from "./helpers.ts";
 
 const { group, indent, join, line, softline } = builders;
 

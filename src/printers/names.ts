@@ -1,5 +1,5 @@
-import { SyntaxType } from "../node-types.js";
-import { printValue, type NamedNodePrinters } from "./helpers.js";
+import { SyntaxType } from "../node-types.ts";
+import { printValue, type NamedNodePrinters } from "./helpers.ts";
 
 export default {
   identifier: printValue,

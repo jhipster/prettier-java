@@ -1,8 +1,8 @@
-import path from "path";
-import url from "url";
-import { testSample, testSampleWithOptions } from "../../test-utils.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { testSample, testSampleWithOptions } from "../../test-utils.ts";
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe("prettier-java", () => {
   testSampleWithOptions({

@@ -1,10 +1,10 @@
 import { builders } from "prettier/doc";
-import { SyntaxType, type NamedNode } from "../node-types.js";
+import { SyntaxType, type NamedNode } from "../node-types.ts";
 import {
   findBaseIndent,
   printValue,
   type NamedNodePrinters
-} from "./helpers.js";
+} from "./helpers.ts";
 
 const { group, hardline, indent, join, softline } = builders;
 

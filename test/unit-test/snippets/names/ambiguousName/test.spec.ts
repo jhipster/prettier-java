@@ -1,4 +1,4 @@
-import { expectSnippetToBeFormatted } from "../../../../test-utils.js";
+import { expectSnippetToBeFormatted } from "../../../../test-utils.ts";
 
 describe("AmbiguousName", () => {
   it("can format a AmbiguousName without dots", () => {

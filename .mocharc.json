@@ -1,4 +1,4 @@
 {
   "extension": ["ts"],
-  "node-option": ["loader=ts-node/esm", "no-warnings"]
+  "node-option": ["experimental-transform-types"]
 }
