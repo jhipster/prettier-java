@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: "prettier-java"
       - uses: actions/setup-node@v6
@@ -23,7 +23,7 @@ jobs:
           sudo apt install jq
           npm i -g pkg
       - name: Checkout Prettier
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           repository: prettier/prettier
           ref: refs/tags/${{ env.PRETTIER_CORE_LIB_VERSION }}
