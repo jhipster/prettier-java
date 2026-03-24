@@ -318,6 +318,22 @@ export type UnnamedType =
 
 export type TypeString = NamedType | UnnamedType;
 
+export const multiFieldsByType: Partial<
+  Record<string, Partial<Record<string, true>>>
+> = {
+  array_creation_expression: { dimensions: true },
+  cast_expression: { type: true },
+  constant_declaration: { declarator: true },
+  exports_module_directive: { modules: true },
+  field_declaration: { declarator: true },
+  for_statement: { init: true, update: true },
+  local_variable_declaration: { declarator: true },
+  opens_module_directive: { modules: true },
+  provides_module_directive: { provider: true },
+  requires_module_directive: { modifiers: true },
+  spread_parameter: { annotations: true }
+};
+
 export type SyntaxNode =
   | ErrorNode
   | LiteralNode

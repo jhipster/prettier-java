@@ -1,8 +1,12 @@
 import type Prettier from "prettier";
-import nodeTypeInfo from "tree-sitter-java-orchard/src/node-types.json" with { type: "json" };
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { determinePrettierIgnoreRanges } from "./comments.ts";
-import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
+import {
+  multiFieldsByType,
+  SyntaxType,
+  type CommentNode,
+  type SyntaxNode
+} from "./node-types.ts";
 
 export default {
   async parse(text) {
@@ -44,18 +48,6 @@ const parser = (async () => {
   return parser;
 })();
 
-const multipleFieldsByType = nodeTypeInfo.reduce((map, nodeInfo) => {
-  if ("fields" in nodeInfo && nodeInfo.fields) {
-    const fields = Object.entries(nodeInfo.fields)
-      .filter(([, { multiple }]) => multiple)
-      .map(([name]) => name);
-    if (fields.length) {
-      map.set(nodeInfo.type, new Set(fields));
-    }
-  }
-  return map;
-}, new Map<string, Set<string>>());
-
 function processTree(
   node: Node,
   fieldName: string | null = null,
@@ -92,8 +84,10 @@ function processTree(
     return javaNode;
   }
 
-  const multipleFields = multipleFieldsByType.get(node.type);
-  multipleFields?.forEach(name => (javaNode[`${name}Nodes`] = []));
+  const multiFields = multiFieldsByType[node.type];
+  if (multiFields) {
+    Object.keys(multiFields).forEach(name => (javaNode[`${name}Nodes`] = []));
+  }
 
   node.children.forEach((child, index) => {
     const { type, text: value, startPosition, endPosition } = child;
@@ -125,7 +119,7 @@ function processTree(
       }
 
       if (fieldName) {
-        if (multipleFields?.has(fieldName)) {
+        if (multiFields?.[fieldName]) {
           javaNode[`${fieldName}Nodes`].push(javaChild);
         } else {
           javaNode[`${fieldName}Node`] = javaChild;

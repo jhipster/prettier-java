@@ -52,7 +52,6 @@
     ]
   },
   "dependencies": {
-    "tree-sitter-java-orchard": "0.5.4",
     "web-tree-sitter": "0.26.6"
   },
   "devDependencies": {
@@ -69,6 +68,7 @@
     "mitata": "^1.0.34",
     "mocha": "^11.7.5",
     "prettier": "^3.8.1",
+    "tree-sitter-java-orchard": "0.5.4",
     "tsdown": "^0.21.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1"

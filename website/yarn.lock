@@ -6618,11 +6618,6 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-addon-api@^8.3.1:
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-8.6.0.tgz#b22497201b465cd0a92ef2c01074ee5068c79a6d"
-  integrity sha512-gBVjCaqDlRUk0EwoPNKzIr9KkS9041G/q31IBShPs1Xz6UTA+EXdZADbzqAJQrpDRq71CIMnOP5VMut3SL0z5Q==
-
 node-emoji@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/node-emoji/-/node-emoji-2.2.0.tgz#1d000e3c76e462577895be1b436f4aa2d6760eb0"
@@ -6632,11 +6627,6 @@ node-emoji@^2.1.0:
     char-regex "^1.0.2"
     emojilib "^2.4.0"
     skin-tone "^2.0.0"
-
-node-gyp-build@^4.8.4:
-  version "4.8.4"
-  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.8.4.tgz#8a70ee85464ae52327772a90d66c6077a900cfc8"
-  integrity sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==
 
 node-releases@^2.0.27:
   version "2.0.36"
@@ -8685,14 +8675,6 @@ tree-dump@^1.0.3, tree-dump@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/tree-dump/-/tree-dump-1.1.0.tgz#ab29129169dc46004414f5a9d4a3c6e89f13e8a4"
   integrity sha512-rMuvhU4MCDbcbnleZTFezWsaZXRFemSqAM+7jPnzUl1fo9w3YEKOxAeui0fz3OI4EU4hf23iyA7uQRVko+UaBA==
-
-tree-sitter-java-orchard@0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.4.tgz#8c698a57566ff99ce979bf3f53a313f0f7888eec"
-  integrity sha512-MpEi4ic9ksqU9CerMt0XXxOJN5CfDsosGrop++4z6Z9XRkT86bu+I/7LCNJS0rrvA5SoY2t98icBeotSaTtY4A==
-  dependencies:
-    node-addon-api "^8.3.1"
-    node-gyp-build "^4.8.4"
 
 trim-lines@^3.0.0:
   version "3.0.1"
