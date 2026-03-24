@@ -97,11 +97,8 @@ export default {
             ? {}
             : {
                 fallback: {
-                  fs: false,
                   "fs/promises": false,
-                  module: false,
-                  os: false,
-                  path: false
+                  module: false
                 }
               },
           externals: isServer

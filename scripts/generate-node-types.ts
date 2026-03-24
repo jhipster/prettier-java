@@ -65,6 +65,30 @@ export type UnnamedType = ${nodeTypeInfo
 
 export type TypeString = NamedType | UnnamedType;
 
+export const multiFieldsByType: Partial<Record<string, Partial<Record<string, true>>>> = ${JSON.stringify(
+    nodeTypeInfo.reduce(
+      (acc, nodeInfo) => {
+        if ("fields" in nodeInfo && nodeInfo.fields) {
+          const multiFields = Object.entries(nodeInfo.fields)
+            .filter(([, { multiple }]) => multiple)
+            .reduce(
+              (fieldAcc, [name]) => {
+                fieldAcc[name] = true;
+                return fieldAcc;
+              },
+              {} as Record<string, boolean>
+            );
+
+          if (Object.keys(multiFields).length > 0) {
+            acc[nodeInfo.type] = multiFields;
+          }
+        }
+        return acc;
+      },
+      {} as Record<string, Record<string, boolean>>
+    )
+  )};
+
 export type SyntaxNode = ErrorNode | ${nodeTypeInfo
     .filter(({ type }) => !type.endsWith("_comment"))
     .map(getTypeExprFromRef)
