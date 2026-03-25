@@ -4771,10 +4771,10 @@ tree-kill@^1.2.2:
   resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.2.tgz#4ca09a9092c88b73a7cdc5e8a01b507b0790a0cc"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-tree-sitter-java-orchard@0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.4.tgz#8c698a57566ff99ce979bf3f53a313f0f7888eec"
-  integrity sha512-MpEi4ic9ksqU9CerMt0XXxOJN5CfDsosGrop++4z6Z9XRkT86bu+I/7LCNJS0rrvA5SoY2t98icBeotSaTtY4A==
+tree-sitter-java-orchard@0.5.6:
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.6.tgz#9bcac73eee928ef8fbf4c2c8c57de2d0627711b3"
+  integrity sha512-nn6D9bE73ltYTtLudi3fxJ4/lFQCcRyXb9qaVRGOcv5Xi+y0xQNZ/z4PJaVki+KqaiIcR70tViZztLhnSvouYA==
   dependencies:
     node-addon-api "^8.3.1"
     node-gyp-build "^4.8.4"
@@ -4963,10 +4963,10 @@ wcwidth@^1.0.0, wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-tree-sitter@0.26.6:
-  version "0.26.6"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.26.6.tgz#9e4ed73f1d6fde58e7742cebf89be7eb1f6d3814"
-  integrity sha512-fSPR7VBW/fZQdUSp/bXTDLT+i/9dwtbnqgEBMzowrM4U3DzeCwDbY3MKo0584uQxID4m/1xpLflrlT/rLIRPew==
+web-tree-sitter@0.26.7:
+  version "0.26.7"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.26.7.tgz#09fde4367c464fe56dec9bf1240014a3d269d988"
+  integrity sha512-KiZhelTvBA/ziUHEO7Emb75cGVAq8iGZNabYaZm53Zpy50NsXyOW+xSHlwHt5CVg/TRPZBfeVLTTobF0LjFJ1w==
 
 which@^2.0.1:
   version "2.0.2"

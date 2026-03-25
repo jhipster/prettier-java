@@ -298,8 +298,9 @@ export default {
     return group(
       indent(
         path.map(child => {
+          const doc = print(child, { annotationMode: "noBreak" });
           if (!child.previous) {
-            return print(child);
+            return doc;
           }
 
           const separator = (
@@ -310,7 +311,7 @@ export default {
             ? line
             : " ";
 
-          return [separator, print(child)];
+          return [separator, doc];
         }, "children")
       )
     );

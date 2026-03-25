@@ -58,4 +58,15 @@ public class Cast {
       ).get(1)
     ).get(1);
   }
+
+  void intersectionCastExpression() {
+    Object o1 = (A & B) (C) o;
+    Object o2 = (A & B) ~0;
+    Object o3 = (A & B) switch (x) {
+      default -> null;
+    };
+    Object o4 = (A & B) !x;
+    Object o5 = (A & B) + x;
+    Object o6 = (A & B) - x;
+  }
 }

@@ -340,4 +340,13 @@ public class Expressions {
     Aaaaaaaaaa aaaaaaaaaa = (bbbbbbbbbb ->
       cccccccccc ? dddddddddd : eeeeeeeeee)[ffffffffff];
   }
+
+  void unaryExpression() {
+    int a = +x;
+    int b = -x;
+    int c = ~x;
+    boolean d = !x;
+    int e = ~~x;
+    int f = -+x;
+  }
 }
