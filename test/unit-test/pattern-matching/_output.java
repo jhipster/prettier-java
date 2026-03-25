@@ -66,6 +66,12 @@ class T {
   }
 
   int recordPatterns(MyRecord r) {
+    if (o instanceof Foo(@Bar String s)) {
+    }
+    switch (obj) {
+      case final String s:
+        break;
+    }
     return switch (r) {
       case null, default -> 0;
       case MyRecord(A a) -> 0;
@@ -104,6 +110,9 @@ class T {
         longVariableName,
         longVariableName
       );
+      case Outer.Inner(String s) -> {
+      }
+      case final String s -> s;
     };
   }
 }

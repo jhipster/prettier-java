@@ -129,5 +129,16 @@ public class BinaryOperations {
       Foo.get(longlinelonglinelonglinelonglinelongline) instanceof
       NumberNumberNumberNumber n &&
       n.foo();
+
+    e instanceof @Ann final E baz;
+    f instanceof final @Ann E qux;
+  }
+
+  void unaryExpression() {
+    int a = -x + y;
+    int b = ~x & y;
+    boolean c = !x && !y;
+    int d = -(x + y);
+    Object e = (int) -x;
   }
 }

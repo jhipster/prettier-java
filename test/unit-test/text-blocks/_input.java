@@ -55,4 +55,17 @@ aoeu
     );
   }
 
+  String escapes = """
+    1+1 equals \
+    2 maybe
+    """;
+
+  String escapes = """
+    \"""var msg = hello world!\""";
+    """;
+
+  String escapes = """
+    \n\t\r\f\b\s\\
+    \077
+    \u0041""";
 }

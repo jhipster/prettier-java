@@ -4,7 +4,7 @@ import { cpSync, existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import prettier from "prettier";
-import plugin from "../src/index.ts";
+import plugin from "../dist/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

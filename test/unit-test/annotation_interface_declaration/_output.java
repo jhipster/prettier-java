@@ -26,4 +26,6 @@ public @interface AnnotationInterfaceDeclaration {
     "Ten",
   })
   V[][] annotatedArray = (V[][]) new Object[rowList.size()][columnList.size()];
+
+  record Config(String a, String b) {}
 }

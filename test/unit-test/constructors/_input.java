@@ -49,4 +49,14 @@ public class Constructors {
 
   public <T> GenericConstructor(T genericParameter) {}
   public <T>GenericConstructor(T genericParameter) {}
+
+  FlexibleConstructorBody(int x) {
+    this.x = x;
+    super(x);
+  }
+
+  FlexibleConstructorBody() {
+    var v = 42;
+    this(v);
+  }
 }

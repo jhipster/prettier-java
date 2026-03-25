@@ -1037,7 +1037,7 @@ export interface InstanceofExpressionNode extends NamedNodeBase {
   leftNode: ExpressionNode;
   nameNode?: IdentifierNode;
   patternNode?: RecordPatternNode;
-  rightNode?: TypeNode;
+  rightNode?: UnannotatedTypeNode;
 }
 
 export interface IntegralTypeNode extends NamedNodeBase {

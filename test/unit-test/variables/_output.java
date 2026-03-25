@@ -58,8 +58,27 @@ public class Variables {
   );
   private Range<Date> creator3 = new <Integer>Range<>(from, to);
 
+  private int intLiteral = 1__0;
+  private int intLiteral = 0_00_00;
+  private int intLiteral = 0_7;
+  private int intLiteral = 0__7;
   private int hexLiteral = 0x0000;
+  private int hexLiteral = 0xa__b;
+  private int hexLiteral = 0x1p0993;
+  private int hexLiteral = 0x1p-0993;
   private int octLiteral = 001;
+  private int binaryLiteral = 0b1__0;
+  private double floatingPointLiteral = 0d;
+  private double floatingPointLiteral = 0D;
+  private double floatingPointLiteral = 00d;
+  private double floatingPointLiteral = 1.0d;
+  private double floatingPointLiteral = 1.0D;
+  private float floatingPointLiteral = 1.0f;
+  private float floatingPointLiteral = 1.0F;
+  private float floatingPointLiteral = 1e4f;
+  private double floatingPointLiteral = 1e4d;
+  private float floatingPointLiteral = 007f;
+  private double floatingPointLiteral = 00e1;
 
   private Interface anonymousClassVariable = new Interface() {
     @Override
