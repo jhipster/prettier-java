@@ -52,7 +52,7 @@
     ]
   },
   "dependencies": {
-    "web-tree-sitter": "0.26.7"
+    "web-tree-sitter": "0.26.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
