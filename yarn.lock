@@ -4302,10 +4302,10 @@ rfdc@^1.4.1:
   resolved "https://registry.yarnpkg.com/rfdc/-/rfdc-1.4.1.tgz#778f76c4fb731d93414e8f925fbecf64cce7f6ca"
   integrity sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==
 
-rolldown-plugin-dts@^0.23.0:
-  version "0.23.1"
-  resolved "https://registry.yarnpkg.com/rolldown-plugin-dts/-/rolldown-plugin-dts-0.23.1.tgz#c790e60773663e41428a20a5e5ec026cfddf0a73"
-  integrity sha512-VTnvu5cksnumMMOiL7FUvACGpdGtCVNGbeVc6/6KffImIrA0DZOp7/0lBIt0qI6Nu3/K/lL/Dy7piuVGt9ZeGw==
+rolldown-plugin-dts@^0.23.2:
+  version "0.23.2"
+  resolved "https://registry.yarnpkg.com/rolldown-plugin-dts/-/rolldown-plugin-dts-0.23.2.tgz#4dbaae967b38deb8d414a8438552059b734791ec"
+  integrity sha512-PbSqLawLgZBGcOGT3yqWBGn4cX+wh2nt5FuBGdcMHyOhoukmjbhYAl8NT9sE4U38Cm9tqLOIQeOrvzeayM0DLQ==
   dependencies:
     "@babel/generator" "8.0.0-rc.3"
     "@babel/helper-validator-identifier" "8.0.0-rc.3"
@@ -4316,6 +4316,7 @@ rolldown-plugin-dts@^0.23.0:
     dts-resolver "^2.1.3"
     get-tsconfig "^4.13.7"
     obug "^2.1.1"
+    picomatch "^4.0.4"
 
 rolldown@1.0.0-rc.12:
   version "1.0.0-rc.12"
@@ -4784,9 +4785,9 @@ tsconfig-paths@^4.1.2:
     strip-bom "^3.0.0"
 
 tsdown@^0.21.4:
-  version "0.21.6"
-  resolved "https://registry.yarnpkg.com/tsdown/-/tsdown-0.21.6.tgz#8e4cd6d4d5ce37f72c474bc18cc2d62326395ced"
-  integrity sha512-YsgPuWczqxPkXiJwMPrv3eOiqx4KPhOdksqubVCDhS7lChK3RYlWsEGhZixc0+lqN3fmBYEnETaujEWDpMPZmA==
+  version "0.21.7"
+  resolved "https://registry.yarnpkg.com/tsdown/-/tsdown-0.21.7.tgz#38afb8874e1e6a7051a2711b1ca2b74e2f9505e7"
+  integrity sha512-ukKIxKQzngkWvOYJAyptudclkm4VQqbjq+9HF5K5qDO8GJsYtMh8gIRwicbnZEnvFPr6mquFwYAVZ8JKt3rY2g==
   dependencies:
     ansis "^4.2.0"
     cac "^7.0.0"
@@ -4797,7 +4798,7 @@ tsdown@^0.21.4:
     obug "^2.1.1"
     picomatch "^4.0.4"
     rolldown "1.0.0-rc.12"
-    rolldown-plugin-dts "^0.23.0"
+    rolldown-plugin-dts "^0.23.2"
     semver "^7.7.4"
     tinyexec "^1.0.4"
     tinyglobby "^0.2.15"
