@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "types": ["emscripten"],
+    "module": "esnext",
+    "types": ["emscripten", "mocha", "node"],
     "allowImportingTsExtensions": true,
     "declaration": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["scripts", "src", "test"]
 }
