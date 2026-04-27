@@ -1,14 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "outDir": "dist",
-    "strict": true,
+    "rootDir": "src",
+    "types": ["emscripten"],
+    "allowImportingTsExtensions": true,
     "declaration": true,
-    "esModuleInterop": true,
-    "noImplicitThis": false,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "rewriteRelativeImportExtensions": true
+    "noEmit": true
   },
   "include": ["src"]
 }
