@@ -351,19 +351,12 @@ export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
     textToDoc: (text: string, options: Options) => Promise<Doc>
   ) => {
     const doc = await textToDoc(text, { parser: language });
-    return printTextBlock(path, escapeDocForTextBlock(doc));
+    return printTextBlock(path, [escapeDocForTextBlock(doc), hardline]);
   };
 }
 
 export function textBlockContents(node: NamedNode<SyntaxType.StringLiteral>) {
-  const lines = node.value
-    .replace(
-      /(?<=^|[^\\])((?:\\\\)*)\\u+([0-9a-fA-F]{4})/g,
-      (_, backslashPairs: string, hex: string) =>
-        backslashPairs + String.fromCharCode(parseInt(hex, 16))
-    )
-    .split("\n")
-    .slice(1);
+  const lines = node.value.split("\n").slice(1);
   const baseIndent = findBaseIndent(lines);
   return lines
     .map(line => line.slice(baseIndent))
@@ -394,39 +387,28 @@ function findEmbeddedLanguage(path: NamedNodePath) {
 function escapeDocForTextBlock(doc: Doc) {
   return mapDoc(doc, currentDoc =>
     typeof currentDoc === "string"
-      ? currentDoc.replace(/\\|"""/g, match => `\\${match}`)
+      ? currentDoc.replace(/\\|"""/g, match =>
+          match === "\\" ? "\\\\" : '""\\"'
+        )
       : currentDoc
   );
 }
 
 function unescapeTextBlockContents(text: string) {
-  return text.replace(
-    /\\(?:([bstnfr"'\\])|\n|\r\n?|([0-3][0-7]{0,2}|[0-7]{1,2}))/g,
-    (_, single, octal) => {
-      if (single) {
-        switch (single) {
-          case "b":
-            return "\b";
-          case "s":
-            return " ";
-          case "t":
-            return "\t";
-          case "n":
-            return "\n";
-          case "f":
-            return "\f";
-          case "r":
-            return "\r";
-          default:
-            return single;
-        }
-      } else if (octal) {
-        return String.fromCharCode(parseInt(octal, 8));
-      } else {
-        return "";
-      }
+  return text.replace(/\\(?:([stnr"'\\])|\n|\r\n?)/g, (_, escaped) => {
+    switch (escaped) {
+      case "s":
+        return " ";
+      case "t":
+        return "\t";
+      case "n":
+        return "\n";
+      case "r":
+        return "\r";
+      default:
+        return escaped ?? "";
     }
-  );
+  });
 }
 
 export type NamedNodePrinters = {

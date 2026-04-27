@@ -65,23 +65,26 @@ public class TextBlock {
   String escapes = """
     \n\t\r\f\b\s\\
     \077
-    A""";
+    \u0041""";
 
   void json() {
     // language = json
     String someJson = """
-      { "glossary": { "title": "example glossary" } }""";
+      { "glossary": { "title": "example 'glossary'" } }
+      """;
 
     // language=json
     String config = """
-      { "name": "example", "enabled": true, "timeout": 30 }""";
+      { "name": "example", "enabled": true, "timeout": 30 }
+      """;
 
     /* language = JSON */
     String query = """
       {
         "sql": "SELECT * FROM users WHERE active=1 AND deleted=0",
         "limit": 10
-      }""";
+      }
+      """;
   }
 
   void java() {
@@ -92,7 +95,8 @@ public class TextBlock {
         void method() {
           // comment
         }
-      }""";
+      }
+      """;
   }
 
   void html() {
@@ -107,7 +111,20 @@ public class TextBlock {
           <h1>My First Heading</h1>
           <p>My first paragraph.</p>
         </body>
-      </html>""";
+      </html>
+      """;
+  }
+
+  void typescript() {
+    // language=typescript
+    String typescript = """
+      const s = `""\"`;
+      """;
+
+    // language=typescript
+    String typescript = """
+      const s = ""; // "
+      """;
   }
 
   void unsupported() {
