@@ -3,7 +3,6 @@
     "module": "esnext",
     "types": ["emscripten", "mocha", "node"],
     "allowImportingTsExtensions": true,
-    "declaration": true,
     "noEmit": true
   },
   "include": ["scripts", "src", "test"]
