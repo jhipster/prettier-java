@@ -3080,9 +3080,9 @@ lines-and-columns@^1.1.6:
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
 lint-staged@^17.0.2:
-  version "17.0.2"
-  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-17.0.2.tgz#722692fe789eb5240f5bf0851aa285cbf359bce3"
-  integrity sha512-Rbr6rdmbCn1fIDHBZpn0madg0hEkdlh+QwajnL3Qq0ZUq/icAJfLGj9BVBajAXi7657ZzKQ7kobGP9S5XOHYRw==
+  version "17.0.4"
+  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-17.0.4.tgz#7fecff62ab416b9ec88f3b49a53fbbc86a95f462"
+  integrity sha512-+rU9lSUyVOZ/hDUmRLVGzyS2v73cDdQjX+XQz1AaOdIE4RysLq0HoPW2HrrgeNCLklkhi904VBU1bmgWLHVnkA==
   dependencies:
     listr2 "^10.2.1"
     picomatch "^4.0.4"
