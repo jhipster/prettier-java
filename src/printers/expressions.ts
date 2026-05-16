@@ -682,6 +682,11 @@ function printLambdaExpressionSignature(
     } else {
       parts.push(parameters);
     }
+
+    if (path.node.parametersNode.type === SyntaxType.Identifier) {
+      parts.unshift("(");
+      parts.push(")");
+    }
   }
 
   const dangling = printDanglingComments(path);
