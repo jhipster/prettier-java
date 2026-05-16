@@ -1,4 +1,20 @@
-# Latest v2.8.1
+# Latest v2.9.1
+
+## What's Changed
+* fix: rename postinstall script by @jtkiesel in https://github.com/jhipster/prettier-java/pull/879
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.8.1...prettier-plugin-java@2.9.0
+
+# v2.9.0
+
+## What's Changed
+* refactor: replace java-parser with tree-sitter by @jtkiesel in https://github.com/jhipster/prettier-java/pull/811
+* feat: support cjs by @sunrabbit123 in https://github.com/jhipster/prettier-java/pull/804
+* feat: process embedded languages in text blocks with language identifier comments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/795
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.8.1...prettier-plugin-java@2.9.0
+
+# v2.8.1
 
 ## What's Changed
 * fix: indent ternary binary expressions in return statements by @jtkiesel in https://github.com/jhipster/prettier-java/pull/803
