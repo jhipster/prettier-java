@@ -1,9 +1,16 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { testSample } from "../../test-utils.ts";
+import { testSample, testSampleWithOptions } from "../../test-utils.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe("prettier-java", () => {
-  testSample(__dirname);
+  testSampleWithOptions({
+    testFolder: path.resolve(__dirname, "arrow-parens-always")
+  });
+
+  testSampleWithOptions({
+    testFolder: path.resolve(__dirname, "arrow-parens-avoid")
+  });
+  testSample(path.resolve(__dirname, "arrow-parens-avoid"));
 });
