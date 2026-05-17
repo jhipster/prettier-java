@@ -1,9 +1,16 @@
-# Latest v2.9.1
+# Latest v2.9.2
+
+## What's Changed
+* fix: restore space between array type and dimension annotations by @jtkiesel in https://github.com/jhipster/prettier-java/pull/881
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.1...prettier-plugin-java@2.9.2
+
+# v2.9.1
 
 ## What's Changed
 * fix: rename postinstall script by @jtkiesel in https://github.com/jhipster/prettier-java/pull/879
 
-**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.8.1...prettier-plugin-java@2.9.0
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.0...prettier-plugin-java@2.9.1
 
 # v2.9.0
 
