@@ -1,13 +1,15 @@
 class Array {
-    boolean[] skip = new boolean[candidates.length];
+  boolean[] skip = new boolean[candidates.length];
 
-    Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa<Bbbbbbbbbbbbbbbb>[1].getClass();
-    Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa[1111111111111111111].getClass();
-    Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa[]{ new Aaaaaaaaaaaaaaaa() }.getClass();
+  Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa<Bbbbbbbbbbbbbbbb>[1].getClass();
+  Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa[1111111111111111111].getClass();
+  Class<?> aaaaaaaaaaaaaaaa = new Aaaaaaaaaaaaaaaa[]{ new Aaaaaaaaaaaaaaaa() }.getClass();
 
-    String[] DATA = {
-        // nothing yet
-    };
+  String[] DATA = {
+    // nothing yet
+  };
 
-    Weather currentWeather = enumValues[(currentWeather.ordinal() + 1) % enumValues.length];
+  Weather currentWeather = enumValues[(currentWeather.ordinal() + 1) % enumValues.length];
+
+  int @Nullable [] array;
 }

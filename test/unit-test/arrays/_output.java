@@ -18,4 +18,6 @@ class Array {
   Weather currentWeather = enumValues[
     (currentWeather.ordinal() + 1) % enumValues.length
   ];
+
+  int @Nullable [] array;
 }

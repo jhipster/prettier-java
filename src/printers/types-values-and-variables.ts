@@ -21,10 +21,12 @@ export default {
   },
 
   dimensions(path, print) {
-    return path.map(
-      child => (child.node.isNamed ? [print(child), " "] : child.node.value),
-      "children"
-    );
+    return path.map(child => {
+      if (child.node.isNamed) {
+        return [...(child.isFirst ? [" "] : []), print(child), " "];
+      }
+      return child.node.value;
+    }, "children");
   },
 
   type_parameter(path, print) {
