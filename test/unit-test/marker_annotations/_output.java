@@ -29,7 +29,7 @@ public class MarkerAnnotations {
     System.out.println("post construct");
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @SuppressWarnings2({
     "rawtypes",
     "unchecked",
@@ -43,9 +43,9 @@ public class MarkerAnnotations {
   }
 
   @ArrayInitializersWithKey(
-    key = {"abc", "def"},
-    key2 = {"ghi", "jkl"},
-    key3 = {"mno", "pqr"}
+    key = { "abc", "def" },
+    key2 = { "ghi", "jkl" },
+    key3 = { "mno", "pqr" }
   )
   public void arrayInitializerWithKey() {
     System.out.println("element value array initializer with key");
