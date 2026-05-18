@@ -141,7 +141,7 @@ export function printArrayInitializer(
     list.push(ifBreak(","));
   }
 
-  return group(["{", indent([softline, ...list]), softline, "}"]);
+  return group(["{", indent([line, ...list]), line, "}"]);
 }
 
 export function printBlock(path: NamedNodePath, contents: Doc[]) {

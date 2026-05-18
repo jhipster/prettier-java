@@ -14,7 +14,7 @@ describe("VariableDeclarator", () => {
     const snippet = "int[]i={alpha};";
 
     const formattedText = await formatJavaSnippet({ snippet });
-    const expectedContents = "int[] i = {alpha};\n";
+    const expectedContents = "int[] i = { alpha };\n";
     expect(formattedText).to.equal(expectedContents);
   });
 
