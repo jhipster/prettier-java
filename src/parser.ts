@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import type Prettier from "prettier";
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { determinePrettierIgnoreRanges } from "./comments.ts";
@@ -41,7 +42,7 @@ const parser = (async () => {
 
   const parser = new Parser();
   const Java = await Language.load(
-    new URL("./tree-sitter-java_orchard.wasm", import.meta.url).pathname
+    fileURLToPath(new URL("./tree-sitter-java_orchard.wasm", import.meta.url))
   );
   parser.setLanguage(Java);
 
