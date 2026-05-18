@@ -42,7 +42,7 @@ const parser = (async () => {
 
   const parser = new Parser();
   const Java = await Language.load(
-    fileURLToPath(new URL("./tree-sitter-java_orchard.wasm", import.meta.url))
+    new URL("./tree-sitter-java_orchard.wasm", import.meta.url)
   );
   parser.setLanguage(Java);
 
