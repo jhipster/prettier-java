@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import type Prettier from "prettier";
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { determinePrettierIgnoreRanges } from "./comments.ts";
