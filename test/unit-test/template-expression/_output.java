@@ -10,9 +10,9 @@ class TemplateExpression {
     file.exists() ? "does" : "does not"
   } exist";
 
-  String time =
-    STR."The time is \{// The java.time.format package is very useful
-    DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now())} right now";
+  String time = STR."The time is \{DateTimeFormatter.ofPattern("HH:mm:ss")
+    // The java.time.format package is very useful
+    .format(LocalTime.now())} right now";
 
   String data = STR."\{index++}, \{index++}, \{index++}, \{index++}";
 

@@ -191,18 +191,11 @@ function handleMemberChainComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
     (enclosingNode?.type === SyntaxType.FieldAccess ||
-      enclosingNode?.type === SyntaxType.MethodInvocation) &&
+      (enclosingNode?.type === SyntaxType.MethodInvocation &&
+        precedingNode?.end.row !== commentNode.start.row)) &&
     followingNode?.type === SyntaxType.Identifier
   ) {
     util.addLeadingComment(enclosingNode, commentNode);
-    return true;
-  } else if (
-    followingNode &&
-    isMember(followingNode) &&
-    precedingNode !== enclosingNode &&
-    !isPrettierIgnore(commentNode)
-  ) {
-    util.addDanglingComment(followingNode, commentNode, undefined);
     return true;
   }
   return false;
@@ -373,11 +366,11 @@ function printTrailingComment(
     hasNewline(originalText, parser.locStart(comment), { backwards: true })
   ) {
     // This allows comments at the end of nested structures:
-    // f(
+    // {
     //   1,
     //   2
     //   // A comment
-    // );
+    // }
     // Those kinds of comments are almost always leading comments, but
     // here it doesn't go "outside" the block and turns it into a
     // trailing comment for `2`. We can simulate the above by checking
