@@ -193,7 +193,8 @@ function handleMemberChainComments(commentNode: CommentNode) {
     (enclosingNode?.type === SyntaxType.FieldAccess ||
       (enclosingNode?.type === SyntaxType.MethodInvocation &&
         precedingNode?.end.row !== commentNode.start.row)) &&
-    followingNode?.type === SyntaxType.Identifier
+    (followingNode?.type === SyntaxType.Identifier ||
+      followingNode?.type === SyntaxType.TypeArguments)
   ) {
     util.addLeadingComment(enclosingNode, commentNode);
     return true;
