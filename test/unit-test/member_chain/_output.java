@@ -119,6 +119,14 @@ public class BreakLongFunctionCall {
       .more();
   }
 
+  public void genericMethodWithLeadingComment() {
+    a
+      // 1
+      .b()
+      // 2
+      .<C>c();
+  }
+
   public void doSomethingLongNew() {
     return something()
       .more()
