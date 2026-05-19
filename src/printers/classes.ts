@@ -399,9 +399,8 @@ export default {
   },
 
   record_declaration(path, print) {
-    const parts = printModifiers(path, print, "declarationOnly");
-
-    parts.push("record ", path.call(print, "nameNode"));
+    const modifiers = printModifiers(path, print, "declarationOnly");
+    const parts = ["record ", path.call(print, "nameNode")];
 
     if (hasChild(path, "type_parametersNode")) {
       parts.push(group(path.call(print, "type_parametersNode")));
@@ -426,7 +425,7 @@ export default {
       parts.push(" ");
     }
 
-    return [group(parts), path.call(print, "bodyNode")];
+    return [...modifiers, group(parts), path.call(print, "bodyNode")];
   },
 
   compact_constructor_declaration(path, print) {

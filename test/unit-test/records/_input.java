@@ -185,3 +185,9 @@ record Aaaaaaaaaa<Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gg
 
   void a() {}
 }
+
+@A
+record B(
+  C c,
+  D d
+) {}

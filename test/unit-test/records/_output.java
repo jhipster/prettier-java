@@ -215,3 +215,6 @@ record Aaaaaaaaaa<
 {
   void a() {}
 }
+
+@A
+record B(C c, D d) {}
