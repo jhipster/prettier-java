@@ -5,13 +5,27 @@ public class BreakLongFunctionCall {
     }
 
     public void doSomethingNewWithComment() {
+        // comment
+        new Object().something().more();
+
+        new Object() // comment
+            .something().more();
+
         new Object()
             // comment
             .something().more();
 
+        new Object().something() // comment
+            .more();
+
         new Object().something()
             // comment
             .more();
+
+        new Object().something().more(); // comment
+
+        new Object().something().more();
+        // comment
     }
 
     public void doSomethingWithComment() {

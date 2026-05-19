@@ -43,16 +43,16 @@ export function testSampleWithOptions({
   });
 
   it(`Performs a stable formatting for <${relativeInputPath}>`, async () => {
-    const onePass = await formatJavaSnippet({
+    const firstPass = await formatJavaSnippet({
       snippet: inputContents,
       prettierOptions
     });
 
     const secondPass = await formatJavaSnippet({
-      snippet: onePass,
+      snippet: firstPass,
       prettierOptions
     });
-    expect(onePass).to.equal(secondPass);
+    expect(secondPass).to.equal(firstPass);
   });
 }
 
@@ -85,9 +85,9 @@ export function testRepositorySample(
             "utf8"
           );
 
-          const onePass = await formatJavaSnippet({ snippet: javaFileText });
-          const secondPass = await formatJavaSnippet({ snippet: onePass });
-          expect(onePass).to.equal(secondPass);
+          const firstPass = await formatJavaSnippet({ snippet: javaFileText });
+          const secondPass = await formatJavaSnippet({ snippet: firstPass });
+          expect(secondPass).to.equal(firstPass);
         });
       });
 
