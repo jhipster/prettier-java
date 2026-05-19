@@ -362,7 +362,7 @@ export default {
   },
 
   catch_formal_parameter(path, print) {
-    const parts = printModifiers(path, print);
+    const parts = printModifiers(path, print, "noBreak");
 
     const catchTypeIndex = path.node.namedChildren.findIndex(
       ({ type }) => type === SyntaxType.CatchType

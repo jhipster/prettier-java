@@ -115,4 +115,13 @@ public class TryCatch {
       d;
     } // d2
   }
+
+  void annotations() {
+    try {
+    } catch (
+      @What
+      Exception e
+    ) {
+    }
+  }
 }
