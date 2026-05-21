@@ -1,4 +1,8 @@
-# Latest v2.9.3
+# Latest v2.9.4
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.3...prettier-plugin-java@2.9.4
+
+# v2.9.3
 
 ## What's Changed
 * fix: correct Windows path resolution in parser init by @ralscha in https://github.com/jhipster/prettier-java/pull/892
