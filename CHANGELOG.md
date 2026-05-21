@@ -1,4 +1,16 @@
-# Latest v2.9.2
+# Latest v2.9.3
+
+## What's Changed
+* fix: correct Windows path resolution in parser init by @ralscha in https://github.com/jhipster/prettier-java/pull/892
+* fix: restore array literal spacing by @jtkiesel in https://github.com/jhipster/prettier-java/pull/893
+* fix: keep member chain line-end comments on the same line by @jtkiesel in https://github.com/jhipster/prettier-java/pull/894
+* fix: keep generic method call leading comments on their own line by @jtkiesel in https://github.com/jhipster/prettier-java/pull/895
+* fix: prevent forced wrapping of annotated records by @jtkiesel in https://github.com/jhipster/prettier-java/pull/896
+* fix: prevent wrapping of annotated catch parameters by @jtkiesel in https://github.com/jhipster/prettier-java/pull/897
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.2...prettier-plugin-java@2.9.3
+
+# v2.9.2
 
 ## What's Changed
 * fix: restore space between array type and dimension annotations by @jtkiesel in https://github.com/jhipster/prettier-java/pull/881
