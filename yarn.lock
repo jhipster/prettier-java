@@ -4958,10 +4958,10 @@ wcwidth@^1.0.0, wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-tree-sitter@0.26.8:
-  version "0.26.8"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.26.8.tgz#807cb38aed0f25fc4b52994147f1db6b7a92a584"
-  integrity sha512-4sUwi7ZyOrIk5KLgYLkc2A/F0LFMQnBhfb+2Cdl7ik4ePJ6JD+fk4ofI2sA5eGawBKBaK4Vntt7Ww5KcEsay4A==
+web-tree-sitter@0.26.9:
+  version "0.26.9"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.26.9.tgz#9e44cb876c68082a2129ee8aee20ee8b702d286b"
+  integrity sha512-YJwSHANl6XFgeEjB8nitgj0qZYt5gkIesJ4w2srS2wcLB4GUa4xcOkM0YaMsU6WNR53YVIkDSY7Ej4pf3IXtCA==
 
 which@^2.0.1:
   version "2.0.2"
