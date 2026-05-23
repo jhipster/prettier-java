@@ -1034,9 +1034,13 @@ function printMemberChain(
   const cutoff = shouldMerge ? 3 : 2;
   const flatGroups = groups.flat();
 
-  const nodeHasComment = flatGroups.some(node =>
-    node.node.comments?.some(({ leading, trailing }) => leading || trailing)
-  );
+  const nodeHasComment =
+    flatGroups.some(node =>
+      node.node.comments?.some(({ leading }) => leading)
+    ) ||
+    flatGroups
+      .slice(0, -1)
+      .some(node => node.node.comments?.some(({ trailing }) => trailing));
 
   // If we only have a single `.`, we shouldn't do anything fancy and just
   // render everything concatenated together.
