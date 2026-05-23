@@ -198,6 +198,14 @@ function handleMemberChainComments(commentNode: CommentNode) {
   ) {
     util.addLeadingComment(enclosingNode, commentNode);
     return true;
+  } else if (
+    followingNode &&
+    isMember(followingNode) &&
+    precedingNode !== enclosingNode &&
+    !isPrettierIgnore(commentNode)
+  ) {
+    util.addDanglingComment(followingNode, commentNode, undefined);
+    return true;
   }
   return false;
 }

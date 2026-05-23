@@ -148,4 +148,10 @@ public class BreakLongFunctionCall {
         dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
     }
 
+    void fieldAccessArgumentComment() {
+        a(
+            // comment
+            b.c
+        );
+    }
 }

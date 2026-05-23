@@ -202,4 +202,11 @@ public class BreakLongFunctionCall {
   void methodReferences() {
     dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
   }
+
+  void fieldAccessArgumentComment() {
+    a(
+      // comment
+      b.c
+    );
+  }
 }
