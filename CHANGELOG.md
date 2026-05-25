@@ -1,4 +1,12 @@
-# Latest v2.9.4
+# Latest v2.9.5
+
+## What's Changed
+* fix: keep comment on root of field access argument by @jtkiesel in https://github.com/jhipster/prettier-java/pull/906
+* fix: don't break member chain for trailing comment by @jtkiesel in https://github.com/jhipster/prettier-java/pull/907
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.4...prettier-plugin-java@2.9.5
+
+# v2.9.4
 
 **Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.3...prettier-plugin-java@2.9.4
 
