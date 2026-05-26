@@ -1,6 +1,13 @@
 import { util, type AstPath, type Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
+import {
+  SyntaxType,
+  type ArrayAccessNode,
+  type CommentNode,
+  type FieldAccessNode,
+  type MethodInvocationNode,
+  type SyntaxNode
+} from "./node-types.ts";
 import parser from "./parser.ts";
 import printer from "./printer.ts";
 import {
@@ -190,18 +197,20 @@ function handleLabeledStatementComments(commentNode: CommentNode) {
 function handleMemberChainComments(commentNode: CommentNode) {
   const { enclosingNode, precedingNode, followingNode } = commentNode;
   if (
+    precedingNode &&
     (enclosingNode?.type === SyntaxType.FieldAccess ||
       (enclosingNode?.type === SyntaxType.MethodInvocation &&
-        precedingNode?.end.row !== commentNode.start.row)) &&
-    (followingNode?.type === SyntaxType.Identifier ||
-      followingNode?.type === SyntaxType.TypeArguments)
+        precedingNode.end.row < commentNode.start.row)) &&
+    precedingNode === enclosingNode.objectNode
   ) {
     util.addLeadingComment(enclosingNode, commentNode);
     return true;
   } else if (
     followingNode &&
     isMember(followingNode) &&
-    precedingNode !== enclosingNode &&
+    (!precedingNode ||
+      (precedingNode !== getMemberObject(followingNode) &&
+        precedingNode.end.row < commentNode.start.row)) &&
     !isPrettierIgnore(commentNode)
   ) {
     util.addDanglingComment(followingNode, commentNode, undefined);
@@ -289,6 +298,14 @@ function isMember(node: SyntaxNode) {
     node.type === SyntaxType.FieldAccess ||
     node.type === SyntaxType.MethodInvocation
   );
+}
+
+function getMemberObject(
+  node: ArrayAccessNode | FieldAccessNode | MethodInvocationNode
+) {
+  return node.type === SyntaxType.ArrayAccess
+    ? node.arrayNode
+    : node.objectNode;
 }
 
 const binaryOperators = new Set([
