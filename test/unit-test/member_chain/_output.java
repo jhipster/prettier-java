@@ -230,5 +230,28 @@ public class BreakLongFunctionCall {
     a(
       b.c() // comment
     );
+
+    a(
+      b, // comment
+      c.d
+    );
+
+    a(
+      b, // comment
+      c.d[0]
+    );
+
+    a(
+      b, // comment
+      c.d()
+    );
+  }
+
+  void prettierIgnore() {
+    a ->
+      // prettier-ignore
+      b
+                .c().d()
+                .e().f();
   }
 }
