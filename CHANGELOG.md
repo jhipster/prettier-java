@@ -1,4 +1,11 @@
-# Latest v2.9.5
+# Latest v2.9.6
+
+## What's Changed
+* fix: prevent argument list comments from moving to next argument by @jtkiesel in https://github.com/jhipster/prettier-java/pull/908
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.5...prettier-plugin-java@2.9.6
+
+# v2.9.5
 
 ## What's Changed
 * fix: keep comment on root of field access argument by @jtkiesel in https://github.com/jhipster/prettier-java/pull/906
