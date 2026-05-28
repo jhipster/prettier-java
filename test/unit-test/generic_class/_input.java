@@ -41,4 +41,6 @@ public class Foo<T> {
     public <U extends @NotNull T> void example(U u) {}
 
     public <U extends com.java.Any.@NotNull T> void example(U u) {}
+
+    <T> @Nullable T foo() {}
 }
