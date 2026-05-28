@@ -138,6 +138,15 @@ export default {
       declaration.push(group(path.call(print, "type_parametersNode")), " ");
     }
 
+    path.each(child => {
+      if (
+        child.node.type === SyntaxType.Annotation ||
+        child.node.type === SyntaxType.MarkerAnnotation
+      ) {
+        declaration.push(print(child), " ");
+      }
+    }, "children");
+
     declaration.push(path.call(print, "typeNode"));
 
     if (hasChild(path, "dimensionsNode")) {
