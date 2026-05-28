@@ -1,4 +1,12 @@
-# Latest v2.9.6
+# Latest v2.9.7
+
+## What's Changed
+* fix: preserve annotations on generic method return types by @jtkiesel in https://github.com/jhipster/prettier-java/pull/911
+* fix: keep package declaration with annotations before import declarations by @jtkiesel in https://github.com/jhipster/prettier-java/pull/913
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.6...prettier-plugin-java@2.9.7
+
+# v2.9.6
 
 ## What's Changed
 * fix: prevent argument list comments from moving to next argument by @jtkiesel in https://github.com/jhipster/prettier-java/pull/908
