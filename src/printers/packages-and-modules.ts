@@ -20,7 +20,7 @@ export default {
 
     const parts: Doc[] = [];
 
-    if (path.node.namedChildren[0].type === SyntaxType.PackageDeclaration) {
+    if (path.node.namedChildren[0].type !== SyntaxType.ImportDeclaration) {
       parts.push(path.call(print, "namedChildren", 0));
     }
 
@@ -48,7 +48,7 @@ export default {
           ? staticImports
           : imports
         ).push({ doc, names });
-      } else if (child.node.type !== SyntaxType.PackageDeclaration) {
+      } else if (!child.isFirst) {
         otherDeclarations.push(doc);
       }
     }, "namedChildren");

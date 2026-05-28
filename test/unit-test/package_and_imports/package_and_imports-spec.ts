@@ -14,4 +14,5 @@ describe("prettier-java", () => {
   testSample(path.resolve(__dirname, "./moduleWithNoImports"));
   testSample(path.resolve(__dirname, "./moduleWithOnlyStaticImports"));
   testSample(path.resolve(__dirname, "./moduleWithOnlyNonStaticImports"));
+  testSample(path.resolve(__dirname, "./packageWithAnnotationsAndImports"));
 });
