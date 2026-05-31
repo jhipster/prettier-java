@@ -25,6 +25,7 @@ const {
   indentIfBreak,
   join,
   line,
+  lineSuffixBoundary,
   softline
 } = builders;
 const { getNextNonSpaceNonCommentCharacterIndex, hasNewline, isNextLineEmpty } =
@@ -147,7 +148,7 @@ export default {
     }
 
     const parameters = join([",", line], identifiers);
-    if (identifiers.length > 1) {
+    if (identifiers.length > 1 || willBreak(identifiers)) {
       return group(indentInParentheses(parameters));
     }
     return options.arrowParens === "avoid"
@@ -684,8 +685,9 @@ function printLambdaExpressionSignature(
     }
 
     if (path.node.parametersNode.type === SyntaxType.Identifier) {
-      parts.unshift("(");
-      parts.push(")");
+      return path.node.parametersNode.comments
+        ? group(["(", indent([softline, ...parts]), lineSuffixBoundary, ")"])
+        : ["(", ...parts, ")"];
     }
   }
 
