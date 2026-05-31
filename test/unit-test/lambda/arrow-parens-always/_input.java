@@ -415,3 +415,44 @@ enum Enum {
         return n * 2;
     }, other)
 }
+
+// comment
+a -> b;
+
+a // comment
+  -> b;
+
+a -> // comment
+  b;
+
+a -> b; // comment
+
+// comment
+a -> {};
+
+a // comment
+  -> {};
+
+a -> // comment
+  {};
+
+a -> {}; // comment
+
+// comment
+a -> {
+  b;
+};
+
+a // comment
+  -> {
+  b;
+};
+
+a -> // comment
+{
+  b;
+};
+
+a -> {
+  b;
+}; // comment

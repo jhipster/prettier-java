@@ -71,7 +71,7 @@ export function willPrintOwnComments(path: AstPath<SyntaxNode>): boolean {
   return isMember(path.node) && !printer.hasPrettierIgnore(path);
 }
 
-export function canAttachComment(node: SyntaxNode) {
+export function canAttachComment(node: SyntaxNode, ancestors: SyntaxNode[]) {
   if (!node.isNamed) {
     return isBinaryOperator(node);
   }
@@ -81,11 +81,25 @@ export function canAttachComment(node: SyntaxNode) {
     case SyntaxType.FormalParameters:
     case SyntaxType.Modifier:
     case SyntaxType.MultilineStringFragment:
-    case SyntaxType.ParenthesizedExpression:
     case SyntaxType.Program:
     case SyntaxType.StringFragment:
     case SyntaxType.Visibility:
       return false;
+    case SyntaxType.ParenthesizedExpression: {
+      const [parent] = ancestors;
+      return !(
+        parent.isNamed &&
+        [
+          SyntaxType.DoStatement,
+          SyntaxType.IfStatement,
+          SyntaxType.SwitchExpression,
+          SyntaxType.SynchronizedStatement,
+          SyntaxType.TryStatement,
+          SyntaxType.TryWithResourcesStatement,
+          SyntaxType.WhileStatement
+        ].includes(parent.type)
+      );
+    }
     default:
       return true;
   }
@@ -102,6 +116,7 @@ export function handleLineComment(
     handleIfStatementComments,
     handleJumpStatementComments,
     handleLabeledStatementComments,
+    handleLambdaExpressionComments,
     handleMemberChainComments,
     handleModifiersComments,
     handleNameComments,
@@ -192,6 +207,28 @@ function handleLabeledStatementComments(commentNode: CommentNode) {
     return true;
   }
   return false;
+}
+
+function handleLambdaExpressionComments(commentNode: CommentNode) {
+  const { enclosingNode, precedingNode, followingNode } = commentNode;
+  if (
+    enclosingNode?.type === SyntaxType.LambdaExpression &&
+    precedingNode &&
+    followingNode &&
+    enclosingNode.children.find(({ type }) => type === "->")!.end.index <
+      commentNode.start.index
+  ) {
+    if (followingNode.type === SyntaxType.Block) {
+      if (followingNode.namedChildren.length) {
+        util.addLeadingComment(followingNode.namedChildren[0], commentNode);
+      } else {
+        util.addDanglingComment(followingNode, commentNode, undefined);
+      }
+    } else {
+      util.addLeadingComment(followingNode, commentNode);
+    }
+    return true;
+  }
 }
 
 function handleMemberChainComments(commentNode: CommentNode) {

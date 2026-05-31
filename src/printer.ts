@@ -31,7 +31,8 @@ export default {
   hasPrettierIgnore(path) {
     return (
       path.node.comments?.some(isPrettierIgnore) === true ||
-      (canAttachComment(path.node) && isFullyBetweenPrettierIgnore(path))
+      (canAttachComment(path.node, path.parent ? [path.parent] : []) &&
+        isFullyBetweenPrettierIgnore(path))
     );
   },
   canAttachComment,
