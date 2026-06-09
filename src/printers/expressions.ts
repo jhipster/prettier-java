@@ -1329,13 +1329,7 @@ function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   const isChildSimple = (child: NamedNode) =>
     isSimpleCallArgument(child, depth - 1);
 
-  if (
-    node.type.endsWith("_literal") ||
-    node.type === "true" ||
-    node.type === "false" ||
-    node.type === SyntaxType.Identifier ||
-    node.type === "this"
-  ) {
+  if (isLiteral(node) || isSingleWordType(node)) {
     return true;
   }
 
@@ -1377,6 +1371,30 @@ function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   }
 
   return false;
+}
+
+function isLiteral(node: NamedNode) {
+  return (
+    [
+      SyntaxType.True,
+      SyntaxType.False,
+      SyntaxType.NullLiteral,
+      SyntaxType.BinaryIntegerLiteral,
+      SyntaxType.DecimalFloatingPointLiteral,
+      SyntaxType.DecimalIntegerLiteral,
+      SyntaxType.HexFloatingPointLiteral,
+      SyntaxType.HexIntegerLiteral,
+      SyntaxType.OctalIntegerLiteral,
+      SyntaxType.CharacterLiteral
+    ].includes(node.type) ||
+    (node.type === SyntaxType.StringLiteral && node.children[0].value === '"')
+  );
+}
+
+function isSingleWordType(node: NamedNode) {
+  return [SyntaxType.Identifier, SyntaxType.This, SyntaxType.Super].includes(
+    node.type
+  );
 }
 
 function couldExpandArg(arg: NamedNode, lambdaChainRecursion = false) {

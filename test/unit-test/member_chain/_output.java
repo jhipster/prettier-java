@@ -254,4 +254,15 @@ public class BreakLongFunctionCall {
                 .c().d()
                 .e().f();
   }
+
+  void complexArguments() {
+    "SOME TEXT"
+      .replace("SOME", "OTHER")
+      .replace("TEXT", "OTHER")
+      .replace(
+        "SOME",
+        """
+        FOO"""
+      );
+  }
 }
