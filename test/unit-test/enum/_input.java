@@ -170,3 +170,7 @@ enum Aaaaaaaaaa implements Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Fffff
 }
 
 enum Aaaaaaaaaa implements Bbbbbbbbbb, Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg {}
+
+@A
+enum B
+  implements C {}

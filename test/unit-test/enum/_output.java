@@ -203,3 +203,6 @@ enum Aaaaaaaaaa
     Eeeeeeeeee,
     Ffffffffff,
     Gggggggggg {}
+
+@A
+enum B implements C {}
