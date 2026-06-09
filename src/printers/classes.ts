@@ -343,9 +343,9 @@ export default {
   },
 
   enum_declaration(path, print) {
-    const parts = printModifiers(path, print);
+    const modifiers = printModifiers(path, print, "declarationOnly");
+    const parts = ["enum ", path.call(print, "nameNode")];
 
-    parts.push("enum ", path.call(print, "nameNode"));
     if (hasChild(path, "interfacesNode")) {
       const hasBody = path.node.bodyNode.namedChildren.length > 0;
       parts.push(
@@ -355,7 +355,7 @@ export default {
     } else {
       parts.push(" ");
     }
-    return [group(parts), path.call(print, "bodyNode")];
+    return [...modifiers, group(parts), path.call(print, "bodyNode")];
   },
 
   enum_body(path, print, options) {
