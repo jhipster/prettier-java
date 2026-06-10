@@ -1,7 +1,11 @@
 import { builders } from "prettier/doc";
-import { printValue, type NamedNodePrinters } from "./helpers.ts";
+import {
+  printTypeParameters,
+  printValue,
+  type NamedNodePrinters
+} from "./helpers.ts";
 
-const { group, indent, join, line, softline } = builders;
+const { group, indent, join, line } = builders;
 
 export default {
   boolean_type: printValue,
@@ -42,18 +46,7 @@ export default {
     return bound;
   },
 
-  type_arguments(path, print) {
-    const types = path.map(print, "namedChildren");
-
-    return types.length
-      ? group([
-          "<",
-          indent([softline, join([",", line], types)]),
-          softline,
-          ">"
-        ])
-      : "<>";
-  },
+  type_arguments: printTypeParameters,
 
   wildcard(path, print) {
     return join(" ", path.map(print, "children"));

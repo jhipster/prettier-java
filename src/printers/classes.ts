@@ -10,13 +10,13 @@ import {
   printBlockStatements,
   printBodyDeclarations,
   printModifiers,
+  printTypeParameters,
   printValue,
   printVariableDeclaration,
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const { group, hardline, indent, indentIfBreak, join, line, softline } =
-  builders;
+const { group, hardline, indent, indentIfBreak, join, line } = builders;
 
 export default {
   class_declaration(path, print) {
@@ -58,14 +58,7 @@ export default {
     ];
   },
 
-  type_parameters(path, print) {
-    return [
-      "<",
-      indent([softline, join([",", line], path.map(print, "namedChildren"))]),
-      softline,
-      ">"
-    ];
-  },
+  type_parameters: printTypeParameters,
 
   superclass(path, print) {
     return ["extends ", path.call(print, "namedChildren", 0)];

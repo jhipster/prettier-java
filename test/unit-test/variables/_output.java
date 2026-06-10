@@ -268,9 +268,7 @@ public class Variables {
       & ExtremelyLongAndObnoxiousInterfaceName
       & ExtremelyLongAndObnoxiousInterfaceName
   > void breakOnTypeArguments(
-    ExtremelyLongAndObnoxiousClassName<
-      ExtremelyLongAndObnoxiousClassName
-    > parameter,
+    ExtremelyLongAndObnoxiousClassName<ExtremelyLongAndObnoxiousClassName> parameter,
     ExtremelyLongAndObnoxiousClassName<
       ExtremelyLongAndObnoxiousClassName<
         ExtremelyLongAndObnoxiousClassName,
@@ -279,9 +277,7 @@ public class Variables {
       ExtremelyLongAndObnoxiousClassName
     > parameter
   ) {
-    ExtremelyLongAndObnoxiousClassName<
-      ExtremelyLongAndObnoxiousClassName
-    > variable;
+    ExtremelyLongAndObnoxiousClassName<ExtremelyLongAndObnoxiousClassName> variable;
 
     ExtremelyLongAndObnoxiousClassName<
       ExtremelyLongAndObnoxiousClassName<
