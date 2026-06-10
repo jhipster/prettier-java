@@ -283,6 +283,36 @@ export function printBodyDeclarations(
   }, "namedChildren");
 }
 
+export function printTypeParameters(
+  path: NamedNodePath<SyntaxType.TypeArguments | SyntaxType.TypeParameters>,
+  print: PrintFunction
+) {
+  const parameters = path.node.namedChildren;
+
+  const shouldInline =
+    parameters.length === 0 ||
+    (parameters.length === 1 &&
+      isSimpleType(parameters[0]) &&
+      !parameters.some(
+        ({ comments }) =>
+          comments?.length &&
+          comments.some(({ type }) => type === SyntaxType.LineComment)
+      ));
+
+  if (shouldInline) {
+    return ["<", join(", ", path.map(print, "namedChildren")), ">"];
+  }
+
+  const parts = [
+    "<",
+    indent([softline, join([",", line], path.map(print, "namedChildren"))]),
+    softline,
+    ">"
+  ];
+
+  return path.node.type === SyntaxType.TypeArguments ? group(parts) : parts;
+}
+
 export function printVariableDeclaration(
   path: NamedNodePath<
     | SyntaxType.ConstantDeclaration
@@ -362,6 +392,34 @@ export function textBlockContents(node: NamedNode<SyntaxType.StringLiteral>) {
     .map(line => line.slice(baseIndent))
     .join("\n")
     .slice(0, -3);
+}
+
+function isSimpleType(node: NamedNode): boolean {
+  const { type, children, namedChildren } = node;
+  const lastNamedChild = namedChildren.at(-1);
+
+  return (
+    [
+      SyntaxType.BooleanType,
+      SyntaxType.FloatingPointType,
+      SyntaxType.IntegralType,
+      SyntaxType.TypeIdentifier,
+      SyntaxType.VoidType
+    ].includes(type) ||
+    (type === SyntaxType.AnnotatedType &&
+      lastNamedChild &&
+      isSimpleType(lastNamedChild)) ||
+    (type === SyntaxType.ArrayType && isSimpleType(node.elementNode)) ||
+    (type === SyntaxType.ScopedTypeIdentifier &&
+      lastNamedChild &&
+      isSimpleType(namedChildren[0]) &&
+      isSimpleType(lastNamedChild)) ||
+    (type === SyntaxType.TypeParameter &&
+      (lastNamedChild?.type !== SyntaxType.TypeBound ||
+        lastNamedChild.namedChildren.length === 1)) ||
+    (type === SyntaxType.Wildcard &&
+      (children.at(-1)!.type === "?" || isSimpleType(namedChildren.at(-1)!)))
+  );
 }
 
 function findBaseIndent(lines: string[]) {

@@ -251,8 +251,8 @@ public class BreakLongFunctionCall {
     a ->
       // prettier-ignore
       b
-                .c().d()
-                .e().f();
+        .c().d()
+        .e().f();
   }
 
   void complexArguments() {
@@ -264,5 +264,54 @@ public class BreakLongFunctionCall {
         """
         FOO"""
       );
+  }
+
+  void typeArguments() {
+    a()
+      .b()
+      .<Cccccccccc>dddddddddd(
+        "eeeeeeeeee",
+        "ffffffffff",
+        "gggggggggg",
+        "hhhhhhhhhh"
+      );
+
+    a()
+      .b()
+      .<Cccccccccccccccccccccccccccccccccccccccc>dddddddddddddddddddddddddddddddddddddddd(
+        "eeeeeeeeee"
+      );
+
+    a()
+      .b()
+      .<
+        Cccccccccc,
+        Dddddddddd,
+        Eeeeeeeeee,
+        Ffffffffff,
+        Gggggggggg
+      >hhhhhhhhhh("iiiiiiiiii");
+
+    a()
+      .b()
+      .<
+        Cccccccccc,
+        Dddddddddd,
+        Eeeeeeeeee,
+        Ffffffffff,
+        Gggggggggg,
+        Hhhhhhhhhh
+      >iiiiiiiiii("jjjjjjjjjj");
+
+    a()
+      .b()
+      .<
+        Cccccccccc,
+        Dddddddddd,
+        Eeeeeeeeee,
+        Ffffffffff,
+        Gggggggggg,
+        Hhhhhhhhhh
+      >iiiiiiiiii("jjjjjjjjjj", "kkkkkkkkkk", "llllllllll", "mmmmmmmmmm", "nnnnnnnnnn");
   }
 }

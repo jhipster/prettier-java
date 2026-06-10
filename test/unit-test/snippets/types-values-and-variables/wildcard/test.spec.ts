@@ -19,7 +19,7 @@ describe("Wildcard", () => {
     const snippet =
       "List<@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?>l;";
     const expectedOutput =
-      "List<\n  @Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?\n> l;\n";
+      "List<@Annotation1 @Annotation2 @Annotation3 @Annotation4 @Annotation5 @Annotation6 @Annotation7 ?> l;\n";
 
     await expectSnippetToBeFormatted({
       snippet,
