@@ -60,7 +60,7 @@
     "@types/chai": "^5.2.3",
     "@types/emscripten": "^1.41.5",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.5.0",
+    "@types/node": "^26.0.0",
     "chai": "^6.2.2",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
