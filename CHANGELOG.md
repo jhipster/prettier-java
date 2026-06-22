@@ -1,4 +1,16 @@
-# Latest v2.9.7
+# Latest v2.10.0
+
+## What's Changed
+* fix: proper handling of comments on lambda and parenthesized expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/917
+* fix: treat text blocks as complex arguments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/927
+* fix: prevent forced wrapping of annotated enums by @jtkiesel in https://github.com/jhipster/prettier-java/pull/928
+* fix: inline single simple type arguments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/929
+* feat: align parentheses closer with Prettier JS/TS, including their removal by @jtkiesel in https://github.com/jhipster/prettier-java/pull/944
+* fix: align breaking of instanceof with binary expression in assignments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/945
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.9.7...prettier-plugin-java@2.10.0
+
+# v2.9.7
 
 ## What's Changed
 * fix: preserve annotations on generic method return types by @jtkiesel in https://github.com/jhipster/prettier-java/pull/911
