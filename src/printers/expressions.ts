@@ -8,10 +8,10 @@ import {
 } from "../node-types.ts";
 import {
   hasChild,
-  hasLeadingComments,
   hasType,
   indentInParentheses,
   isReturnOrThrowStatement,
+  printAssignment,
   printDanglingComments,
   shouldFlatten,
   type JavaParserOptions,
@@ -232,26 +232,13 @@ export default {
   },
 
   assignment_expression(path, print) {
-    const { operatorNode, rightNode } = path.node;
-    const parts = [path.call(print, "leftNode"), " ", operatorNode.type];
-    const right = path.call(print, "rightNode");
-
-    if (
-      rightNode.type === SyntaxType.BinaryExpression ||
-      (rightNode.type === SyntaxType.TernaryExpression &&
-        rightNode.conditionNode.type === SyntaxType.BinaryExpression) ||
-      hasLeadingComments(rightNode)
-    ) {
-      parts.push(group(indent([line, right])));
-    } else {
-      const groupId = Symbol("assignment");
-      parts.push(
-        group(indent(line), { id: groupId }),
-        indentIfBreak(right, { groupId })
-      );
-    }
-
-    return parts;
+    const { node } = path;
+    return printAssignment(
+      path.call(print, "leftNode"),
+      [" ", node.operatorNode.type],
+      path.call(print, "rightNode"),
+      node.rightNode
+    );
   },
 
   binary_expression(path, print, options) {

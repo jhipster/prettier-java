@@ -247,6 +247,16 @@ public class BinaryOperations {
 
     e instanceof @Ann final E baz;
     f instanceof final @Ann E qux;
+
+    aaaaaaaaaaaaaaaaaaaa =
+      bbbbbbbbbbbbbbbbbbbb instanceof Cccccccccccccccccccc cccccccccccccccccccc;
+    aaaaaaaaaa =
+      bbbbbbbbbb instanceof Cccccccccc cccccccccc ? dddddddddd : eeeeeeeeee;
+
+    var aaaaaaaaaaaaaaaaaaaa =
+      bbbbbbbbbbbbbbbbbbbb instanceof Cccccccccccccccccccc cccccccccccccccccccc;
+    var aaaaaaaaaa =
+      bbbbbbbbbb instanceof Cccccccccc cccccccccc ? dddddddddd : eeeeeeeeee;
   }
 
   void unaryExpression() {
