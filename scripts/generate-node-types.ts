@@ -110,18 +110,25 @@ ${
     ? `${Object.entries(fields as unknown as Record<string, NodeTypeChildren>)
         .map(([field, children]) => {
           let fieldName = `${field}Node`;
-          let type = children.types.length
-            ? children.types.map(t => getTypeExprFromRef(t)).join(" | ")
+          let fieldType = children.types.length
+            ? children.types
+                .map(fieldType =>
+                  fieldType.type === "primary_expression"
+                    ? { type: "expression", named: true }
+                    : fieldType
+                )
+                .map(getTypeExprFromRef)
+                .join(" | ")
             : "UnnamedNode";
           if (children.multiple) {
             if (children.types.length > 1) {
-              type = `(${type})`;
+              fieldType = `(${fieldType})`;
             }
-            type += "[]";
+            fieldType += "[]";
             fieldName += "s";
           }
           const opt = children.required || children.multiple ? "" : "?";
-          return `  ${fieldName}${opt}: ${type};`;
+          return `  ${fieldName}${opt}: ${fieldType};`;
         })
         .join("\n")}
 }`

@@ -11,6 +11,7 @@ import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
   embedTextBlock,
   hasType,
+  needsParentheses,
   printComment,
   printValue,
   type NamedNodePath
@@ -19,9 +20,13 @@ import { printerForNodeType } from "./printers/index.ts";
 
 export default {
   print(path, options, print, args) {
-    return hasJavaNode(path)
-      ? printerForNodeType(path.node.type)(path, print, options, args)
-      : printValue(path);
+    if (!hasNamedNode(path)) {
+      return printValue(path);
+    }
+
+    const doc = printerForNodeType(path.node.type)(path, print, options, args);
+
+    return needsParentheses(path) ? ["(", doc, ")"] : doc;
   },
   embed(path) {
     return hasType(path, SyntaxType.StringLiteral)
@@ -56,6 +61,6 @@ export default {
   }
 } satisfies Printer<SyntaxNode>;
 
-function hasJavaNode(path: AstPath<SyntaxNode>): path is NamedNodePath {
+function hasNamedNode(path: AstPath<SyntaxNode>): path is NamedNodePath {
   return path.node.isNamed;
 }

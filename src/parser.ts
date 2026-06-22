@@ -7,6 +7,7 @@ import {
   type CommentNode,
   type SyntaxNode
 } from "./node-types.ts";
+import { createTypeCheckFunction } from "./printers/helpers.ts";
 
 export default {
   async parse(text) {
@@ -47,6 +48,16 @@ const parser = (async () => {
 
   return parser;
 })();
+
+const isParenthesizedParent = createTypeCheckFunction([
+  SyntaxType.DoStatement,
+  SyntaxType.IfStatement,
+  SyntaxType.SwitchExpression,
+  SyntaxType.SynchronizedStatement,
+  SyntaxType.TryStatement,
+  SyntaxType.TryWithResourcesStatement,
+  SyntaxType.WhileStatement
+]);
 
 function processTree(
   node: Node,
@@ -89,44 +100,51 @@ function processTree(
     Object.keys(multiFields).forEach(name => (javaNode[`${name}Nodes`] = []));
   }
 
-  node.children.forEach((child, index) => {
-    const { type, text: value, startPosition, endPosition } = child;
-    if (type === SyntaxType.BlockComment || type === SyntaxType.LineComment) {
-      comments.push({
-        type,
-        value,
-        start: {
-          index: child.startIndex,
-          row: startPosition.row,
-          column: startPosition.column
-        },
-        end: {
-          index: child.endIndex,
-          row: endPosition.row,
-          column: endPosition.column
-        },
-        leading: false,
-        trailing: false,
-        printed: false
-      });
-    } else {
-      const fieldName = node.fieldNameForChild(index);
-      const javaChild = processTree(child, fieldName, comments);
+  node.children
+    .flatMap(child =>
+      child.type === SyntaxType.ParenthesizedExpression &&
+      !isParenthesizedParent(javaNode)
+        ? child.namedChildren
+        : [child]
+    )
+    .forEach((child, index) => {
+      const { type, text: value, startPosition, endPosition } = child;
+      if (type === SyntaxType.BlockComment || type === SyntaxType.LineComment) {
+        comments.push({
+          type,
+          value,
+          start: {
+            index: child.startIndex,
+            row: startPosition.row,
+            column: startPosition.column
+          },
+          end: {
+            index: child.endIndex,
+            row: endPosition.row,
+            column: endPosition.column
+          },
+          leading: false,
+          trailing: false,
+          printed: false
+        });
+      } else {
+        const fieldName = node.fieldNameForChild(index);
+        const javaChild = processTree(child, fieldName, comments);
 
-      javaNode.children.push(javaChild);
-      if (javaChild.isNamed) {
-        javaNode.namedChildren.push(javaChild);
-      }
+        javaNode.children.push(javaChild);
+        if (javaChild.isNamed) {
+          javaNode.namedChildren.push(javaChild);
+        }
 
-      if (fieldName) {
-        if (multiFields?.[fieldName]) {
-          javaNode[`${fieldName}Nodes`].push(javaChild);
-        } else {
-          javaNode[`${fieldName}Node`] = javaChild;
+        if (fieldName) {
+          if (multiFields?.[fieldName]) {
+            javaNode[`${fieldName}Nodes`].push(javaChild);
+          } else {
+            javaNode[`${fieldName}Node`] = javaChild;
+          }
         }
       }
-    }
-  });
+    });
 
   return javaNode;
 }

@@ -1,8 +1,8 @@
 public class BinaryOperations {
 
   public void binaryOperation() {
-    int alpha = (left) << right;
-    boolean beta = (left) < right;
+    int alpha = left << right;
+    boolean beta = left < right;
   }
 
   @Annotation(

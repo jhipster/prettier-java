@@ -1,13 +1,19 @@
-import { util, type Doc } from "prettier";
+import { util, type AstPath, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import { printComments, printCommentsSeparately } from "../comments.ts";
-import { SyntaxType, type NamedNode } from "../node-types.ts";
+import {
+  SyntaxType,
+  type NamedNode,
+  type TernaryExpressionNode
+} from "../node-types.ts";
 import {
   hasChild,
   hasLeadingComments,
   hasType,
   indentInParentheses,
+  isReturnOrThrowStatement,
   printDanglingComments,
+  shouldFlatten,
   type JavaParserOptions,
   type NamedNodePath,
   type NamedNodePrinters,
@@ -18,6 +24,7 @@ const {
   align,
   breakParent,
   conditionalGroup,
+  dedent,
   group,
   hardline,
   ifBreak,
@@ -35,7 +42,7 @@ const { removeLines, willBreak } = utils;
 export default {
   lambda_expression(path, print, options, args) {
     const signatureDocs: Doc[] = [];
-    let bodyDoc: Doc | undefined;
+    let bodyDoc: Doc;
     const bodyComments: Doc[] = [];
     const shouldPrintAsChain =
       !(
@@ -44,7 +51,7 @@ export default {
         "expandLastArg" in args &&
         args.expandLastArg
       ) && path.node.bodyNode.type === SyntaxType.LambdaExpression;
-    let functionBody: typeof path.node.bodyNode | undefined;
+    let functionBody: typeof path.node.bodyNode;
 
     (function rec() {
       const { node } = path;
@@ -77,61 +84,28 @@ export default {
     // as the arrow.
     const shouldPutBodyOnSameLine =
       !functionBody!.comments?.some(
-        ({ leading }) =>
-          leading && hasNewline(options.originalText, functionBody!.end.index)
+        comment =>
+          comment.leading && hasNewline(options.originalText, comment.end.index)
       ) && mayBreakAfterShortPrefix(functionBody!);
 
-    const isCallee =
-      path.node.fieldName === "object" &&
-      (path.parent as NamedNode | null)?.type === SyntaxType.MethodInvocation;
     const chainGroupId = Symbol("arrow-chain");
 
     const signaturesDoc = printArrowFunctionSignatures(path, {
       signatureDocs
     });
-    let shouldBreakSignatures = false;
-    let shouldIndentSignatures = false;
-    let shouldPrintSoftlineInIndent = false;
-    if (shouldPrintAsChain && isCallee) {
-      shouldIndentSignatures = true;
-      // If the lambda expression has a leading line comment, there should be a
-      // hardline above it so we should not print a softline in indent call
-      shouldPrintSoftlineInIndent = !path.node.comments?.some(
-        ({ type, leading }) => leading && type === SyntaxType.LineComment
-      );
-      shouldBreakSignatures = isCallee && !shouldPutBodyOnSameLine;
-    }
 
-    // if the arrow function is expanded as last argument, we are adding a
-    // level of indentation and need to add a softline to align the closing )
-    // with the opening (.
-    const trailingSpace =
-      args &&
-      typeof args === "object" &&
-      "expandLastArg" in args &&
-      args.expandLastArg &&
-      !path.node.comments
-        ? softline
-        : "";
-
-    bodyDoc = shouldPutBodyOnSameLine
-      ? [" ", bodyDoc!, bodyComments]
-      : [indent([line, bodyDoc!, bodyComments]), trailingSpace];
+    bodyDoc = printArrowFunctionBody(path, args, {
+      bodyDoc: bodyDoc!,
+      bodyComments,
+      shouldPutBodyOnSameLine
+    });
 
     return group([
-      group(
-        shouldIndentSignatures
-          ? indent([shouldPrintSoftlineInIndent ? softline : "", signaturesDoc])
-          : signaturesDoc,
-        { shouldBreak: shouldBreakSignatures, id: chainGroupId }
-      ),
+      group(signaturesDoc, { id: chainGroupId }),
       " ->",
       shouldPrintAsChain
         ? indentIfBreak(bodyDoc, { groupId: chainGroupId })
-        : group(bodyDoc),
-      shouldPrintAsChain && isCallee
-        ? ifBreak(softline, "", { groupId: chainGroupId })
-        : ""
+        : group(bodyDoc)
     ]);
   },
 
@@ -157,33 +131,104 @@ export default {
   },
 
   ternary_expression(path, print, options) {
-    const condition = path.call(print, "conditionNode");
-    const consequence = path.call(print, "consequenceNode");
-    const alternative = path.call(print, "alternativeNode");
+    const { node } = path;
+    const consequentNode = node.consequenceNode;
+    const parts = [];
 
-    const parentType = path.parent?.type;
-    const isNestedTernary = parentType === SyntaxType.TernaryExpression;
-    const suffix = [
+    const parent = path.parent as NamedNode;
+    const isParentTest =
+      parent.type === node.type && parent.conditionNode === node;
+    const forceNoIndent = parent.type === node.type && !isParentTest;
+
+    // Find the outermost non-TernaryExpression parent.
+    let currentParent: NamedNode | null | undefined;
+    let previousParent: NamedNode;
+    let i = 0;
+    do {
+      previousParent = currentParent || node;
+      currentParent = path.getParentNode(i);
+      i++;
+    } while (
+      currentParent &&
+      currentParent.type === node.type &&
+      currentParent.conditionNode !== previousParent
+    );
+    const firstNonConditionalParent = currentParent || parent;
+
+    /*
+    This does not mean to indent, but make the doc aligned with the first character after `? ` or `: `,
+    so we use `2` instead of `options.tabWidth` here.
+
+    ```js
+    test
+      ? {
+          consequent
+        }
+      : alternate
+    ```
+
+    instead of
+
+    ```js
+    test
+      ? {
+        consequent
+      }
+      : alternate
+    ```
+    */
+    const printBranch = (
+      nodePropertyName: "consequenceNode" | "alternativeNode"
+    ) =>
+      options.useTabs
+        ? indent(path.call(print, nodePropertyName))
+        : align(2, path.call(print, nodePropertyName));
+    const part = [
       line,
-      ["? ", options.useTabs ? indent(consequence) : align(2, consequence)],
+      "? ",
+      consequentNode.type === node.type ? ifBreak("", "(") : "",
+      printBranch("consequenceNode"),
+      consequentNode.type === node.type ? ifBreak("", ")") : "",
       line,
-      [": ", options.useTabs ? indent(alternative) : align(2, alternative)]
+      ": ",
+      printBranch("alternativeNode")
     ];
+    parts.push(
+      parent.type !== node.type ||
+        parent.alternativeNode === node ||
+        isParentTest
+        ? part
+        : options.useTabs
+          ? dedent(indent(part))
+          : align(Math.max(0, options.tabWidth - 2), part)
+    );
 
-    const prefix = group(condition);
-    const alignedSuffix =
-      !isNestedTernary || options.useTabs
-        ? suffix
-        : align(Math.max(0, options.tabWidth - 2), suffix);
+    const maybeGroup = (doc: Doc) =>
+      parent === firstNonConditionalParent ? group(doc) : doc;
 
-    if (isNestedTernary) {
-      return [prefix, alignedSuffix];
-    }
+    // Break the closing paren to keep the chain right after it:
+    // (a
+    //   ? b
+    //   : c
+    // ).call()
+    const breakClosingParen =
+      parent.type === SyntaxType.ExplicitConstructorInvocation ||
+      parent.type === SyntaxType.FieldAccess ||
+      parent.type === SyntaxType.MethodInvocation ||
+      parent.type === SyntaxType.MethodReference ||
+      parent.type === SyntaxType.ObjectCreationExpression;
 
-    const parts = [prefix, indent(alignedSuffix)];
-    return parentType === SyntaxType.ParenthesizedExpression
-      ? parts
-      : group(parts);
+    const shouldExtraIndent = shouldExtraIndentForTernaryExpression(path);
+
+    const result = maybeGroup([
+      printTernaryTest(path, print),
+      forceNoIndent ? parts : indent(parts),
+      breakClosingParen && !shouldExtraIndent ? softline : ""
+    ]);
+
+    return isParentTest || shouldExtraIndent
+      ? group([indent([softline, result]), softline])
+      : result;
   },
 
   assignment_expression(path, print) {
@@ -214,13 +259,13 @@ export default {
     const parent = path.parent as NamedNode | null;
     const grandparent = path.grandparent as NamedNode | null;
     const isInsideParentheses =
-      (parent?.fieldName === "condition" &&
-        (grandparent?.type === SyntaxType.IfStatement ||
-          grandparent?.type === SyntaxType.WhileStatement ||
-          grandparent?.type === SyntaxType.SwitchExpression ||
-          grandparent?.type === SyntaxType.DoStatement)) ||
-      (parent?.fieldName !== "body" &&
-        grandparent?.type === SyntaxType.SynchronizedStatement);
+      ((grandparent?.type === SyntaxType.IfStatement ||
+        grandparent?.type === SyntaxType.WhileStatement ||
+        grandparent?.type === SyntaxType.SwitchExpression ||
+        grandparent?.type === SyntaxType.DoStatement) &&
+        grandparent.conditionNode === parent) ||
+      (grandparent?.type === SyntaxType.SynchronizedStatement &&
+        grandparent.bodyNode !== parent);
 
     const parts = printBinaryExpressions(
       path,
@@ -229,39 +274,57 @@ export default {
       isInsideParentheses
     );
 
+    //   if (
+    //     this.hasPlugin("dynamicImports") && this.lookahead().type === tt.parenLeft
+    //   ) {
+    //
+    // looks super weird, we want to break the children if the parent breaks
+    //
+    //   if (
+    //     this.hasPlugin("dynamicImports") &&
+    //     this.lookahead().type === tt.parenLeft
+    //   ) {
     if (isInsideParentheses) {
       return parts;
     }
 
+    // Break between the parens in
+    // unaries or in a member or specific call expression, i.e.
+    //
+    //   (
+    //     a &&
+    //     b &&
+    //     c
+    //   ).call()
     if (
-      (parent?.fieldName === "object" &&
-        (grandparent?.type === SyntaxType.MethodInvocation ||
-          grandparent?.type === SyntaxType.ExplicitConstructorInvocation ||
-          grandparent?.type === SyntaxType.FieldAccess)) ||
-      grandparent?.type === SyntaxType.MethodReference
+      (parent?.type === SyntaxType.UnaryExpression && !node.comments) ||
+      ((parent?.type === SyntaxType.ExplicitConstructorInvocation ||
+        parent?.type === SyntaxType.FieldAccess ||
+        parent?.type === SyntaxType.MethodInvocation) &&
+        parent.objectNode === node) ||
+      parent?.type === SyntaxType.MethodReference ||
+      parent?.type === SyntaxType.ObjectCreationExpression
     ) {
-      return parts;
+      return group([indent([softline, ...parts]), softline]);
     }
 
     // Avoid indenting sub-expressions in some cases where the first sub-expression is already
     // indented accordingly. We should indent sub-expressions where the first case isn't indented.
     const shouldNotIndent =
-      parent?.type === SyntaxType.ReturnStatement ||
-      parent?.type === SyntaxType.ThrowStatement ||
-      parent?.type === SyntaxType.ParenthesizedExpression ||
+      isReturnOrThrowStatement(parent) ||
       parent?.type === SyntaxType.AssignmentExpression ||
       parent?.type === SyntaxType.VariableDeclarator ||
       parent?.type === SyntaxType.Guard ||
-      (node.fieldName === "body" &&
-        parent?.type === SyntaxType.LambdaExpression) ||
-      (node.fieldName !== "body" && parent?.type === SyntaxType.ForStatement) ||
+      (parent?.type === SyntaxType.LambdaExpression &&
+        parent.bodyNode === node) ||
+      (parent?.type === SyntaxType.ForStatement &&
+        parent.conditionNode === node) ||
       (parent?.type === SyntaxType.TernaryExpression &&
-        grandparent?.type !== SyntaxType.ReturnStatement &&
-        grandparent?.type !== SyntaxType.ThrowStatement &&
+        !isReturnOrThrowStatement(grandparent) &&
         grandparent?.type !== SyntaxType.ParenthesizedExpression &&
         grandparent?.type !== SyntaxType.ArgumentList) ||
-      (node.fieldName === "operand" &&
-        parent?.type === SyntaxType.UnaryExpression);
+      (parent?.type === SyntaxType.UnaryExpression &&
+        parent.operandNode === node);
 
     if (shouldNotIndent) {
       return group(parts);
@@ -392,12 +455,39 @@ export default {
   },
 
   cast_expression(path, print) {
-    const types = path.map(print, "typeNodes");
-    const value = path.call(print, "valueNode");
+    const { node } = path;
 
-    return types.length > 1
-      ? [group(indentInParentheses(join([line, "& "], types))), " ", value]
-      : ["(", ...types, ") ", value];
+    const castGroup = group(
+      node.typeNodes.length === 1
+        ? ["(", path.call(print, "typeNodes", 0), ")"]
+        : [
+            "(",
+            indent([
+              softline,
+              join([" &", line], path.map(print, "typeNodes"))
+            ]),
+            softline,
+            ")"
+          ]
+    );
+
+    const parts = [castGroup, " ", path.call(print, "valueNode")];
+
+    const parent = path.parent as NamedNode | null;
+    if (
+      (parent?.type === SyntaxType.UnaryExpression && !node.comments) ||
+      (parent?.type === SyntaxType.ArrayAccess && parent.arrayNode === node) ||
+      ((parent?.type === SyntaxType.ExplicitConstructorInvocation ||
+        parent?.type === SyntaxType.FieldAccess ||
+        parent?.type === SyntaxType.MethodInvocation) &&
+        parent.objectNode === node) ||
+      parent?.type === SyntaxType.MethodReference ||
+      parent?.type === SyntaxType.ObjectCreationExpression
+    ) {
+      return group([indent([softline, ...parts]), softline]);
+    }
+
+    return parts;
   },
 
   object_creation_expression(path, print) {
@@ -594,7 +684,7 @@ export default {
   array_access: printMemberChain,
 
   method_reference(path, print) {
-    return path.map(print, "children");
+    return group(path.map(print, "children"));
   },
 
   template_expression(path, print) {
@@ -628,20 +718,14 @@ export default {
   },
 
   guard(path, print) {
-    const hasParentheses =
-      path.node.namedChildren[0].type === SyntaxType.ParenthesizedExpression;
-    const expression = path.call(print, "namedChildren", 0);
-
     return [
       "when ",
-      hasParentheses
-        ? expression
-        : group([
-            ifBreak("("),
-            indent([softline, expression]),
-            softline,
-            ifBreak(")")
-          ])
+      group([
+        ifBreak("("),
+        indent([softline, path.call(print, "namedChildren", 0)]),
+        softline,
+        ifBreak(")")
+      ])
     ];
   }
 } satisfies Partial<NamedNodePrinters>;
@@ -735,6 +819,36 @@ function printArrowFunctionSignatures(
   }
 
   return group(indent(join([" ->", line], signatureDocs)));
+}
+
+function printArrowFunctionBody(
+  path: NamedNodePath,
+  args: unknown,
+  {
+    bodyDoc,
+    bodyComments,
+    shouldPutBodyOnSameLine
+  }: {
+    bodyDoc: Doc;
+    bodyComments: Doc[];
+    shouldPutBodyOnSameLine: boolean;
+  }
+) {
+  // if the arrow function is expanded as last argument, we are adding a
+  // level of indentation and need to add a softline to align the closing )
+  // with the opening (.
+  const trailingSpace =
+    args &&
+    typeof args === "object" &&
+    "expandLastArg" in args &&
+    args.expandLastArg &&
+    !path.node.comments
+      ? softline
+      : "";
+
+  return shouldPutBodyOnSameLine
+    ? [" ", bodyDoc, bodyComments]
+    : [indent([line, bodyDoc, bodyComments]), trailingSpace];
 }
 
 function shouldPrintParamsWithoutParens(
@@ -1242,84 +1356,10 @@ function printBinaryExpressions(
 
   parts.push(right);
 
-  return parent?.type === SyntaxType.BinaryExpression &&
-    needsParentheses(parent.operatorNode.type, operator)
-    ? ["(", ...parts, ")"]
-    : parts;
+  return parts;
 }
 
 const logicalOperators = new Set(["||", "&&"]);
-const equalityOperators = new Set(["==", "!="]);
-const multiplicativeOperators = new Set(["*", "/", "%"]);
-const bitshiftOperators = new Set([">>", ">>>", "<<"]);
-
-function shouldFlatten(parentOp: string, nodeOp: string) {
-  if (getPrecedence(nodeOp) !== getPrecedence(parentOp)) {
-    return false;
-  }
-
-  // x == y == z --> (x == y) == z
-  if (equalityOperators.has(parentOp) && equalityOperators.has(nodeOp)) {
-    return false;
-  }
-
-  // x * y % z --> (x * y) % z
-  if (
-    (nodeOp === "%" && multiplicativeOperators.has(parentOp)) ||
-    (parentOp === "%" && multiplicativeOperators.has(nodeOp))
-  ) {
-    return false;
-  }
-
-  // x * y / z --> (x * y) / z
-  // x / y * z --> (x / y) * z
-  if (
-    nodeOp !== parentOp &&
-    multiplicativeOperators.has(nodeOp) &&
-    multiplicativeOperators.has(parentOp)
-  ) {
-    return false;
-  }
-
-  // x << y << z --> (x << y) << z
-  if (bitshiftOperators.has(parentOp) && bitshiftOperators.has(nodeOp)) {
-    return false;
-  }
-
-  return true;
-}
-
-const PRECEDENCE = new Map(
-  [
-    ["||"],
-    ["&&"],
-    ["|"],
-    ["^"],
-    ["&"],
-    ["==", "!="],
-    ["<", ">", "<=", ">=", "instanceof"],
-    ["<<", ">>", ">>>"],
-    ["+", "-"],
-    ["*", "/", "%"]
-  ].flatMap((operators, index) => operators.map(operator => [operator, index]))
-);
-function getPrecedence(operator: string) {
-  return PRECEDENCE.get(operator) ?? -1;
-}
-
-function needsParentheses(parentOperator: string, operator: string) {
-  return (
-    (operator === "&&" && parentOperator === "||") ||
-    (["|", "^", "&", "<<", ">>", ">>>"].includes(parentOperator) &&
-      getPrecedence(operator) > getPrecedence(parentOperator)) ||
-    [operator, parentOperator].every(o => ["==", "!="].includes(o)) ||
-    [operator, parentOperator].every(o => ["<<", ">>", ">>>"].includes(o)) ||
-    (operator === "*" && parentOperator === "/") ||
-    (operator === "/" && parentOperator === "*") ||
-    (operator === "%" && ["+", "-", "*", "/"].includes(parentOperator)) ||
-    (["*", "/"].includes(operator) && parentOperator === "%")
-  );
-}
 
 function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   if (depth <= 0) {
@@ -1386,8 +1426,7 @@ function isLiteral(node: NamedNode) {
       SyntaxType.HexIntegerLiteral,
       SyntaxType.OctalIntegerLiteral,
       SyntaxType.CharacterLiteral
-    ].includes(node.type) ||
-    (node.type === SyntaxType.StringLiteral && node.children[0].value === '"')
+    ].includes(node.type) || isStringLiteral(node)
   );
 }
 
@@ -1473,10 +1512,6 @@ function shouldExpandFirstArg(args: NamedNode[]) {
 }
 
 function isHopefullyShortCallArgument(node: NamedNode) {
-  if (node.type === SyntaxType.ParenthesizedExpression) {
-    return isHopefullyShortCallArgument(node.namedChildren[0]);
-  }
-
   if (
     (node.type === SyntaxType.MethodInvocation ||
       node.type === SyntaxType.ObjectCreationExpression) &&
@@ -1493,6 +1528,93 @@ function isHopefullyShortCallArgument(node: NamedNode) {
   }
 
   return isSimpleCallArgument(node);
+}
+
+function printTernaryTest(
+  path: AstPath<TernaryExpressionNode>,
+  print: PrintFunction
+) {
+  const { node, parent } = path;
+
+  const printed = path.call(print, "conditionNode");
+  /**
+   *     a
+   *       ? b
+   *       : multiline
+   *         test
+   *         node
+   *       ^^ align(2)
+   *       ? d
+   *       : e
+   */
+  if (parent?.type === node.type && parent.alternativeNode === node) {
+    return align(2, printed);
+  }
+  return printed;
+}
+
+function getExpressionChild(node: NamedNode) {
+  switch (node.type) {
+    case SyntaxType.AssignmentExpression:
+      return node.rightNode;
+    case SyntaxType.VariableDeclarator:
+      return node.valueNode;
+    case SyntaxType.UnaryExpression:
+      return node.operandNode;
+    case SyntaxType.ReturnStatement:
+    case SyntaxType.ThrowStatement:
+    case SyntaxType.YieldStatement:
+      return node.namedChildren[0];
+    default:
+      return null;
+  }
+}
+
+function shouldExtraIndentForTernaryExpression(
+  path: NamedNodePath<SyntaxType.TernaryExpression>
+) {
+  const { node } = path;
+
+  let parent: NamedNode | undefined;
+  let child: NamedNode = node;
+  for (let ancestorCount = 0; !parent; ancestorCount++) {
+    const node = path.getParentNode(ancestorCount) as NamedNode;
+
+    if (
+      (node.type === SyntaxType.ArrayAccess && node.arrayNode === child) ||
+      ((node.type === SyntaxType.ExplicitConstructorInvocation ||
+        node.type === SyntaxType.FieldAccess ||
+        node.type === SyntaxType.MethodInvocation) &&
+        node.objectNode === child) ||
+      node.type === SyntaxType.MethodReference ||
+      node.type === SyntaxType.ObjectCreationExpression
+    ) {
+      child = node;
+      continue;
+    }
+
+    // Reached chain root
+
+    if (node.type === SyntaxType.CastExpression && node.valueNode === child) {
+      parent = path.getParentNode(ancestorCount + 1)!;
+      child = node;
+    } else {
+      parent = node;
+    }
+  }
+
+  // Do not add indent to direct `TernaryExpression`
+  if (child === node) {
+    return false;
+  }
+
+  return getExpressionChild(parent) === child;
+}
+
+function isStringLiteral(node: NamedNode) {
+  return (
+    node.type === SyntaxType.StringLiteral && node.children[0].value === '"'
+  );
 }
 
 class ArgExpansionBailout extends Error {

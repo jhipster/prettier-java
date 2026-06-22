@@ -6,6 +6,6 @@ class Example {
 
     a +
       // comment
-      (b);
+      b;
   }
 }

@@ -75,10 +75,10 @@ class ConditionalExpression {
         aaaaaaaaaa
             ? bbbbbbbbbb
             : cccccccccc
-                ? dddddddddd
-                : eeeeeeeeee
-                    ? ffffffffff
-                    : gggggggggg;
+              ? dddddddddd
+              : eeeeeeeeee
+                ? ffffffffff
+                : gggggggggg;
     }
 
     void ternaryWithComments() {
@@ -102,9 +102,9 @@ class ConditionalExpression {
     }
 
     void ternaryInParentheses() {
-        (aaaaaaaaaa
+        aaaaaaaaaa
             ? bbbbbbbbbb
-            : cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff());
+            : cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff();
     }
 
     void assignment() {

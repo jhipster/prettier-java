@@ -12,6 +12,7 @@ import parser from "./parser.ts";
 import printer from "./printer.ts";
 import {
   hasChild,
+  isMember,
   printComment,
   type JavaParserOptions,
   type NamedNodePath
@@ -243,7 +244,6 @@ function handleMemberChainComments(commentNode: CommentNode) {
     util.addLeadingComment(enclosingNode, commentNode);
     return true;
   } else if (
-    followingNode &&
     isMember(followingNode) &&
     (!precedingNode ||
       (precedingNode !== getMemberObject(followingNode) &&
@@ -327,14 +327,6 @@ function handleTryStatementComments(commentNode: CommentNode) {
     return true;
   }
   return false;
-}
-
-function isMember(node: SyntaxNode) {
-  return (
-    node.type === SyntaxType.ArrayAccess ||
-    node.type === SyntaxType.FieldAccess ||
-    node.type === SyntaxType.MethodInvocation
-  );
 }
 
 function getMemberObject(
