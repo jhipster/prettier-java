@@ -4,8 +4,8 @@ import { SyntaxType, type NamedNode } from "../node-types.ts";
 import {
   definedKeys,
   hasChild,
-  hasLeadingComments,
   indentInParentheses,
+  printAssignment,
   printBlock,
   printBlockStatements,
   printBodyDeclarations,
@@ -16,7 +16,7 @@ import {
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const { group, hardline, indent, indentIfBreak, join, line } = builders;
+const { group, hardline, indent, join, line } = builders;
 
 export default {
   class_declaration(path, print) {
@@ -96,31 +96,16 @@ export default {
   field_declaration: printVariableDeclaration,
 
   variable_declarator(path, print) {
-    const declarator = [path.call(print, "nameNode")];
+    const leftDoc = [path.call(print, "nameNode")];
     if (hasChild(path, "dimensionsNode")) {
-      declarator.push(path.call(print, "dimensionsNode"));
+      leftDoc.push(path.call(print, "dimensionsNode"));
     }
-    if (!hasChild(path, "valueNode")) {
-      return declarator;
-    }
-    declarator.push(" =");
-    const value = path.call(print, "valueNode");
-    if (
-      path.node.valueNode.type === SyntaxType.BinaryExpression ||
-      (path.node.valueNode.type === SyntaxType.TernaryExpression &&
-        path.node.valueNode.conditionNode.type ===
-          SyntaxType.BinaryExpression) ||
-      hasLeadingComments(path.node.valueNode)
-    ) {
-      declarator.push(group(indent([line, value])));
-    } else {
-      const groupId = Symbol("assignment");
-      declarator.push(
-        group(indent(line), { id: groupId }),
-        indentIfBreak(value, { groupId })
-      );
-    }
-    return group(declarator);
+    return printAssignment(
+      leftDoc,
+      " =",
+      hasChild(path, "valueNode") ? path.call(print, "valueNode") : undefined,
+      path.node.valueNode
+    );
   },
 
   method_declaration(path, print) {

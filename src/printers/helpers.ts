@@ -2,14 +2,26 @@ import type { AstPath, Doc, Options, ParserOptions } from "prettier";
 import { builders, utils } from "prettier/doc";
 import {
   SyntaxType,
+  type ArrayInitializerNode,
   type CommentNode,
+  type ExpressionNode,
   type NamedNode,
   type NamedType,
   type SyntaxNode,
   type TypeString
 } from "../node-types.ts";
 
-const { group, hardline, ifBreak, indent, join, line, softline } = builders;
+const {
+  group,
+  hardline,
+  ifBreak,
+  indent,
+  indentIfBreak,
+  join,
+  line,
+  lineSuffixBoundary,
+  softline
+} = builders;
 const { mapDoc } = utils;
 
 export function hasType<T extends NamedType>(
@@ -345,6 +357,40 @@ export function printVariableDeclaration(
   declaration.push(";");
 
   return declaration;
+}
+
+export function printAssignment(
+  leftDoc: Doc,
+  operator: Doc,
+  rightDoc?: Doc,
+  rightNode?: ArrayInitializerNode | ExpressionNode
+) {
+  if (!rightDoc || !rightNode) {
+    return leftDoc;
+  }
+
+  const breakAfterOperator =
+    rightNode.type === SyntaxType.BinaryExpression ||
+    rightNode.type === SyntaxType.InstanceofExpression ||
+    (rightNode.type === SyntaxType.TernaryExpression &&
+      (rightNode.conditionNode.type === SyntaxType.BinaryExpression ||
+        rightNode.conditionNode.type === SyntaxType.InstanceofExpression)) ||
+    hasLeadingComments(rightNode);
+
+  if (breakAfterOperator) {
+    // First break after operator, then right-hand side
+    return group([leftDoc, operator, group(indent([line, rightDoc]))]);
+  }
+
+  // First break right-hand side, then after operator
+  const groupId = Symbol("assignment");
+  return group([
+    leftDoc,
+    operator,
+    group(indent(line), { id: groupId }),
+    lineSuffixBoundary,
+    indentIfBreak(rightDoc, { groupId })
+  ]);
 }
 
 export function printTextBlock(
