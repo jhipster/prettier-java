@@ -740,7 +740,7 @@ export interface ArgumentListNode extends NamedNodeBase {
 
 export interface ArrayAccessNode extends NamedNodeBase {
   type: SyntaxType.ArrayAccess;
-  arrayNode: PrimaryExpressionNode;
+  arrayNode: ExpressionNode;
   indexNode: ExpressionNode;
 }
 
@@ -952,7 +952,7 @@ export interface ExplicitConstructorInvocationNode extends NamedNodeBase {
   type: SyntaxType.ExplicitConstructorInvocation;
   argumentsNode: ArgumentListNode;
   constructorNode: SuperNode | ThisNode;
-  objectNode?: PrimaryExpressionNode;
+  objectNode?: ExpressionNode;
   type_argumentsNode?: TypeArgumentsNode;
 }
 
@@ -973,7 +973,7 @@ export interface ExtendsInterfacesNode extends NamedNodeBase {
 export interface FieldAccessNode extends NamedNodeBase {
   type: SyntaxType.FieldAccess;
   fieldNode: IdentifierNode | ThisNode;
-  objectNode: PrimaryExpressionNode | SuperNode;
+  objectNode: ExpressionNode | SuperNode;
 }
 
 export interface FieldDeclarationNode extends NamedNodeBase {
@@ -1094,7 +1094,7 @@ export interface MethodInvocationNode extends NamedNodeBase {
   type: SyntaxType.MethodInvocation;
   argumentsNode: ArgumentListNode;
   nameNode: IdentifierNode;
-  objectNode?: PrimaryExpressionNode | SuperNode;
+  objectNode?: ExpressionNode | SuperNode;
   type_argumentsNode?: TypeArgumentsNode;
 }
 
@@ -1281,7 +1281,7 @@ export interface SynchronizedStatementNode extends NamedNodeBase {
 export interface TemplateExpressionNode extends NamedNodeBase {
   type: SyntaxType.TemplateExpression;
   template_argumentNode: StringLiteralNode;
-  template_processorNode: PrimaryExpressionNode;
+  template_processorNode: ExpressionNode;
 }
 
 export interface TernaryExpressionNode extends NamedNodeBase {

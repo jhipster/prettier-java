@@ -5,7 +5,8 @@ import {
   type CommentNode,
   type NamedNode,
   type NamedType,
-  type SyntaxNode
+  type SyntaxNode,
+  type TypeString
 } from "../node-types.ts";
 
 const { group, hardline, ifBreak, indent, join, line, softline } = builders;
@@ -393,6 +394,331 @@ export function textBlockContents(node: NamedNode<SyntaxType.StringLiteral>) {
     .join("\n")
     .slice(0, -3);
 }
+
+const PRECEDENCE = new Map(
+  [
+    ["||"],
+    ["&&"],
+    ["|"],
+    ["^"],
+    ["&"],
+    ["==", "!="],
+    ["<", ">", "<=", ">=", "instanceof"],
+    ["<<", ">>", ">>>"],
+    ["+", "-"],
+    ["*", "/", "%"]
+  ].flatMap((operators, index) => operators.map(operator => [operator, index]))
+);
+export function getPrecedence(operator: string) {
+  return PRECEDENCE.get(operator) ?? -1;
+}
+
+const equalityOperators = new Set(["==", "!="]);
+const multiplicativeOperators = new Set(["*", "/", "%"]);
+const bitshiftOperators = new Set([">>", ">>>", "<<"]);
+
+export function isBitwiseOperator(operator: string) {
+  return (
+    bitshiftOperators.has(operator) ||
+    operator === "|" ||
+    operator === "^" ||
+    operator === "&"
+  );
+}
+
+export function shouldFlatten(parentOp: string, nodeOp: string) {
+  if (getPrecedence(nodeOp) !== getPrecedence(parentOp)) {
+    return false;
+  }
+
+  // x == y == z --> (x == y) == z
+  if (equalityOperators.has(parentOp) && equalityOperators.has(nodeOp)) {
+    return false;
+  }
+
+  // x * y % z --> (x * y) % z
+  if (
+    (nodeOp === "%" && multiplicativeOperators.has(parentOp)) ||
+    (parentOp === "%" && multiplicativeOperators.has(nodeOp))
+  ) {
+    return false;
+  }
+
+  // x * y / z --> (x * y) / z
+  // x / y * z --> (x / y) * z
+  if (
+    nodeOp !== parentOp &&
+    multiplicativeOperators.has(nodeOp) &&
+    multiplicativeOperators.has(parentOp)
+  ) {
+    return false;
+  }
+
+  // x << y << z --> (x << y) << z
+  if (bitshiftOperators.has(parentOp) && bitshiftOperators.has(nodeOp)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function createTypeCheckFunction<T extends TypeString>(typesArray: T[]) {
+  const types = new Set<TypeString>(typesArray);
+
+  return (
+    node: SyntaxNode | undefined | null
+  ): node is Extract<SyntaxNode, { type: T }> =>
+    node != null && types.has(node.type);
+}
+
+export const isMember = createTypeCheckFunction([
+  SyntaxType.ArrayAccess,
+  SyntaxType.FieldAccess,
+  SyntaxType.MethodInvocation
+]);
+
+export function needsParentheses(path: NamedNodePath) {
+  if (path.isRoot) {
+    return false;
+  }
+
+  const { node, parent } = path;
+
+  const parentCheckResult = parentNeedsParentheses(path);
+  if (typeof parentCheckResult === "boolean") {
+    return parentCheckResult;
+  }
+
+  switch (node.type) {
+    case SyntaxType.SwitchExpression:
+      return (
+        isMember(parent) ||
+        parent?.type === SyntaxType.ExplicitConstructorInvocation ||
+        parent?.type === SyntaxType.MethodReference ||
+        parent?.type === SyntaxType.ObjectCreationExpression
+      );
+
+    case SyntaxType.UpdateExpression:
+      if (parent?.type === SyntaxType.UnaryExpression) {
+        return node.children[0].type.startsWith(parent.operatorNode.type);
+      }
+    // else fallthrough
+    case SyntaxType.UnaryExpression:
+      switch (parent?.type) {
+        case SyntaxType.UnaryExpression:
+          return (
+            node.type === SyntaxType.UnaryExpression &&
+            node.operatorNode.type === parent.operatorNode.type &&
+            (node.operatorNode.type === "+" || node.operatorNode.type === "-")
+          );
+
+        case SyntaxType.InstanceofExpression:
+          // A user typing `!foo instanceof Bar` probably intended
+          // `!(foo instanceof Bar)`, so format to `(!foo) instance Bar` to what is
+          // really happening
+          return (
+            parent.leftNode === node && node.type === SyntaxType.UnaryExpression
+          );
+
+        default:
+          return false;
+      }
+
+    case SyntaxType.BinaryExpression:
+    case SyntaxType.InstanceofExpression:
+      if (parent?.type === SyntaxType.UpdateExpression) {
+        return true;
+      }
+
+    // fallthrough
+    case SyntaxType.CastExpression:
+      switch (parent?.type) {
+        case SyntaxType.CastExpression:
+          // example: (Baz) (Bar) foo
+          return node.type !== SyntaxType.CastExpression;
+
+        case SyntaxType.MethodReference:
+        case SyntaxType.ObjectCreationExpression:
+        case SyntaxType.UpdateExpression:
+          return true;
+        case SyntaxType.UnaryExpression:
+          // `UnaryExpression` adds parentheses and indention when argument has comment
+          if (!node.comments) {
+            return true;
+          }
+          break;
+
+        case SyntaxType.ExplicitConstructorInvocation:
+        case SyntaxType.FieldAccess:
+        case SyntaxType.MethodInvocation:
+          return parent.objectNode === node;
+
+        case SyntaxType.ArrayAccess:
+          return parent.arrayNode === node;
+
+        case SyntaxType.BinaryExpression:
+        case SyntaxType.InstanceofExpression: {
+          if (node.type === SyntaxType.CastExpression) {
+            return false;
+          }
+
+          if (
+            parent.type === SyntaxType.BinaryExpression &&
+            isLogicalOperator(parent.operatorNode) &&
+            node.type === SyntaxType.BinaryExpression &&
+            isLogicalOperator(node.operatorNode)
+          ) {
+            return parent.operatorNode.type !== node.operatorNode.type;
+          }
+
+          const operator =
+            node.type === SyntaxType.InstanceofExpression
+              ? "instanceof"
+              : node.operatorNode.type;
+          const precedence = getPrecedence(operator);
+          const parentOperator =
+            parent.type === SyntaxType.InstanceofExpression
+              ? "instanceof"
+              : parent.operatorNode.type;
+          const parentPrecedence = getPrecedence(parentOperator);
+
+          if (parentPrecedence > precedence) {
+            return true;
+          }
+
+          if (parent.rightNode === node && parentPrecedence === precedence) {
+            return true;
+          }
+
+          if (
+            parentPrecedence === precedence &&
+            !shouldFlatten(parentOperator, operator)
+          ) {
+            return true;
+          }
+
+          if (
+            parentPrecedence < precedence &&
+            operator === "%" &&
+            (parentOperator === "+" || parentOperator === "-")
+          ) {
+            return true;
+          }
+
+          // Add parenthesis when working with bitwise operators
+          // It's not strictly needed but helps with code understanding
+          if (isBitwiseOperator(parentOperator)) {
+            return true;
+          }
+
+          return false;
+        }
+
+        default:
+          return false;
+      }
+      break;
+
+    case SyntaxType.AssignmentExpression:
+      if (
+        parent?.type === SyntaxType.ForStatement &&
+        (parent.initNodes.includes(node) || parent.updateNodes.includes(node))
+      ) {
+        return false;
+      }
+
+      if (
+        parent?.type === SyntaxType.ExpressionStatement &&
+        parent.namedChildren[0] === node
+      ) {
+        return false;
+      }
+
+      if (parent?.type === SyntaxType.AssignmentExpression) {
+        return false;
+      }
+
+      return true;
+
+    case SyntaxType.TernaryExpression:
+      switch (parent?.type) {
+        case SyntaxType.UnaryExpression:
+        case SyntaxType.BinaryExpression:
+        case SyntaxType.CastExpression:
+        case SyntaxType.MethodReference:
+        case SyntaxType.ObjectCreationExpression:
+          return true;
+
+        case SyntaxType.TernaryExpression:
+          return parent.conditionNode === node;
+
+        case SyntaxType.ExplicitConstructorInvocation:
+        case SyntaxType.FieldAccess:
+        case SyntaxType.MethodInvocation:
+          return parent.objectNode === node;
+
+        case SyntaxType.ArrayAccess:
+          return parent.arrayNode === node;
+
+        default:
+          return false;
+      }
+  }
+
+  return false;
+}
+
+export function returnArgumentHasLeadingComment(node: NamedNode) {
+  return node.comments?.some(
+    comment =>
+      comment.leading &&
+      (comment.type === SyntaxType.LineComment || comment.start < comment.end)
+  );
+}
+
+export const isReturnOrThrowStatement = createTypeCheckFunction([
+  SyntaxType.ReturnStatement,
+  SyntaxType.ThrowStatement
+]);
+
+function parentNeedsParentheses(path: AstPath<NamedNode>) {
+  const { parent } = path;
+
+  switch (parent?.type) {
+    case SyntaxType.ReturnStatement:
+    case SyntaxType.ThrowStatement:
+      if (willReturnOrThrowStatementBreak(path)) {
+        return false;
+      }
+      break;
+  }
+}
+
+function willReturnOrThrowStatementBreak(path: NamedNodePath) {
+  const { parent } = path;
+  if (!isReturnOrThrowStatement(parent)) {
+    return false;
+  }
+
+  /*
+  When `ReturnStatement` or `ThrowStatement` breaks, parentheses will be added around it's argument.
+  So don't need add parentheses again.
+  But we can't know how the argument printed, so only matches cases that will break for sure
+  */
+
+  const { node } = path;
+
+  if (
+    node.type === SyntaxType.AssignmentExpression &&
+    returnArgumentHasLeadingComment(node)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+const isLogicalOperator = createTypeCheckFunction(["||", "&&"]);
 
 function isSimpleType(node: NamedNode): boolean {
   const { type, children, namedChildren } = node;

@@ -1,6 +1,10 @@
-import type { Doc } from "prettier";
+import type { AstPath, Doc } from "prettier";
 import { builders } from "prettier/doc";
-import { SyntaxType } from "../node-types.ts";
+import {
+  SyntaxType,
+  type ReturnStatementNode,
+  type ThrowStatementNode
+} from "../node-types.ts";
 import {
   hasChild,
   hasLeadingComments,
@@ -10,7 +14,10 @@ import {
   printDanglingComments,
   printModifiers,
   printVariableDeclaration,
-  type NamedNodePrinters
+  returnArgumentHasLeadingComment,
+  type NamedNodePath,
+  type NamedNodePrinters,
+  type PrintFunction
 } from "./helpers.ts";
 
 const {
@@ -291,32 +298,8 @@ export default {
       : "continue;";
   },
 
-  return_statement(path, print) {
-    const statement: Doc[] = ["return"];
-
-    if (path.node.namedChildren.length) {
-      statement.push(" ");
-      const expression = path.call(print, "namedChildren", 0);
-      if (path.node.namedChildren[0].type === SyntaxType.BinaryExpression) {
-        statement.push(
-          group([
-            ifBreak("("),
-            indent([softline, expression]),
-            softline,
-            ifBreak(")")
-          ])
-        );
-      } else {
-        statement.push(expression);
-      }
-    }
-    statement.push(";");
-    return statement;
-  },
-
-  throw_statement(path, print) {
-    return ["throw ", path.call(print, "namedChildren", 0), ";"];
-  },
+  return_statement: printReturnOrThrowStatement,
+  throw_statement: printReturnOrThrowStatement,
 
   synchronized_statement(path, print) {
     const parenthesizedExpressionIndex = path.node.namedChildren.findIndex(
@@ -482,4 +465,45 @@ function printExpressionList(expressions: Doc[]) {
       index === 0 ? expression : [",", indent([line, expression])]
     )
   );
+}
+
+function printReturnOrThrowArgument(path: NamedNodePath, print: PrintFunction) {
+  const { node } = path;
+  const argumentDoc = print(path);
+
+  if (returnArgumentHasLeadingComment(node)) {
+    return ["(", indent([hardline, argumentDoc]), hardline, ")"];
+  }
+
+  if (node.type === SyntaxType.BinaryExpression) {
+    return group([
+      ifBreak("("),
+      indent([softline, argumentDoc]),
+      softline,
+      ifBreak(")")
+    ]);
+  }
+
+  return argumentDoc;
+}
+
+function printReturnOrThrowStatement(
+  path: AstPath<ReturnStatementNode | ThrowStatementNode>,
+  print: PrintFunction
+) {
+  const { node } = path;
+  return [
+    node.type === SyntaxType.ThrowStatement ? "throw" : "return",
+    node.namedChildren.length
+      ? [
+          " ",
+          path.call(
+            () => printReturnOrThrowArgument(path, print),
+            "namedChildren",
+            0
+          )
+        ]
+      : "",
+    ";"
+  ];
 }

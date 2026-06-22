@@ -13,16 +13,16 @@ public class Cast {
     foo((A & B & C) obj);
     foo(
       (
-        Aaeaozeaonzeoazneaozenazone
-        & Bazoieoainzeonaozenoazne
-        & Cjneazeanezoanezoanzeoaneonazeono
+        Aaeaozeaonzeoazneaozenazone &
+        Bazoieoainzeonaozenoazne &
+        Cjneazeanezoanezoanzeoaneonazeono
       ) obj
     );
     foo(
       (
-        Aaeaozeaonzeoazneaozenazone
-        & Bazoieoainzeonaozenoazne
-        & Cjneazeanezoanezoanzeoaneonazeono
+        Aaeaozeaonzeoazneaozenazone &
+        Bazoieoainzeonaozenoazne &
+        Cjneazeanezoanezoanzeoaneonazeono
       ) (othrElement, value) -> othrElement + value
     );
   }

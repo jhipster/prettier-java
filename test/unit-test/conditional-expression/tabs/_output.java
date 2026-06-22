@@ -101,9 +101,7 @@ class ConditionalExpression {
 	}
 
 	void ternaryInParentheses() {
-		(aaaaaaaaaa
-			? bbbbbbbbbb
-			: cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff());
+		aaaaaaaaaa ? bbbbbbbbbb : cccccccccc.dddddddddd().eeeeeeeeee().ffffffffff();
 	}
 
 	void assignment() {

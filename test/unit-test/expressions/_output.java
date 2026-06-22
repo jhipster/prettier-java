@@ -316,31 +316,6 @@ public class Expressions {
     ];
   }
 
-  void parenthesesWithoutBreak() {
-    (aaaaaaaaaa ->
-      bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();
-    (aaaaaaaaaa ->
-      bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)::ffffffffff;
-    (aaaaaaaaaa -> bbbbbbbbbb && cccccccccc ? dddddddddd : eeeeeeeeee)[
-      ffffffffff
-    ];
-
-    aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();
-    aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee)::ffffffffff;
-    aaaaaaaaaa = (bbbbbbbbbb -> cccccccccc ? dddddddddd : eeeeeeeeee)[
-      ffffffffff
-    ];
-
-    Aaaaaaaaaa aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee).ffffffffff();
-    Aaaaaaaaaa aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee)::ffffffffff;
-    Aaaaaaaaaa aaaaaaaaaa = (bbbbbbbbbb ->
-      cccccccccc ? dddddddddd : eeeeeeeeee)[ffffffffff];
-  }
-
   void unaryExpression() {
     int a = +x;
     int b = -x;

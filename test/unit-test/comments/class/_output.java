@@ -134,7 +134,7 @@ public final class ArrayTable<R, C, V>
    * @throws NullPointerException if {@code table} has a null key
    */
   public static <R, C, V> ArrayTable<R, C, V> create(Table<R, C, V> table) {
-    return (table instanceof ArrayTable<?, ?, ?>)
+    return table instanceof ArrayTable<?, ?, ?>
       ? new ArrayTable<R, C, V>((ArrayTable<R, C, V>) table)
       : new ArrayTable<R, C, V>(table);
   }
@@ -454,7 +454,7 @@ public final class ArrayTable<R, C, V>
   public V get(@Nullable Object rowKey, @Nullable Object columnKey) {
     Integer rowIndex = rowKeyToIndex.get(rowKey);
     Integer columnIndex = columnKeyToIndex.get(columnKey);
-    return (rowIndex == null || columnIndex == null)
+    return rowIndex == null || columnIndex == null
       ? null
       : at(rowIndex, columnIndex);
   }
@@ -631,7 +631,7 @@ public final class ArrayTable<R, C, V>
   public Map<R, V> column(C columnKey) {
     checkNotNull(columnKey);
     Integer columnIndex = columnKeyToIndex.get(columnKey);
-    return (columnIndex == null)
+    return columnIndex == null
       ? ImmutableMap.<R, V>of()
       : new Column(columnIndex);
   }
@@ -677,7 +677,7 @@ public final class ArrayTable<R, C, V>
   @Override
   public Map<C, Map<R, V>> columnMap() {
     ColumnMap map = columnMap;
-    return (map == null) ? columnMap = new ColumnMap() : map;
+    return map == null ? (columnMap = new ColumnMap()) : map;
   }
 
   @WeakOuter
@@ -723,7 +723,7 @@ public final class ArrayTable<R, C, V>
   public Map<C, V> row(R rowKey) {
     checkNotNull(rowKey);
     Integer rowIndex = rowKeyToIndex.get(rowKey);
-    return (rowIndex == null) ? ImmutableMap.<C, V>of() : new Row(rowIndex);
+    return rowIndex == null ? ImmutableMap.<C, V>of() : new Row(rowIndex);
   }
 
   private class Row extends ArrayMap<C, V> {
@@ -767,7 +767,7 @@ public final class ArrayTable<R, C, V>
   @Override
   public Map<R, Map<C, V>> rowMap() {
     RowMap map = rowMap;
-    return (map == null) ? rowMap = new RowMap() : map;
+    return map == null ? (rowMap = new RowMap()) : map;
   }
 
   @WeakOuter
