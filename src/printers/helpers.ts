@@ -680,7 +680,11 @@ export function needsParentheses(path: NamedNodePath) {
         return false;
       }
 
-      if (parent?.type === SyntaxType.AssignmentExpression) {
+      if (
+        parent?.type === SyntaxType.AssignmentExpression ||
+        (parent?.type === SyntaxType.LambdaExpression &&
+          parent.bodyNode === node)
+      ) {
         return false;
       }
 

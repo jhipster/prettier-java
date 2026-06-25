@@ -337,6 +337,10 @@ public class Lambda {
     void lambdaInParentheses() {
         (aaaaaaaaaa -> bbbbbbbbbb.cccccccccc().dddddddddd().eeeeeeeeee().ffffffffff());
     }
+
+    void lambdaWithAssignmentBody() {
+        a -> b = c;
+    }
 }
 
 class T {
