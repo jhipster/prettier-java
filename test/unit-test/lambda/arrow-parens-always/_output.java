@@ -571,6 +571,10 @@ public class Lambda {
     (aaaaaaaaaa) ->
       bbbbbbbbbb.cccccccccc().dddddddddd().eeeeeeeeee().ffffffffff();
   }
+
+  void lambdaWithAssignmentBody() {
+    (a) -> b = c;
+  }
 }
 
 class T {
