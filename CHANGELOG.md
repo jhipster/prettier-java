@@ -1,4 +1,13 @@
-# Latest v2.10.0
+# Latest v2.10.1
+
+## What's Changed
+* fix: omit parentheses around lambda body assignment expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/951
+* fix: prevent dropping children of parenthesized expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/952
+* fix: update Java grammar to fix parsing of lambda switch rule results and keyword statement labels by @jtkiesel in https://github.com/jhipster/prettier-java/pull/953
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.10.0...prettier-plugin-java@2.10.1
+
+# v2.10.0
 
 ## What's Changed
 * fix: proper handling of comments on lambda and parenthesized expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/917
