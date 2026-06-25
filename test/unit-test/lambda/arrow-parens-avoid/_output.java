@@ -575,6 +575,15 @@ public class Lambda {
   void lambdaWithAssignmentBody() {
     a -> b = c;
   }
+
+  void switchRulesWithLambdaResults() {
+    Function<Integer, Integer> f = switch (o) {
+      case false -> a -> a + 1;
+      case B -> a -> a + 2;
+      case Boolean b when b -> a -> a + 3;
+      default -> c -> c + 4;
+    };
+  }
 }
 
 class T {
