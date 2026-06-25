@@ -7,5 +7,8 @@ class Example {
     a +
       // comment
       b;
+
+    a = //
+      b;
   }
 }
