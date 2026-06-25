@@ -100,14 +100,14 @@ function processTree(
     Object.keys(multiFields).forEach(name => (javaNode[`${name}Nodes`] = []));
   }
 
-  node.children
-    .flatMap(child =>
+  node.children.forEach((child, index) => {
+    const fieldName = node.fieldNameForChild(index);
+    const children =
       child.type === SyntaxType.ParenthesizedExpression &&
       !isParenthesizedParent(javaNode)
         ? child.namedChildren
-        : [child]
-    )
-    .forEach((child, index) => {
+        : [child];
+    children.forEach(child => {
       const { type, text: value, startPosition, endPosition } = child;
       if (type === SyntaxType.BlockComment || type === SyntaxType.LineComment) {
         comments.push({
@@ -128,7 +128,6 @@ function processTree(
           printed: false
         });
       } else {
-        const fieldName = node.fieldNameForChild(index);
         const javaChild = processTree(child, fieldName, comments);
 
         javaNode.children.push(javaChild);
@@ -145,6 +144,7 @@ function processTree(
         }
       }
     });
+  });
 
   return javaNode;
 }
