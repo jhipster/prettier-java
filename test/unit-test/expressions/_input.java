@@ -97,6 +97,10 @@ public class Expressions {
     }
   }
 
+  void labeledStatement() {
+    record: if (true) {}
+  }
+
   public void printSwitch() {
     switch(myValue == 42 || myValue == 42 && myValue == 42 && myValue == 42 || myValue == 42 && myValue == 42) {
 
