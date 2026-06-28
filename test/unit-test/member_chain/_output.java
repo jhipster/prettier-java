@@ -203,6 +203,10 @@ public class BreakLongFunctionCall {
     dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
   }
 
+  void classLiteralArgument() {
+    a().b(C.class).d();
+  }
+
   void argumentComment() {
     a(
       // comment

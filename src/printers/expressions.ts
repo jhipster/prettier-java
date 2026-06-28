@@ -1356,7 +1356,11 @@ function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   const isChildSimple = (child: NamedNode) =>
     isSimpleCallArgument(child, depth - 1);
 
-  if (isLiteral(node) || isSingleWordType(node)) {
+  if (
+    isLiteral(node) ||
+    isSingleWordType(node) ||
+    node.type === SyntaxType.ClassLiteral
+  ) {
     return true;
   }
 
@@ -1389,9 +1393,12 @@ function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
     );
   }
 
+  if (node.type === SyntaxType.UnaryExpression) {
+    return isSimpleCallArgument(node.operandNode, depth);
+  }
+
   if (
     node.type === SyntaxType.MethodReference ||
-    node.type === SyntaxType.UnaryExpression ||
     node.type === SyntaxType.UpdateExpression
   ) {
     return isSimpleCallArgument(node.namedChildren[0], depth);
