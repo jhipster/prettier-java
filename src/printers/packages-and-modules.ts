@@ -15,7 +15,7 @@ const { group, hardline, indent, join, line } = builders;
 export default {
   program(path, print) {
     if (!path.node.namedChildren.length) {
-      return [...printDanglingComments(path), hardline];
+      return [printDanglingComments(path), hardline];
     }
 
     const parts: Doc[] = [];

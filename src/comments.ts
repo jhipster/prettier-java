@@ -79,7 +79,6 @@ export function canAttachComment(node: SyntaxNode, ancestors: SyntaxNode[]) {
   switch (node.type) {
     case SyntaxType.EnumBodyDeclarations:
     case SyntaxType.EscapeSequence:
-    case SyntaxType.FormalParameters:
     case SyntaxType.Modifier:
     case SyntaxType.MultilineStringFragment:
     case SyntaxType.Program:
@@ -113,6 +112,7 @@ export function handleLineComment(
 ) {
   return [
     handleBinaryExpressionComments,
+    handleFormalParametersComments,
     handleFqnOrRefTypeComments,
     handleIfStatementComments,
     handleJumpStatementComments,
@@ -154,6 +154,19 @@ function handleBinaryExpressionComments(
       util.addLeadingComment(precedingNode, commentNode);
       return true;
     }
+  }
+  return false;
+}
+
+function handleFormalParametersComments(commentNode: CommentNode) {
+  const { enclosingNode, precedingNode, followingNode } = commentNode;
+  if (
+    enclosingNode?.type === SyntaxType.FormalParameters &&
+    !precedingNode &&
+    !followingNode
+  ) {
+    util.addDanglingComment(enclosingNode, commentNode, undefined);
+    return true;
   }
   return false;
 }
@@ -368,7 +381,6 @@ type PrettierIgnoreRange = {
 
 function printLeadingComment(path: AstPath<CommentNode>) {
   const comment = path.node;
-  comment.printed = true;
   const parts: Doc[] = [printComment(comment)];
 
   const originalText = path.root.value;
@@ -410,7 +422,6 @@ function printTrailingComment(
   previousComment?: { doc: Doc; isBlock: boolean; hasLineSuffix: boolean }
 ): NonNullable<typeof previousComment> {
   const comment = path.node;
-  comment.printed = true;
   const printed = printComment(comment);
 
   const originalText = path.root.value;
