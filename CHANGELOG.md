@@ -1,4 +1,12 @@
-# Latest v2.10.1
+# Latest v2.10.2
+
+## What's Changed
+* fix: treat class literals as simple arguments, like field access by @jtkiesel in https://github.com/jhipster/prettier-java/pull/962
+* fix: restore comment attachment to formal parameters, including JSNI comments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/963
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.10.1...prettier-plugin-java@2.10.2
+
+# v2.10.1
 
 ## What's Changed
 * fix: omit parentheses around lambda body assignment expressions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/951
