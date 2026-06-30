@@ -95,23 +95,35 @@ export function lineEndWithComments(node: SyntaxNode) {
     : node.end.row;
 }
 
-export function printDanglingComments(path: NamedNodePath) {
-  if (!path.node.comments?.length) {
-    return [];
+export function printDanglingComments(
+  path: NamedNodePath,
+  danglingCommentsPrintOptions: { indent?: boolean } = {}
+): Doc {
+  const { indent: shouldIndent = false } = danglingCommentsPrintOptions;
+  const danglingComments = new Set(
+    path.node.comments?.filter(
+      comment => !(comment.leading || comment.trailing)
+    )
+  );
+
+  if (danglingComments.size === 0) {
+    return "";
   }
-  const comments: Doc[] = [];
-  path.each(commentPath => {
-    const comment = commentPath.node;
-    if (comment.leading || comment.trailing) {
-      return;
-    }
-    comment.printed = true;
-    comments.push(printComment(comment));
-  }, "comments");
-  return join(hardline, comments);
+
+  const parts = path
+    .map(
+      ({ node: comment }) =>
+        danglingComments.has(comment) ? printComment(comment) : "",
+      "comments"
+    )
+    .filter(Boolean);
+
+  const doc = join(hardline, parts);
+  return shouldIndent ? indent([hardline, doc]) : doc;
 }
 
 export function printComment(comment: CommentNode) {
+  comment.printed = true;
   const lines = comment.value.split("\n").map(line => line.trim());
   return lines.length > 1 &&
     lines[0].startsWith("/*") &&
@@ -129,7 +141,7 @@ export function hasLeadingComments(node: SyntaxNode) {
 }
 
 export function indentInParentheses(contents: Doc) {
-  return !Array.isArray(contents) || contents.length
+  return (contents && !Array.isArray(contents)) || contents.length
     ? ["(", indent([softline, contents]), softline, ")"]
     : "()";
 }
@@ -142,10 +154,8 @@ export function printArrayInitializer(
   options: JavaParserOptions
 ) {
   if (!path.node.namedChildren.length) {
-    const danglingComments = printDanglingComments(path);
-    return danglingComments.length
-      ? ["{", indent([hardline, ...danglingComments]), hardline, "}"]
-      : "{}";
+    const danglingComments = printDanglingComments(path, { indent: true });
+    return danglingComments ? ["{", danglingComments, hardline, "}"] : "{}";
   }
 
   const list = join([",", line], path.map(print, "namedChildren"));
@@ -166,9 +176,9 @@ export function printBlock(path: NamedNodePath, contents: Doc[]) {
       "}"
     ]);
   }
-  const danglingComments = printDanglingComments(path);
-  if (danglingComments.length) {
-    return ["{", indent([hardline, ...danglingComments]), hardline, "}"];
+  const danglingComments = printDanglingComments(path, { indent: true });
+  if (danglingComments) {
+    return ["{", danglingComments, hardline, "}"];
   }
   const parent = path.parent;
   const grandparent = path.grandparent;

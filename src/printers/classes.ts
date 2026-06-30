@@ -9,14 +9,16 @@ import {
   printBlock,
   printBlockStatements,
   printBodyDeclarations,
+  printDanglingComments,
   printModifiers,
   printTypeParameters,
   printValue,
   printVariableDeclaration,
+  type NamedNodePath,
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const { group, hardline, indent, join, line } = builders;
+const { group, hardline, indent, join, line, softline } = builders;
 
 export default {
   class_declaration(path, print) {
@@ -165,14 +167,16 @@ export default {
   },
 
   formal_parameters(path, print) {
-    return indentInParentheses(
-      join(
-        [",", line],
-        (path.parent as NamedNode | null)?.type === SyntaxType.RecordDeclaration
-          ? printBodyDeclarations(path, print)
-          : path.map(print, "namedChildren")
-      )
-    );
+    const parameters =
+      (path.parent as NamedNode | null)?.type === SyntaxType.RecordDeclaration
+        ? printBodyDeclarations(path, print)
+        : path.map(print, "namedChildren");
+
+    if (parameters.length === 0) {
+      return ["(", printDanglingCommentsInList(path), ")"];
+    }
+
+    return indentInParentheses(join([",", line], parameters));
   },
 
   formal_parameter(path, print) {
@@ -440,3 +444,19 @@ const indexByModifier = [
   "non-sealed",
   "strictfp"
 ].reduce((map, name, index) => map.set(name, index), new Map<string, number>());
+
+function printDanglingCommentsInList(path: NamedNodePath) {
+  const { node } = path;
+
+  return node.comments?.some(comment => !(comment.leading || comment.trailing))
+    ? [
+        indent([softline, printDanglingComments(path)]),
+        node.comments.some(
+          ({ type, leading, trailing }) =>
+            !(leading || trailing) && type === SyntaxType.LineComment
+        )
+          ? hardline
+          : softline
+      ]
+    : "";
+}

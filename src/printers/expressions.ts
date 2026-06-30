@@ -763,7 +763,7 @@ function printLambdaExpressionSignature(
   }
 
   const dangling = printDanglingComments(path);
-  if (dangling.length) {
+  if (dangling) {
     parts.push(" ", dangling);
   }
   return parts;
@@ -980,9 +980,9 @@ function printMemberChain(
   }
 
   const danglingComments = printDanglingComments(path);
-  if (danglingComments.length) {
+  if (danglingComments) {
     printedNodes[0].printed = [
-      ...danglingComments,
+      danglingComments,
       hardline,
       printedNodes[0].printed
     ];

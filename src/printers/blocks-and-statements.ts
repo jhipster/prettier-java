@@ -68,8 +68,8 @@ export default {
     }
 
     const danglingComments = printDanglingComments(path);
-    if (danglingComments.length) {
-      statement.push(hardline, ...danglingComments, hardline);
+    if (danglingComments) {
+      statement.push(hardline, danglingComments, hardline);
     } else {
       const ifHasBlock = path.node.consequenceNode.type === SyntaxType.Block;
       statement.push(ifHasBlock ? " " : hardline);
@@ -212,10 +212,6 @@ export default {
 
   for_statement(path, print) {
     const danglingComments = printDanglingComments(path);
-    if (danglingComments.length) {
-      danglingComments.push(hardline);
-    }
-
     const hasInit = path.node.initNodes.length > 0;
     const hasCondition = hasChild(path, "conditionNode");
     const hasUpdate = path.node.updateNodes.length > 0;
@@ -231,7 +227,7 @@ export default {
 
     const hasEmptyStatement = path.node.bodyNode.type === ";";
     const parts = [
-      ...danglingComments,
+      danglingComments && [danglingComments, hardline],
       "for ",
       hasInit || hasCondition || hasUpdate
         ? group(indentInParentheses(join(line, expressions)))
@@ -247,14 +243,15 @@ export default {
   },
 
   enhanced_for_statement(path, print) {
-    const forStatement = printDanglingComments(path);
-    forStatement.push(
+    const danglingComments = printDanglingComments(path);
+    const forStatement = [
+      danglingComments && [danglingComments, hardline],
       "for (",
       ...printModifiers(path, print),
       path.call(print, "typeNode"),
       " ",
       path.call(print, "nameNode")
-    );
+    ];
 
     if (hasChild(path, "dimensionsNode")) {
       forStatement.push(path.call(print, "dimensionsNode"));
