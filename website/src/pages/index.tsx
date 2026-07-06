@@ -30,7 +30,7 @@ function HomepageHeader() {
 
 function TldrSection() {
   return (
-    <section className="hero hero--secondary">
+    <section className={`hero ${styles.tldrSection}`}>
       <div className="container">
         <div className={`row text--warning ${styles.sectionRow}`}>
           <div className={`col ${styles.sectionCol}`}>
@@ -54,7 +54,7 @@ function TldrSection() {
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home() {
   return (
     <Layout>
       <HomepageHeader />

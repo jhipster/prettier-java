@@ -93,20 +93,20 @@ export default {
       name: "webpack-config-plugin",
       configureWebpack(_, isServer) {
         return {
-          resolve: isServer
-            ? {}
-            : {
-                fallback: {
-                  "fs/promises": false,
-                  module: false
-                }
-              },
-          externals: isServer
-            ? {
-                "prettier-plugin-java": "commonjs prettier-plugin-java",
-                "web-tree-sitter": "commonjs web-tree-sitter"
+          resolve: {
+            ...(!isServer && {
+              fallback: {
+                "fs/promises": false,
+                module: false
               }
-            : {}
+            })
+          },
+          externals: {
+            ...(isServer && {
+              "prettier-plugin-java": "commonjs prettier-plugin-java",
+              "web-tree-sitter": "commonjs web-tree-sitter"
+            })
+          }
         };
       }
     })

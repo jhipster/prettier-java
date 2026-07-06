@@ -1,3 +1,4 @@
+import BrowserOnly from "@docusaurus/BrowserOnly";
 import { useHistory, useLocation } from "@docusaurus/router";
 import CodeEditor from "@site/src/components/CodeEditor";
 import Layout from "@theme/Layout";
@@ -57,16 +58,6 @@ public abstract class Foo implements MyInterface {
 }`;
 
 export default function Playground() {
-  return (
-    <Layout noFooter title="Playground">
-      <main>
-        <Inner />
-      </main>
-    </Layout>
-  );
-}
-
-function Inner() {
   const history = useHistory();
   const location = useLocation();
 
@@ -124,7 +115,7 @@ function Inner() {
         requirePragma
       })
       .then(setFormattedCode)
-      .catch(error => setFormattedCode(error.message));
+      .catch((error: Error) => setFormattedCode(error.message));
   }, [
     printWidth,
     tabWidth,
@@ -137,100 +128,118 @@ function Inner() {
   ]);
 
   return (
-    <div className={styles.playground}>
-      <div className={styles.options}>
-        <details open>
-          <summary>Global</summary>
-          <label title="The line length that the printer will wrap on.">
-            --print-width{" "}
-            <input
-              type="number"
-              min={0}
-              value={printWidth}
-              onChange={event => setPrintWidth(event.target.valueAsNumber)}
-            />
-          </label>
-          <label title="The number of spaces per indentation-level.">
-            --tab-width{" "}
-            <input
-              type="number"
-              min={0}
-              value={tabWidth}
-              onChange={event => setTabWidth(event.target.valueAsNumber)}
-            />
-          </label>
-          <label title="Indent lines with tabs instead of spaces.">
-            <input
-              type="checkbox"
-              checked={useTabs}
-              onChange={event => setUseTabs(event.target.checked)}
-            />{" "}
-            --use-tabs
-          </label>
-        </details>
-        <details open>
-          <summary>Java</summary>
-          <label title="Include parentheses around a sole arrow function parameter.">
-            --arrow-parens{" "}
-            <select
-              value={arrowParens}
-              onChange={event =>
-                setArrowParens(event.target.value as ArrowParens)
-              }
-            >
-              {Object.values(ArrowParens).map(option => (
-                <option key={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-          <label title="Print trailing commas wherever possible when multi-line.">
-            --trailing-comma{" "}
-            <select
-              value={trailingComma}
-              onChange={event =>
-                setTrailingComma(event.target.value as TrailingComma)
-              }
-            >
-              {Object.values(TrailingComma).map(option => (
-                <option key={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-          <label title="Where to print operators when binary expressions wrap lines.">
-            --experimental-operator-position{" "}
-            <select
-              value={experimentalOperatorPosition}
-              onChange={event =>
-                setExperimentalOperatorPosition(
-                  event.target.value as ExperimentalOperatorPosition
-                )
-              }
-            >
-              {Object.values(ExperimentalOperatorPosition).map(option => (
-                <option key={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-        </details>
-        <details open>
-          <summary>Special</summary>
-          <label title="Require either '@prettier' or '@format' to be present in the file's first docblock comment in order for it to be formatted.">
-            <input
-              type="checkbox"
-              checked={requirePragma}
-              onChange={event => setRequirePragma(event.target.checked)}
-            />{" "}
-            --require-pragma
-          </label>
-        </details>
-      </div>
-      <div className={styles.editors}>
-        <CodeEditor rulers={[printWidth]} value={code} onChange={setCode} />
-        {isFirstRun.current ? null : (
-          <CodeEditor readOnly rulers={[printWidth]} value={formattedCode} />
-        )}
-      </div>
-    </div>
+    <Layout noFooter title="Playground">
+      <main>
+        <div className={styles.playground}>
+          <div className={styles.options}>
+            <details open>
+              <summary>Global</summary>
+              <label title="The line length that the printer will wrap on.">
+                --print-width{" "}
+                <input
+                  type="number"
+                  min={0}
+                  value={printWidth}
+                  onChange={event => setPrintWidth(event.target.valueAsNumber)}
+                />
+              </label>
+              <label title="The number of spaces per indentation-level.">
+                --tab-width{" "}
+                <input
+                  type="number"
+                  min={0}
+                  value={tabWidth}
+                  onChange={event => setTabWidth(event.target.valueAsNumber)}
+                />
+              </label>
+              <label title="Indent lines with tabs instead of spaces.">
+                <input
+                  type="checkbox"
+                  checked={useTabs}
+                  onChange={event => setUseTabs(event.target.checked)}
+                />{" "}
+                --use-tabs
+              </label>
+            </details>
+            <details open>
+              <summary>Java</summary>
+              <label title="Include parentheses around a sole arrow function parameter.">
+                --arrow-parens{" "}
+                <select
+                  value={arrowParens}
+                  onChange={event =>
+                    setArrowParens(event.target.value as ArrowParens)
+                  }
+                >
+                  {Object.values(ArrowParens).map(option => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+              <label title="Print trailing commas wherever possible when multi-line.">
+                --trailing-comma{" "}
+                <select
+                  value={trailingComma}
+                  onChange={event =>
+                    setTrailingComma(event.target.value as TrailingComma)
+                  }
+                >
+                  {Object.values(TrailingComma).map(option => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+              <label title="Where to print operators when binary expressions wrap lines.">
+                --experimental-operator-position{" "}
+                <select
+                  value={experimentalOperatorPosition}
+                  onChange={event =>
+                    setExperimentalOperatorPosition(
+                      event.target.value as ExperimentalOperatorPosition
+                    )
+                  }
+                >
+                  {Object.values(ExperimentalOperatorPosition).map(option => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+            </details>
+            <details open>
+              <summary>Special</summary>
+              <label title="Require either '@prettier' or '@format' to be present in the file's first docblock comment in order for it to be formatted.">
+                <input
+                  type="checkbox"
+                  checked={requirePragma}
+                  onChange={event => setRequirePragma(event.target.checked)}
+                />{" "}
+                --require-pragma
+              </label>
+            </details>
+          </div>
+          <div className={styles.editors}>
+            <BrowserOnly>
+              {() => (
+                <>
+                  <CodeEditor
+                    name="Input"
+                    ruler={printWidth}
+                    value={code}
+                    onChange={setCode}
+                  />
+                  <CodeEditor
+                    name="Output"
+                    readOnly
+                    ruler={printWidth}
+                    value={formattedCode}
+                  />
+                </>
+              )}
+            </BrowserOnly>
+          </div>
+        </div>
+      </main>
+    </Layout>
   );
 }
 
