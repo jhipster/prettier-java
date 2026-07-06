@@ -1,17 +1,22 @@
 .editor {
-  width: calc(50vw - 100px);
-  height: calc(100vh - 60px);
-  border-left: 1px solid #ddd;
+  position: relative;
+  flex: 1;
+  border-bottom: var(--playground-border);
+  min-inline-size: 0;
+  min-block-size: 0;
+  font-size: 12px;
 }
 
-@media (max-width: 996px) {
-  .editor {
-    width: calc(100vw - 200px);
-    height: calc(50vh - 30px);
-    border-bottom: 1px solid #ddd;
-  }
-
-  .editor ~ .editor {
-    border-bottom: none;
-  }
+.editorName {
+  position: absolute;
+  opacity: 0.4;
+  z-index: 10;
+  inset-block-end: 1px;
+  inset-inline-start: 1px;
+  border-start-end-radius: 4px;
+  background: #000;
+  padding: 0.25em 0.5em;
+  pointer-events: none;
+  color: #fff;
+  line-height: 1.25;
 }

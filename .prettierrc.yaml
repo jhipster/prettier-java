@@ -1,3 +1,5 @@
+plugins:
+  - prettier-plugin-css-order
 trailingComma: "none"
 useTabs: false
 tabWidth: 2

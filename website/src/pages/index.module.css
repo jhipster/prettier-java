@@ -1,17 +1,21 @@
 .heroBanner {
-  margin: 30px 10px;
+  margin: 2rem 0;
   text-align: center;
 }
 
 .logoWide {
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
   max-width: 685px;
 }
 
 .buttons {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 1rem;
+}
+
+.tldrSection {
+  flex: 1;
 }
 
 .sectionRow {
@@ -19,6 +23,6 @@
 }
 
 .sectionCol {
-  width: fit-content;
   flex: initial;
+  width: fit-content;
 }
