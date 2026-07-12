@@ -1064,9 +1064,7 @@ export interface LambdaExpressionNode extends NamedNodeBase {
   type: SyntaxType.LambdaExpression;
   bodyNode: BlockNode | ExpressionNode;
   parametersNode:
-    | FormalParametersNode
-    | IdentifierNode
-    | InferredParametersNode;
+    FormalParametersNode | IdentifierNode | InferredParametersNode;
 }
 
 export interface LocalVariableDeclarationNode extends NamedNodeBase {
@@ -1338,10 +1336,7 @@ export interface UnaryExpressionNode extends NamedNodeBase {
   type: SyntaxType.UnaryExpression;
   operandNode: ExpressionNode;
   operatorNode:
-    | UnnamedNode<"!">
-    | UnnamedNode<"+">
-    | UnnamedNode<"-">
-    | UnnamedNode<"~">;
+    UnnamedNode<"!"> | UnnamedNode<"+"> | UnnamedNode<"-"> | UnnamedNode<"~">;
 }
 
 export interface UpdateExpressionNode extends NamedNodeBase {
