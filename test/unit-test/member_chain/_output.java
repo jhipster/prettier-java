@@ -288,13 +288,9 @@ public class BreakLongFunctionCall {
 
     a()
       .b()
-      .<
-        Cccccccccc,
-        Dddddddddd,
-        Eeeeeeeeee,
-        Ffffffffff,
-        Gggggggggg
-      >hhhhhhhhhh("iiiiiiiiii");
+      .<Cccccccccc, Dddddddddd, Eeeeeeeeee, Ffffffffff, Gggggggggg>hhhhhhhhhh(
+        "iiiiiiiiii"
+      );
 
     a()
       .b()
@@ -316,6 +312,12 @@ public class BreakLongFunctionCall {
         Ffffffffff,
         Gggggggggg,
         Hhhhhhhhhh
-      >iiiiiiiiii("jjjjjjjjjj", "kkkkkkkkkk", "llllllllll", "mmmmmmmmmm", "nnnnnnnnnn");
+      >iiiiiiiiii(
+        "jjjjjjjjjj",
+        "kkkkkkkkkk",
+        "llllllllll",
+        "mmmmmmmmmm",
+        "nnnnnnnnnn"
+      );
   }
 }

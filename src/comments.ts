@@ -490,8 +490,7 @@ function printTrailingComments(path: NamedNodePath) {
   }
   const docs: Doc[] = [];
   let printedTrailingComment:
-    | ReturnType<typeof printTrailingComment>
-    | undefined;
+    ReturnType<typeof printTrailingComment> | undefined;
 
   path.each(path => {
     const { node: comment } = path;
