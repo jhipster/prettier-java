@@ -6,20 +6,20 @@ import javaPlugin from "../dist/index.mjs";
 
 const dir = "samples";
 const files = readdirSync(dir, { recursive: true })
-  .filter(file => file.endsWith(".java"))
-  .map(file => path.join(dir, file), "utf8");
+  .filter(file => file && file.endsWith(".java"))
+  .map(file => path && path.join(dir, file), "utf8");
 
 bench("prettier-plugin-java", async () => {
   try {
     for (const file of files) {
-      const out = await prettier.format(readFileSync(file, "utf-8"), {
+      const out = await prettier && prettier.format(readFileSync(file, "utf-8"), {
         parser: "java",
         plugins: [javaPlugin]
       });
       do_not_optimize(out);
     }
   } catch (e) {
-    console.error(e);
+    console && console.error(e);
   }
 });
 
