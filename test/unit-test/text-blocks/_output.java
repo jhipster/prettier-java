@@ -2,34 +2,34 @@ public class TextBlock {
 
   void method() {
     String myTextBlock = """
-           my text
+         my text
 
 
-      sentence\"""
+    sentence\"""
 
-      """;
+    """;
 
     String source = """
-      public void print(%s object) {
-          System.out.println(Objects.toString(object));
-      }
-      """.formatted(type);
+    public void print(%s object) {
+        System.out.println(Objects.toString(object));
+    }
+    """.formatted(type);
 
     String html = """
-      <html>\r
-          <body>\r
-              <p>Hello, world</p>\r
-          </body>\r
-      </html>\r
-      """;
+    <html>\r
+        <body>\r
+            <p>Hello, world</p>\r
+        </body>\r
+    </html>\r
+    """;
 
     html = """
-      <html>\r
-          <body>\r
-              <p>Hello, world</p>\r
-          </body>\r
-      </html>\r
-      """;
+    <html>\r
+        <body>\r
+            <p>Hello, world</p>\r
+        </body>\r
+    </html>\r
+    """;
 
     System.out.println(
       // leading comment
@@ -54,83 +54,83 @@ public class TextBlock {
   }
 
   String escapes = """
-    1+1 equals \
-    2 maybe
-    """;
+  1+1 equals \
+  2 maybe
+  """;
 
   String escapes = """
-    \"""var msg = hello world!\""";
-    """;
+  \"""var msg = hello world!\""";
+  """;
 
   String escapes = """
-    \n\t\r\f\b\s\\
-    \077
-    \u0041""";
+  \n\t\r\f\b\s\\
+  \077
+  \u0041""";
 
   void json() {
     // language = json
     String someJson = """
-      { "glossary": { "title": "example 'glossary'" } }
-      """;
+    { "glossary": { "title": "example 'glossary'" } }
+    """;
 
     // language=json
     String config = """
-      { "name": "example", "enabled": true, "timeout": 30 }
-      """;
+    { "name": "example", "enabled": true, "timeout": 30 }
+    """;
 
     /* language = JSON */
     String query = """
-      {
-        "sql": "SELECT * FROM users WHERE active=1 AND deleted=0",
-        "limit": 10
-      }
-      """;
+    {
+      "sql": "SELECT * FROM users WHERE active=1 AND deleted=0",
+      "limit": 10
+    }
+    """;
   }
 
   void java() {
     // language=Java
     String java = """
-      class Class {
+    class Class {
 
-        void method() {
-          // comment
-        }
+      void method() {
+        // comment
       }
-      """;
+    }
+    """;
   }
 
   void html() {
     // language=html
     String html = """
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Page Title</title>
-        </head>
-        <body>
-          <h1>My First Heading</h1>
-          <p>My first paragraph.</p>
-        </body>
-      </html>
-      """;
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Page Title</title>
+      </head>
+      <body>
+        <h1>My First Heading</h1>
+        <p>My first paragraph.</p>
+      </body>
+    </html>
+    """;
   }
 
   void typescript() {
     // language=typescript
     String typescript = """
-      const s = `""\"`;
-      """;
+    const s = `""\"`;
+    """;
 
     // language=typescript
     String typescript = """
-      const s = ""; // "
-      """;
+    const s = ""; // "
+    """;
   }
 
   void unsupported() {
     // language=unsupported
     String unsupported = """
-      function f(){let i=0;}
-      """;
+    function f(){let i=0;}
+    """;
   }
 }

@@ -403,20 +403,8 @@ export function printAssignment(
   ]);
 }
 
-export function printTextBlock(
-  path: NamedNodePath<SyntaxType.StringLiteral>,
-  contents: Doc
-) {
-  const parts = ['"""', hardline, contents, '"""'];
-  const parentType = (path.parent as NamedNode | null)?.type;
-  const grandparentType = (path.grandparent as NamedNode | null)?.type;
-  return parentType === SyntaxType.AssignmentExpression ||
-    parentType === SyntaxType.VariableDeclarator ||
-    (path.node.fieldName === "object" &&
-      (grandparentType === SyntaxType.AssignmentExpression ||
-        grandparentType === SyntaxType.VariableDeclarator))
-    ? indent(parts)
-    : parts;
+export function printTextBlock(contents: Doc) {
+  return ['"""', hardline, contents, '"""'];
 }
 
 export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
@@ -438,7 +426,7 @@ export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
     textToDoc: (text: string, options: Options) => Promise<Doc>
   ) => {
     const doc = await textToDoc(text, { parser: language });
-    return printTextBlock(path, [escapeDocForTextBlock(doc), hardline]);
+    return printTextBlock([escapeDocForTextBlock(doc), hardline]);
   };
 }
 
