@@ -19,7 +19,6 @@ export default {
     }
 
     return printTextBlock(
-      path,
       join(hardline, textBlockContents(path.node).split("\n"))
     );
   },
