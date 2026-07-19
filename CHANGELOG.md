@@ -1,4 +1,12 @@
-# Latest v2.10.2
+# Latest v2.10.3
+
+## What's Changed
+* fix: omit indentation from text block assignments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/980
+* fix: update tree-sitter-java-orchard to 0.5.10 by @jtkiesel in https://github.com/jhipster/prettier-java/pull/988
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.10.2...prettier-plugin-java@2.10.3
+
+# v2.10.2
 
 ## What's Changed
 * fix: treat class literals as simple arguments, like field access by @jtkiesel in https://github.com/jhipster/prettier-java/pull/962
