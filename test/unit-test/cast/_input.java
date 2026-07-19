@@ -26,4 +26,9 @@ public class Cast {
         Object o5 = (A & B) + x;
         Object o6 = (A & B) - x;
     }
+
+    void castUpdateExpression() {
+        int a = (int) x++;
+        int b = (int) (x)--;
+    }
 }

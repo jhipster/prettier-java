@@ -72,7 +72,7 @@
     "postcss": "^8.5.15",
     "prettier": "^3.8.1",
     "prettier-plugin-css-order": "^2.2.0",
-    "tree-sitter-java-orchard": "0.5.8",
+    "tree-sitter-java-orchard": "0.5.10",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.57.1"
