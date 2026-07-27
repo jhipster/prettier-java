@@ -31,5 +31,7 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Type check website
+        run: yarn typecheck
       - name: Test build website
         run: yarn build
