@@ -292,9 +292,8 @@ public class Expressions {
     )[ffffffffff];
 
     switch (a) {
-      case Bbbbbbbbbb bbbbbbbbbb when (
-        cccccccccc && dddddddddd && eeeeeeeeee
-      ) -> ffffffffff;
+      case Bbbbbbbbbb bbbbbbbbbb when
+        cccccccccc && dddddddddd && eeeeeeeeee -> ffffffffff;
     }
 
     return (
