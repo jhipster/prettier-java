@@ -33,32 +33,27 @@ class T {
       case Buyer b when this.bestPrice > b.bestPrice -> {
         return true;
       }
-      case Buyer titi when (
-        this.bestPriceaaaaaaaazzzzzaaaaaaaaaq > b.bestPrice
-      ) -> true;
-      case Buyer titi when (
-        this.bestPriceaaaaaazzzaaaaaaaaaq > b.bestPrice
-      ) -> true;
-      case Buyer b when (
+      case Buyer titi when
+        this.bestPriceaaaaaaaazzzzzaaaaaaaaaq > b.bestPrice -> true;
+      case Buyer titi when
+        this.bestPriceaaaaaazzzaaaaaaaaaq > b.bestPrice -> true;
+      case Buyer b when
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
-        this.bestPrice > b.bestPrice
-      ) -> true;
-      case Buyer b when (
+        this.bestPrice > b.bestPrice -> true;
+      case Buyer b when
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
-        this.bestPrice > b.bestPrice
-      ) -> {
+        this.bestPrice > b.bestPrice -> {
         return true;
       }
-      case Buyer b when (
+      case Buyer b when
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
         this.bestPrice > b.bestPrice &&
-        this.bestPrice > b.bestPrice
-      ) -> {
+        this.bestPrice > b.bestPrice -> {
         return true;
       }
       default -> false;
@@ -94,17 +89,15 @@ class T {
       case MyRecord(
         LongTypeName longVariableName,
         LongTypeName longVariableName
-      ) when (
+      ) when
         this.longVariableName > longVariableName &&
-        this.longVariableName > longVariableName
-      ) -> 0;
+        this.longVariableName > longVariableName -> 0;
       case MyRecord(
         LongTypeName longVariableName,
         LongTypeName longVariableName
-      ) when (
+      ) when
         this.longVariableName > longVariableName &&
-        this.longVariableName > longVariableName
-      ) -> longMethodName(
+        this.longVariableName > longVariableName -> longMethodName(
         longVariableName,
         longVariableName,
         longVariableName,
