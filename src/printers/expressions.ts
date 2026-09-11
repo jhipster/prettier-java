@@ -705,15 +705,12 @@ export default {
   },
 
   guard(path, print) {
-    return [
-      "when ",
-      group([
-        ifBreak("("),
-        indent([softline, path.call(print, "namedChildren", 0)]),
-        softline,
-        ifBreak(")")
-      ])
-    ];
+    // Break after `when` without wrapping the guard expression in parentheses
+    // (issue #1001). A space is used when the group fits on one line.
+    return group([
+      "when",
+      indent([line, path.call(print, "namedChildren", 0)])
+    ]);
   }
 } satisfies Partial<NamedNodePrinters>;
 

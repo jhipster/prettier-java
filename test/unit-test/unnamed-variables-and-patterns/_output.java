@@ -120,10 +120,9 @@ class T {
       case
         MyRecord(LongTypeName longVariableName, LongTypeName longVariableName),
         MyRecord(LongTypeName longVariableName, LongTypeName longVariableName)
-      when (
+      when
         this.longVariableName > longVariableName &&
-        this.longVariableName > longVariableName
-      ) -> longMethodName(
+        this.longVariableName > longVariableName -> longMethodName(
         longVariableName,
         longVariableName,
         longVariableName,
