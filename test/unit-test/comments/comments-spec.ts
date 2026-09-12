@@ -8,6 +8,7 @@ describe("prettier-java", () => {
   testSample(path.resolve(__dirname, "./class"));
   testSample(path.resolve(__dirname, "./edge"));
   testSample(path.resolve(__dirname, "./expression"));
+  testSample(path.resolve(__dirname, "./member-chain-assignment"));
   testSample(path.resolve(__dirname, "./interface"));
   testSample(path.resolve(__dirname, "./package"));
   testSample(

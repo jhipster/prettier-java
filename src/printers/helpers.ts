@@ -369,6 +369,14 @@ export function printVariableDeclaration(
   return declaration;
 }
 
+function isMemberChainWithLeadingComment(node: SyntaxNode) {
+  return (
+    (node.type === SyntaxType.MethodInvocation ||
+      node.type === SyntaxType.FieldAccess) &&
+    node.objectNode != null
+  );
+}
+
 export function printAssignment(
   leftDoc: Doc,
   operator: Doc,
@@ -385,7 +393,7 @@ export function printAssignment(
     (rightNode.type === SyntaxType.TernaryExpression &&
       (rightNode.conditionNode.type === SyntaxType.BinaryExpression ||
         rightNode.conditionNode.type === SyntaxType.InstanceofExpression)) ||
-    hasLeadingComments(rightNode);
+    (hasLeadingComments(rightNode) && !isMemberChainWithLeadingComment(rightNode));
 
   if (breakAfterOperator) {
     // First break after operator, then right-hand side
