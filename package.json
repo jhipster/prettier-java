@@ -24,7 +24,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown && cp node_modules/tree-sitter-java-orchard/tree-sitter-java_orchard.wasm dist/",
+    "build": "tsdown && cp vendor/tree-sitter-java_orchard.wasm dist/",
     "ci": "yarn build && yarn lint && yarn format:validate && yarn test",
     "clone-samples": "node scripts/clone-samples.js",
     "format:fix": "prettier --write \"**/*.@(css|js|json|ts|tsx)\"",

@@ -1,0 +1,7 @@
+tree-sitter-java-orchard 0.5.15 wasm rebuilt from grammar.js with Java currency-symbol identifiers.
+
+grammar.js identifier:
+  /[\p{XID_Start}\p{Sc}_$][\p{XID_Continue}\p{Sc}_$]*/
+
+JLS IdentifierChars includes Sc (euro, pound, yen). Upstream XID_Start does not.
+Drop this vendor copy after orchard ships the regex.
