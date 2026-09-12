@@ -1,8 +1,13 @@
 import { util, type AstPath, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { printComments, printCommentsSeparately } from "../comments.ts";
+import {
+  printComments,
+  printCommentsSeparately,
+  printLeadingComments
+} from "../comments.ts";
 import {
   SyntaxType,
+  type CommentNode,
   type NamedNode,
   type TernaryExpressionNode
 } from "../node-types.ts";
@@ -950,10 +955,26 @@ function printMemberChain(
   }
 
   const { node } = path;
+  function commentIsBeforeChainObject(comment: CommentNode) {
+    const objectStart =
+      "objectNode" in node && node.objectNode
+        ? node.objectNode.start.index
+        : node.type === SyntaxType.ArrayAccess
+          ? node.arrayNode.start.index
+          : undefined;
+    return objectStart != null && comment.end.index <= objectStart;
+  }
+  const includeChainLeading = (comment: CommentNode) =>
+    !commentIsBeforeChainObject(comment);
+
   if (hasType(path, SyntaxType.MethodInvocation)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printMethodInvocation(path, print))
+      printed: printComments(
+        path,
+        printMethodInvocation(path, print),
+        includeChainLeading
+      )
     });
 
     if (hasChild(path, "objectNode")) {
@@ -962,7 +983,11 @@ function printMemberChain(
   } else if (hasType(path, SyntaxType.ArrayAccess)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printArrayAccess(path, print))
+      printed: printComments(
+        path,
+        printArrayAccess(path, print),
+        includeChainLeading
+      )
     });
 
     if (hasChild(path, "arrayNode")) {
@@ -971,7 +996,11 @@ function printMemberChain(
   } else if (hasType(path, SyntaxType.FieldAccess)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printFieldAccess(path, print))
+      printed: printComments(
+        path,
+        printFieldAccess(path, print),
+        includeChainLeading
+      )
     });
 
     if (hasChild(path, "objectNode")) {
@@ -1138,12 +1167,21 @@ function printMemberChain(
   const flatGroups = groups.flat();
 
   const nodeHasComment =
-    flatGroups.some(node =>
-      node.node.comments?.some(({ leading }) => leading)
+    flatGroups.some(({ node: chainNode }) =>
+      chainNode.comments?.some(
+        comment =>
+          comment.leading &&
+          !(chainNode === node && commentIsBeforeChainObject(comment))
+      )
     ) ||
     flatGroups
       .slice(0, -1)
       .some(node => node.node.comments?.some(({ trailing }) => trailing));
+
+  function withLeadingCommentsBeforeObject(doc: Doc): Doc {
+    const leading = printLeadingComments(path, commentIsBeforeChainObject);
+    return leading.length ? [leading, doc] : doc;
+  }
 
   // If we only have a single `.`, we shouldn't do anything fancy and just
   // render everything concatenated together.
@@ -1152,7 +1190,7 @@ function printMemberChain(
     !nodeHasComment &&
     !groups.some(g => g.at(-1)!.hasTrailingEmptyLine)
   ) {
-    return group(oneLine);
+    return withLeadingCommentsBeforeObject(group(oneLine));
   }
 
   // Find out the last node in the first group and check if it has an
@@ -1223,7 +1261,7 @@ function printMemberChain(
     ];
   }
 
-  return result;
+  return withLeadingCommentsBeforeObject(result);
 }
 
 function printMethodInvocation(

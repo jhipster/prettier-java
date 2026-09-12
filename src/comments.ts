@@ -466,7 +466,10 @@ function printTrailingComment(
   return { doc: [" ", printed], isBlock, hasLineSuffix: false };
 }
 
-function printLeadingComments(path: NamedNodePath) {
+export function printLeadingComments(
+  path: NamedNodePath,
+  include: (comment: CommentNode) => boolean = () => true
+) {
   if (!hasChild(path, "comments")) {
     return [];
   }
@@ -474,7 +477,7 @@ function printLeadingComments(path: NamedNodePath) {
 
   path.each(path => {
     const { node: comment } = path;
-    if (!comment.leading) {
+    if (!comment.leading || !include(comment)) {
       return;
     }
 
@@ -513,8 +516,12 @@ export function printCommentsSeparately(path: NamedNodePath) {
   };
 }
 
-export function printComments(path: NamedNodePath, doc: Doc) {
-  const leading = printLeadingComments(path);
+export function printComments(
+  path: NamedNodePath,
+  doc: Doc,
+  includeLeading?: (comment: CommentNode) => boolean
+) {
+  const leading = printLeadingComments(path, includeLeading);
   const trailing = printTrailingComments(path);
   return leading.length || trailing.length ? [leading, doc, trailing] : doc;
 }
