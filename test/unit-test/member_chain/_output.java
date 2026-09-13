@@ -251,6 +251,30 @@ public class BreakLongFunctionCall {
     );
   }
 
+  void assignmentComment() {
+    var a = // 1
+      b.c();
+    var a = b // 2
+      .c();
+    var a =
+      // 3
+      b.c();
+    var a = b
+      // 4
+      .c();
+
+    var a =
+      /* 5 */
+      b.c();
+    var a = b
+      /* 6 */
+      .c();
+    var a = b
+      /* 7 */ .c();
+    var a = b /* 8 */
+      .c();
+  }
+
   void prettierIgnore() {
     a ->
       // prettier-ignore
