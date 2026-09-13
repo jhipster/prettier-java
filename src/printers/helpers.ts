@@ -811,7 +811,7 @@ function findBaseIndent(lines: string[]) {
 }
 
 function findEmbeddedLanguage(path: NamedNodePath) {
-  return path.ancestors
+  return [path.node, ...path.ancestors]
     .find(
       ({ type, comments }) =>
         type === SyntaxType.Block || comments?.some(({ leading }) => leading)
