@@ -245,4 +245,14 @@ public class Expressions {
     int e = ~~x;
     int f = -+x;
   }
+
+  void specialCharacters() {
+    int αρετη = 1;
+    int _ = 2;
+    int $ = 3;
+    int Ⅳ = 4;
+    int v1€ = 5;
+    int foo‿bar = 6;
+    int é = 7;
+  }
 }
