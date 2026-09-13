@@ -119,6 +119,29 @@ aoeu
       const s = ""; // \"""";
   }
 
+  void yaml() {
+    System.out.println(
+      // language=yaml
+      """
+      spring:
+        data:
+          jpa:
+            repositories:
+              bootstrap-mode:                   deferred
+      """
+    );
+
+    var text1 =
+      // language=yaml
+      """
+      spring:
+        data:
+          jpa:
+            repositories:
+              bootstrap-mode:                   deferred
+      """;
+  }
+
   void unsupported() {
     // language=unsupported
     String unsupported = """
