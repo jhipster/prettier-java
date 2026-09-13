@@ -8,6 +8,7 @@ import {
 } from "../node-types.ts";
 import {
   hasChild,
+  hasDanglingComments,
   hasType,
   indentInParentheses,
   isReturnOrThrowStatement,
@@ -860,7 +861,7 @@ function canPrintParamsWithoutParens(
 ) {
   return (
     node.parametersNode.type === SyntaxType.Identifier &&
-    !node.comments?.some(({ leading, trailing }) => !leading && !trailing) &&
+    !hasDanglingComments(node) &&
     !node.parametersNode.comments
   );
 }
