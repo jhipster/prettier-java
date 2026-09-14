@@ -18,7 +18,8 @@ import {
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const { group, hardline, indent, join, line, softline } = builders;
+const { conditionalGroup, group, hardline, indent, join, line, softline } =
+  builders;
 
 export default {
   class_declaration(path, print) {
@@ -220,7 +221,14 @@ export default {
   },
 
   throws(path, print) {
-    return ["throws ", ...join(", ", path.map(print, "namedChildren"))];
+    const exceptions = path.map(print, "namedChildren");
+    return conditionalGroup([
+      // Keep the whole exception list on one line when it fits.
+      ["throws ", join(", ", exceptions)],
+      // Otherwise print one exception per line, keeping "throws" attached to
+      // the parameters.
+      ["throws", indent([line, join([",", line], exceptions)])]
+    ]);
   },
 
   static_initializer(path, print) {
