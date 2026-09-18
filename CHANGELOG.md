@@ -1,4 +1,14 @@
-# Latest v2.10.3
+# Latest v2.10.4
+
+## What's Changed
+* fix: update tree-sitter-java to support special chars in identifiers by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1058
+* fix: avoid breaking after assignment operator due to member chain inner comment by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1059
+* fix: support language comment directly on text block by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1062
+* fix: update tree-sitter-java to support null character in string literals by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1064
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.10.3...prettier-plugin-java@2.10.4
+
+# v2.10.3
 
 ## What's Changed
 * fix: omit indentation from text block assignments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/980
