@@ -4080,10 +4080,10 @@ tree-kill@^1.2.2:
   resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.2.tgz#4ca09a9092c88b73a7cdc5e8a01b507b0790a0cc"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-tree-sitter-java-orchard@0.5.16:
-  version "0.5.16"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.16.tgz#da1328006c29526b552e46d3113acf6c9f4e92c2"
-  integrity sha512-n83EZW6VQnEHLX/us9KoZkvc2gvOHrfIJHGk1VxGwG67UEnlH/v+xGxKf1v2OgcuT0vc7nyg0tIda8ue0yqSPg==
+tree-sitter-java-orchard@0.5.18:
+  version "0.5.18"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.18.tgz#cf7a6f6b711f7493e2a2d4fb47efe4c17269a580"
+  integrity sha512-dKU6GRzHIl4Z1mhk5sqar9RTWkgQ+/jeB+01lmBYC/UE7ZWyiOtl2ccd8+tamHPAMSOCihKn6vvBbd0aoy1tgA==
   dependencies:
     node-addon-api "^8.5.0"
     node-gyp-build "^4.8.4"
