@@ -28,9 +28,9 @@ export default {
 
     return needsParentheses(path) ? ["(", doc, ")"] : doc;
   },
-  embed(path) {
+  embed(path, options) {
     return hasType(path, SyntaxType.StringLiteral)
-      ? embedTextBlock(path)
+      ? embedTextBlock(path, options)
       : null;
   },
   hasPrettierIgnore(path) {

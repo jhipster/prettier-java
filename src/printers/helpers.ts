@@ -1,4 +1,11 @@
-import type { AstPath, Doc, Options, ParserOptions } from "prettier";
+import type {
+  AstPath,
+  Doc,
+  Options,
+  ParserOptions,
+  Plugin,
+  SupportLanguage
+} from "prettier";
 import { builders, utils } from "prettier/doc";
 import {
   SyntaxType,
@@ -411,11 +418,38 @@ export function printAssignment(
   ]);
 }
 
+function getLanguageByLanguageName(
+  languages: SupportLanguage[],
+  languageName: string
+) {
+  return (
+    languages.find(({ name }) => name.toLowerCase() === languageName) ??
+    languages.find(({ aliases }) => aliases?.includes(languageName)) ??
+    languages.find(({ extensions }) => extensions?.includes(`.${languageName}`))
+  );
+}
+
+function inferParser(options: Options, language: string) {
+  const languages =
+    options.plugins
+      ?.filter(
+        (plugin): plugin is Plugin =>
+          typeof plugin !== "string" && !(plugin instanceof URL)
+      )
+      .reverse()
+      .flatMap(plugin => plugin.languages ?? []) ?? [];
+
+  return getLanguageByLanguageName(languages, language)?.parsers[0];
+}
+
 export function printTextBlock(contents: Doc) {
   return ['"""', hardline, contents, '"""'];
 }
 
-export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
+export function embedTextBlock(
+  path: NamedNodePath<SyntaxType.StringLiteral>,
+  options: Options
+) {
   const hasInterpolations = path.node.namedChildren.some(
     ({ type }) => type === SyntaxType.StringInterpolation
   );
@@ -428,12 +462,17 @@ export function embedTextBlock(path: NamedNodePath<SyntaxType.StringLiteral>) {
     return null;
   }
 
+  const parser = inferParser(options, language);
+  if (!parser) {
+    return null;
+  }
+
   const text = unescapeTextBlockContents(textBlockContents(path.node));
 
   return async (
     textToDoc: (text: string, options: Options) => Promise<Doc>
   ) => {
-    const doc = await textToDoc(text, { parser: language });
+    const doc = await textToDoc(text, { parser });
     return printTextBlock([escapeDocForTextBlock(doc), hardline]);
   };
 }

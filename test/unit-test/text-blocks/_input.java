@@ -108,15 +108,26 @@ aoeu
     """;
   }
 
+  void javascript() {
+    // language=javascript
+    String javascript = """
+      function f(){let i=0;}
+    """;
+
+    // language=js
+    String js = """
+      function f(){let i=0;}""";
+  }
+
   void typescript() {
     // language=typescript
     String typescript = """
-      const s = `\"""`;
+      const s:string=`\"""`;
     """;
 
-    // language=typescript
-    String typescript = """
-      const s = ""; // \"""";
+    // language=ts
+    String ts = """
+      const s:string="";// \"""";
   }
 
   void yaml() {
@@ -132,7 +143,7 @@ aoeu
     );
 
     var text1 =
-      // language=yaml
+      // language=yml
       """
       spring:
         data:
