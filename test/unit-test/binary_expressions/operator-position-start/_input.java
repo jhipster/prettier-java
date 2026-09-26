@@ -146,5 +146,10 @@ public class BinaryOperations {
     boolean c = !x && !y;
     int d = -(x + y);
     Object e = (int) -x;
+    !(/* 1 */ a || b);
+    !(c && d /* 2 */);
+    + /* 3 */ e;
+    --f /* 4 */;
+    ~(g /* 5 */);
   }
 }

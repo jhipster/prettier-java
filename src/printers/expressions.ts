@@ -370,7 +370,17 @@ export default {
   },
 
   unary_expression(path, print) {
-    return path.map(print, "children");
+    const parts = [path.call(print, "operatorNode")];
+
+    const operandDoc = path.call(print, "operandNode");
+
+    if (path.node.operandNode.comments) {
+      parts.push(group(indentInParentheses(operandDoc)));
+    } else {
+      parts.push(operandDoc);
+    }
+
+    return parts;
   },
 
   field_access: printMemberChain,
