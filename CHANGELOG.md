@@ -1,4 +1,14 @@
-# Latest v2.10.4
+# Latest v2.11.0
+
+## What's Changed
+* feat: infer text block embed parser via plugin language names/aliases/extensions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1068
+* fix: update tree-sitter-java to support emojis in string literals by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1078
+* fix: add parentheses to unary expressions with comments on operand by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1079
+* feat: support printing module import declarations by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1080
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.10.4...prettier-plugin-java@2.11.0
+
+# v2.10.4
 
 ## What's Changed
 * fix: update tree-sitter-java to support special chars in identifiers by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1058
