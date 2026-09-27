@@ -24,6 +24,7 @@ export default {
       parts.push(path.call(print, "namedChildren", 0));
     }
 
+    const moduleImports: { doc: Doc; names: string[] }[] = [];
     const staticImports: { doc: Doc; names: string[] }[] = [];
     const imports: { doc: Doc; names: string[] }[] = [];
     const otherDeclarations: Doc[] = [];
@@ -44,9 +45,12 @@ export default {
         ) {
           names.push("*");
         }
-        (child.node.children[1].type === "static"
-          ? staticImports
-          : imports
+        const modifier = child.node.children[1].type;
+        (modifier === "module"
+          ? moduleImports
+          : modifier === "static"
+            ? staticImports
+            : imports
         ).push({ doc, names });
       } else if (!child.isFirst) {
         otherDeclarations.push(doc);
@@ -54,7 +58,7 @@ export default {
     }, "namedChildren");
 
     parts.push(
-      ...[staticImports, imports]
+      ...[moduleImports, staticImports, imports]
         .filter(imports => imports.length)
         .map(imports =>
           join(
@@ -89,8 +93,9 @@ export default {
   import_declaration(path, print) {
     const declaration: Doc[] = ["import "];
 
-    if (path.node.children.some(({ type }) => type === "static")) {
-      declaration.push("static ");
+    const modifier = path.node.children[1].type;
+    if (modifier === "module" || modifier === "static") {
+      declaration.push(modifier, " ");
     }
 
     const identifierIndex = path.node.namedChildren.findIndex(
