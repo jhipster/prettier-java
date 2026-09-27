@@ -1,5 +1,8 @@
 package my.own.pkg;
 
+import module java.base;
+import module java.sql;
+
 import static abc.def;
 import static abc.def.Another;
 import static abc.def.Something;

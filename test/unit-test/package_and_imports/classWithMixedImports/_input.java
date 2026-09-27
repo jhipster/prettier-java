@@ -11,5 +11,7 @@ import static  java.utils.*;;;
 import static abc.def.Something;
 import static abc.def.Another;;;
 import one.last;;;
+import module java.sql;
+import module java.base;
 
 public class PackageAndImports {}
