@@ -60,7 +60,7 @@ class A {
 
     void a( ) {   int x=1;   }
     /** About b. */
-    void b() {
+    void b( ) {
         int y=2; // two
         if (y > 1) {
             y++;
@@ -81,12 +81,46 @@ class A {
     expect(output).to.contain("void c( ) {   int z=3;   }\n\n}\n");
   });
 
-  it("formats all imports when one of them is within the ranges", async () => {
+  it("formats only the imports within the ranges, in place", async () => {
     const output = await format(unformatted, "3");
     expect(output).to.contain(
-      "package a;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\nclass A {"
+      "package a;\nimport   java.util.List;\nimport java.util.ArrayList;\n\nclass A {"
     );
     expect(output).to.contain("private int  x=1;");
+  });
+
+  it("sorts the imports when all of them are within the ranges", async () => {
+    const output = await format(unformatted, "2-3");
+    expect(output).to.contain(
+      "import java.util.ArrayList;\nimport java.util.List;"
+    );
+  });
+
+  it("formats the header of a declaration when it is within the ranges", async () => {
+    const code = `class A {
+    @Deprecated(  since = "1")
+    void a( ) {
+        int x=1;
+    }
+}
+`;
+    expect(await format(code, "2")).to.contain(
+      '@Deprecated(since = "1")\n    void a() {\n        int x=1;\n    }'
+    );
+  });
+
+  it("keeps comments within an unchanged declaration header", async () => {
+    const code = `class A {
+    @Deprecated /* why */
+    void a( /* no args */ ) // trailing
+    {
+        int x=1;
+    }
+}
+`;
+    expect(await format(code, "5")).to.equal(
+      code.replace("int x=1;", "int x = 1;")
+    );
   });
 
   it("formats like without ranges when the ranges cover the whole file", async () => {

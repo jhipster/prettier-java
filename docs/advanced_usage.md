@@ -28,7 +28,7 @@ Prettier's own `--range-start` and `--range-end` options only work for the langu
 prettier --line-ranges "10-20,35" --write MyClass.java
 ```
 
-Declarations and statements that lie entirely outside the ranges, including their comments, are printed exactly as they are. Those that touch a range are formatted, together with the declarations that enclose them. Blank lines outside the ranges are kept as they are; next to formatted code they are only added where the formatting requires them. Imports are sorted as a block, so they are only formatted when one of them is within the ranges.
+Declarations and statements that lie entirely outside the ranges, including their comments, are printed exactly as they are. Those that touch a range are formatted. A declaration that encloses a range, like a method whose body was changed, keeps its annotations, modifiers and signature as they are unless they are within the range themselves. Blank lines outside the ranges are kept as they are; next to formatted code they are only added where the formatting requires them. Imports within the ranges are formatted where they are; they are only sorted when all of them are within the ranges.
 
 ## Pre-commit hooks:
 

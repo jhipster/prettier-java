@@ -1,9 +1,11 @@
-import type { AstPath } from "prettier";
-import { SyntaxType, type SyntaxNode } from "./node-types.ts";
+import type { AstPath, Doc, ParserOptions } from "prettier";
+import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
   createTypeCheckFunction,
   lineEndWithComments,
-  lineStartWithComments
+  lineStartWithComments,
+  type NamedNodePath,
+  type PrintFunction
 } from "./printers/helpers.ts";
 
 /** 0-based, inclusive rows. */
@@ -85,29 +87,81 @@ export function isUnchanged(root: SyntaxNode, node: SyntaxNode) {
 /**
  * Whether the node at `path` is a declaration or statement that lies entirely
  * outside the requested line ranges, together with its comments, and should
- * therefore be printed as it is. Imports are sorted as a block, so they are
- * all formatted as soon as one of them is within the ranges.
+ * therefore be printed as it is.
  */
 export function isOutsideLineRanges(path: AstPath<SyntaxNode>) {
   const { node, parent, root } = path;
-  if (!node.isNamed || !isLineRangeContainer(parent)) {
-    return false;
-  }
-  if (node.type === SyntaxType.ImportDeclaration) {
-    return !hasChangedImport(root, parent);
-  }
-  return isUnchanged(root, node);
+  return (
+    node.isNamed && isLineRangeContainer(parent) && isUnchanged(root, node)
+  );
 }
 
-/** Whether one of the imports of `program` is within the line ranges. */
-export function hasChangedImport(root: SyntaxNode, program: SyntaxNode) {
-  return (
-    program.isNamed &&
-    program.namedChildren.some(
-      child =>
-        child.type === SyntaxType.ImportDeclaration && !isUnchanged(root, child)
-    )
+/**
+ * Whether imports keep their order: with line ranges, unless every import is
+ * within them. Sorting moves lines, so it would change unchanged imports.
+ */
+export function keepsImportOrder(root: SyntaxNode, program: SyntaxNode) {
+  if (!hasLineRanges(root) || !program.isNamed) {
+    return false;
+  }
+  const imports = program.namedChildren.filter(
+    child => child.type === SyntaxType.ImportDeclaration
   );
+  return !imports.length || imports.some(child => isUnchanged(root, child));
+}
+
+const isDeclarationWithBody = createTypeCheckFunction([
+  SyntaxType.AnnotationTypeDeclaration,
+  SyntaxType.ClassDeclaration,
+  SyntaxType.CompactConstructorDeclaration,
+  SyntaxType.ConstructorDeclaration,
+  SyntaxType.EnumConstant,
+  SyntaxType.EnumDeclaration,
+  SyntaxType.InterfaceDeclaration,
+  SyntaxType.MethodDeclaration,
+  SyntaxType.ModuleDeclaration,
+  SyntaxType.RecordDeclaration
+]);
+
+/**
+ * Prints a declaration that is formatted only because of changes in its body:
+ * everything before the body (annotations, modifiers, signature) exactly as it
+ * is, followed by the formatted body. Undefined when the declaration is
+ * printed normally.
+ */
+export function printUnchangedDeclarationHeader(
+  path: NamedNodePath,
+  options: ParserOptions<SyntaxNode>,
+  print: PrintFunction
+): Doc | undefined {
+  const { node, root } = path;
+  if (!hasLineRanges(root) || !isDeclarationWithBody(node)) {
+    return undefined;
+  }
+  const body = node.bodyNode;
+  if (!body || !isUnchangedRows(root, node.start.row, body.start.row)) {
+    return undefined;
+  }
+
+  // Like Prettier does for ignored nodes: the comments within the header are
+  // part of the original text, so they count as printed
+  const {
+    [Symbol.for("comments")]: comments = [],
+    [Symbol.for("printedComments")]: printedComments
+  } = options as unknown as Record<symbol, CommentNode[] | Set<CommentNode>>;
+  for (const comment of comments as CommentNode[]) {
+    if (
+      comment.start.index >= node.start.index &&
+      comment.end.index <= body.start.index
+    ) {
+      (printedComments as Set<CommentNode>).add(comment);
+    }
+  }
+
+  return [
+    options.originalText.slice(node.start.index, body.start.index),
+    path.call(print, "namedChildren", node.namedChildren.indexOf(body))
+  ];
 }
 
 /**

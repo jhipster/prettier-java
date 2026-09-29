@@ -9,11 +9,7 @@ import {
   type NamedNodePrinters,
   type PrintFunction
 } from "./helpers.ts";
-import {
-  blankLinesBefore,
-  hasChangedImport,
-  hasLineRanges
-} from "../line-ranges.ts";
+import { blankLinesBefore, keepsImportOrder } from "../line-ranges.ts";
 
 const { group, hardline, indent, join, line } = builders;
 
@@ -24,8 +20,9 @@ export default {
     }
 
     const { root } = path;
-    if (hasLineRanges(root) && !hasChangedImport(root, path.node)) {
-      // Imports are untouched: keep their order and the original spacing
+    if (keepsImportOrder(root, path.node)) {
+      // Only some lines are formatted: keep the order of the imports and the
+      // original spacing
       const parts: Doc[] = [];
       const container = path.node;
       path.each(child => {

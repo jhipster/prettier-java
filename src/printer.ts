@@ -7,7 +7,10 @@ import {
   isPrettierIgnore,
   willPrintOwnComments
 } from "./comments.ts";
-import { isOutsideLineRanges } from "./line-ranges.ts";
+import {
+  isOutsideLineRanges,
+  printUnchangedDeclarationHeader
+} from "./line-ranges.ts";
 import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
   embedTextBlock,
@@ -25,7 +28,9 @@ export default {
       return printValue(path);
     }
 
-    const doc = printerForNodeType(path.node.type)(path, print, options, args);
+    const doc =
+      printUnchangedDeclarationHeader(path, options, print) ??
+      printerForNodeType(path.node.type)(path, print, options, args);
 
     return needsParentheses(path) ? ["(", doc, ")"] : doc;
   },
