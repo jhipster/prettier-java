@@ -20,6 +20,16 @@ overrides:
 
 Please refer to the [Prettier configuration documentation](https://prettier.io/docs/en/configuration.html) for more information.
 
+## Formatting only some lines
+
+Prettier's own `--range-start` and `--range-end` options only work for the languages built into Prettier. To format just part of a Java file, for instance only the lines you changed so that a pull request contains no unrelated formatting, use the `lineRanges` option with 1-based, inclusive line ranges:
+
+```bash
+prettier --line-ranges "10-20,35" --write MyClass.java
+```
+
+Declarations and statements that lie entirely outside the ranges, including their comments, are printed exactly as they are. Those that touch a range are formatted, together with the declarations that enclose them. Blank lines outside the ranges are kept as they are; next to formatted code they are only added where the formatting requires them. Imports are sorted as a block, so they are only formatted when one of them is within the ranges.
+
 ## Pre-commit hooks:
 
 To share your Git Hooks, we would suggest to follow this procedure:

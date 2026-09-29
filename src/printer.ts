@@ -7,6 +7,7 @@ import {
   isPrettierIgnore,
   willPrintOwnComments
 } from "./comments.ts";
+import { isOutsideLineRanges } from "./line-ranges.ts";
 import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
   embedTextBlock,
@@ -37,7 +38,8 @@ export default {
     return (
       path.node.comments?.some(isPrettierIgnore) === true ||
       (canAttachComment(path.node, path.parent ? [path.parent] : []) &&
-        isFullyBetweenPrettierIgnore(path))
+        isFullyBetweenPrettierIgnore(path)) ||
+      isOutsideLineRanges(path)
     );
   },
   canAttachComment,

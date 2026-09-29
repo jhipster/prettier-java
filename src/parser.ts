@@ -1,16 +1,20 @@
 import type Prettier from "prettier";
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { determinePrettierIgnoreRanges } from "./comments.ts";
+import { determineLineRanges } from "./line-ranges.ts";
 import {
   multiFieldsByType,
   SyntaxType,
   type CommentNode,
   type SyntaxNode
 } from "./node-types.ts";
-import { createTypeCheckFunction } from "./printers/helpers.ts";
+import {
+  createTypeCheckFunction,
+  type JavaParserOptions
+} from "./printers/helpers.ts";
 
 export default {
-  async parse(text) {
+  async parse(text, options: JavaParserOptions) {
     const tree = (await parser).parse(text)!;
 
     const { rootNode } = tree;
@@ -20,6 +24,10 @@ export default {
 
     const ast = processTree(rootNode);
     determinePrettierIgnoreRanges(ast);
+    determineLineRanges(
+      ast,
+      (options as JavaParserOptions & { lineRanges?: string }).lineRanges
+    );
 
     tree.delete();
 
