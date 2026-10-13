@@ -18,7 +18,16 @@ import {
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const { group, hardline, indent, join, line, softline } = builders;
+const {
+  conditionalGroup,
+  group,
+  hardline,
+  ifBreak,
+  indent,
+  join,
+  line,
+  softline
+} = builders;
 
 export default {
   class_declaration(path, print) {
@@ -148,8 +157,18 @@ export default {
       );
     }
 
-    return hasChild(path, "bodyNode")
-      ? [modifiers, group(declaration), " ", path.call(print, "bodyNode")]
+    const hasBody = hasChild(path, "bodyNode");
+    // When the throws clause breaks onto multiple lines, the body block
+    // starts on its own line to visually separate it from the exceptions.
+    const bodySeparator =
+      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: "throws" }) : " ";
+    return hasBody
+      ? [
+          modifiers,
+          group(declaration),
+          bodySeparator,
+          path.call(print, "bodyNode")
+        ]
       : [modifiers, group(declaration), ";"];
   },
 
@@ -220,7 +239,16 @@ export default {
   },
 
   throws(path, print) {
-    return ["throws ", ...join(", ", path.map(print, "namedChildren"))];
+    const exceptions = path.map(print, "namedChildren");
+    return group(
+      conditionalGroup([
+        // Keep the whole exception list on one line when it fits.
+        ["throws ", join(", ", exceptions)],
+        // Otherwise break after the `throws` keyword, one exception per line.
+        ["throws", indent([line, join([",", line], exceptions)])]
+      ]),
+      { id: "throws" }
+    );
   },
 
   static_initializer(path, print) {
@@ -249,7 +277,16 @@ export default {
       );
     }
 
-    return [modifiers, group(declaration), " ", path.call(print, "bodyNode")];
+    // When the throws clause breaks onto multiple lines, the body block
+    // starts on its own line to visually separate it from the exceptions.
+    const bodySeparator =
+      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: "throws" }) : " ";
+    return [
+      modifiers,
+      group(declaration),
+      bodySeparator,
+      path.call(print, "bodyNode")
+    ];
   },
 
   constructor_body(path, print) {
