@@ -18,16 +18,11 @@ import {
   type NamedNodePrinters
 } from "./helpers.ts";
 
-const {
-  conditionalGroup,
-  group,
-  hardline,
-  ifBreak,
-  indent,
-  join,
-  line,
-  softline
-} = builders;
+const { group, hardline, ifBreak, indent, join, line, softline } = builders;
+
+// Shared group id linking the `throws` group with the `ifBreak`s that decide
+// whether a method/constructor body block starts on its own line.
+const throwsGroupId = Symbol("throws");
 
 export default {
   class_declaration(path, print) {
@@ -161,7 +156,7 @@ export default {
     // When the throws clause breaks onto multiple lines, the body block
     // starts on its own line to visually separate it from the exceptions.
     const bodySeparator =
-      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: "throws" }) : " ";
+      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: throwsGroupId }) : " ";
     return hasBody
       ? [
           modifiers,
@@ -240,15 +235,15 @@ export default {
 
   throws(path, print) {
     const exceptions = path.map(print, "namedChildren");
-    return group(
-      conditionalGroup([
-        // Keep the whole exception list on one line when it fits.
-        ["throws ", join(", ", exceptions)],
-        // Otherwise break after the `throws` keyword, one exception per line.
-        ["throws", indent([line, join([",", line], exceptions)])]
-      ]),
-      { id: "throws" }
-    );
+    // A plain group renders the whole exception list on one line when it
+    // fits ("throws " followed by ", "-separated exceptions, since `line`
+    // flattens to a space), and breaks after the `throws` keyword with one
+    // exception per line otherwise. This avoids `conditionalGroup`, which
+    // Prettier documents as a last resort due to exponential complexity
+    // when nested.
+    return group(["throws", indent([line, join([",", line], exceptions)])], {
+      id: throwsGroupId
+    });
   },
 
   static_initializer(path, print) {
@@ -280,7 +275,7 @@ export default {
     // When the throws clause breaks onto multiple lines, the body block
     // starts on its own line to visually separate it from the exceptions.
     const bodySeparator =
-      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: "throws" }) : " ";
+      throwsIndex !== -1 ? ifBreak(line, " ", { groupId: throwsGroupId }) : " ";
     return [
       modifiers,
       group(declaration),

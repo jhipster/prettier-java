@@ -86,4 +86,31 @@ public abstract class Throws {
       throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
     System.out.println("Constructor with throws that should wrap");
   }
+
+  void singleVeryLongExceptionName() throws com.example.very.long.package.name.VeryLongExceptionName {
+    throw new RuntimeException();
+  }
+
+  void genericExceptions(String string1, String string2, String string3, String string4)
+      throws com.example.MyException<String>, com.example.OtherException<Integer, String> {
+    throw new RuntimeException();
+  }
+
+  static class NestedThrows {
+    void nested(String string1, String string2, String string3, String string4)
+        throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+      throw new RuntimeException();
+    }
+  }
+}
+
+interface InterfaceThrows {
+
+  void interfaceMethod(String string1, String string2, String string3, String string4)
+      throws RuntimeException, RuntimeException, RuntimeException, RuntimeException;
+
+  default void defaultMethod(String string1, String string2, String string3, String string4)
+      throws RuntimeException, RuntimeException, RuntimeException, RuntimeException {
+    throw new RuntimeException();
+  }
 }
