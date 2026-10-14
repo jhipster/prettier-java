@@ -142,15 +142,32 @@ export default {
     const throwsIndex = path.node.namedChildren.findIndex(
       ({ type }) => type === SyntaxType.Throws
     );
+    const hasBody = hasChild(path, "bodyNode");
+
     if (throwsIndex !== -1) {
-      declaration.push(
-        group(indent([line, path.call(print, "namedChildren", throwsIndex)]))
-      );
+      const hasMultipleExceptions =
+        path.node.namedChildren[throwsIndex].namedChildren.length > 1;
+      const throws = path.call(print, "namedChildren", throwsIndex);
+      const bodySeparator = hasBody ? " " : "";
+
+      if (hasMultipleExceptions) {
+        const hasBodyContent =
+          hasBody && path.node.bodyNode.namedChildren.length > 0;
+        declaration.push(
+          group([indent([line, throws]), hasBodyContent ? line : bodySeparator])
+        );
+      } else {
+        declaration.push(group([" ", throws, bodySeparator]));
+      }
+    } else if (hasBody) {
+      declaration.push(" ");
     }
 
-    return hasChild(path, "bodyNode")
-      ? [modifiers, group(declaration), " ", path.call(print, "bodyNode")]
-      : [modifiers, group(declaration), ";"];
+    return [
+      modifiers,
+      declaration,
+      hasBody ? path.call(print, "bodyNode") : ";"
+    ];
   },
 
   receiver_parameter(path, print) {
@@ -220,7 +237,10 @@ export default {
   },
 
   throws(path, print) {
-    return ["throws ", ...join(", ", path.map(print, "namedChildren"))];
+    const exceptions = path.map(print, "namedChildren");
+    return exceptions.length === 1
+      ? ["throws ", exceptions[0]]
+      : ["throws", group(indent([line, ...join([",", line], exceptions)]))];
   },
 
   static_initializer(path, print) {
@@ -244,12 +264,19 @@ export default {
       ({ type }) => type === SyntaxType.Throws
     );
     if (throwsIndex !== -1) {
-      declaration.push(
-        group(indent([line, path.call(print, "namedChildren", throwsIndex)]))
-      );
+      const hasMultipleExceptions =
+        path.node.namedChildren[throwsIndex].namedChildren.length > 1;
+      const throws = path.call(print, "namedChildren", throwsIndex);
+      if (hasMultipleExceptions) {
+        declaration.push(group([indent([line, throws]), line]));
+      } else {
+        declaration.push(" ", throws, " ");
+      }
+    } else {
+      declaration.push(" ");
     }
 
-    return [modifiers, group(declaration), " ", path.call(print, "bodyNode")];
+    return [modifiers, declaration, path.call(print, "bodyNode")];
   },
 
   constructor_body(path, print) {
