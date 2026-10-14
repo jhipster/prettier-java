@@ -17,6 +17,7 @@ import {
   type SyntaxNode,
   type TypeString
 } from "../node-types.ts";
+import { blankLinesAtEnd, blankLinesBefore } from "../line-ranges.ts";
 
 const {
   group,
@@ -183,9 +184,14 @@ export function printArrayInitializer(
 
 export function printBlock(path: NamedNodePath, contents: Doc[]) {
   if (contents.length) {
+    const trailingBlankLines = blankLinesAtEnd(path, 0);
     return group([
       "{",
-      indent([hardline, ...join(hardline, contents)]),
+      indent([
+        hardline,
+        ...join(hardline, contents),
+        ...Array<Doc>(trailingBlankLines).fill(hardline)
+      ]),
       hardline,
       "}"
     ]);
@@ -242,6 +248,7 @@ export function printBlockStatements(
   print: PrintFunction
 ) {
   const parts: Doc[] = [];
+  const { node: container, root } = path;
   path.each(child => {
     const { node, previous } = child;
 
@@ -249,13 +256,20 @@ export function printBlockStatements(
       return;
     }
 
-    const blankLine =
+    const blankLines = blankLinesBefore(
+      root,
+      container,
+      parts.length ? previous : null,
+      node,
       parts.length &&
-      previous &&
-      lineStartWithComments(node) > lineEndWithComments(previous) + 1;
+        previous &&
+        lineStartWithComments(node) > lineEndWithComments(previous) + 1
+        ? 1
+        : 0
+    );
 
     const declaration = print(child);
-    parts.push(blankLine ? [hardline, declaration] : declaration);
+    parts.push([...Array<Doc>(blankLines).fill(hardline), declaration]);
   }, "namedChildren");
   return parts;
 }
@@ -276,6 +290,7 @@ export function printBodyDeclarations(
   const isFormalParameters = path.node.type === SyntaxType.FormalParameters;
   const separator = isFormalParameters ? softline : hardline;
   let previousRequiresPadding = padFirst;
+  const { node: container, root } = path;
 
   return path.map(child => {
     const { node, previous } = child;
@@ -316,7 +331,14 @@ export function printBodyDeclarations(
     previousRequiresPadding = currentRequiresPadding;
 
     const declaration = print(child);
-    return blankLine ? [separator, declaration] : declaration;
+    const blankLines = blankLinesBefore(
+      root,
+      container,
+      previous,
+      node,
+      blankLine ? 1 : 0
+    );
+    return [...Array<Doc>(blankLines).fill(separator), declaration];
   }, "namedChildren");
 }
 

@@ -31,5 +31,12 @@ export default {
       { value: "end", description: "" }
     ],
     description: "Where to print operators when binary expressions wrap lines."
+  },
+  lineRanges: {
+    type: "string",
+    category: "Java",
+    default: "",
+    description:
+      'Only format the given 1-based, inclusive line ranges, e.g. "10-20,35". Declarations and statements outside of them are printed unchanged.'
   }
 } satisfies SupportOptions;
