@@ -45,3 +45,14 @@ public class PrettierIgnoreClass {
     int param10
   ) {}
 }
+
+// @formatter:off
+void main() {
+  // @formatter:on
+  List.of(
+    // @formatter:off
+    String
+            .valueOf(
+              "abc")
+  );
+}

@@ -269,8 +269,7 @@ public class BreakLongFunctionCall {
     var a = b
       /* 6 */
       .c();
-    var a = b
-      /* 7 */ .c();
+    var a = /* 7 */ b.c();
     var a = b /* 8 */
       .c();
   }

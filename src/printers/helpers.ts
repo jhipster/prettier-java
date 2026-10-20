@@ -399,8 +399,7 @@ export function printAssignment(
     (rightNode.type === SyntaxType.TernaryExpression &&
       (rightNode.conditionNode.type === SyntaxType.BinaryExpression ||
         rightNode.conditionNode.type === SyntaxType.InstanceofExpression)) ||
-    (isMember(rightNode) && hasDanglingComments(rightNode)) ||
-    (!isMember(rightNode) && hasLeadingComments(rightNode));
+    hasLeadingComments(rightNode);
 
   if (breakAfterOperator) {
     // First break after operator, then right-hand side

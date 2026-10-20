@@ -4,8 +4,7 @@ import {
   handleLineComment,
   handleRemainingComment,
   isFullyBetweenPrettierIgnore,
-  isPrettierIgnore,
-  willPrintOwnComments
+  isPrettierIgnore
 } from "./comments.ts";
 import { SyntaxType, type CommentNode, type SyntaxNode } from "./node-types.ts";
 import {
@@ -44,7 +43,6 @@ export default {
   isBlockComment(node) {
     return (node as unknown as CommentNode).type === SyntaxType.BlockComment;
   },
-  willPrintOwnComments,
   printComment(commentPath) {
     return printComment(commentPath.node as unknown as CommentNode);
   },

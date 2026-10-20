@@ -964,7 +964,7 @@ function printMemberChain(
   if (hasType(path, SyntaxType.MethodInvocation)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printMethodInvocation(path, print))
+      printed: printMethodInvocation(path, print)
     });
 
     if (hasChild(path, "objectNode")) {
@@ -973,7 +973,7 @@ function printMemberChain(
   } else if (hasType(path, SyntaxType.ArrayAccess)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printArrayAccess(path, print))
+      printed: printArrayAccess(path, print)
     });
 
     if (hasChild(path, "arrayNode")) {
@@ -982,7 +982,7 @@ function printMemberChain(
   } else if (hasType(path, SyntaxType.FieldAccess)) {
     printedNodes.unshift({
       node,
-      printed: printComments(path, printFieldAccess(path, print))
+      printed: printFieldAccess(path, print)
     });
 
     if (hasChild(path, "objectNode")) {
@@ -990,13 +990,15 @@ function printMemberChain(
     }
   }
 
+  node.comments
+    ?.filter(({ leading }) => leading)
+    .filter(({ start }) => start.index >= node.start.index)
+    .filter(({ end }) => end.index <= node.end.index)
+    .map(comment => (comment.leading = false));
   const danglingComments = printDanglingComments(path);
   if (danglingComments) {
-    printedNodes[0].printed = [
-      danglingComments,
-      hardline,
-      printedNodes[0].printed
-    ];
+    const lastNode = printedNodes.at(-1)!;
+    lastNode.printed = [danglingComments, hardline, lastNode.printed];
   }
 
   // Once we have a linear list of printed nodes, we want to create groups out
@@ -1149,9 +1151,12 @@ function printMemberChain(
   const flatGroups = groups.flat();
 
   const nodeHasComment =
-    flatGroups.some(node =>
-      node.node.comments?.some(({ leading }) => leading)
-    ) ||
+    flatGroups
+      .at(-1)!
+      .node.comments?.some(({ leading, trailing }) => !leading && !trailing) ||
+    flatGroups
+      .slice(1, -1)
+      .some(node => node.node.comments?.some(({ leading }) => leading)) ||
     flatGroups
       .slice(0, -1)
       .some(node => node.node.comments?.some(({ trailing }) => trailing));
