@@ -166,6 +166,19 @@ public class TextBlock {
       """;
   }
 
+  void commentLikeTextBlockContent() {
+    String blockCommentWithQuote = """
+    /* a "b" c */
+    x""";
+    String lineCommentWithQuote = """
+    // a "b
+    x""";
+    String blockCommentWithBackslash = """
+    /* a \\
+    b */
+    x""";
+  }
+
   void unsupported() {
     // language=unsupported
     String unsupported = """
