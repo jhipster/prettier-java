@@ -9,7 +9,6 @@ import {
   type SyntaxNode
 } from "./node-types.ts";
 import parser from "./parser.ts";
-import printer from "./printer.ts";
 import {
   hasChild,
   isMember,
@@ -66,10 +65,6 @@ export function isPrettierIgnore(comment: CommentNode) {
   return /^(\/\/\s*prettier-ignore|\/\*\s*prettier-ignore\s*\*\/)$/.test(
     comment.value
   );
-}
-
-export function willPrintOwnComments(path: AstPath<SyntaxNode>): boolean {
-  return isMember(path.node) && !printer.hasPrettierIgnore(path);
 }
 
 export function canAttachComment(node: SyntaxNode, ancestors: SyntaxNode[]) {
@@ -246,27 +241,37 @@ function handleLambdaExpressionComments(commentNode: CommentNode) {
 }
 
 function handleMemberChainComments(commentNode: CommentNode) {
-  const { enclosingNode, precedingNode, followingNode } = commentNode;
-  if (
-    precedingNode &&
-    (enclosingNode?.type === SyntaxType.FieldAccess ||
-      (enclosingNode?.type === SyntaxType.MethodInvocation &&
-        precedingNode.end.row < commentNode.start.row)) &&
-    precedingNode === enclosingNode.objectNode
-  ) {
-    util.addLeadingComment(enclosingNode, commentNode);
-    return true;
-  } else if (
-    isMember(followingNode) &&
-    (!precedingNode ||
-      (precedingNode !== getMemberObject(followingNode) &&
-        precedingNode.end.row < commentNode.start.row)) &&
-    !isPrettierIgnore(commentNode)
-  ) {
-    util.addDanglingComment(followingNode, commentNode, undefined);
-    return true;
+  const { enclosingNode, precedingNode } = commentNode;
+  if (isMember(enclosingNode)) {
+    if (commentNode.end.index <= enclosingNode.start.index) {
+      const memberChainRoot = getMemberChainRoot(enclosingNode);
+      util.addLeadingComment(memberChainRoot, commentNode);
+      return true;
+    }
+    if (
+      precedingNode &&
+      (enclosingNode.type === SyntaxType.FieldAccess ||
+        precedingNode.end.row < commentNode.start.row) &&
+      precedingNode === getMemberObject(enclosingNode)
+    ) {
+      util.addLeadingComment(enclosingNode, commentNode);
+      return true;
+    }
   }
   return false;
+}
+
+function getMemberChainRoot(node: SyntaxNode): SyntaxNode {
+  let current = node;
+  while (isMember(current)) {
+    const next = getMemberObject(current);
+    if (!next) {
+      return current;
+    } else {
+      current = next;
+    }
+  }
+  return current;
 }
 
 function handleModifiersComments(commentNode: CommentNode) {
