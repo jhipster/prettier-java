@@ -7,6 +7,7 @@ import {
   type TernaryExpressionNode
 } from "../node-types.ts";
 import {
+  createTypeCheckFunction,
   hasChild,
   hasDanglingComments,
   hasType,
@@ -1364,6 +1365,19 @@ function printBinaryExpressions(
 
 const logicalOperators = new Set(["||", "&&"]);
 
+const isType = createTypeCheckFunction([
+  SyntaxType.VoidType,
+  SyntaxType.IntegralType,
+  SyntaxType.FloatingPointType,
+  SyntaxType.FloatingPointType,
+  SyntaxType.BooleanType,
+  SyntaxType.TypeIdentifier,
+  SyntaxType.ScopedTypeIdentifier,
+  SyntaxType.GenericType,
+  SyntaxType.ArrayType,
+  SyntaxType.AnnotatedType
+]);
+
 function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
   if (depth <= 0) {
     return false;
@@ -1417,7 +1431,8 @@ function isSimpleCallArgument(node: NamedNode, depth = 2): boolean {
     node.type === SyntaxType.MethodReference ||
     node.type === SyntaxType.UpdateExpression
   ) {
-    return isSimpleCallArgument(node.namedChildren[0], depth);
+    const [qualifierNode] = node.namedChildren;
+    return isType(qualifierNode) || isSimpleCallArgument(qualifierNode, depth);
   }
 
   return false;
@@ -1440,11 +1455,11 @@ function isLiteral(node: NamedNode) {
   );
 }
 
-function isSingleWordType(node: NamedNode) {
-  return [SyntaxType.Identifier, SyntaxType.This, SyntaxType.Super].includes(
-    node.type
-  );
-}
+const isSingleWordType = createTypeCheckFunction([
+  SyntaxType.Identifier,
+  SyntaxType.This,
+  SyntaxType.Super
+]);
 
 function couldExpandArg(arg: NamedNode, lambdaChainRecursion = false) {
   if (

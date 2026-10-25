@@ -201,6 +201,14 @@ public class BreakLongFunctionCall {
 
   void methodReferences() {
     dtoEntities.stream().map(UserDto::toString).forEach(LOGGER::info);
+
+    a.b().c().d(E[]::f);
+
+    a.b().c().d(e.E[]::f);
+
+    a.b().c().d(E<F>::f);
+
+    a.b().c().d(e.E<F>::f);
   }
 
   void classLiteralArgument() {
