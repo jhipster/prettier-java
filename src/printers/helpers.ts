@@ -1,24 +1,31 @@
-import type {
-  AstPath,
-  Doc,
-  Options,
-  ParserOptions,
-  Plugin,
-  SupportLanguage
+import {
+  util,
+  type AstPath,
+  type Doc,
+  type Options,
+  type ParserOptions,
+  type Plugin,
+  type SupportLanguage
 } from "prettier";
 import { builders, utils } from "prettier/doc";
 import {
   SyntaxType,
   type ArrayInitializerNode,
   type CommentNode,
+  type ElementValueArrayInitializerNode,
   type ExpressionNode,
   type NamedNode,
   type NamedType,
   type SyntaxNode,
-  type TypeString
+  type TypeString,
+  type UnaryExpressionNode
 } from "../node-types.ts";
+import parser from "../parser.ts";
 
+const { hasNewline, isNextLineEmpty, skipInlineComment, skipTrailingComment } =
+  util;
 const {
+  fill,
   group,
   hardline,
   ifBreak,
@@ -103,7 +110,7 @@ export function lineEndWithComments(node: SyntaxNode) {
 }
 
 export function printDanglingComments(
-  path: NamedNodePath,
+  path: AstPath<SyntaxNode>,
   danglingCommentsPrintOptions: { indent?: boolean } = {}
 ): Doc {
   const { indent: shouldIndent = false } = danglingCommentsPrintOptions;
@@ -127,6 +134,22 @@ export function printDanglingComments(
 
   const doc = join(hardline, parts);
   return shouldIndent ? indent([hardline, doc]) : doc;
+}
+
+export function printDanglingCommentsInList(path: AstPath<SyntaxNode>) {
+  const { node } = path;
+
+  return node.comments?.some(({ leading, trailing }) => !leading && !trailing)
+    ? [
+        indent([softline, printDanglingComments(path)]),
+        node.comments?.some(
+          ({ type, leading, trailing }) =>
+            !leading && !trailing && type === SyntaxType.LineComment
+        )
+          ? hardline
+          : softline
+      ]
+    : "";
 }
 
 export function printComment(comment: CommentNode) {
@@ -167,18 +190,179 @@ export function printArrayInitializer(
   print: PrintFunction,
   options: JavaParserOptions
 ) {
-  if (!path.node.namedChildren.length) {
-    const danglingComments = printDanglingComments(path, { indent: true });
-    return danglingComments ? ["{", danglingComments, hardline, "}"] : "{}";
+  const { node } = path;
+  const parts: Doc[] = [];
+
+  const elements = node.namedChildren;
+  if (elements.length === 0) {
+    parts.push(group(["{", printDanglingCommentsInList(path), "}"]));
+  } else {
+    const groupId = Symbol("array");
+
+    const shouldBreak =
+      (elements.length > 1 &&
+        elements.every((element, i, elements) => {
+          if (element.type !== SyntaxType.ArrayInitializer) {
+            return false;
+          }
+
+          const elementType = element.type;
+          const nextElement = elements[i + 1];
+          if (nextElement && elementType !== nextElement.type) {
+            return false;
+          }
+
+          return element.namedChildren.length > 1;
+        })) ||
+      node.comments?.some(
+        ({ type, leading, trailing }) =>
+          !leading && !trailing && type === SyntaxType.LineComment
+      );
+
+    const shouldUseConciseFormatting = isConciselyPrintedArray(node, options);
+
+    const trailingComma =
+      options.trailingComma === "none"
+        ? ""
+        : shouldUseConciseFormatting
+          ? ifBreak(",", "", { groupId })
+          : ifBreak(",");
+
+    parts.push(
+      group(
+        [
+          "{",
+          indent([
+            line,
+            shouldUseConciseFormatting
+              ? printArrayElementsConcisely(path, options, print, trailingComma)
+              : [printArrayElements(path, options, print), trailingComma],
+            printDanglingComments(path)
+          ]),
+          line,
+          "}"
+        ],
+        { shouldBreak, id: groupId }
+      )
+    );
   }
 
-  const list = join([",", line], path.map(print, "namedChildren"));
+  return parts;
+}
 
-  if (list.length && options.trailingComma !== "none") {
-    list.push(ifBreak(","));
+export function isConciselyPrintedArray(
+  node: ArrayInitializerNode | ElementValueArrayInitializerNode,
+  options: JavaParserOptions
+) {
+  return (
+    node.namedChildren.length > 0 &&
+    node.namedChildren.every(
+      element =>
+        element &&
+        (isNumericLiteral(element) ||
+          (isSignedNumericLiteral(element) && !element.operandNode.comments)) &&
+        !element.comments?.some(
+          comment =>
+            comment.trailing &&
+            comment.type === SyntaxType.LineComment &&
+            !hasNewline(options.originalText, parser.locStart(comment), {
+              backwards: true
+            })
+        )
+    )
+  );
+}
+
+const isNumericLiteral = createTypeCheckFunction([
+  SyntaxType.BinaryIntegerLiteral,
+  SyntaxType.DecimalFloatingPointLiteral,
+  SyntaxType.DecimalIntegerLiteral,
+  SyntaxType.HexFloatingPointLiteral,
+  SyntaxType.HexIntegerLiteral,
+  SyntaxType.OctalIntegerLiteral
+]);
+
+function isSignedNumericLiteral(node: SyntaxNode): node is UnaryExpressionNode {
+  return (
+    node.type === SyntaxType.UnaryExpression &&
+    (node.operatorNode.type === "+" || node.operatorNode.type === "-") &&
+    isNumericLiteral(node.operandNode)
+  );
+}
+
+function isLineAfterElementEmpty(
+  { node }: AstPath,
+  { originalText: text }: JavaParserOptions
+) {
+  let currentIdx = parser.locEnd(node);
+  if (currentIdx === parser.locStart(node)) {
+    return false;
   }
 
-  return group(["{", indent([line, ...list]), line, "}"]);
+  const { length } = text;
+  while (currentIdx < length) {
+    if (text[currentIdx] === ",") {
+      break;
+    }
+
+    currentIdx = skipInlineComment(
+      text,
+      skipTrailingComment(text, currentIdx + 1)
+    ) as number;
+  }
+
+  return isNextLineEmpty(text, currentIdx);
+}
+
+function printArrayElements(
+  path: AstPath<ArrayInitializerNode | ElementValueArrayInitializerNode>,
+  options: JavaParserOptions,
+  print: PrintFunction
+) {
+  const parts: Doc[] = [];
+
+  path.each(element => {
+    parts.push(group(print(element)));
+
+    if (!element.isLast) {
+      parts.push([
+        ",",
+        line,
+        isLineAfterElementEmpty(path, options) ? softline : ""
+      ]);
+    }
+  }, "namedChildren");
+
+  return parts;
+}
+
+function printArrayElementsConcisely(
+  path: AstPath<ArrayInitializerNode | ElementValueArrayInitializerNode>,
+  options: JavaParserOptions,
+  print: PrintFunction,
+  trailingComma: Doc
+) {
+  const parts: Doc[] = [];
+
+  path.each(element => {
+    const { next } = element;
+    parts.push([print(element), !next ? trailingComma : ","]);
+
+    if (next) {
+      parts.push(
+        isLineAfterElementEmpty(path, options)
+          ? [hardline, hardline]
+          : next.comments?.some(
+                ({ type, leading }) =>
+                  leading && type === SyntaxType.LineComment
+              )
+            ? hardline
+            : line
+      );
+    }
+  }, "namedChildren");
+
+  return fill(parts);
 }
 
 export function printBlock(path: NamedNodePath, contents: Doc[]) {

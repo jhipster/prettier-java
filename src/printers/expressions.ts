@@ -12,9 +12,11 @@ import {
   hasDanglingComments,
   hasType,
   indentInParentheses,
+  isConciselyPrintedArray,
   isReturnOrThrowStatement,
   printAssignment,
   printDanglingComments,
+  printDanglingCommentsInList,
   shouldFlatten,
   type JavaParserOptions,
   type NamedNodePath,
@@ -521,7 +523,7 @@ export default {
         ({ type, leading, trailing }) =>
           !leading && !trailing && type === SyntaxType.LineComment
       );
-      return group(indentInParentheses(printDanglingComments(path)), {
+      return group(["(", printDanglingCommentsInList(path), ")"], {
         shouldBreak
       });
     }
@@ -597,7 +599,7 @@ export default {
       ]);
     }
 
-    if (shouldExpandLastArg(args)) {
+    if (shouldExpandLastArg(args, options)) {
       const headArgs = printedArguments.slice(0, -1);
       if (headArgs.some(willBreak)) {
         return allArgsBrokenOut();
@@ -1504,17 +1506,25 @@ function couldExpandArg(arg: NamedNode, lambdaChainRecursion = false) {
   return false;
 }
 
-function shouldExpandLastArg(args: NamedNode[]) {
+function shouldExpandLastArg(args: NamedNode[], options: JavaParserOptions) {
   const lastArg = args.at(-1)!;
   const penultimateArg = args.at(-2);
   return (
-    !lastArg.comments?.some(({ leading }) => leading) &&
-    !lastArg.comments?.some(({ trailing }) => trailing) &&
+    !lastArg.comments?.some(({ leading, trailing }) => leading || trailing) &&
     couldExpandArg(lastArg) &&
     // If the last two arguments are of the same type,
     // disable last element expansion.
     (!penultimateArg || penultimateArg.type !== lastArg.type) &&
-    (args.length !== 2 || penultimateArg!.type !== SyntaxType.LambdaExpression)
+    // useMemo(() -> func(), [foo, bar, baz])
+    (args.length !== 2 ||
+      penultimateArg!.type !== SyntaxType.LambdaExpression ||
+      lastArg.type !== SyntaxType.ArrayCreationExpression) &&
+    !(
+      args.length > 1 &&
+      lastArg.type === SyntaxType.ArrayCreationExpression &&
+      lastArg.valueNode &&
+      isConciselyPrintedArray(lastArg.valueNode, options)
+    )
   );
 }
 
