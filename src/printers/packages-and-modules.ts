@@ -9,6 +9,7 @@ import {
   type NamedNodePrinters,
   type PrintFunction
 } from "./helpers.ts";
+import { blankLinesBefore, keepsImportOrder } from "../line-ranges.ts";
 
 const { group, hardline, indent, join, line } = builders;
 
@@ -16,6 +17,32 @@ export default {
   program(path, print) {
     if (!path.node.namedChildren.length) {
       return [printDanglingComments(path), hardline];
+    }
+
+    const { root } = path;
+    if (keepsImportOrder(root, path.node)) {
+      // Only some lines are formatted: keep the order of the imports and the
+      // original spacing
+      const parts: Doc[] = [];
+      const container = path.node;
+      path.each(child => {
+        const { node, previous } = child;
+        if (previous) {
+          const blankLines = blankLinesBefore(
+            root,
+            container,
+            previous,
+            node,
+            node.type === SyntaxType.ImportDeclaration &&
+              previous.type === SyntaxType.ImportDeclaration
+              ? 0
+              : 1
+          );
+          parts.push(hardline, ...Array<Doc>(blankLines).fill(hardline));
+        }
+        parts.push(print(child));
+      }, "namedChildren");
+      return [...parts, hardline];
     }
 
     const parts: Doc[] = [];
