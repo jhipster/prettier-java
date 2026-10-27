@@ -34,12 +34,7 @@ public class PrettierTest {
       System.out.println("The value is 0");
     } else /*false*/ {
       int[] arr = {
-        /*One*/ 1,
-        /*Two */ 2,
-        /*zero*/ 0,
-        /*One again*/ 1,
-        -1 /*Minus One*/,
-        0,
+        /*One*/ 1, /*Two */ 2, /*zero*/ 0, /*One again*/ 1, -1 /*Minus One*/, 0,
         2,
       };
 
