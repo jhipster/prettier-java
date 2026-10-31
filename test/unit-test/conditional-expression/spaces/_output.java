@@ -79,6 +79,12 @@ class ConditionalExpression {
               : eeeeeeeeee
                 ? ffffffffff
                 : gggggggggg;
+        return a
+            ? a
+            : bbbbbbbbbbbbbbbbbbbbbbbbbbbbb ||
+                bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+              ? a
+              : null;
     }
 
     void ternaryWithComments() {
