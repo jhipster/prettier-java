@@ -62,9 +62,16 @@ const isParenthesizedParent = createTypeCheckFunction([
 function processTree(
   node: Node,
   fieldName: string | null = null,
-  comments?: CommentNode[]
+  comments?: CommentNode[],
+  parentType?: string
 ) {
-  const { type, isNamed, text: value, startPosition, endPosition } = node;
+  const type =
+    parentType === SyntaxType.StringLiteral &&
+    (node.type === SyntaxType.BlockComment ||
+      node.type === SyntaxType.LineComment)
+      ? SyntaxType.MultilineStringFragment
+      : node.type;
+  const { isNamed, text: value, startPosition, endPosition } = node;
   const javaNode = {
     type,
     isNamed,
@@ -109,7 +116,10 @@ function processTree(
         : [child];
     children.forEach(child => {
       const { type, text: value, startPosition, endPosition } = child;
-      if (type === SyntaxType.BlockComment || type === SyntaxType.LineComment) {
+      if (
+        node.type !== SyntaxType.StringLiteral &&
+        (type === SyntaxType.BlockComment || type === SyntaxType.LineComment)
+      ) {
         comments.push({
           type,
           value,
@@ -128,7 +138,7 @@ function processTree(
           printed: false
         });
       } else {
-        const javaChild = processTree(child, fieldName, comments);
+        const javaChild = processTree(child, fieldName, comments, node.type);
 
         javaNode.children.push(javaChild);
         if (javaChild.isNamed) {

@@ -69,6 +69,13 @@ aoeu
     \077
     \u0041""";
 
+  String comments = """
+    /* a "b" c */
+    // a "b" c
+    /* a \n c */
+    // a \n c
+    """;
+
   void json() {
     // language = json
     String someJson = """
