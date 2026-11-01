@@ -109,7 +109,11 @@ function processTree(
         : [child];
     children.forEach(child => {
       const { type, text: value, startPosition, endPosition } = child;
-      if (type === SyntaxType.BlockComment || type === SyntaxType.LineComment) {
+      // Tree-sitter can classify comment-like text inside a string literal as a comment.
+      if (
+        node.type !== SyntaxType.StringLiteral &&
+        (type === SyntaxType.BlockComment || type === SyntaxType.LineComment)
+      ) {
         comments.push({
           type,
           value,
