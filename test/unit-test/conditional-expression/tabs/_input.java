@@ -25,6 +25,12 @@ class ConditionalExpression {
 
 	void nestedTernary() {
 		aaaaaaaaaa ? bbbbbbbbbb : cccccccccc ? dddddddddd : eeeeeeeeee ? ffffffffff : gggggggggg;
+		return a
+			? a
+			: bbbbbbbbbbbbbbbbbbbbbbbbbbbbb ||
+				bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+				? a
+				: null;
 	}
 
 	void ternaryWithComments() {

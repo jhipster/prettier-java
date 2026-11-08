@@ -225,7 +225,7 @@ export default {
     const shouldExtraIndent = shouldExtraIndentForTernaryExpression(path);
 
     const result = maybeGroup([
-      printTernaryTest(path, print),
+      printTernaryTest(path, print, options),
       forceNoIndent ? parts : indent(parts),
       breakClosingParen && !shouldExtraIndent ? softline : ""
     ]);
@@ -1567,7 +1567,8 @@ function isHopefullyShortCallArgument(node: NamedNode) {
 
 function printTernaryTest(
   path: AstPath<TernaryExpressionNode>,
-  print: PrintFunction
+  print: PrintFunction,
+  options: JavaParserOptions
 ) {
   const { node, parent } = path;
 
@@ -1583,7 +1584,7 @@ function printTernaryTest(
    *       : e
    */
   if (parent?.type === node.type && parent.alternativeNode === node) {
-    return align(2, printed);
+    return options.useTabs ? indent(printed) : align(2, printed);
   }
   return printed;
 }
