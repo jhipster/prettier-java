@@ -3573,10 +3573,10 @@ tmp@0.2.7:
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.2.7.tgz#26f4db11d1601ce8012dcb8a798ece1c06a99059"
   integrity sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==
 
-tree-sitter-java-orchard@0.5.22:
-  version "0.5.22"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.22.tgz#5ec2e90d15e8d0e058de6b9cc598d9bbe7711f36"
-  integrity sha512-C0bAAWwMQ40oicZ9NtWdt47CrbQeTQ0K46aaiFRe21E6fIOQ34TYG6gdxcRzf7l/TMQ4H7LIARdFknS/hNdKMg==
+tree-sitter-java-orchard@0.5.23:
+  version "0.5.23"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java-orchard/-/tree-sitter-java-orchard-0.5.23.tgz#5ae1a88a28fa0ab18e24610f128299bdf8116279"
+  integrity sha512-iBQC5zfeDFSLJ1rSgKudgkiSFE1SkGXcNA1FUWqvuuaOV8gZGc6uOTw2aWlZjdXj6dOEMqn54fuhwaByOAV+QQ==
   dependencies:
     node-addon-api "^8.5.0"
     node-gyp-build "^4.8.4"
