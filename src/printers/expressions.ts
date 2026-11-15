@@ -1648,7 +1648,7 @@ function shouldExtraIndentForTernaryExpression(
 
 function isStringLiteral(node: NamedNode) {
   return (
-    node.type === SyntaxType.StringLiteral && node.children[0].value === '"'
+    node.type === SyntaxType.StringLiteral && !node.value.startsWith('"""')
   );
 }
 

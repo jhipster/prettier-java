@@ -139,6 +139,12 @@ export default {
         values.push(print(child));
       }
     }, "namedChildren");
+    const hasDefault = path.node.children.some(
+      ({ type }) => type === "default"
+    );
+    if (hasDefault) {
+      values.push("default");
+    }
 
     const hasMultipleValues = values.length > 1;
     const label = hasMultipleValues

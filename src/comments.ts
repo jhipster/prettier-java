@@ -73,11 +73,14 @@ export function canAttachComment(node: SyntaxNode, ancestors: SyntaxNode[]) {
   }
   switch (node.type) {
     case SyntaxType.EnumBodyDeclarations:
-    case SyntaxType.EscapeSequence:
     case SyntaxType.Modifier:
-    case SyntaxType.MultilineStringFragment:
     case SyntaxType.Program:
-    case SyntaxType.StringFragment:
+    case SyntaxType.StringTemplateBegin:
+    case SyntaxType.StringTemplateEnd:
+    case SyntaxType.StringTemplateMid:
+    case SyntaxType.TextBlockTemplateBegin:
+    case SyntaxType.TextBlockTemplateEnd:
+    case SyntaxType.TextBlockTemplateMid:
     case SyntaxType.Visibility:
       return false;
     case SyntaxType.ParenthesizedExpression: {
