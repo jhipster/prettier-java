@@ -26,5 +26,14 @@ open module soat.vending.machine.gui {
   provides  fr.soat.vending.machine.model.it.should.be.breaking.but.only.a.part with another , again,ano ;
 
   provides  model with another , again,ano,another , again,ano,another , again,ano,another , again,averyveryveryveryveryveryveryveryveryveryverylongname ;
-  
+
+}
+
+@Annotation module m {
+  requires a;
+}
+
+@SuppressWarnings("x") // note
+module m {
+  requires a;
 }

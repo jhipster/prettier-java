@@ -63,3 +63,13 @@ open module soat.vending.machine.gui {
       again,
       averyveryveryveryveryveryveryveryveryveryverylongname;
 }
+
+@Annotation
+module m {
+  requires a;
+}
+
+@SuppressWarnings("x") // note
+module m {
+  requires a;
+}
