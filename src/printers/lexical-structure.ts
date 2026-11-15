@@ -11,32 +11,32 @@ const { group, hardline, indent, join, softline } = builders;
 
 export default {
   string_literal(path, print) {
-    const hasInterpolations = path.node.namedChildren.some(
-      ({ type }) => type === SyntaxType.StringInterpolation
-    );
-    if (hasInterpolations || path.node.children[0].value === '"') {
-      return path.map(print, "children");
+    if (path.node.children.length > 0) {
+      return path.map(
+        child =>
+          child.node.type === SyntaxType.BinaryExpression ||
+          child.node.type === SyntaxType.TernaryExpression
+            ? group([indent([softline, print(child)]), softline])
+            : print(child),
+        "children"
+      );
     }
 
-    return printTextBlock(
-      join(hardline, textBlockContents(path.node).split("\n"))
-    );
+    if (path.node.value.startsWith('"""')) {
+      return printTextBlock(
+        join(hardline, textBlockContents(path.node).split("\n"))
+      );
+    }
+
+    return path.node.value;
   },
 
-  string_fragment: printValue,
-  multiline_string_fragment: printValue,
-
-  string_interpolation(path, print) {
-    const expressionType = path.node.namedChildren[0].type;
-    const expression = path.call(print, "namedChildren", 0);
-
-    return expressionType === SyntaxType.BinaryExpression ||
-      expressionType === SyntaxType.TernaryExpression
-      ? group(["\\{", indent([softline, expression]), softline, "}"])
-      : ["\\{", expression, "}"];
-  },
-
-  escape_sequence: printValue,
+  string_template_begin: printValue,
+  string_template_mid: printValue,
+  string_template_end: printValue,
+  text_block_template_begin: printValue,
+  text_block_template_mid: printValue,
+  text_block_template_end: printValue,
   character_literal: printValue,
   binary_integer_literal: printValue,
   decimal_integer_literal: printValue,
