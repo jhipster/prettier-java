@@ -1,4 +1,15 @@
-# Latest v2.11.0
+# Latest v2.12.0
+
+## What's Changed
+* feat: improve throws breaking by @jtkiesel in https://github.com/jhipster/prettier-java/pull/591
+* fix: improve comment attachment on member chains by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1109
+* fix: treat method references on array/generic types as simple call arguments by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1121
+* feat: concise numeric array initializers by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1126
+* fix: update dependencies, namely tree-sitter-java-orchard to resolve bugs by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1144
+
+**Full Changelog**: https://github.com/jhipster/prettier-java/compare/prettier-plugin-java@2.11.0...prettier-plugin-java@2.12.0
+
+# v2.11.0
 
 ## What's Changed
 * feat: infer text block embed parser via plugin language names/aliases/extensions by @jtkiesel in https://github.com/jhipster/prettier-java/pull/1068
