@@ -23,4 +23,13 @@ public class PrettierIgnoreAnnotation {
   // just a comment
   @Other({ "a", "b" })
   void other() {}
+
+  @A({"a"
+  }) // prettier-ignore
+  @B({ "b" })
+  void sameLine() {}
+
+  @Marker
+  // comment
+  class Commented {}
 }

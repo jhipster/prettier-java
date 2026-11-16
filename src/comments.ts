@@ -278,31 +278,12 @@ function getMemberChainRoot(node: SyntaxNode): SyntaxNode {
 }
 
 function handleModifiersComments(commentNode: CommentNode) {
-  const { precedingNode, followingNode } = commentNode;
-  if (
-    isAnnotation(precedingNode) &&
-    followingNode &&
-    isAnnotation(followingNode) &&
-    isPrettierIgnore(commentNode)
-  ) {
-    util.addLeadingComment(followingNode, commentNode);
-    return true;
-  }
-  if (
-    precedingNode &&
-    (isAnnotation(precedingNode) || precedingNode.type === SyntaxType.Modifiers)
-  ) {
+  const { precedingNode } = commentNode;
+  if (precedingNode?.type === SyntaxType.Modifiers) {
     util.addTrailingComment(precedingNode, commentNode);
     return true;
   }
   return false;
-}
-
-function isAnnotation(node?: SyntaxNode): boolean {
-  return (
-    node?.type === SyntaxType.Annotation ||
-    node?.type === SyntaxType.MarkerAnnotation
-  );
 }
 
 function handleNameComments(commentNode: CommentNode) {
