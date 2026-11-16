@@ -172,4 +172,22 @@ public class TextBlock {
     function f(){let i=0;}
     """;
   }
+
+  void comments() {
+    """
+    /* a "b" c */
+    x""";
+
+    """
+    // a "b
+    x""";
+
+    """
+    /* a \\n b */
+    x""";
+
+    """
+    // a \\ b
+    x""";
+  }
 }

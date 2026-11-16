@@ -633,10 +633,7 @@ export function embedTextBlock(
   path: NamedNodePath<SyntaxType.StringLiteral>,
   options: Options
 ) {
-  const hasInterpolations = path.node.namedChildren.some(
-    ({ type }) => type === SyntaxType.StringInterpolation
-  );
-  if (hasInterpolations || path.node.children[0].value === '"') {
+  if (path.node.children.length > 0 || !path.node.value.startsWith('"""')) {
     return null;
   }
 

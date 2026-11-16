@@ -120,7 +120,6 @@ export const enum SyntaxType {
   Modifiers = "modifiers",
   ModuleBody = "module_body",
   ModuleDeclaration = "module_declaration",
-  MultilineStringFragment = "multiline_string_fragment",
   ObjectCreationExpression = "object_creation_expression",
   OpensModuleDirective = "opens_module_directive",
   PackageDeclaration = "package_declaration",
@@ -143,7 +142,6 @@ export const enum SyntaxType {
   ScopedTypeIdentifier = "scoped_type_identifier",
   SpreadParameter = "spread_parameter",
   StaticInitializer = "static_initializer",
-  StringInterpolation = "string_interpolation",
   StringLiteral = "string_literal",
   SuperInterfaces = "super_interfaces",
   Superclass = "superclass",
@@ -179,7 +177,6 @@ export const enum SyntaxType {
   CharacterLiteral = "character_literal",
   DecimalFloatingPointLiteral = "decimal_floating_point_literal",
   DecimalIntegerLiteral = "decimal_integer_literal",
-  EscapeSequence = "escape_sequence",
   False = "false",
   HexFloatingPointLiteral = "hex_floating_point_literal",
   HexIntegerLiteral = "hex_integer_literal",
@@ -187,8 +184,13 @@ export const enum SyntaxType {
   LineComment = "line_comment",
   NullLiteral = "null_literal",
   OctalIntegerLiteral = "octal_integer_literal",
-  StringFragment = "string_fragment",
+  StringTemplateBegin = "string_template_begin",
+  StringTemplateEnd = "string_template_end",
+  StringTemplateMid = "string_template_mid",
   Super = "super",
+  TextBlockTemplateBegin = "text_block_template_begin",
+  TextBlockTemplateEnd = "text_block_template_end",
+  TextBlockTemplateMid = "text_block_template_mid",
   This = "this",
   True = "true",
   TypeIdentifier = "type_identifier",
@@ -203,8 +205,6 @@ export type NamedType = Exclude<SyntaxType, CommentType>;
 export type UnnamedType =
   | "!"
   | "!="
-  | '"'
-  | '"""'
   | "%"
   | "%="
   | "&"
@@ -243,9 +243,7 @@ export type UnnamedType =
   | ">>>="
   | "?"
   | "@"
-  | "@interface"
   | "["
-  | "\\{"
   | "]"
   | "^"
   | "^="
@@ -415,7 +413,6 @@ export type SyntaxNode =
   | ModifiersNode
   | ModuleBodyNode
   | ModuleDeclarationNode
-  | MultilineStringFragmentNode
   | ObjectCreationExpressionNode
   | OpensModuleDirectiveNode
   | PackageDeclarationNode
@@ -438,7 +435,6 @@ export type SyntaxNode =
   | ScopedTypeIdentifierNode
   | SpreadParameterNode
   | StaticInitializerNode
-  | StringInterpolationNode
   | StringLiteralNode
   | SuperInterfacesNode
   | SuperclassNode
@@ -470,8 +466,6 @@ export type SyntaxNode =
   | YieldStatementNode
   | UnnamedNode<"!">
   | UnnamedNode<"!=">
-  | UnnamedNode<'"'>
-  | UnnamedNode<'"""'>
   | UnnamedNode<"%">
   | UnnamedNode<"%=">
   | UnnamedNode<"&">
@@ -510,9 +504,7 @@ export type SyntaxNode =
   | UnnamedNode<">>>=">
   | UnnamedNode<"?">
   | UnnamedNode<"@">
-  | UnnamedNode<"@interface">
   | UnnamedNode<"[">
-  | UnnamedNode<"\\{">
   | UnnamedNode<"]">
   | UnnamedNode<"^">
   | UnnamedNode<"^=">
@@ -535,7 +527,6 @@ export type SyntaxNode =
   | UnnamedNode<"double">
   | UnnamedNode<"else">
   | UnnamedNode<"enum">
-  | EscapeSequenceNode
   | UnnamedNode<"exports">
   | UnnamedNode<"extends">
   | FalseNode
@@ -574,10 +565,15 @@ export type SyntaxNode =
   | UnnamedNode<"short">
   | UnnamedNode<"static">
   | UnnamedNode<"strictfp">
-  | StringFragmentNode
+  | StringTemplateBeginNode
+  | StringTemplateEndNode
+  | StringTemplateMidNode
   | SuperNode
   | UnnamedNode<"switch">
   | UnnamedNode<"synchronized">
+  | TextBlockTemplateBeginNode
+  | TextBlockTemplateEndNode
+  | TextBlockTemplateMidNode
   | ThisNode
   | UnnamedNode<"throw">
   | UnnamedNode<"throws">
@@ -767,7 +763,11 @@ export interface AssertStatementNode extends NamedNodeBase {
 
 export interface AssignmentExpressionNode extends NamedNodeBase {
   type: SyntaxType.AssignmentExpression;
-  leftNode: ArrayAccessNode | FieldAccessNode | IdentifierNode;
+  leftNode:
+    | ArrayAccessNode
+    | FieldAccessNode
+    | IdentifierNode
+    | ParenthesizedExpressionNode;
   operatorNode:
     | UnnamedNode<"%=">
     | UnnamedNode<"&=">
@@ -824,8 +824,16 @@ export interface BreakStatementNode extends NamedNodeBase {
 
 export interface CastExpressionNode extends NamedNodeBase {
   type: SyntaxType.CastExpression;
-  typeNodes: TypeNode[];
-  valueNode: ExpressionNode;
+  typeNodes: (
+    TypeNode | BooleanTypeNode | FloatingPointTypeNode | IntegralTypeNode
+  )[];
+  valueNode:
+    | CastExpressionNode
+    | LambdaExpressionNode
+    | ExpressionNode
+    | SwitchExpressionNode
+    | UnaryExpressionNode
+    | UpdateExpressionNode;
 }
 
 export interface CatchClauseNode extends NamedNodeBase {
@@ -1118,10 +1126,6 @@ export interface ModuleDeclarationNode extends NamedNodeBase {
   nameNode: IdentifierNode | ScopedIdentifierNode;
 }
 
-export interface MultilineStringFragmentNode extends NamedNodeBase {
-  type: SyntaxType.MultilineStringFragment;
-}
-
 export interface ObjectCreationExpressionNode extends NamedNodeBase {
   type: SyntaxType.ObjectCreationExpression;
   argumentsNode: ArgumentListNode;
@@ -1231,10 +1235,6 @@ export interface SpreadParameterNode extends NamedNodeBase {
 
 export interface StaticInitializerNode extends NamedNodeBase {
   type: SyntaxType.StaticInitializer;
-}
-
-export interface StringInterpolationNode extends NamedNodeBase {
-  type: SyntaxType.StringInterpolation;
 }
 
 export interface StringLiteralNode extends NamedNodeBase {
@@ -1397,10 +1397,6 @@ export interface DecimalIntegerLiteralNode extends NamedNodeBase {
   type: SyntaxType.DecimalIntegerLiteral;
 }
 
-export interface EscapeSequenceNode extends NamedNodeBase {
-  type: SyntaxType.EscapeSequence;
-}
-
 export interface FalseNode extends NamedNodeBase {
   type: SyntaxType.False;
 }
@@ -1429,12 +1425,32 @@ export interface OctalIntegerLiteralNode extends NamedNodeBase {
   type: SyntaxType.OctalIntegerLiteral;
 }
 
-export interface StringFragmentNode extends NamedNodeBase {
-  type: SyntaxType.StringFragment;
+export interface StringTemplateBeginNode extends NamedNodeBase {
+  type: SyntaxType.StringTemplateBegin;
+}
+
+export interface StringTemplateEndNode extends NamedNodeBase {
+  type: SyntaxType.StringTemplateEnd;
+}
+
+export interface StringTemplateMidNode extends NamedNodeBase {
+  type: SyntaxType.StringTemplateMid;
 }
 
 export interface SuperNode extends NamedNodeBase {
   type: SyntaxType.Super;
+}
+
+export interface TextBlockTemplateBeginNode extends NamedNodeBase {
+  type: SyntaxType.TextBlockTemplateBegin;
+}
+
+export interface TextBlockTemplateEndNode extends NamedNodeBase {
+  type: SyntaxType.TextBlockTemplateEnd;
+}
+
+export interface TextBlockTemplateMidNode extends NamedNodeBase {
+  type: SyntaxType.TextBlockTemplateMid;
 }
 
 export interface ThisNode extends NamedNodeBase {
