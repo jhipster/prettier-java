@@ -104,7 +104,9 @@ export default {
     return printAssignment(
       leftDoc,
       " =",
-      hasChild(path, "valueNode") ? path.call(print, "valueNode") : undefined,
+      hasChild(path, "valueNode")
+        ? args => path.call(child => print(child, args), "valueNode")
+        : undefined,
       path.node.valueNode
     );
   },

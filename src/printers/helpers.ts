@@ -570,12 +570,20 @@ export function printVariableDeclaration(
 export function printAssignment(
   leftDoc: Doc,
   operator: Doc,
-  rightDoc?: Doc,
+  printRight?: (args?: unknown) => Doc,
   rightNode?: ArrayInitializerNode | ExpressionNode
 ) {
-  if (!rightDoc || !rightNode) {
+  if (!printRight || !rightNode) {
     return leftDoc;
   }
+
+  const groupId = Symbol("assignment");
+  const rightDoc = printRight(
+    rightNode.type === SyntaxType.CastExpression &&
+      !hasLeadingComments(rightNode)
+      ? { assignmentGroupId: groupId }
+      : undefined
+  );
 
   const breakAfterOperator =
     rightNode.type === SyntaxType.BinaryExpression ||
@@ -591,7 +599,6 @@ export function printAssignment(
   }
 
   // First break right-hand side, then after operator
-  const groupId = Symbol("assignment");
   return group([
     leftDoc,
     operator,
