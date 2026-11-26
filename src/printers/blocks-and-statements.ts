@@ -9,6 +9,7 @@ import {
   hasChild,
   hasLeadingComments,
   indentInParentheses,
+  printAssignment,
   printBlock,
   printBlockStatements,
   printDanglingComments,
@@ -20,16 +21,7 @@ import {
   type PrintFunction
 } from "./helpers.ts";
 
-const {
-  group,
-  hardline,
-  ifBreak,
-  indent,
-  indentIfBreak,
-  join,
-  line,
-  softline
-} = builders;
+const { group, hardline, ifBreak, indent, join, line, softline } = builders;
 
 export default {
   block(path, print) {
@@ -431,23 +423,12 @@ export default {
         parts.push(path.call(print, "dimensionsNode"));
       }
 
-      parts.push(" =");
-
-      const value = path.call(print, "valueNode");
-      if (
-        path.node.valueNode.type === SyntaxType.BinaryExpression ||
-        hasLeadingComments(path.node.valueNode)
-      ) {
-        parts.push(group(indent([line, value])));
-      } else {
-        const groupId = Symbol("assignment");
-        parts.push(
-          group(indent(line), { id: groupId }),
-          indentIfBreak(value, { groupId })
-        );
-      }
-
-      return parts;
+      return printAssignment(
+        parts,
+        " =",
+        args => path.call(child => print(child, args), "valueNode"),
+        path.node.valueNode
+      );
     }
 
     const resourceIndex = path.node.namedChildren.findIndex(

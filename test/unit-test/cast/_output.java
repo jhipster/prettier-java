@@ -74,4 +74,71 @@ public class Cast {
     int a = (int) x++;
     int b = (int) x--;
   }
+
+  void genericCastInAssignments() {
+    Map<String, Map<String, Object>> deepCopy =
+      (Map<String, Map<String, Object>>) Helpers.deepCopyOf(map);
+    Map<String, Object> shortLhs = (Map<String, Object>) Helpers.deepCopyOf(
+      arg1,
+      arg2,
+      arg3,
+      arg4
+    );
+    Map<String, Map<String, Object>> longLhs =
+      (Map<String, Map<String, Object>>) Helpers.deepCopyOf(
+        arg1,
+        arg2,
+        arg3,
+        arg4
+      );
+    Map<String, Map<String, Object>> toVar =
+      (Map<String, Map<String, Object>>) someOtherVariable;
+    Map<String, Map<String, Object>> toChain =
+      (Map<String, Map<String, Object>>) Helpers.foo().bar().baz();
+    Map<String, Map<String, Object>> toSwitch =
+      (Map<String, Map<String, Object>>) switch (x) {
+        default -> null;
+      };
+    BiFunction<String, Integer, Boolean> toLambda =
+      (BiFunction<String, Integer, Boolean>) (a, b) -> {
+        return a.length() == b;
+      };
+    Map<String, Object> chainedCastFirst =
+      (Map<String, Object>) (Object) Helpers.deepCopyOf(map);
+    Map<String, Object> chainedCastSecond =
+      (Object) (Map<String, Object>) Helpers.deepCopyOf(map);
+    MyVeryLongInterfaceNameFooBar intersectionCast =
+      (Foo & Bar & Baz) Helpers.deepCopyOf(map);
+    var veryLongGenericCast =
+      (ExtremelyLongGenericClassName<
+        ExtremelyLongTypeArgOne,
+        ExtremelyLongTypeArgTwo
+      >) obj;
+    var veryLongIntersectionCast =
+      (
+        Aaeaozeaonzeoazneaozenazone &
+        Bazoieoainzeonaozenoazne &
+        Cjneazeanezoanezoanzeoaneonazeono
+      ) obj;
+    this.deepCopyOfVeryLongFieldName =
+      (Map<String, Map<String, Object>>) Helpers.deepCopyOf(map);
+    try (
+      Resource<String, Map<String, Object>> r =
+        (Resource<String, Map<String, Object>>) Helpers.open(x)
+    ) {
+    }
+    var castWithLeadingComment =
+      // comment
+      (ExtremelyLongGenericClassName<
+        ExtremelyLongTypeArgOne,
+        ExtremelyLongTypeArgTwo
+      >) obj;
+    Map<String, Map<String, Object>> castWithBlockComment =
+      (Map</* c */ String, Map<String, Object>>) Helpers.deepCopyOf(map);
+    Map<String, Map<String, Object>> castWithLineComment = (Map<
+      // keep
+      String,
+      Map<String, Object>
+    >) Helpers.deepCopyOf(map);
+  }
 }

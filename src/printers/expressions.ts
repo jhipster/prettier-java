@@ -240,7 +240,7 @@ export default {
     return printAssignment(
       path.call(print, "leftNode"),
       [" ", node.operatorNode.type],
-      path.call(print, "rightNode"),
+      args => path.call(child => print(child, args), "rightNode"),
       node.rightNode
     );
   },
@@ -455,7 +455,7 @@ export default {
     }
   },
 
-  cast_expression(path, print) {
+  cast_expression(path, print, _options, args) {
     const { node } = path;
 
     const castGroup = group(
@@ -472,7 +472,33 @@ export default {
           ]
     );
 
-    const parts = [castGroup, " ", path.call(print, "valueNode")];
+    const assignmentGroupId =
+      args &&
+      typeof args === "object" &&
+      "assignmentGroupId" in args &&
+      typeof args.assignmentGroupId === "symbol"
+        ? args.assignmentGroupId
+        : undefined;
+
+    const castDoc =
+      assignmentGroupId && !willBreak(castGroup)
+        ? ifBreak(castGroup, removeLines(castGroup), {
+            groupId: assignmentGroupId
+          })
+        : castGroup;
+
+    const valueDoc = path.call(
+      child =>
+        print(
+          child,
+          assignmentGroupId && child.node.type === SyntaxType.CastExpression
+            ? { assignmentGroupId }
+            : undefined
+        ),
+      "valueNode"
+    );
+
+    const parts = [castDoc, " ", valueDoc];
 
     const parent = path.parent as NamedNode | null;
     if (
