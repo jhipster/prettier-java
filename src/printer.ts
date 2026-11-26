@@ -3,6 +3,7 @@ import {
   canAttachComment,
   handleLineComment,
   handleRemainingComment,
+  isFirstImportDeclaration,
   isFullyBetweenPrettierIgnore,
   isPrettierIgnore
 } from "./comments.ts";
@@ -40,6 +41,7 @@ export default {
     );
   },
   canAttachComment,
+  willPrintOwnComments: isFirstImportDeclaration,
   isBlockComment(node) {
     return (node as unknown as CommentNode).type === SyntaxType.BlockComment;
   },

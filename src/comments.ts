@@ -510,6 +510,62 @@ function printTrailingComments(path: NamedNodePath) {
   return docs;
 }
 
+export function isFirstImportDeclaration(path: AstPath<SyntaxNode>) {
+  const { node, parent } = path;
+  return (
+    node.type === SyntaxType.ImportDeclaration &&
+    parent?.type === SyntaxType.Program &&
+    parent.namedChildren.find(
+      ({ type }) => type === SyntaxType.ImportDeclaration
+    ) === node
+  );
+}
+
+export function printImportComments(path: NamedNodePath) {
+  const header: Doc[] = [];
+  const leading: Doc[] = [];
+  if (hasChild(path, "comments")) {
+    const leadingComments = path.node.comments.filter(
+      comment => comment.leading
+    );
+    const ignoreIndex = leadingComments.findIndex(isPrettierIgnore);
+    let splitIndex = ignoreIndex === -1 ? leadingComments.length : ignoreIndex;
+    let stopRow =
+      ignoreIndex === -1
+        ? path.node.start.row
+        : leadingComments[ignoreIndex].start.row;
+
+    while (
+      splitIndex > 0 &&
+      leadingComments[splitIndex - 1].end.row >= stopRow
+    ) {
+      splitIndex--;
+      stopRow = Math.min(stopRow, leadingComments[splitIndex].start.row);
+    }
+
+    const headerComments = new Set(leadingComments.slice(0, splitIndex));
+
+    path.each(commentPath => {
+      const { node: comment } = commentPath;
+      if (!comment.leading) {
+        return;
+      }
+
+      if (headerComments.has(comment)) {
+        header.push(printLeadingComment(commentPath));
+      } else {
+        leading.push(printLeadingComment(commentPath));
+      }
+    }, "comments");
+  }
+
+  return {
+    header,
+    leading,
+    trailing: printTrailingComments(path)
+  };
+}
+
 export function printCommentsSeparately(path: NamedNodePath) {
   return {
     leading: printLeadingComments(path),
