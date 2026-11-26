@@ -1,5 +1,6 @@
 import type { Doc } from "prettier";
 import { builders } from "prettier/doc";
+import { printImportComments } from "../comments.ts";
 import { SyntaxType, type NamedNode } from "../node-types.ts";
 import {
   printBlock,
@@ -28,11 +29,20 @@ export default {
     const staticImports: { doc: Doc; names: string[] }[] = [];
     const imports: { doc: Doc; names: string[] }[] = [];
     const otherDeclarations: Doc[] = [];
+    let importHeaderComments: Doc[] = [];
+    let hasSeenImport = false;
 
     path.each(child => {
-      const doc = print(child);
-
       if (child.node.type === SyntaxType.ImportDeclaration) {
+        let doc = print(child);
+        if (!hasSeenImport) {
+          hasSeenImport = true;
+          const { header, leading, trailing } = printImportComments(child);
+          importHeaderComments = header;
+          if (leading.length || trailing.length) {
+            doc = [leading, doc, trailing];
+          }
+        }
         const names = extractNames(
           child.node.namedChildren[0] as NamedNode<
             SyntaxType.Identifier | SyntaxType.ScopedIdentifier
@@ -53,21 +63,24 @@ export default {
             : imports
         ).push({ doc, names });
       } else if (!child.isFirst) {
-        otherDeclarations.push(doc);
+        otherDeclarations.push(print(child));
       }
     }, "namedChildren");
 
-    parts.push(
-      ...[moduleImports, staticImports, imports]
-        .filter(imports => imports.length)
-        .map(imports =>
-          join(
-            hardline,
-            imports.sort(compareFqn).map(({ doc }) => doc)
-          )
-        ),
-      ...otherDeclarations
-    );
+    const importGroups = [moduleImports, staticImports, imports]
+      .filter(imports => imports.length)
+      .map(imports =>
+        join(
+          hardline,
+          imports.sort(compareFqn).map(({ doc }) => doc)
+        )
+      );
+
+    if (importGroups.length && importHeaderComments.length) {
+      importGroups[0] = [...importHeaderComments, importGroups[0]];
+    }
+
+    parts.push(...importGroups, ...otherDeclarations);
 
     return [...join([hardline, hardline], parts), hardline];
   },
